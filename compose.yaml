@@ -67,8 +67,8 @@ services:
   dbadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: vianney@rousset.com
-      PGADMIN_DEFAULT_PASSWORD: asdf
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_LISTEN_PORT: 80
     depends_on:
       - db
