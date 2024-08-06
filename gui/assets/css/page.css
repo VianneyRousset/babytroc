@@ -1,0 +1,81 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: min(100vw, 68rem);
+  margin-bottom: 4rem;
+}
+
+main.narrow {
+  width: min(100vw, 50rem);
+}
+
+section {
+  margin: 0rem 2rem;
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+}
+
+section.title {
+  align-items: center;
+}
+
+section.title h1 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: var(--neutral-950);
+  font-size: 3rem;
+  margin-top: 4rem;
+  margin-bottom: 0rem;
+  text-align: center;
+}
+
+section.title p {
+  text-align: center;
+  color: var(--neutral-700);
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+
+section>.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+section>.header h2 {
+  font-weight: normal;
+  color: var(--neutral-800);
+  margin: 0;
+}
+
+section>.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+section>.content.row {
+  flex-direction: row;
+}
+
+section .layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex-grow: 1;
+}
+
+
+@media only screen and (max-width: 50rem) {
+  section>.content.row {
+    flex-direction: column;
+  }
+}
