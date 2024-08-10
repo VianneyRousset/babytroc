@@ -45,6 +45,31 @@ services:
       - traefik.http.routers.gui.rule=PathPrefix(`/`)
       - traefik.http.services.gui.loadbalancer.server.port=3000
 
+  # backend api server
+  api:
+    environment:
+      DATABASE_URL: postgres://kindbaby:${POSTGRES_PASSWORD}@db:5432/kindbaby
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    build:
+      context: api/
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: api/
+        target: /usr/src/api/
+    depends_on:
+      - db
+      - images
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.entrypoints=app
+      - traefik.http.routers.api.rule=PathPrefix(`/api`)
+      - traefik.http.routers.api.middlewares=strip-api-prefix
+      - traefik.http.middlewares.strip-api-prefix.stripprefix.prefixes=/api
+      - traefik.http.services.api.loadbalancer.server.port=8080
+
   # images storage service
   images:
     image: hauxir/imgpush:latest

@@ -1,6 +1,9 @@
 # Keep .gitkeep
 !**/.gitkeep
 
+# Python
+**/__pycache__/
+
 # Data
 db/*
 images/*
