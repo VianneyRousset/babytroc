@@ -1,13 +1,23 @@
-from fastapi import FastAPI
-# from routers.user import router as router_user
-# from routers.item import router as router_item
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
+
+from routers.items import router as router_items
+from routers.users import router as router_users
+
+import db
 
 app = FastAPI()
 
-# app.include_router(router_user)
-# app.include_router(router_item)
+app.include_router(router_users)
+app.include_router(router_items)
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello"}
+class Login(BaseModel):
+    user: db.users.User
+
+
+@app.get("/login")
+async def login(request: Request) -> Login:
+    return Login(
+        user=db.users.alice,
+    )
