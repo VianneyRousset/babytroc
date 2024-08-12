@@ -23,11 +23,6 @@ services:
 
   # frontend server
   gui:
-    environment:
-      DATABASE_URL: postgres://kindbaby:${POSTGRES_PASSWORD}@db:5432/kindbaby
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
     build: 
       context: gui/
       dockerfile: Dockerfile
@@ -48,7 +43,7 @@ services:
   # backend api server
   api:
     environment:
-      DATABASE_URL: postgres://kindbaby:${POSTGRES_PASSWORD}@db:5432/kindbaby
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/kindbaby
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
@@ -113,6 +108,5 @@ services:
       - type: bind
         source: ./db/
         target: /var/lib/postgresql/
-    ports:
-      - 5432:5432
-
+    expose:
+      - 5432

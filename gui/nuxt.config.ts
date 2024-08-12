@@ -44,10 +44,6 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    postgresPassword: process.env.POSTGRES_PASSWORD,
-    jwtSecret: process.env.JWT_SECRET,
-    jwtIssuer: "urn:kindbaby:issuer",
-    jwtAudience: "urn:kindbaby:audience",
     hashingConfig: config.hashingConfig,
     public: {
       cookieDuration: 30 * 24 * 60 * 60,

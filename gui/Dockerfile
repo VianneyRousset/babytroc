@@ -5,8 +5,8 @@ FROM node:lts-alpine
 # Set working directory
 WORKDIR /usr/src/gui
 
-# Copy package.json, package-lock.json and prisma
-COPY package.json package-lock.json prisma ./
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
 
 RUN npm install --global typescript esrun
 
