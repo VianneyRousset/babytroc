@@ -1,4 +1,4 @@
 uvicorn==0.*
 fastapi[standard]==0.*
-SQLAlchemy==2.*
-psycopg2-binary
+sqlalchemy==2.*
+asyncpg

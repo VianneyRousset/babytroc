@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from typing import Optional
 
@@ -6,100 +5,21 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
-    String,
     func,
 )
 from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from sqlalchemy.orm import (
-    DeclarativeBase,
     Mapped,
     mapped_column,
     relationship,
 )
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+from .base import Base
+from typing import TYPE_CHECKING
 
-
-class NotFoundError(Exception):
-    pass
-
-
-class Base(DeclarativeBase):
-    pass
-
-
-class Item(Base):
-    __tablename__ = "items"
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        index=True,
-        autoincrement=True,
-    )
-    name: Mapped[str]
-    description: Mapped[Optional[str]]
-    creation_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-    )
-    owner_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("users.id"),
-    )
-    owner: Mapped["User"] = relationship(
-        "User",
-        back_populates="items",
-    )
-
-    loans: Mapped["Loan"] = relationship(
-        "Loan",
-        back_populates="item",
-        cascade="all, delete-orphan",
-        passive_deletes=True,
-    )
-    loan_requests: Mapped[list["LoanRequest"]] = relationship(
-        "LoanRequest",
-        back_populates="items",
-        cascade="all, delete",
-        passive_deletes=True,
-    )
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        index=True,
-        autoincrement=True,
-    )
-    email: Mapped[str] = mapped_column(
-        String,
-        unique=True,
-    )
-    name: Mapped[str]
-    password: Mapped[str]
-    creation_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-    )
-
-    items: Mapped[list["Item"]] = relationship(
-        "Item",
-        back_populates="owner",
-    )
-    borrowings: Mapped[list["Loan"]] = relationship(
-        "Loan",
-        back_populates="borrower",
-    )
-    borrowing_requests: Mapped[list["LoanRequest"]] = relationship(
-        "LoanRequest",
-        back_populates="borrower",
-        cascade="all, delete",
-        passive_deletes=True,
-    )
+if TYPE_CHECKING:
+    from .user import User
+    from .item import Item
 
 
 class LoanRequest(Base):
