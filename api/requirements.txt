@@ -2,3 +2,5 @@ uvicorn==0.*
 fastapi[standard]==0.*
 sqlalchemy==2.*
 asyncpg
+alembic
+ruff

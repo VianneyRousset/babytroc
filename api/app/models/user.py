@@ -26,18 +26,18 @@ class User(Base):
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
-        index=True,
         autoincrement=True,
     )
     email: Mapped[str] = mapped_column(
         String,
         unique=True,
+        index=True,
     )
     name: Mapped[str]
     password: Mapped[str]
     creation_date: Mapped[datetime] = mapped_column(
         DateTime,
-        default=func.now(),
+        server_default=func.now(),
     )
 
     items: Mapped[list["Item"]] = relationship(

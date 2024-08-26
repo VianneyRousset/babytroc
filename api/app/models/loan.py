@@ -1,25 +1,27 @@
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
     func,
+    UniqueConstraint,
+    text,
 )
-from sqlalchemy.dialects.postgresql import ExcludeConstraint
+from sqlalchemy.dialects.postgresql import ExcludeConstraint, TSRANGE
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship,
 )
+from asyncpg.types import Range
 
 from .base import Base
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .user import User
     from .item import Item
+    from .user import User
 
 
 class LoanRequest(Base):
@@ -44,7 +46,7 @@ class LoanRequest(Base):
 
     creation_date: Mapped[datetime] = mapped_column(
         DateTime,
-        default=func.now(),
+        server_default=func.now(),
     )
 
     item: Mapped["Item"] = relationship(
@@ -80,26 +82,20 @@ class Loan(Base):
         back_populates="loans",
     )
     borrower: Mapped["User"] = relationship(
-        "user",
+        "User",
         back_populates="borrowings",
     )
 
-    start_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=func.now(),
-        nullable=False,
-    )
-    end_date: Mapped[Optional[datetime]] = mapped_column(
-        DateTime,
-        default=None,
-        nullable=True,
+    during: Mapped[Range] = mapped_column(
+        TSRANGE,
+        server_default=text("tsrange(now(), NULL, '()')"),
     )
 
-    # Define the exclusion constraint
     __table_args__ = (
+        UniqueConstraint("borrower_id"),
         ExcludeConstraint(
-            (func.tstzrange(start_date, end_date, "[)"), "&&"),
             (item_id, "="),
-            name="no_overlapping_loans",
+            ("during", "&&"),
+            name="no_overlapping_date_ranges",
         ),
     )

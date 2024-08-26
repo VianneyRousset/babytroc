@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import (
     DateTime,
@@ -15,11 +15,9 @@ from sqlalchemy.orm import (
 
 from .base import Base
 
-from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
-    from .user import User
     from .loan import Loan, LoanRequest
+    from .user import User
 
 
 class Item(Base):
@@ -28,14 +26,13 @@ class Item(Base):
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,
-        index=True,
         autoincrement=True,
     )
     name: Mapped[str]
     description: Mapped[Optional[str]]
     creation_date: Mapped[datetime] = mapped_column(
         DateTime,
-        default=func.now(),
+        server_default=func.now(),
     )
     owner_id: Mapped[int] = mapped_column(
         Integer,
@@ -54,7 +51,7 @@ class Item(Base):
     )
     loan_requests: Mapped[list["LoanRequest"]] = relationship(
         "LoanRequest",
-        back_populates="items",
+        back_populates="item",
         cascade="all, delete",
         passive_deletes=True,
     )

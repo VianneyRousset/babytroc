@@ -1,0 +1,21 @@
+[tool.ruff]
+select = ["E", "F", "W"]
+extend-select = [
+  "ASYNC",
+  "B",
+  "C",
+  "E",
+  "ERA",
+  "EM",
+  "F",
+  "G",
+  "I",
+  "N",
+  "PT",
+  "PTH",
+  "RUF",
+  "S",
+  "TCH",
+  "TID",
+  "UP",
+]
