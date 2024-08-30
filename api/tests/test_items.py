@@ -1,24 +1,42 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy import inspect
+from app.models.item import Item as ItemDB
 
-from pprint import pprint
-from .seed import apply_seed
+
+async def get_db_items(db: AsyncSession) -> list:
+    return [{
+        "id": item.id,
+        "name": item.name,
+        "description": item.description,
+        "creation_date": item.creation_date.isoformat(),
+        } for item in await db.scalars(select(ItemDB))]
 
 
 @pytest.mark.usefixtures("_seed_db", scope="class")
-class TestItems:
-    @pytest.mark.run(order=1)
+class TestReadItem:
     @pytest.mark.asyncio(loop_scope="class")
-    async def test_get_items(self, client: AsyncClient, db: AsyncSession):
-        items = await client.get("/v1/items")
+    async def test_list_items(self, client: AsyncClient, db: AsyncSession):
 
-        pprint(items.json())
-        assert items.json() == False
+        resp = await client.get("/v1/items")
 
-    @pytest.mark.run(order=2)
-    @pytest.mark.asyncio(loop_scope="class")
-    async def test_create_item(self):
-        assert True
+        assert resp.status_code == 200, \
+        "GET request did not succeed"
+
+        api_items = resp.json()
+        db_items = await get_db_items(db)
+
+        assert len(api_items) == len(db_items), \
+        "Number of items in API response doesn't match database"
+
+        assert type(api_items) is list, \
+        "API response is not a list"
+
+        db_items = {item['id']: item for item in db_items}
+        api_items = {item['id']: item for item in api_items}
+
+        # compare items
+        assert db_items == api_items, \
+            "Mismatch in items between database and API response"
