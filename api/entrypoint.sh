@@ -26,7 +26,7 @@ set -eu
 
 # test mode
 if ${API_TEST_MODE}; then
-  pytest --color=yes
+  pytest --color=yes -vv
 
 # production mode
 else
