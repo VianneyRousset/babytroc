@@ -4,6 +4,7 @@ from app import models
 
 
 async def apply_seed(db: AsyncSession):
+
     # create users
     alice = models.user.User(
         id=0,

@@ -120,7 +120,7 @@ async def sessionmaker(db_engine: AsyncEngine) -> async_sessionmaker:
     return create_sessionmaker(db_engine)
 
 
-@pytest.fixture()
+@pytest.fixture
 async def db(sessionmaker: async_sessionmaker) -> AsyncSession:
     async with sessionmaker() as session:
         yield session
@@ -138,6 +138,7 @@ async def client(db_engine: AsyncEngine) -> AsyncClient:
             yield ac
 
 
-@pytest.fixture()
-async def _seed_db(db: AsyncSession):
-    await apply_seed(db)
+@pytest.fixture(scope="class")
+async def _seed_db(sessionmaker: async_sessionmaker) -> None:
+    async with sessionmaker() as session:
+        await apply_seed(session)
