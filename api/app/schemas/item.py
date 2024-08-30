@@ -8,11 +8,11 @@ from .user import User
 class Item(Base):
     id: int
     creation_date: datetime
-    owner: User
+    # owner: User
     name: str
     description: Optional[str] = None
-    image: str
-    is_available: bool
+    # image: str
+    # is_available: bool
 
 
 class PrivateItem(Item):

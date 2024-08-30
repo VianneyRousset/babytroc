@@ -1,3 +1,6 @@
 import os
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+POSTGRES_USER = os.environ["POSTGRES_USER"]
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+POSTGRES_PORT = os.environ["POSTGRES_PORT"]
+DATABASE_URL = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@db:{POSTGRES_PORT}/kindbaby"

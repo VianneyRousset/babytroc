@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from .api.v1 import router as v1_router
+from . import config
+from .app import create_app
 
-app = FastAPI()
-
-app.include_router(v1_router)
+app = create_app(
+    db_url=config.DATABASE_URL,
+)

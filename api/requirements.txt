@@ -1,6 +1,12 @@
 uvicorn==0.*
 fastapi[standard]==0.*
 sqlalchemy==2.*
+sqlalchemy-utils
 asyncpg
 alembic
 ruff
+
+pytest
+pytest-asyncio
+asgi-lifespan
+httpx
