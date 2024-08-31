@@ -5,9 +5,13 @@ from . import items, users
 __all__ = ["users", "items"]
 
 
-router = APIRouter(
-    prefix="/v1",
-)
+router = APIRouter()
 
-router.include_router(items.router)
-router.include_router(users.router)
+router.include_router(
+    router=items.router,
+    prefix="/items",
+)
+router.include_router(
+    router=users.router,
+    prefix="/users",
+)

@@ -13,6 +13,9 @@ def create_app(db_url: str) -> FastAPI:
     async def root(request: Request) -> str:
         return Response()
 
-    app.include_router(v1_router)
+    app.include_router(
+        router=v1_router,
+        prefix="/v1",
+    )
 
     return app
