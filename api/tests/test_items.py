@@ -15,9 +15,10 @@ async def get_db_items(db: AsyncSession) -> list:
         } for item in await db.scalars(select(ItemDB))]
 
 
-@pytest.mark.usefixtures("_seed_db", scope="class")
 class TestReadItem:
-    @pytest.mark.asyncio(loop_scope="class")
+
+    @pytest.mark.usefixtures("_seed_db")
+    @pytest.mark.asyncio
     async def test_list_items(self, client: AsyncClient, db: AsyncSession):
 
         resp = await client.get("/v1/items")

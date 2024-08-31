@@ -77,22 +77,22 @@ async def run_migrations(
         )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def postrgres_user() -> str:
     return os.environ["POSTGRES_USER"]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def postrgres_password() -> str:
     return os.environ["POSTGRES_PASSWORD"]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def postgres_port() -> str:
     return os.environ["POSTGRES_PORT"]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def postgres_url(
     postrgres_user: str, postrgres_password: str, postgres_port: str
 ) -> str:
@@ -101,12 +101,12 @@ async def postgres_url(
     )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def db_name(request: pytest.FixtureRequest) -> str:
-    return f"test-{request.cls.__name__}-{id(request.cls)}"
+    return f"test-{request.function.__qualname__}-{id(request.function)}"
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def db_engine(postgres_url: str, db_name: str) -> AsyncEngine:
     engine = await create_database(
         postgres_url=postgres_url,
@@ -115,7 +115,7 @@ async def db_engine(postgres_url: str, db_name: str) -> AsyncEngine:
     return engine
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def sessionmaker(db_engine: AsyncEngine) -> async_sessionmaker:
     return create_sessionmaker(db_engine)
 
@@ -126,7 +126,7 @@ async def db(sessionmaker: async_sessionmaker) -> AsyncSession:
         yield session
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def client(db_engine: AsyncEngine) -> AsyncClient:
     app = create_app(db_engine.sync_engine.url)
 
@@ -138,7 +138,7 @@ async def client(db_engine: AsyncEngine) -> AsyncClient:
             yield ac
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def _seed_db(sessionmaker: async_sessionmaker) -> None:
     async with sessionmaker() as session:
         await apply_seed(session)
