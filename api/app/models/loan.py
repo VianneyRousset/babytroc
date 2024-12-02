@@ -1,27 +1,37 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from asyncpg.types import Range
 from sqlalchemy import (
     DateTime,
     ForeignKey,
+    Index,
     Integer,
-    func,
     UniqueConstraint,
+    Enum,
+    func,
     text,
 )
-from sqlalchemy.dialects.postgresql import ExcludeConstraint, TSRANGE
+import enum
+from sqlalchemy.dialects.postgresql import TSRANGE, ExcludeConstraint
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship,
 )
-from asyncpg.types import Range
 
 from .base import Base
 
 if TYPE_CHECKING:
     from .item import Item
     from .user import User
+
+
+class LoanRequestState(enum.Enum):
+    pending = 1
+    accepted = 2
+    refused = 3
+    executed = 4
 
 
 class LoanRequest(Base):
@@ -43,12 +53,14 @@ class LoanRequest(Base):
         ),
         primary_key=True,
     )
-
     creation_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
     )
-
+    state: Mapped[LoanRequestState] = mapped_column(
+        Enum(LoanRequestState),
+        server_default=LoanRequestState.pending,
+    )
     item: Mapped["Item"] = relationship(
         "Item",
         back_populates="loan_requests",
@@ -98,4 +110,6 @@ class Loan(Base):
             ("during", "&&"),
             name="no_overlapping_date_ranges",
         ),
+        # optimize the queries using the loaner id
+        Index("ix_loan_item_owner", item.owner_id),
     )

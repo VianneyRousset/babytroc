@@ -1,3 +1,3 @@
-from . import item, loan, user
+from . import chat, item, loan, report, user
 
-__all__ = ["item", "loan", "user"]
+__all__ = ["chat", "item", "loan", "report", "user"]

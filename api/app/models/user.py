@@ -6,6 +6,7 @@ from sqlalchemy import (
     Integer,
     String,
     func,
+    text,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -33,8 +34,29 @@ class User(Base):
         unique=True,
         index=True,
     )
-    name: Mapped[str]
-    password: Mapped[str]
+    name: Mapped[str] = mapped_column(
+        String,
+    )
+    password: Mapped[str] = mapped_column(
+        String,
+    )
+    avatar_seed: Mapped[str] = mapped_column(
+        String,
+        server_default=func.md5(text("random()::text")),
+    )
+
+    liked_items: Mapped[list["Item"]] = mapped_column(
+        "Item",
+        secondary="ItemLike",
+        back_populates="likers",
+    )
+
+    bookmarked_items: Mapped[list["Item"]] = mapped_column(
+        "Item",
+        secondary="ItemBookmark",
+        back_populates="bookmarkers",
+    )
+
     creation_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
