@@ -1,3 +1,3 @@
-from . import base, item, loan, user
+from . import chat, item, loan, region, report, user
 
-__all__ = ["base", "item", "loan", "user"]
+__all__ = ["chat", "item", "loan", "region", "report", "user"]

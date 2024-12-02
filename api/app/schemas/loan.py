@@ -1,17 +1,34 @@
 from datetime import datetime
+from typing import Optional
 
 from .base import Base
-from .item import Item
-from .user import User
+from .chat import MessageRead
+from .item import ItemPreviewRead
+from .user import UserPreviewRead
 
 
-class LoanRequest(Base):
-    item: Item
-    borrower: User
-    creation_date: datetime
+class LoanRequestBase(Base):
+    pass
 
 
-class LoanRequestCreation(Base):
+class LoanRequestCreate(LoanRequestBase):
     item_id: int
-    borrower_id: int
-    creation_date: datetime
+
+
+class LoanRequestRead(LoanRequestBase):
+    id: int
+    item: ItemPreviewRead
+    borrower: UserPreviewRead
+    message: MessageRead
+
+
+class LoanBase(Base):
+    pass
+
+
+class LoanRead(LoanBase):
+    id: int
+    item: ItemPreviewRead
+    borrower: UserPreviewRead
+    start: datetime
+    end: Optional[datetime]
