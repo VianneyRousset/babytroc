@@ -1,13 +1,13 @@
-from datetime import datetime
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Body, Path, Request, status, WebSocket, Query
+from fastapi import APIRouter, Body, Path, Query, Request, WebSocket, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import database as db
 from app import services
-from app.schemas.chat import ChatsListRead, ChatRead, ChatMessageRead
+from app.report import ReportCreate
+from app.schemas.chat import ChatMessageRead, ChatRead, ChatsListRead
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ chat_message_id_annotation = Annotated[
 
 
 @router.get("/chats", status_code=status.HTTP_200_OK)
-async def read_client_chats_list(
+async def list_client_chats(
     request: Request,
     db: Session = Depends(db.get_session),
 ) -> ChatsListRead:
@@ -152,6 +152,10 @@ async def mark_client_chat_message_as_seen(
 async def report_client_chat(
     request: Request,
     chat_id: chat_id_annotation,
+    report_create: Annotated[
+        ReportCreate,
+        Body(title="Report fields."),
+    ],
     db: Session = Depends(db.get_session),
 ) -> ChatRead:
     """Report client's chat by id."""
@@ -162,4 +166,6 @@ async def report_client_chat(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,
+        reported_by_user_id=client_user_id,
+        report_create=report_create,
     )

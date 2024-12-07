@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import database as db
 from app import services
-from app.schemas.users import UserRead, UserUpdate
+from app.schemas.user import UserRead, UserUpdate
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ async def get_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.users.get_user_by_id(
+    return await services.user.get_user_by_id(
         db=db,
         user_id=client_user_id,
     )
@@ -39,7 +39,7 @@ async def update_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.users.update_user(
+    return await services.user.update_user(
         db=db,
         user_id=client_user_id,
         user_update=user_update,
@@ -55,7 +55,7 @@ async def delete_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    await services.users.delete_user(
+    await services.user.delete_user(
         db=db,
         user_id=client_user_id,
     )

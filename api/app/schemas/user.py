@@ -19,12 +19,12 @@ class UserPreviewRead(UserBase):
     id: int
     name: str
     avatar_seed: str
-    n_stars: int
-    n_likes: int
 
 
 class UserRead(UserPreviewRead):
     items: list["ItemPreviewRead"]
+    n_stars: int
+    n_likes: int
 
 
 class UserUpdate(UserBase):

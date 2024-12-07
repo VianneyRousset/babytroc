@@ -17,6 +17,7 @@ from sqlalchemy.orm import (
 from .base import Base
 
 if TYPE_CHECKING:
+    from .chat import Chat
     from .item import Item
     from .loan import Loan, LoanRequest
 
@@ -75,4 +76,9 @@ class User(Base):
         back_populates="borrower",
         cascade="all, delete",
         passive_deletes=True,
+    )
+    chats: Mapped[list["Chat"]] = relationship(
+        "Chat",
+        secondary="chat_participants",
+        back_populates="participants",
     )

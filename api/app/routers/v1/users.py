@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request, status
+from fastapi import APIRouter, Body, Query, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.schemas.report import ReportCreate
 from app.schemas.user import UserRead
 
 router = APIRouter()
@@ -29,7 +30,7 @@ async def get_user_by_id(
 
     services.auth.check_auth(request)
 
-    return await services.users.get_user_by_id(
+    return await services.user.get_user_by_id(
         db=db,
         user_id=user_id,
     )
@@ -39,14 +40,19 @@ async def get_user_by_id(
 async def report_user(
     request: Request,
     user_id: user_id_annotation,
+    report_create: Annotated[
+        ReportCreate,
+        Body(title="Report fields."),
+    ],
     db: Session = Depends(get_db_session),
 ):
     """Report user with `user_id`."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.users.report_user(
+    return await services.user.report_user(
         db=db,
         user_id=user_id,
-        client_user_id=client_user_id,
+        reported_by_user_id=client_user_id,
+        report_create=report_create,
     )

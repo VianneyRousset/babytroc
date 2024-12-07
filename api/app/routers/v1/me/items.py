@@ -41,7 +41,7 @@ async def create_client_item(
         Body(title="Fields for the item creation."),
     ],
     db: Session = Depends(get_db_session),
-) -> ItemRead:
+) -> ItemPreviewRead:
     """Create an item owned by the client."""
 
     client_user_id = services.auth.check_auth(request)
@@ -170,7 +170,9 @@ async def list_client_item_loan_requests(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
-        is_active=active,
+        active=active,
+        started_before_loan_request_id=before,
+        count=count,
     )
 
 
@@ -188,7 +190,7 @@ async def get_client_item_loan_request_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.get_user_item_loan_request_by_id(
+    return await services.loan.get_user_item_loan_request_by_id(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -205,12 +207,12 @@ async def accept_client_item_loan_request(
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
-):
+) -> LoanRequestRead:
     """Accept client's item loan request."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.accept_user_item_loan_request(
+    return await services.loan.accept_user_item_loan_request(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -227,12 +229,12 @@ async def reject_client_item_loan_request(
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
-):
+) -> LoanRequestRead:
     """Reject client's item loan request."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.reject_user_item_loan_request(
+    return await services.loan.reject_user_item_loan_request(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,

@@ -44,7 +44,7 @@ async def list_client_saved_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.list_user_saved_items(
+    return await services.saved.list_items_saved_by_user(
         db=db,
         user_id=client_user_id,
         saved_before_item_id=before,

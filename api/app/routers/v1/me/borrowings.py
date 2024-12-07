@@ -40,10 +40,10 @@ async def list_client_borrowings(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.list_user_borrowings(
+    return await services.loan.list_user_borrowings(
         db=db,
         user_id=client_user_id,
-        is_active=active,
-        started_before_item_id=before,
+        active=active,
+        started_before_loan_id=before,
         count=count,
     )

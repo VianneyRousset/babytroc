@@ -23,7 +23,7 @@ item_id_annotation = (
 
 
 @router.get("/liked", status_code=status.HTTP_200_OK)
-async def list_client_liked_items(
+async def list_items_liked_by_client(
     request: Request,
     liked_before: Annotated[
         Optional[int],
@@ -36,15 +36,16 @@ async def list_client_liked_items(
         Query(
             title="Maximum number of items to return",
             ge=0,
+            le=1024,
         ),
-    ] = None,
+    ] = 64,
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
     """List client liked items ordered by save date."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.list_user_liked_items(
+    return await services.items.list_items_liked_by_user(
         db=db,
         user_id=client_user_id,
         liked_before_item_id=liked_before,
@@ -57,12 +58,12 @@ async def add_item_to_client_liked_items(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
-) -> ItemRead:
+):
     """Add the specified item to client liked items."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.add_item_to_user_liked_items(
+    return await services.items.add_item_to_user_liked_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,
@@ -96,7 +97,7 @@ async def remove_item_from_client_liked_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.remove_item_from_user_liked_items(
+    services.items.remove_item_from_user_liked_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,

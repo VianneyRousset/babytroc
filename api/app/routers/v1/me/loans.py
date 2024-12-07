@@ -43,7 +43,7 @@ async def list_client_loans(
     return await services.loans.list_user_loans(
         db=db,
         user_id=client_user_id,
-        is_active=active,
+        active=active,
         started_before_item_id=before,
         count=count,
     )

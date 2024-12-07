@@ -15,7 +15,7 @@ loan_request_id_annotation = (
     Annotated[
         int,
         Path(
-            title="The ID of the loan request",
+            title="The ID of the loan request.",
             ge=0,
         ),
     ],
@@ -37,7 +37,7 @@ async def create_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.create_loan_request(
+    return services.loan.create_loan_request(
         db=db,
         borrower_user_id=client_user_id,
         loan_request_create=loan_request_create,
@@ -45,18 +45,24 @@ async def create_loan_request(
 
 
 @router.get("/requests", status_code=status.HTTP_200_OK)
-async def list_client_requests(
+async def list_client_loan_requests(
     request: Request,
+    active: Annotated[
+        Optional[bool],
+        Query(
+            title="Select only requests that have not been canceled.",
+        ),
+    ] = None,
     before: Annotated[
         Optional[int],
         Query(
-            title="Select all requests with creation date before the item with this id",
+            title="Select all requests with creation date before this loan_request_id.",
         ),
     ] = None,
     count: Annotated[
         Optional[int],
         Query(
-            title="Maximum number of requests to return",
+            title="Maximum number of requests to return.",
             ge=0,
         ),
     ] = None,
@@ -66,10 +72,10 @@ async def list_client_requests(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.list_user_loan_requests(
+    return await services.loan.list_user_loan_requests(
         db=db,
         user_id=client_user_id,
-        created_before_item_id=before,
+        created_before_loan_request_id=before,
         count=count,
     )
 
@@ -84,15 +90,15 @@ async def get_client_loan_request_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.get_user_loan_request_by_id(
+    return await services.loan.get_loan_request_by_id(
         db=db,
-        user_id=client_user_id,
         loan_request_id=loan_request_id,
+        borrower_user_id=client_user_id,
     )
 
 
 @router.delete("/requests/{loan_request_id}", status_code=status.HTTP_200_OK)
-async def delete_client_loan_request(
+async def cancel_client_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
@@ -101,24 +107,27 @@ async def delete_client_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.cancel_user_loan_request(
+    return await services.loan.cancel_loan_request(
         db=db,
         user_id=client_user_id,
         loan_request_id=loan_request_id,
     )
 
 
-@router.post("/request/{loan_request_id}/confirm", status_code=status.HTTP_200_OK)
+@router.post("/request/{loan_request_id}/execute", status_code=status.HTTP_200_OK)
 async def create_loan_from_client_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
 ) -> LoanRead:
-    """Create a loan from the loan request."""
+    """Create a loan from the loan request.
+
+    The loan request state must be `accepted`.
+    """
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.loans.create_loan_from_user_loan_request(
+    return services.loan.create_loan_from_loan_request(
         db=db,
         user_id=client_user_id,
         loan_request_id=loan_request_id,

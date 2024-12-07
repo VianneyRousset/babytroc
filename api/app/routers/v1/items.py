@@ -1,13 +1,13 @@
-from datetime import datetime
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Path, Query, Request, status
+from fastapi import APIRouter, Body, Path, Query, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
 from app.schemas.item import ItemPreviewRead, ItemRead
+from app.schemas.report import ReportCreate
 
 router = APIRouter()
 
@@ -69,10 +69,11 @@ async def list_items(
 ) -> list[ItemPreviewRead]:
     """List items ordered by inversed creation date."""
 
-    services.auth.check_auth(request)
+    client_user_id = services.auth.check_auth(request)
 
-    return await services.items.list_items(
+    return await services.item.list_items(
         db=db,
+        client_user_id=client_user_id,
         terms=terms,
         created_before_item_id=before,
         count=count,
@@ -89,10 +90,11 @@ async def get_item_by_id(
 ) -> ItemRead:
     """Get item."""
 
-    services.auth.check_auth(request)
+    client_user_id = services.auth.check_auth(request)
 
-    return await services.items.get_item_by_id(
+    return await services.item.get_item_by_id_for_client(
         db=db,
+        client_user_id=client_user_id,
         item_id=item_id,
     )
 
@@ -101,14 +103,19 @@ async def get_item_by_id(
 async def report_item(
     request: Request,
     item_id: item_id_annotation,
+    report_create: Annotated[
+        ReportCreate,
+        Body(title="Report fields."),
+    ],
     db: Session = Depends(get_db_session),
 ):
     """Report the specified item."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.report_item(
+    return services.item.report_item(
         db=db,
         item_id=item_id,
         client_user_id=client_user_id,
+        report_create=report_create,
     )

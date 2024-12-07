@@ -4,15 +4,14 @@ from typing import TYPE_CHECKING
 from asyncpg.types import Range
 from sqlalchemy import (
     DateTime,
+    Enum,
     ForeignKey,
     Index,
     Integer,
     UniqueConstraint,
-    Enum,
     func,
     text,
 )
-import enum
 from sqlalchemy.dialects.postgresql import TSRANGE, ExcludeConstraint
 from sqlalchemy.orm import (
     Mapped,
@@ -20,18 +19,13 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from app.enums import LoanRequestState
+
 from .base import Base
 
 if TYPE_CHECKING:
     from .item import Item
     from .user import User
-
-
-class LoanRequestState(enum.Enum):
-    pending = 1
-    accepted = 2
-    refused = 3
-    executed = 4
 
 
 class LoanRequest(Base):

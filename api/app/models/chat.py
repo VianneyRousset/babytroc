@@ -1,4 +1,3 @@
-import enum
 from datetime import datetime
 
 from sqlalchemy import (
@@ -18,7 +17,12 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from app.enums import ChatMessageType
+
 from .base import Base
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class Chat(Base):
@@ -37,9 +41,10 @@ class Chat(Base):
         ForeignKey("items.id"),
     )
 
-    borrower_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("users.id"),
+    participants: Mapped[list["User"]] = relationship(
+        "User",
+        secondary="chat_participants",
+        back_populates="chats",
     )
 
     messages: Mapped["ChatMessage"] = relationship(
@@ -56,14 +61,20 @@ class Chat(Base):
     )
 
 
-class ChatMessageType(enum.Enum):
-    text = 1
-    request_accept = 2
-    request_reject = 3
-    loan_start = 4
-    loan_stop = 5
-    not_available = 6
-    available = 7
+class ChatParticipant(Base):
+    __tablename__ = "chat_participants"
+
+    chat_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("chats.id"),
+        primary_key=True,
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("users.id"),
+        primary_key=True,
+    )
 
 
 class ChatMessage(Base):

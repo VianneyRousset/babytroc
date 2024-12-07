@@ -26,6 +26,7 @@ def upgrade() -> None:
         sa.Column(
             "id",
             sa.Integer(),
+            sa.Identity(always=True),
             autoincrement=True,
             nullable=False,
         ),
@@ -47,7 +48,13 @@ def upgrade() -> None:
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
     op.create_table(
         "items",
-        sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column(
+            "id",
+            sa.Integer(),
+            sa.Identity(always=True),
+            autoincrement=True,
+            nullable=False,
+        ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("description", sa.String(), nullable=True),
         sa.Column(

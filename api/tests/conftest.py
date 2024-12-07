@@ -1,4 +1,6 @@
 import os
+import random
+import string
 from pathlib import Path
 
 import pytest
@@ -17,6 +19,11 @@ import alembic.config
 from app.app import create_app
 
 from .seed import apply_seed
+
+
+def random_string(length):
+    letters = string.ascii_lowercase + " " * 10
+    return "".join(random.choice(letters) for i in range(length))
 
 
 async def create_database(postgres_url: str, db_name: str) -> AsyncEngine:

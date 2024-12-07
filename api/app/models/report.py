@@ -1,4 +1,3 @@
-import enum
 from datetime import datetime
 
 from sqlalchemy import (
@@ -15,13 +14,9 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
+from app.enums import ReportType
+
 from .base import Base
-
-
-class ReportType(enum.Enum):
-    user = 1
-    item = 2
-    chat = 3
 
 
 class Report(Base):

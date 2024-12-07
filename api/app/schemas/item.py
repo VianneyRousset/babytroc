@@ -53,13 +53,13 @@ class ItemPreviewRead(ItemBase):
     description: str
     images: list[str]
     targeted_age: list[int | None]
-    available: bool
-    liked_by_client: bool
-    bookmarked_by_client: bool
+    regions: list[RegionRead]
 
 
 class ItemRead(ItemPreviewRead):
-    regions: list[RegionRead]
+    available: bool
+    liked_by_client: bool
+    bookmarked_by_client: bool
     owner: UserRead
     number_of_likes: int
     borrowings_from_client: list[LoanPreviewRead]

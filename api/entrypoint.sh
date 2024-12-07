@@ -26,9 +26,13 @@ set -eu
 
 # test mode
 if ${API_TEST_MODE}; then
-  pytest --color=yes -vv
+  pytest --color=yes -n 8 -vv
 
 # production mode
 else
-  uvicorn ${API_APP} --host=${API_HOST} --port=${API_PORT}
+  uvicorn ${API_APP} \
+    --host=${API_HOST} \
+    --port=${API_PORT} \
+    --root-path ${API_PREFIX}
+
 fi
