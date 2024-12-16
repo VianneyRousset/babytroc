@@ -3,21 +3,31 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.enums import ReportType
 from app.schemas.report import ReportCreate
-from app.schemas.user import UserRead, UserUpdate
+from app.schemas.user import UserPreviewRead, UserRead, UserUpdate
 
 
-async def get_user_by_id(
+async def list_users(
+    db: Session,
+) -> list[UserPreviewRead]:
+    """List all users."""
+
+    users = await database.user.list_users(db=db)
+
+    return [UserPreviewRead.from_orm(user) for user in users]
+
+
+async def get_user(
     db: Session,
     user_id: int,
 ) -> UserRead:
-    """Get user by user id."""
+    """Get user with ID `user_id`."""
 
-    user = await database.user.get_user_by_id(
+    user = await database.user.get_user(
         db=db,
         user_id=user_id,
     )
 
-    return UserRead.model_validate(user)
+    return UserRead.from_orm(user)
 
 
 async def update_user(
@@ -34,13 +44,13 @@ async def update_user(
         avatar_seed=user_update.avatar_seed,
     )
 
-    return UserRead.model_validate(user)
+    return UserRead.from_orm(user)
 
 
 async def delete_user(
     db: Session,
     user_id: int,
-):
+) -> None:
     """Mark user as deleted."""
 
     await database.user.delete_user(
@@ -54,7 +64,7 @@ async def report_user(
     user_id: int,
     reported_by_user_id: int,
     report_create: ReportCreate,
-):
+) -> None:
     """Create a report for the user with `user_id`.
 
     A maximum of info about the user is saved as well as the given client provided

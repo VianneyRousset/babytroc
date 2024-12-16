@@ -20,11 +20,29 @@ class UserPreviewRead(UserBase):
     name: str
     avatar_seed: str
 
+    @classmethod
+    def from_orm(cls, user):
+        return cls(
+            id=user.id,
+            name=user.name,
+            avatar_seed=user.avatar_seed,
+        )
+
 
 class UserRead(UserPreviewRead):
     items: list["ItemPreviewRead"]
     n_stars: int
     n_likes: int
+
+    @classmethod
+    def from_orm(cls, user):
+        return cls(
+            id=user.id,
+            name=user.name,
+            avatar_seed=user.avatar_seed,
+            n_stars=user.n_starts,
+            n_likes=user.n_likes,
+        )
 
 
 class UserUpdate(UserBase):
