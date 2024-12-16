@@ -1,6 +1,5 @@
 from typing import Optional
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.clients import database
@@ -61,22 +60,6 @@ async def get_loan_request_by_id(
         borrower_user_id=borrower_user_id,
     )
 
-    # raise 404 if not found
-    if loan_request is None:
-        if borrower_user_id is not None:
-            detail = (
-                f"Loan request with id {loan_request_id!r} and borrower user id "
-                f"{borrower_user_id!r} not found."
-            )
-
-        else:
-            detail = f"Loan request with id {loan_request_id!r} not found."
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=detail,
-        )
-
     return LoanRequestRead.model_validate(loan_request)
 
 
@@ -96,22 +79,6 @@ async def cancel_loan_request(
         loan_request_id=loan_request_id,
         borrower_user_id=borrower_user_id,
     )
-
-    # raise 404 if not found
-    if loan_request is None:
-        if borrower_user_id is not None:
-            detail = (
-                f"Loan request with id {loan_request_id!r} and borrower user id "
-                f"{borrower_user_id!r} not found."
-            )
-
-        else:
-            detail = f"Loan request with id {loan_request_id!r} not found."
-
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=detail,
-        )
 
     return LoanRequestRead.model_validate(loan_request)
 

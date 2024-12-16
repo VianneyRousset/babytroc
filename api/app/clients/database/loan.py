@@ -7,7 +7,7 @@ from app.errors.exception import LoanNotFoundError, LoanRequestNotFoundError
 from app.models.loan import Loan, LoanRequest
 
 
-def insert_loan_request(
+async def insert_loan_request(
     db: Session,
     loan_request: LoanRequest,
 ) -> LoanRequest:
@@ -21,13 +21,13 @@ def insert_loan_request(
     """
 
     db.add(loan_request)
-    await db.commit()
+    await db.flush()
     await db.refresh(loan_request)
 
     return loan_request
 
 
-def delete_loan_request(db: Session, item_id: int, owner_id: int) -> None:
+async def delete_loan_request(db: Session, item_id: int, owner_id: int) -> None:
     """Delete the loan request from database."""
 
     key = {
@@ -41,11 +41,11 @@ def delete_loan_request(db: Session, item_id: int, owner_id: int) -> None:
         raise LoanRequestNotFoundError(key)
 
     await db.delete(loan_request)
-    await db.commit()
+    await db.flush()
     await db.refresh(loan_request)
 
 
-def insert_loan(db: Session, loan: Loan) -> Loan:
+async def insert_loan(db: Session, loan: Loan) -> Loan:
     """
     Create a loan.
 
@@ -55,13 +55,13 @@ def insert_loan(db: Session, loan: Loan) -> Loan:
     """
 
     db.add(loan)
-    await db.commit()
+    await db.flush()
     await db.refresh(loan)
 
     return loan
 
 
-def get_owner_loans(db: Session, owner_id: int) -> list[Loan]:
+async def get_owner_loans(db: Session, owner_id: int) -> list[Loan]:
     """
     Get all loans where the item is owner by `owner_id`.
 
@@ -74,7 +74,7 @@ def get_owner_loans(db: Session, owner_id: int) -> list[Loan]:
     return await select(Loan).where(Loan.item.owner_id == owner_id).all()
 
 
-def update_loan(
+async def update_loan(
     db: Session,
     loan_id: int,
     **attributes: Mapping[str, Any],
@@ -96,7 +96,7 @@ def update_loan(
     for key, value in attributes.items():
         setattr(loan, key, value)
 
-    await db.commit()
+    await db.flush()
     await db.refresh(loan)
 
     return loan

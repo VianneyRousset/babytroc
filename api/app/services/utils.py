@@ -1,5 +1,8 @@
+from sqlalchemy.orm import Session
+
 from app import config
-from app.clients import dicebear
+from app.clients import database, dicebear
+from app.schemas.item import RegionRead
 
 
 async def generate_avatar(
@@ -16,3 +19,14 @@ async def generate_avatar(
         bg=config.avatar.bg,
         fg=config.avatar.fg,
     )
+
+
+async def list_regions(
+    db: Session,
+) -> list[RegionRead]:
+    """List all regions."""
+
+    return [
+        RegionRead.from_orm(region)
+        for region in await database.item.list_regions(db=db)
+    ]

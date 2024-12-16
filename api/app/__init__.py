@@ -1,8 +1,8 @@
-from . import config, database, main, models, routers, schemas, services, utils
+from . import config, clients, main, models, routers, schemas, services, utils
 
 __all__ = [
     "config",
-    "database",
+    "clients",
     "main",
     "models",
     "routers",

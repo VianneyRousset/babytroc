@@ -13,5 +13,5 @@ def create_session_maker(db_url: str) -> async_sessionmaker:
 
 
 async def get_session(request: Request) -> AsyncSession:
-    async with request.app.state.db_session_maker() as session:
+    async with request.app.state.db_session_maker.begin() as session:
         yield session

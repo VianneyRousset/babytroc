@@ -1,9 +1,12 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from app.enums import ChatMessageType
 
 from .base import Base
-from .user import UserPreviewRead
+
+if TYPE_CHECKING:
+    from .user import UserPreviewRead
 
 
 class ChatBase(Base):
@@ -17,7 +20,7 @@ class ChatListRead(ChatBase):
 
 class ChatRead(ChatBase):
     id: int
-    borrower: UserPreviewRead
+    borrower: "UserPreviewRead"
     client_id: int
 
 

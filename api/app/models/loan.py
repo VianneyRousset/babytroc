@@ -12,7 +12,7 @@ from sqlalchemy import (
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import TSRANGE, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -21,39 +21,33 @@ from sqlalchemy.orm import (
 
 from app.enums import LoanRequestState
 
-from .base import Base
+from .base import Base, IntegerIdentifier, CreationDate
 
 if TYPE_CHECKING:
     from .item import Item
     from .user import User
 
 
-class LoanRequest(Base):
-    __tablename__ = "loan_requests"
+class LoanRequest(IntegerIdentifier, CreationDate, Base):
+    __tablename__ = "loan_request"
 
     item_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
-            "items.id",
+            "item.id",
             ondelete="CASCADE",
         ),
-        primary_key=True,
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
-            "users.id",
+            "user.id",
             ondelete="CASCADE",
         ),
-        primary_key=True,
-    )
-    creation_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
     )
     state: Mapped[LoanRequestState] = mapped_column(
         Enum(LoanRequestState),
-        server_default=LoanRequestState.pending,
+        # server_default=LoanRequestState.pending,
     )
     item: Mapped["Item"] = relationship(
         "Item",
@@ -65,19 +59,18 @@ class LoanRequest(Base):
     )
 
 
-class Loan(Base):
-    __tablename__ = "loans"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+class Loan(IntegerIdentifier, Base):
+    __tablename__ = "loan"
 
     item_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("items.id"),
+        ForeignKey("item.id"),
+        index=True,
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
-            "users.id",
+            "user.id",
             ondelete="SET NULL",
         ),
         nullable=True,
@@ -93,17 +86,18 @@ class Loan(Base):
     )
 
     during: Mapped[Range] = mapped_column(
-        TSRANGE,
-        server_default=text("tsrange(now(), NULL, '()')"),
+        TSTZRANGE,
+        index=True,
+        server_default=text("tstzrange(now(), 'infinity', '()')"),
     )
 
     __table_args__ = (
-        UniqueConstraint("borrower_id"),
+        UniqueConstraint(borrower_id),
         ExcludeConstraint(
             (item_id, "="),
-            ("during", "&&"),
+            (during, "&&"),
             name="no_overlapping_date_ranges",
         ),
         # optimize the queries using the loaner id
-        Index("ix_loan_item_owner", item.owner_id),
+        # Index("ix_loan_item_owner", "item.owner_id"),
     )

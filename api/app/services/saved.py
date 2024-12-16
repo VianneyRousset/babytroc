@@ -81,14 +81,14 @@ async def get_user_saved_item_by_id(
     return ItemRead.model_validate(item)
 
 
-async def remove_item_from_user_like_items(
+async def remove_item_from_user_saved_items(
     db: Session,
     user_id: int,
     item_id: int,
 ):
-    """Remove item from user like items."""
+    """Remove item from user saved items."""
 
-    await database.item.delete_item_like(
+    await database.item.delete_item_save(
         db=db,
         user_id=user_id,
         item_id=item_id,

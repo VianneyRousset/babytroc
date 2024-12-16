@@ -4,7 +4,6 @@ from sqlalchemy import (
     DateTime,
     Enum,
     ForeignKey,
-    Identity,
     Integer,
     String,
     func,
@@ -16,19 +15,11 @@ from sqlalchemy.orm import (
 
 from app.enums import ReportType
 
-from .base import Base
+from .base import Base, CreationDate, IntegerIdentifier
 
 
-class Report(Base):
-    __tablename__ = "reports"
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        Identity(alway=True),
-        primary_key=True,
-        index=True,
-        autoincrement=True,
-    )
+class Report(IntegerIdentifier, CreationDate, Base):
+    __tablename__ = "report"
 
     description: Mapped[str] = mapped_column(
         String,
@@ -40,7 +31,7 @@ class Report(Base):
 
     created_by: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("users.id"),
+        ForeignKey("user.id"),
     )
 
     creation_date: Mapped[datetime] = mapped_column(

@@ -3,36 +3,39 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app import domain
-from app.client import database
+from app.clients import database
 from app.enums import ReportType
+from app.models.item import Item
 from app.schemas.item import ItemCreate, ItemPreviewRead, ItemRead, ItemUpdate
 from app.schemas.report import ReportCreate
 
 
 async def create_item(
     db: Session,
-    owner_user_id: int,
+    owner_id: int,
     item_create: ItemCreate,
 ) -> ItemPreviewRead:
     """Create a new item in the database."""
 
-    item = await database.item.insert_item(
+    # TODO index data in search engine
+    item = await database.item.create_item(
         db=db,
-        owner_id=owner_user_id,
         name=item_create.name,
         description=item_create.description,
+        regions=item_create.regions,
+        owner_id=owner_id,
         images=item_create.images,
         targeted_age=item_create.targeted_age,
-        regions=item_create.regions,
-        blocked=item_create.regions,
+        blocked=item_create.blocked,
+        load_relationships=["images"],
     )
 
-    return ItemPreviewRead.model_validate(item)
+    return ItemPreviewRead.from_orm(item)
 
 
 async def list_items(
     db: Session,
-    terms: Optional[list[str]],
+    terms: Optional[list[str]] = None,
     create_before_item_id: Optional[int] = None,
     count: Optional[int] = 64,
     targeted_age: Optional[list[int]] = None,
@@ -57,23 +60,21 @@ async def list_items(
     """
 
     # search in db
-    items = await database.item.search_items(
+    # TODO use quickwit or elasticsearch here
+    items = await database.item.list_items(
         db=db,
         terms=terms,
-        create_before_item_id=create_before_item_id,
+        created_before_item_id=create_before_item_id,
         count=count,
         targeted_age=targeted_age,
         regions=regions,
+        load_relationships=["images"],
     )
 
-    for item in items:
-        # replace images by a list of image str ids (image urls)
-        item.images = [img.id for img in item.images]
-
-    return [ItemPreviewRead.model_validate(item) for item in items]
+    return [ItemPreviewRead.from_orm(item) for item in items]
 
 
-async def get_item_by_id_for_client(
+async def get_item(
     db: Session,
     item_id: int,
     client_user_id: int,
@@ -88,14 +89,10 @@ async def get_item_by_id_for_client(
 
     # get item from databse
     # TODO replace client concept with a non-client concept
-    item = await database.item.get_item_by_id_for_client(
+    item = await database.item.get_item_by_id(
         db=db,
         item_id=item_id,
-        client_user_id=client_user_id,
     )
-
-    # replace images by a list of image str ids (image urls)
-    item.images = [img.id for img in item.images]
 
     # compute if the item is available
     item.available = domain.is_item_available(
@@ -114,7 +111,7 @@ async def get_item_by_id_for_client(
 async def get_user_item_by_id_for_client(
     db: Session,
     item_id: int,
-    owner_user_id: int,
+    owner_id: int,
     client_user_id: int,
 ) -> ItemRead:
     """Get item by id tuned for the given client user id.
@@ -124,7 +121,7 @@ async def get_user_item_by_id_for_client(
     client is given. If the client is the owner of the item, the list of loans as well
     as the blocked status are given.
 
-    The item must be owned by user with `owner_user_id`.
+    The item must be owned by user with `owner_id`.
     """
 
     # get item from databse
@@ -132,7 +129,7 @@ async def get_user_item_by_id_for_client(
     item = await database.item.get_item_by_id_for_client(
         db=db,
         item_id=item_id,
-        owner_id=owner_user_id,
+        owner_id=owner_id,
         client_user_id=client_user_id,
     )
 
@@ -155,11 +152,11 @@ async def get_user_item_by_id_for_client(
 
 async def list_user_items(
     db: Session,
-    owner_user_id: int,
+    owner_id: int,
     create_before_item_id: int,
     count: int,
 ) -> list[ItemPreviewRead]:
-    """List items ownned by user with `user_id`.
+    """List items owned by user with `user_id`.
 
     If `create_before_item_id` is provided, only items created before that item id will
     be returned.
@@ -168,9 +165,9 @@ async def list_user_items(
     """
 
     # search in db
-    items = await database.item.search_items(
+    items = await database.item.list_items(
         db=db,
-        owner_id=owner_user_id,
+        owner_id=owner_id,
         create_before_item_id=create_before_item_id,
         count=count,
     )
@@ -182,15 +179,15 @@ async def list_user_items(
 
 async def update_user_item(
     db: Session,
-    owner_user_id: int,
+    owner_id: int,
     item_id: int,
     item_update: ItemUpdate,
 ) -> ItemPreviewRead:
-    """Update item owned by `owner_user_id`."""
+    """Update item owned by `owner_id`."""
 
     item = await database.item.update_user_item(
         db=db,
-        owner_id=owner_user_id,
+        owner_id=owner_id,
         name=item_update.name,
         description=item_update.description,
         images=item_update.images,
@@ -202,16 +199,19 @@ async def update_user_item(
     return ItemPreviewRead.model_validate(item)
 
 
-async def delete_user_item(
+async def delete_item(
     db: Session,
-    owner_user_id: int,
     item_id: int,
+    owner_id: Optional[int] = None,
 ):
-    """Delete item owned by `owner_user_id`."""
+    """Delete the item with ID `item_id`.
 
-    await database.item.delete_user_item(
+    If `owner_id` is provided, the item must be owned by the user with this ID.
+    """
+
+    await database.item.delete_item(
         db=db,
-        owner_id=owner_user_id,
+        owner_id=owner_id,
         item_id=item_id,
     )
 

@@ -34,7 +34,7 @@ class NotFoundError(APIError):
         **kwargs,
     ):
         super().__init__(
-            message=f"{datatype.capitalize()} with '{key!r}' not found.",
+            message=f"{datatype.capitalize()} with {key!r} not found.",
             **kwargs,
         )
 
@@ -99,5 +99,37 @@ class UserNotFoundError(NotFoundError, UserError):
     def __init__(self, key: Mapping[str, Any], **kwargs):
         super().__init__(
             datatype="user",
+            key=key,
+        )
+
+
+class RegionError(Exception):
+    """Exception related to a region."""
+
+    pass
+
+
+class RegionNotFoundError(NotFoundError, RegionError):
+    """Exception raised when a region is not found."""
+
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="region",
+            key=key,
+        )
+
+
+class ItemImageError(Exception):
+    """Exception related to an item image."""
+
+    pass
+
+
+class ItemImageNotFoundError(NotFoundError, ItemImageError):
+    """Exception raised when an item image is not found."""
+
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="image",
             key=key,
         )

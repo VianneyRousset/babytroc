@@ -43,7 +43,7 @@ async def delete_user(
 ):
     """Mark user as deleted."""
 
-    await database.delete_user(
+    await database.user.delete_user(
         db=db,
         user_id=user_id,
     )
