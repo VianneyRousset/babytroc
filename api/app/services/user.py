@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.clients import database
 from app.enums import ReportType
+from app.models.user import User
+from app.models.item import Item
 from app.schemas.report import ReportCreate
 from app.schemas.user import UserPreviewRead, UserRead, UserUpdate
 
@@ -25,6 +27,8 @@ async def get_user(
     user = await database.user.get_user(
         db=db,
         user_id=user_id,
+        load_attributes=[User.likes_count, User.items],
+        options=[selectinload(User.items).selectinload(Item.images)],
     )
 
     return UserRead.from_orm(user)
@@ -38,10 +42,7 @@ async def update_user(
     """Update user fields."""
 
     user = await database.user.update_user(
-        db=db,
-        user_id=user_id,
-        name=user_update.name,
-        avatar_seed=user_update.avatar_seed,
+        db=db, user_id=user_id, **user_update.model_dump(exclude_none=True)
     )
 
     return UserRead.from_orm(user)

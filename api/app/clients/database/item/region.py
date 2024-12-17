@@ -40,15 +40,16 @@ async def insert_region(
 async def list_regions(
     db: Session,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> list[Region]:
     """List regions from database."""
 
     stmt = select(Region)
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=Region,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     return (await db.execute(stmt)).unique().scalars().all()
@@ -58,15 +59,16 @@ async def get_region(
     db: Session,
     region_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> Region:
     """Get region with `region_id` from database."""
 
     stmt = select(Region).where(Region.id == region_id)
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=Region,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     try:

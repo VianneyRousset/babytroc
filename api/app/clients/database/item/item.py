@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import Any, Mapping, Optional
 
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.clients.database import dbutils
 from app.clients.database.user import get_user
 from app.errors.exception import ItemNotFoundError
 from app.models.item import Item, ItemImage
+from app.models.user import User
 
 from .region import get_region
 
@@ -23,7 +24,8 @@ async def create_item(
     images: list[str],
     regions: list[int],
     blocked: Optional[bool] = False,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> Item:
     """Create and insert item into database."""
 
@@ -49,7 +51,8 @@ async def create_item(
         db=db,
         item=item,
         owner_id=owner_id,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
 
@@ -58,14 +61,15 @@ async def insert_item(
     item: Item,
     owner_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> Item:
     """Insert item into the database."""
 
     owner = await get_user(
         db=db,
         user_id=owner_id,
-        load_relationships=["items"],
+        load_attributes=[User.items],
     )
 
     owner.items.append(item)
@@ -76,7 +80,8 @@ async def insert_item(
     return await get_item(
         db=db,
         item_id=item.id,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
 
@@ -89,7 +94,8 @@ async def list_items(
     owner_id: Optional[int] = None,
     created_before_item_id: Optional[int] = None,
     count: Optional[int] = None,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> list[Item]:
     """List items matchings criteria in the database.
 
@@ -118,10 +124,10 @@ async def list_items(
 
     stmt = select(Item).order_by(Item.id.desc())
 
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=Item,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     return (await db.scalars(stmt)).all()
@@ -132,7 +138,8 @@ async def get_item(
     item_id: int,
     owner_id: Optional[int] = None,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> Item:
     """Get image with `image_id` from database.
 
@@ -144,10 +151,10 @@ async def get_item(
     if owner_id is not None:
         stmt = stmt.where(Item.owner_id == owner_id)
 
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=Item,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     try:
@@ -163,7 +170,8 @@ async def update_item(
     db: Session,
     item_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
     **attributes: Mapping[str, Any],
 ) -> Item:
     """Update the given `attributes` of the item with `item_id`."""
@@ -171,7 +179,8 @@ async def update_item(
     item = await get_item(
         db=db,
         item_id=item_id,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     for key, value in attributes.items():

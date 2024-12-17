@@ -1,11 +1,12 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app import domain
 from app.clients import database
 from app.enums import ReportType
 from app.models.item import Item
+from app.models.user import User
 from app.schemas.item import ItemCreate, ItemPreviewRead, ItemRead, ItemUpdate
 from app.schemas.report import ReportCreate
 
@@ -27,7 +28,13 @@ async def create_item(
         images=item_create.images,
         targeted_age=item_create.targeted_age,
         blocked=item_create.blocked,
-        load_relationships=["images"],
+        load_attributes=[Item.images],
+    )
+
+    await database.user.add_stars_to_user(
+        db=db,
+        user_id=owner_id,
+        added_stars_count=domain.star.get_stars_gain_when_adding_item(1),
     )
 
     return ItemPreviewRead.from_orm(item)
@@ -68,7 +75,7 @@ async def list_items(
         count=count,
         targeted_age=targeted_age,
         regions=regions,
-        load_relationships=["images"],
+        load_attributes=[Item.images],
     )
 
     return [ItemPreviewRead.from_orm(item) for item in items]
@@ -89,10 +96,12 @@ async def get_item(
 
     # get item from databse
     # TODO replace client concept with a non-client concept
-    item = await database.item.get_item_by_id(
+    item = await database.item.get_item(
         db=db,
         item_id=item_id,
     )
+
+    return ItemRead.from_orm(item)
 
     # compute if the item is available
     item.available = domain.is_item_available(

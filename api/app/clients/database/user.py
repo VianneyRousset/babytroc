@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.errors.exception import UserNotFoundError
 from app.models.user import User
 
-from . import dbutils
+from app.clients.database import dbutils
 
 
 async def create_user(
@@ -18,6 +18,8 @@ async def create_user(
     name: str,
     password_hash: str,
     avatar_seed: Optional[str] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> User:
     """Create and insert user into database."""
 
@@ -31,32 +33,43 @@ async def create_user(
     return await insert_user(
         db=db,
         user=user,
+        load_attributes=load_attributes,
+        options=options,
     )
 
 
 async def insert_user(
     db: Session,
     user: User,
+    *,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> User:
     """Insert user into database."""
 
     db.add(user)
     await db.flush()
     await db.refresh(user)
-    return user
+    return await get_user(
+        db=db,
+        user_id=user.id,
+        load_attributes=load_attributes,
+        options=options,
+    )
 
 
 async def list_users(
     db: Session,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> list[User]:
     stmt = select(User)
 
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=User,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     return (await db.scalars(stmt)).all()
@@ -66,16 +79,20 @@ async def get_user(
     db: Session,
     user_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> User:
     """Get user with `email` from database."""
 
     stmt = select(User).where(User.id == user_id)
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=User,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
+
+    for option in options or []:
+        stmt = stmt.options(option)
 
     try:
         user = (await db.execute(stmt)).unique().scalars().one()
@@ -90,15 +107,16 @@ async def get_user_by_email(
     db: Session,
     email: str,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> User:
     """Get user with `email` from database."""
 
     stmt = select(User).where(User.email == email)
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=User,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     try:
@@ -114,15 +132,17 @@ async def update_user(
     db: Session,
     user_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
-    **attributes: Mapping[str, Any],
+    attributes: Mapping[str, Any],
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> User:
     """Update the given `attributes` of the user with `user_id`."""
 
     user = await get_user(
         db=db,
         user_id=user_id,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     for key, value in attributes.items():
@@ -134,7 +154,32 @@ async def update_user(
     return user
 
 
-async def delete_user(db: Session, user_id: int) -> None:
+async def add_stars_to_user(
+    db: Session,
+    user_id: int,
+    *,
+    added_stars_count: int,
+):
+    """Add `new_stars_count` stars to user with ID `user_id`."""
+
+    user = await get_user(
+        db=db,
+        user_id=user_id,
+        load_attributes=[User.stars_count],
+    )
+
+    user.stars_count = user.stars_count + added_stars_count
+
+    await db.flush()
+    await db.refresh(user)
+
+    return user
+
+
+async def delete_user(
+    db: Session,
+    user_id: int,
+) -> None:
     """Delete the user with `user_id` from database."""
 
     user = await get_user(

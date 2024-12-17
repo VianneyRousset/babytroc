@@ -14,15 +14,16 @@ async def get_image(
     db: Session,
     image_id: int,
     *,
-    load_relationships: Optional[Collection[str]] = None,
+    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
+    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> ItemImage:
     """Get image with `image_id` from database."""
 
     stmt = select(ItemImage).where(ItemImage.id == image_id)
-    stmt = dbutils.load_relationships(
+    stmt = dbutils.add_default_query_options(
         stmt=stmt,
-        entity=ItemImage,
-        load_relationships=load_relationships,
+        load_attributes=load_attributes,
+        options=options,
     )
 
     try:

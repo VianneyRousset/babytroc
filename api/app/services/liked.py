@@ -3,10 +3,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app import domain
-from app.client import database
-from app.enums import ReportType
-from app.schemas.item import ItemCreate, ItemPreviewRead, ItemRead, ItemUpdate
-from app.schemas.report import ReportCreate
+from app.clients import database
+from app.schemas.item import ItemPreviewRead, ItemRead
 
 
 async def add_item_to_user_liked_items(
@@ -16,7 +14,7 @@ async def add_item_to_user_liked_items(
 ):
     """Add the item with `item_id` to items liked by user with `user_id`."""
 
-    await database.item.insert_item_like(
+    await database.item.create_item_like(
         db=db,
         user_id=user_id,
         item_id=item_id,

@@ -1,29 +1,42 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
-    DateTime,
+    CheckConstraint,
+    Identity,
     Integer,
     String,
     func,
+    select,
     text,
 )
 from sqlalchemy.orm import (
     Mapped,
+    column_property,
+    deferred,
     mapped_column,
     relationship,
 )
 
-from .base import Base, IntegerIdentifier, CreationDate
+from .base import Base, CreationDate
+from .item import Item, ItemLike
 
 if TYPE_CHECKING:
     from .chat import Chat
-    from .item import Item
     from .loan import Loan, LoanRequest
 
 
-class User(IntegerIdentifier, CreationDate, Base):
+class User(CreationDate, Base):
     __tablename__ = "user"
+
+    # id is defined explicitly instead of using IntegerIdentifier subclassing
+    # to be accessed by likes_count deferred query
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(always=True),
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
 
     email: Mapped[str] = mapped_column(
         String,
@@ -73,6 +86,30 @@ class User(IntegerIdentifier, CreationDate, Base):
         secondary="chat_participant",
         back_populates="participants",
     )
+
+    stars_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+    )
+
+    # total number of likes of the items owned by the user
+    likes_count: Mapped[int] = deferred(
+        column_property(
+            select(func.count(ItemLike.item_id))
+            .join(Item)
+            .where(Item.owner_id == id)
+            .scalar_subquery()
+        )
+    )
+
+    # number of items owned by the user
+    items_count: Mapped[int] = deferred(
+        column_property(
+            select(func.count(Item.id)).where(Item.owner_id == id).scalar_subquery()
+        )
+    )
+
+    __table_args__ = (CheckConstraint(stars_count >= 0, name="positive_stars_count"),)
 
     def __repr__(self):
         return f"<{self.__class__.__name__} #{self.id!r} {self.email!r} {self.name!r}>"

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field
 from typing_extensions import Annotated
@@ -7,8 +7,7 @@ from app import config
 
 from .base import Base
 
-if TYPE_CHECKING:
-    from .item import ItemPreviewRead
+from .item import ItemPreviewRead
 
 
 class UserBase(Base):
@@ -29,10 +28,13 @@ class UserPreviewRead(UserBase):
         )
 
 
-class UserRead(UserPreviewRead):
-    items: list["ItemPreviewRead"]
-    n_stars: int
-    n_likes: int
+class UserRead(UserBase):
+    id: int
+    name: str
+    avatar_seed: str
+    stars_count: int
+    likes_count: int
+    items: list[ItemPreviewRead]
 
     @classmethod
     def from_orm(cls, user):
@@ -40,23 +42,24 @@ class UserRead(UserPreviewRead):
             id=user.id,
             name=user.name,
             avatar_seed=user.avatar_seed,
-            n_stars=user.n_starts,
-            n_likes=user.n_likes,
+            stars_count=user.stars_count,
+            likes_count=user.likes_count,
+            items=[ItemPreviewRead.from_orm(item) for item in user.items],
         )
 
 
 class UserUpdate(UserBase):
     name: Annotated[
-        str,
+        Optional[str],
         Field(
             min_length=config.USER_NAME_MIN_LENGTH,
             max_length=config.USER_NAME_MAX_LENGTH,
         ),
-    ]
+    ] = None
     avatar_seed: Annotated[
-        str,
+        Optional[str],
         Field(
             min_length=config.AVATAR_SEED_MIN_LENGTH,
             max_length=config.AVATAR_SEED_MAX_LENGTH,
         ),
-    ]
+    ] = None

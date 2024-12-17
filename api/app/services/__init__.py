@@ -1,3 +1,3 @@
-from . import item, loan, user, utils
+from . import item, liked, loan, user, utils
 
-__all__ = ["item", "loan", "user", "utils"]
+__all__ = ["item", "liked", "loan", "user", "utils"]

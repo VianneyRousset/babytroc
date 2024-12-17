@@ -3,7 +3,7 @@ from http import HTTPStatus
 from typing import Any, Mapping, Optional
 
 
-class APIError(Exception):
+class ApiError(Exception):
     """Exception related to the API."""
 
     def __init__(
@@ -23,7 +23,7 @@ class APIError(Exception):
         super().__init__(message)
 
 
-class NotFoundError(APIError):
+class NotFoundError(ApiError):
     """Exception raised when something is not found."""
 
     def __init__(
@@ -39,7 +39,7 @@ class NotFoundError(APIError):
         )
 
 
-class ItemError(APIError):
+class ItemError(ApiError):
     """Exception related to an item."""
 
     pass
@@ -55,7 +55,7 @@ class ItemNotFoundError(NotFoundError, ItemError):
         )
 
 
-class LoanRequestError(Exception):
+class LoanRequestError(ApiError):
     """Exception related to a loan request."""
 
     pass
@@ -71,7 +71,7 @@ class LoanRequestNotFoundError(NotFoundError, LoanRequestError):
         )
 
 
-class LoanError(Exception):
+class LoanError(ApiError):
     """Exception related to a loan."""
 
     pass
@@ -87,7 +87,7 @@ class LoanNotFoundError(NotFoundError, LoanError):
         )
 
 
-class UserError(Exception):
+class UserError(ApiError):
     """Exception related to a user."""
 
     pass
@@ -119,7 +119,7 @@ class RegionNotFoundError(NotFoundError, RegionError):
         )
 
 
-class ItemImageError(Exception):
+class ItemImageError(ApiError):
     """Exception related to an item image."""
 
     pass
@@ -132,4 +132,34 @@ class ItemImageNotFoundError(NotFoundError, ItemImageError):
         super().__init__(
             datatype="image",
             key=key,
+        )
+
+
+class ItemLikeError(ApiError):
+    """Exception related to a item like."""
+
+    pass
+
+
+class ItemLikeAlreadyExistsError(ApiError):
+    """Exception related to an already existing item like."""
+
+    def __init__(self, *, user_id: int, item_id: int):
+        message = f"Item #{item_id} is already liked by user #{user_id}."
+
+        super().__init__(
+            message=message,
+            status_code=HTTPStatus.CONFLICT,
+        )
+
+
+class ItemLikeNotExistsError(ApiError):
+    """Exception related to a non-existing item like."""
+
+    def __init__(self, *, user_id: int, item_id: int):
+        message = f"Item #{item_id} is not liked by user #{user_id}."
+
+        super().__init__(
+            message=message,
+            status_code=HTTPStatus.CONFLICT,
         )
