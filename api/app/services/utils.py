@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import config
 from app.clients import database, dicebear
-from app.schemas.item import RegionRead
+from app.schemas.region import RegionRead
 
 
 async def generate_avatar(

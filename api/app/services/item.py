@@ -84,21 +84,20 @@ async def list_items(
 async def get_item(
     db: Session,
     item_id: int,
-    client_user_id: int,
 ) -> ItemRead:
-    """Get item by id tuned for the given client user id.
-
-    In addition to the basic item fields such as name, description, images, etc,
-    the information about wether the item is liked, bookmarked and/or borrowed by the
-    client is given. If the client is the owner of the item, the list of loans as well
-    as the blocked status are given.
-    """
+    """Get item by id."""
 
     # get item from databse
     # TODO replace client concept with a non-client concept
     item = await database.item.get_item(
         db=db,
         item_id=item_id,
+        load_attributes=[
+            Item.owner,
+            Item.images,
+            Item.regions,
+            Item.likes_count,
+        ],
     )
 
     return ItemRead.from_orm(item)

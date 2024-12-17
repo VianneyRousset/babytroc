@@ -2,10 +2,12 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.clients import database
 from app.enums import ReportType
-from app.models.user import User
 from app.models.item import Item
+from app.models.user import User
 from app.schemas.report import ReportCreate
-from app.schemas.user import UserPreviewRead, UserRead, UserUpdate
+from app.schemas.user.preview import UserPreviewRead
+from app.schemas.user.read import UserRead
+from app.schemas.user.update import UserUpdate
 
 
 async def list_users(

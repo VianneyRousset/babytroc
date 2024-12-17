@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Identity,
     String,
     and_,
     func,
@@ -16,22 +17,34 @@ from sqlalchemy.dialects.postgresql import INT4RANGE
 from sqlalchemy.orm import (
     Mapped,
     deferred,
+    column_property,
     mapped_column,
     relationship,
 )
 
-from app.models.base import Base, CreationDate, IntegerIdentifier
+from app.models.base import Base, CreationDate
 from app.models.loan import Loan, LoanRequest
 
 from .image import ItemImage
+from .like import ItemLike
 from .region import Region
 
 if TYPE_CHECKING:
     from .user import User
 
 
-class Item(IntegerIdentifier, CreationDate, Base):
+class Item(CreationDate, Base):
     __tablename__ = "item"
+
+    # id is defined explicitly instead of using IntegerIdentifier subclassing
+    # to be accessed by likes_count deferred query
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(always=True),
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
 
     # basic infos
     name: Mapped[str] = mapped_column(String(collation="ignore_case_and_accent"))
@@ -109,6 +122,15 @@ class Item(IntegerIdentifier, CreationDate, Base):
         LoanRequest,
         back_populates="item",
         cascade="all, delete-orphan",
+    )
+
+    # number of users liking of the item
+    likes_count: Mapped[int] = deferred(
+        column_property(
+            select(func.count(ItemLike.item_id))
+            .where(ItemLike.item_id == id)
+            .scalar_subquery()
+        )
     )
 
     __table_args__ = (

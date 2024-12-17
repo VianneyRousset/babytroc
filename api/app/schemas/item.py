@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING
 
 from pydantic import Field, field_validator
 from typing_extensions import Annotated
@@ -6,12 +6,13 @@ from typing_extensions import Annotated
 from app import config
 
 from .base import Base
+from .loan import LoanRead
 
-from .region import RegionRead
+from app.schemas.user.preview import UserPreviewRead
+from app.schemas.region import RegionRead
 
 if TYPE_CHECKING:
-    from .loan import LoanPreviewRead
-    from .user import UserRead
+    from app.schemas.user.preview import UserRead
 
 
 class ItemBase(Base):
@@ -53,11 +54,12 @@ class ItemCreate(ItemBase):
 
 class ItemPreviewRead(ItemBase):
     id: int
-    owner_id: int
     name: str
     description: str
     targeted_age: list[int | None]
     images: list[str]
+    available: bool
+    owner_id: int
 
     @classmethod
     def from_orm(cls, item):
@@ -67,19 +69,72 @@ class ItemPreviewRead(ItemBase):
             description=item.description,
             targeted_age=[item.targeted_age.lower, item.targeted_age.upper],
             images=[img.id for img in item.images],
+            available=True,
             owner_id=item.owner_id,
         )
 
 
-class ItemRead(ItemPreviewRead):
+class ItemRead(ItemBase):
+    id: int
+    name: str
+    description: str
+    targeted_age: list[int | None]
+    images: list[str]
     available: bool
-    liked_by_client: bool
-    bookmarked_by_client: bool
-    owner: "UserRead"
-    number_of_likes: int
-    borrowings_from_client: list["LoanPreviewRead"]
-    blocked: bool | None
-    loans: list["LoanPreviewRead"] | None
+    owner_id: int
+
+    owner: UserPreviewRead
+    regions: list[RegionRead]
+    likes_count: int
+
+    @classmethod
+    def from_orm(cls, item):
+        return cls(
+            id=item.id,
+            name=item.name,
+            description=item.description,
+            targeted_age=[item.targeted_age.lower, item.targeted_age.upper],
+            images=[img.id for img in item.images],
+            available=True,
+            owner_id=item.owner_id,
+            owner=UserPreviewRead.from_orm(item.owner),
+            regions=[RegionRead.from_orm(region) for region in item.regions],
+            likes_count=item.likes_count,
+        )
+
+
+class ItemPrivateRead(ItemBase):
+    id: int
+    name: str
+    description: str
+    targeted_age: list[int | None]
+    images: list[str]
+    available: bool
+    owner_id: int
+
+    owner: UserPreviewRead
+    regions: list[RegionRead]
+    likes_count: int
+
+    blocked: bool
+    loans: list[LoanRead]
+
+    @classmethod
+    def from_orm(cls, item):
+        return cls(
+            id=item.id,
+            name=item.name,
+            description=item.description,
+            targeted_age=[item.targeted_age.lower, item.targeted_age.upper],
+            images=[img.id for img in item.images],
+            available=True,
+            owner_id=item.owner_id,
+            owner=UserPreviewRead.from_orm(item.owner),
+            regions=[RegionRead.from_orm(region) for region in item.regions],
+            likes_count=item.likes_count,
+            blocked=item.blocked,
+            loans=[LoanRead.from_orm(loan) for loan in item.loans],
+        )
 
 
 class ItemUpdate(ItemBase):
