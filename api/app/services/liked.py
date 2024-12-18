@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from app import domain
 from app.clients import database
-from app.schemas.item import ItemPreviewRead, ItemRead
+from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.item.read import ItemRead
 
 
 async def add_item_to_user_liked_items(

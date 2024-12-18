@@ -1,6 +1,5 @@
-from app.schemas.item import ItemPreviewRead
-
-from .base import UserBase
+from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.user.base import UserBase
 
 
 class UserRead(UserBase):

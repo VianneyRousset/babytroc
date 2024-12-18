@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
+from app.schemas.item.preview import ItemPreviewRead
+
 from .base import Base
 from .chat import ChatMessageRead
 
 if TYPE_CHECKING:
-    from .item import ItemPreviewRead
     from .user import UserPreviewRead
 
 
@@ -19,7 +20,7 @@ class LoanRequestCreate(LoanRequestBase):
 
 class LoanRequestRead(LoanRequestBase):
     id: int
-    item: "ItemPreviewRead"
+    item: ItemPreviewRead
     borrower: "UserPreviewRead"
     message: ChatMessageRead
 
@@ -30,7 +31,7 @@ class LoanBase(Base):
 
 class LoanRead(LoanBase):
     id: int
-    item: "ItemPreviewRead"
+    item: ItemPreviewRead
     borrower: "UserPreviewRead"
     start: datetime
     end: Optional[datetime]

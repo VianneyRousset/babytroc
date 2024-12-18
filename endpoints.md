@@ -43,7 +43,7 @@
 # /me/requests
 
 - **`GET /me/requests -> list[LoanRequestRead]`**
-- **`POST /me/requests -> LoanRequestRead`**
+- **`POST /me/requests [LoanRequestCreate] -> LoanRequestRead`**
 - **`GET /me/requests/{id} -> LoanRequestRead`**
 - **`DELETE /me/requests/{id}`**
 - **`POST /me/requests/{id}/confirm -> LoanRead`**

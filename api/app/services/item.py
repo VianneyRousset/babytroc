@@ -1,13 +1,16 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
 from app import domain
 from app.clients import database
 from app.enums import ReportType
 from app.models.item import Item
-from app.models.user import User
-from app.schemas.item import ItemCreate, ItemPreviewRead, ItemRead, ItemUpdate
+from app.schemas.item.create import ItemCreate
+from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.item.private import ItemPrivateRead
+from app.schemas.item.read import ItemRead
+from app.schemas.item.update import ItemUpdate
 from app.schemas.report import ReportCreate
 
 
@@ -102,18 +105,33 @@ async def get_item(
 
     return ItemRead.from_orm(item)
 
-    # compute if the item is available
-    item.available = domain.is_item_available(
-        blocked=item.blocked,
-        last_loan=item.loans,
+
+async def get_private_item(
+    db: Session,
+    item_id: int,
+    owner_id: Optional[int] = None,
+) -> ItemPrivateRead:
+    """Get item by id.
+
+    If `owner_id` is provided, the item must be owned by the user with this ID.
+    """
+
+    # get item from databse
+    # TODO replace client concept with a non-client concept
+    item = await database.item.get_item(
+        db=db,
+        item_id=item_id,
+        owner_id=owner_id,
+        load_attributes=[
+            Item.owner,
+            Item.images,
+            Item.regions,
+            Item.likes_count,
+            Item.loans,
+        ],
     )
 
-    # hide some infos if the client is not the owner of the item
-    if item.owner.id != client_user_id:
-        item.loans = None
-        item.blocked = None
-
-    return ItemRead.model_validate(item)
+    return ItemPrivateRead.from_orm(item)
 
 
 async def get_user_item_by_id_for_client(

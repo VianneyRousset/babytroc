@@ -10,11 +10,7 @@
 - **`ItemPreviewRead`**
   - id (`int`)
   - name (`str`)
-  - images (`list[str]`)
-  - available (`bool`, computed from owner "active" and loans)
   - targeted age (`tuple[int, int]`)
-  - liked by user (`bool`)
-  - bookmarked by user (`bool`)
 
 - **`ItemRead`**
   - id (`int`)
@@ -23,8 +19,8 @@
   - images (`list[str]`)
   - available (`bool`, computed from owner "active" and loans)
   - targeted age (`tuple[int, int]`)
-  - liked by user (`bool`)
-  - bookmarked by user (`bool`)
+  - liked by client (`bool`)
+  - bookmarked by client (`bool`)
   - number of liked (`int`)
   - regions (`list[RegionRead]`)
   - owner (`UserPreviewRead`)
@@ -68,11 +64,13 @@
   - start (date)
   - end (date or `null`)
 
+- **`LoanRequestCreate`**
+  - item_id (int)
+
 - **`LoanRequestRead`**
   - id (`int`)
   - item (`ItemPreviewRead`)
   - message (`MessageRead`) (message sent to ask the owner)
-  - creation date (`date`)
 
 # Chat
 
@@ -84,15 +82,16 @@
   - id (`int`)
   - borrower (`UserPreviewRead`)
   - item (`ItemPreviewRead`)
+  - client id (`int`)
 
 - **`MessageRead`**
-  - type ("txt", "request", "request-accept", "request-refuse", "loan-start", "loan-end", "not-available", "available")
-  - payload (`str`)
+  - id (`int`)
+  - type ("txt", "request", "request-accept", "request-reject", "loan-start", "loan-end", "not-available", "available")
   - sender id (`null` or `int`)
   - receiver id (`null` or `int`)
-  - client id (`int`)
   - creation date (`date`)
-  - viewed (`bool`)
+  - seen(`bool`)
+  - payload (`str`)
 
 # Reports
 
