@@ -1,6 +1,7 @@
 from collections.abc import Collection
 from typing import Any, Mapping, Optional
 
+
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -19,7 +20,7 @@ async def create_item(
     *,
     name: str,
     description: str,
-    targeted_age: list[int],
+    targeted_age_months: list[int],
     owner_id: int,
     images: list[str],
     regions: list[int],
@@ -32,11 +33,11 @@ async def create_item(
     item = Item(
         name=name,
         description=description,
-        targeted_age=targeted_age,
+        targeted_age_months=targeted_age_months,
         blocked=blocked,
     )
 
-    item.images.extend([ItemImage(id=image_id) for image_id in images])
+    item.images.extend([ItemImage(name=name) for name in images])
 
     regions = [
         await get_region(
@@ -89,7 +90,7 @@ async def list_items(
     db: Session,
     *,
     terms: Optional[list[str]] = None,
-    targeted_age: Optional[list[int]] = None,
+    targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
     created_before_item_id: Optional[int] = None,
@@ -105,7 +106,7 @@ async def list_items(
     items based on their name and description. All the terms has to be present in the
     name or the description of the item to be returned.
 
-    If `targeted_age` is provided, items with `targeted_age` range must overlap the
+    If `targeted_age_months` is provided, items with `targeted_age_months` range must overlap the
     given range to be returned.
 
     If `regions` is provided, the item must point to a least one of those regions to be
@@ -170,24 +171,46 @@ async def update_item(
     db: Session,
     item_id: int,
     *,
+    owner_id: Optional[int] = None,
+    attributes: Mapping[str, Any],
     load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
     options: Optional[Collection[dbutils.ExecutableOption]] = None,
-    **attributes: Mapping[str, Any],
 ) -> Item:
-    """Update the given `attributes` of the item with `item_id`."""
+    """Update the given `attributes` of the item with `item_id`.
+
+    if `owner_id` is provided, the item must be owned by the user with this ID.
+    """
+
+    # ensure modified attributes are loaded
+    load_attributes = load_attributes or []
+    load_attributes.extend(getattr(Item, attrname) for attrname in attributes)
 
     item = await get_item(
         db=db,
         item_id=item_id,
+        owner_id=owner_id,
         load_attributes=load_attributes,
         options=options,
     )
+
+    if "images" in attributes:
+        attributes["images"] = [ItemImage(name=name) for name in attributes["images"]]
+
+    # should raise 404 or something else ?
+    if "regions" in attributes:
+        attributes["regions"] = [
+            await get_region(
+                db=db,
+                region_id=region_id,
+            )
+            for region_id in attributes["regions"]
+        ]
 
     for key, value in attributes.items():
         setattr(item, key, value)
 
     await db.flush()
-    await db.reresh(item)
+    await db.refresh(item)
 
     return item
 

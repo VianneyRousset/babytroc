@@ -11,21 +11,23 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.models.base import Base, CreationDate
+from app.models.base import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:
     from .item import Item
 
 
-class ItemImage(Base, CreationDate):
-    """Images of items."""
+class ItemImage(Base, IntegerIdentifier, CreationDate):
+    """Images of items.
+
+    An incrementing integer is used as id instaed of a unique name to provide a
+    deterministic way to sort the image of an item.
+    """
 
     __tablename__ = "item_image"
 
-    id: Mapped[str] = mapped_column(
+    name: Mapped[str] = mapped_column(
         String,
-        primary_key=True,
-        unique=True,
     )
 
     # the item

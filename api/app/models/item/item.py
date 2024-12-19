@@ -1,23 +1,21 @@
 from typing import TYPE_CHECKING, Optional
 
-from asyncpg.types import Range
 from sqlalchemy import (
     Boolean,
     ForeignKey,
-    Index,
-    Integer,
     Identity,
+    Integer,
     String,
     and_,
     func,
     select,
     text,
 )
-from sqlalchemy.dialects.postgresql import INT4RANGE
+from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 from sqlalchemy.orm import (
     Mapped,
-    deferred,
     column_property,
+    deferred,
     mapped_column,
     relationship,
 )
@@ -47,11 +45,11 @@ class Item(CreationDate, Base):
     )
 
     # basic infos
-    name: Mapped[str] = mapped_column(String(collation="ignore_case_and_accent"))
-    description: Mapped[str] = mapped_column(String(collation="ignore_case_and_accent"))
-    targeted_age: Mapped[Range] = mapped_column(
+    name: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String)
+    targeted_age_months: Mapped[Range[float]] = mapped_column(
         INT4RANGE,
-        server_default=text("int4range(0, NULL, '[]')"),
+        server_default=text("'[0,]'::int4range"),
     )
 
     # user owning the item
@@ -109,13 +107,11 @@ class Item(CreationDate, Base):
         cascade="all, delete-orphan",
     )
 
-    # last active loan
-    active_loan: Mapped[Optional[Loan]] = deferred(
-        select(Loan)
-        .where(and_(Loan.id == id, func.upper_inf(Loan.during)))
-        .order_by(Loan.id.desc())
-        .scalar_subquery()
-    )  # add .first()
+    # all active loans (should be unique or empty)
+    active_loans: Mapped[list[Loan]] = relationship(
+        Loan,
+        viewonly=True,
+    )
 
     # all loan requests of the item
     loan_requests: Mapped[list[LoanRequest]] = relationship(
@@ -131,16 +127,6 @@ class Item(CreationDate, Base):
             .where(ItemLike.item_id == id)
             .scalar_subquery()
         )
-    )
-
-    __table_args__ = (
-        Index(
-            "idx_name_description_fts",
-            text("to_tsvector('french', name || ' ' || description)"),
-            postgresql_using="gin",
-        ),
-        # Index("idx_item_name_trigram", name.ts, postgresql_using="gin_trgm_ops"),
-        # Index("idx_item_description", description.collate("ignore_case_and_accent")),
     )
 
     def __repr__(self):

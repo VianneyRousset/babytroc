@@ -29,7 +29,7 @@ async def create_item(
         regions=item_create.regions,
         owner_id=owner_id,
         images=item_create.images,
-        targeted_age=item_create.targeted_age,
+        targeted_age_months=item_create.targeted_age_months,
         blocked=item_create.blocked,
         load_attributes=[Item.images],
     )
@@ -48,8 +48,9 @@ async def list_items(
     terms: Optional[list[str]] = None,
     create_before_item_id: Optional[int] = None,
     count: Optional[int] = 64,
-    targeted_age: Optional[list[int]] = None,
+    targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
+    owner_id: Optional[int] = None,
 ) -> list[ItemPreviewRead]:
     """List items matchings criteria in the database.
 
@@ -62,11 +63,14 @@ async def list_items(
 
     If `count` is provided, the number of returned items is limited to `count`.
 
-    If `targeted_age` is provided, items with `targeted_age` range must overlap the
+    If `targeted_age_months` is provided, items with `targeted_age_months` range must overlap the
     given range to be returned.
 
-    If the list of int `regions` is provided, items must be in one of those regions to
+    If `regions` is provided, items must be in one of those regions to
     be returned.
+
+    If `owner_id` is provided, item must be owned by the user with this ID to be
+    returned.
     """
 
     # search in db
@@ -76,7 +80,7 @@ async def list_items(
         terms=terms,
         created_before_item_id=create_before_item_id,
         count=count,
-        targeted_age=targeted_age,
+        targeted_age_months=targeted_age_months,
         regions=regions,
         load_attributes=[Item.images],
     )
@@ -128,101 +132,40 @@ async def get_private_item(
             Item.regions,
             Item.likes_count,
             Item.loans,
+            Item.active_loans,
         ],
     )
 
     return ItemPrivateRead.from_orm(item)
 
 
-async def get_user_item_by_id_for_client(
+async def update_item(
     db: Session,
+    *,
     item_id: int,
-    owner_id: int,
-    client_user_id: int,
-) -> ItemRead:
-    """Get item by id tuned for the given client user id.
+    item_update: ItemUpdate,
+    owner_id: Optional[int] = None,
+) -> ItemPrivateRead:
+    """Update item owned by `owner_id`."""
 
-    In addition to the basic item fields such as name, description, images, etc,
-    the information about wether the item is liked, bookmarked and/or borrowed by the
-    client is given. If the client is the owner of the item, the list of loans as well
-    as the blocked status are given.
+    # TODO check if images exists
 
-    The item must be owned by user with `owner_id`.
-    """
-
-    # get item from databse
-    # TODO replace client concept with a non-client concept
-    item = await database.item.get_item_by_id_for_client(
+    item = await database.item.update_item(
         db=db,
         item_id=item_id,
         owner_id=owner_id,
-        client_user_id=client_user_id,
+        attributes=item_update.dict(exclude_none=True),
+        load_attributes=[
+            Item.owner,
+            Item.images,
+            Item.regions,
+            Item.likes_count,
+            Item.loans,
+            Item.active_loans,
+        ],
     )
 
-    # replace images by a list of image str ids (image urls)
-    item.images = [img.id for img in item.images]
-
-    # compute if the item is available
-    item.available = domain.is_item_available(
-        blocked=item.blocked,
-        last_loan=item.loans,
-    )
-
-    # hide some infos if the client is not the owner of the item
-    if item.owner.id != client_user_id:
-        item.loans = None
-        item.blocked = None
-
-    return ItemRead.model_validate(item)
-
-
-async def list_user_items(
-    db: Session,
-    owner_id: int,
-    create_before_item_id: int,
-    count: int,
-) -> list[ItemPreviewRead]:
-    """List items owned by user with `user_id`.
-
-    If `create_before_item_id` is provided, only items created before that item id will
-    be returned.
-
-    If `count` is provided, the number of returned items is limited to `count`.
-    """
-
-    # search in db
-    items = await database.item.list_items(
-        db=db,
-        owner_id=owner_id,
-        create_before_item_id=create_before_item_id,
-        count=count,
-    )
-
-    items = [ItemPreviewRead.model_validate(item) for item in items]
-
-    return items
-
-
-async def update_user_item(
-    db: Session,
-    owner_id: int,
-    item_id: int,
-    item_update: ItemUpdate,
-) -> ItemPreviewRead:
-    """Update item owned by `owner_id`."""
-
-    item = await database.item.update_user_item(
-        db=db,
-        owner_id=owner_id,
-        name=item_update.name,
-        description=item_update.description,
-        images=item_update.images,
-        targeted_age=item_update.targeted_age,
-        regions=item_update.regions,
-        blocked=item_update.regions,
-    )
-
-    return ItemPreviewRead.model_validate(item)
+    return ItemPrivateRead.from_orm(item)
 
 
 async def delete_item(

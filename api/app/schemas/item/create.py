@@ -23,18 +23,18 @@ class ItemCreate(ItemBase):
         ),
     ]
     images: list[str]
-    targeted_age: list[int | None]
+    targeted_age_months: list[int | None]
     regions: list[int]
     blocked: Optional[bool] = False
 
-    @field_validator("targeted_age")
-    def validate_targeted_age(cls, v):  # noqa: N805
+    @field_validator("targeted_age_months")
+    def validate_targeted_age_months(cls, v):  # noqa: N805
         if len(v) != 2:
-            msg = "targeted_age must have 2 values"
+            msg = "targeted_age_months must have 2 values"
             raise ValueError(msg)
 
         if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age values must be in order"
+            msg = "targeted_age_months values must be in order"
             raise ValueError(msg)
 
         return v

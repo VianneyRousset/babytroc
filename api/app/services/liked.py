@@ -27,7 +27,7 @@ async def list_items_liked_by_user(
     user_id: int,
     liked_before_item_id: Optional[int] = None,
     count: Optional[int] = None,
-    targeted_age: Optional[list[int]] = None,
+    targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
 ) -> list[ItemPreviewRead]:
     """List items liked by user with `user_id`.
