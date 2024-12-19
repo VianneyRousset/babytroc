@@ -26,7 +26,10 @@ async def create_user(
         password_hash=user_create.password,
         avatar_seed=user_create.avatar_seed,
         load_attributes=[User.likes_count, User.items],
-        options=[selectinload(User.items).selectinload(Item.images)],
+        options=[
+            selectinload(User.items).selectinload(Item.images),
+            selectinload(User.items).selectinload(Item.active_loans),
+        ],
     )
 
     return UserRead.from_orm(user)
@@ -52,7 +55,10 @@ async def get_user(
         db=db,
         user_id=user_id,
         load_attributes=[User.likes_count, User.items],
-        options=[selectinload(User.items).selectinload(Item.images)],
+        options=[
+            selectinload(User.items).selectinload(Item.images),
+            selectinload(User.items).selectinload(Item.active_loans),
+        ],
     )
 
     return UserRead.from_orm(user)
@@ -66,7 +72,16 @@ async def update_user(
     """Update user fields."""
 
     user = await database.user.update_user(
-        db=db, user_id=user_id, **user_update.model_dump(exclude_none=True)
+        db=db,
+        user_id=user_id,
+        attributes=user_update.model_dump(
+            exclude_none=True,
+        ),
+        load_attributes=[User.likes_count, User.items],
+        options=[
+            selectinload(User.items).selectinload(Item.images),
+            selectinload(User.items).selectinload(Item.active_loans),
+        ],
     )
 
     return UserRead.from_orm(user)
