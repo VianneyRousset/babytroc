@@ -11,6 +11,7 @@ from app.clients.database.user import get_user
 from app.errors.exception import ItemNotFoundError
 from app.models.item import Item, ItemImage, Region
 from app.models.user import User
+from app.schemas.item.page import ItemPage
 
 from .region import get_region
 
@@ -90,19 +91,20 @@ async def list_items(
     db: Session,
     *,
     words: Optional[list[str]] = None,
-    count: Optional[int] = 64,
-    offset: Optional[int] = None,
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
+    limit: Optional[int] = 64,
+    words_match_distance_ge: Optional[float] = None,
+    item_id_less_than: Optional[int] = None,
     load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
     options: Optional[Collection[dbutils.ExecutableOption]] = None,
-) -> list[Item]:
+) -> tuple[list[Item], ItemPage]:
     """List items matchings criteria in the database.
 
     If the list of strings `words` is provided, those strings are used to filter the
     items based on their name and description via a fuzzy-search. This fuzzy-search also
-    generates a score for each item.
+    generates a words match distance for each item.
 
     If `targeted_age_months` is provided, items with `targeted_age_months` range must
     overlap the given range to be returned.
@@ -113,38 +115,38 @@ async def list_items(
     If `owner_id` is provided, item must be owned by the user with this ID to be
     returned.
 
-    If `count` is provided, the number of returned items is limited to `count`.
+    If `limit` is provided, the number of returned items is limited to `limit`.
 
-    If `offset` is provided, the `offset` items are skipped.
+    If `words_match_distance_ge`, the item must have a words match distance
+    greater or equal to this value to be returned.
+
+    If `item_id_less_than`, the item must have an ID less than this value to be
+    returned.
 
     The items are return sorted by descending ID (equivalent to creation date) and
-    descending fuzzy-search score (which means the most relevant items are given first).
+    increasing words match distance (the most relevant items are given first).
     """
 
-    stmt = select(Item)
+    # represents the word match distance
+    distance = 0
 
-    stmt = dbutils.add_default_query_options(
-        stmt=stmt,
-        load_attributes=load_attributes,
-        options=options,
-    )
+    for word in words:
+        distance = distance + Item.searchable_text.op("<->>", return_type=Integer)(
+            func.normalize_text(word)
+        )
+
+    stmt = select(Item, distance)
 
     # if words is provided, apply where filtering based on words matchings and sort
     # by distance based on word_similarity().
     if words:
-        score = 0
-
-        for word in words:
-            score = score + Item.searchable_text.op("<->>", return_type=Integer)(
+        stmt = stmt.where(
+            Item.searchable_text.op("%>", return_type=Integer)(
                 func.normalize_text(word)
             )
-            stmt = stmt.where(
-                Item.searchable_text.op("%>", return_type=Integer)(
-                    func.normalize_text(word)
-                )
-            )
+        )
 
-        stmt = stmt.order_by(score)
+        stmt = stmt.order_by(distance)
 
     # if targeted_age_months is provided, apply where filtering based on range overlap
     if targeted_age_months is not None:
@@ -172,15 +174,43 @@ async def list_items(
     if owner_id is not None:
         stmt = stmt.where(Item.owner_id == owner_id)
 
-    # if count is provided, limit number of results
-    if count is not None:
-        stmt = stmt.limit(count)
+    # if limit is provided, limit number of results
+    if limit is not None:
+        stmt = stmt.limit(limit)
 
-    # if offset is provided, offset the results
-    if offset is not None:
-        stmt = stmt.offset(offset)
+    # sort item by descending ID (equivalent to creation date ordering)
+    stmt = stmt.order_by(Item.id.desc())
 
-    return (await db.scalars(stmt)).all()
+    # if words_match_distance_ge is provided, apply where filtering
+    # where distance is greater than the provided value.
+    if words_match_distance_ge is not None:
+        stmt = stmt.where(distance >= words_match_distance_ge)
+
+    # if item_id_less_than is provided, apply where filtering
+    # where item ID is lower that the provided value.
+    if item_id_less_than is not None:
+        stmt = stmt.where(Item.id < item_id_less_than)
+
+    stmt = dbutils.add_default_query_options(
+        stmt=stmt,
+        load_attributes=load_attributes,
+        options=options,
+    )
+
+    result = (await db.execute(stmt)).all()
+
+    items = [item for item, _ in result]
+
+    distances = [d for _, d in result]
+
+    # fill pagination data
+    page = ItemPage(
+        limit=limit,
+        max_words_match_distance=max(distances) if distances else None,
+        min_item_id=min(item.id for item in items) if items else None,
+    )
+
+    return items, page
 
 
 async def get_item(

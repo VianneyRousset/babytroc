@@ -1,13 +1,13 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
-from datetime import datetime
 
 from app import domain
 from app.clients import database
 from app.enums import ReportType
 from app.models.item import Item
 from app.schemas.item.create import ItemCreate
+from app.schemas.item.page import ItemPage
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.private import ItemPrivateRead
 from app.schemas.item.read import ItemRead
@@ -46,22 +46,20 @@ async def create_item(
 
 async def list_items(
     db: Session,
+    *,
     words: Optional[list[str]] = None,
-    count: Optional[int] = 64,
-    offset: Optional[int] = None,
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
-) -> list[ItemPreviewRead]:
+    limit: Optional[int] = 64,
+    words_match_distance_ge: Optional[float] = None,
+    item_id_less_than: Optional[int] = None,
+) -> tuple[list[ItemPreviewRead], ItemPage]:
     """List items matchings criteria in the database.
 
     If the list of strings `words` is provided, those strings are used to filter the
     items based on their name and description via a fuzzy-search. This fuzzy-search also
-    generates a score for each item.
-
-    If `count` is provided, the number of returned items is limited to `count`.
-
-    If `offset` is provided, the `offset` items are skipped.
+    generates a words match distance for each item.
 
     If `targeted_age_months` is provided, items with `targeted_age_months` range must
     overlap the given range to be returned.
@@ -72,24 +70,34 @@ async def list_items(
     If `owner_id` is provided, item must be owned by the user with this ID to be
     returned.
 
+    If `limit` is provided, the number of returned items is limited to `limit`.
+
+    If `words_match_distance_ge`, the item must have a words match distance
+    greater or equal to this value to be returned.
+
+    If `item_id_less_than`, the item must have an ID less than this value to be
+    returned.
+
+
     The items are return sorted by descending ID (equivalent to creation date) and
-    descending fuzzy-search score (which means the most relevant items are given first).
+    increasing words match distance (the most relevant items are given first).
     """
 
     # search in db
-    # TODO use quickwit or elasticsearch here
-    items = await database.item.list_items(
+    # TODO discard words shorter than 3 characters ?
+    items, page = await database.item.list_items(
         db=db,
         words=words,
-        count=count,
-        offset=offset,
         targeted_age_months=targeted_age_months,
         regions=regions,
         owner_id=owner_id,
+        limit=limit,
+        words_match_distance_ge=words_match_distance_ge,
+        item_id_less_than=item_id_less_than,
         load_attributes=[Item.images, Item.active_loans],
     )
 
-    return [ItemPreviewRead.from_orm(item) for item in items]
+    return [ItemPreviewRead.from_orm(item) for item in items], page
 
 
 async def get_item(
