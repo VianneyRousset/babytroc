@@ -1,3 +1,4 @@
+from app import domain
 from app.schemas.item.base import ItemBase
 from app.schemas.region import RegionRead
 from app.schemas.user.preview import UserPreviewRead
@@ -29,7 +30,10 @@ class ItemRead(ItemBase):
             description=item.description,
             targeted_age_months=targeted_age_months,
             images=[img.name for img in item.images],
-            available=True,
+            available=domain.item.compute_item_available(
+                is_blocked=item.blocked,
+                has_active_loan=bool(item.active_loans),
+            ),
             owner_id=item.owner_id,
             owner=UserPreviewRead.from_orm(item.owner),
             regions=[RegionRead.from_orm(region) for region in item.regions],

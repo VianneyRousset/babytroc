@@ -31,7 +31,7 @@ async def create_item(
         images=item_create.images,
         targeted_age_months=item_create.targeted_age_months,
         blocked=item_create.blocked,
-        load_attributes=[Item.images],
+        load_attributes=[Item.images, Item.active_loans],
     )
 
     await database.user.add_stars_to_user(
@@ -82,7 +82,7 @@ async def list_items(
         count=count,
         targeted_age_months=targeted_age_months,
         regions=regions,
-        load_attributes=[Item.images],
+        load_attributes=[Item.images, Item.active_loans],
     )
 
     return [ItemPreviewRead.from_orm(item) for item in items]
@@ -104,6 +104,7 @@ async def get_item(
             Item.images,
             Item.regions,
             Item.likes_count,
+            Item.active_loans,
         ],
     )
 

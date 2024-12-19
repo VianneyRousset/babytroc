@@ -1,9 +1,9 @@
+from app import domain
 from app.schemas.item.base import ItemBase
 from app.schemas.loan import LoanRead
 from app.schemas.region import RegionRead
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.utils import integer_range_to_inclusive
-from app import domain
 
 
 class ItemPrivateRead(ItemBase):
@@ -34,15 +34,14 @@ class ItemPrivateRead(ItemBase):
             description=item.description,
             targeted_age_months=targeted_age_months,
             images=[img.name for img in item.images],
-            available=True,
+            available=domain.item.compute_item_available(
+                is_blocked=item.blocked,
+                has_active_loan=bool(item.active_loans),
+            ),
             owner_id=item.owner_id,
             owner=UserPreviewRead.from_orm(item.owner),
             regions=[RegionRead.from_orm(region) for region in item.regions],
             likes_count=item.likes_count,
             blocked=item.blocked,
             loans=[LoanRead.from_orm(loan) for loan in item.loans],
-            active=domain.item.compute_item_available(
-                is_blocked=item.blocked,
-                has_active_loan=bool(item.active_loans),
-            ),
         )
