@@ -14,10 +14,14 @@ async def create_region(
     db: Session,
     *,
     name: str,
+    region_id: Optional[int] = None,
 ) -> Region:
     """Create and insert region into database."""
 
-    region = Region(name=name)
+    region = Region(
+        id=region_id,
+        name=name,
+    )
 
     return await insert_region(
         db=db,

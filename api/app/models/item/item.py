@@ -1,12 +1,13 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
+    Computed,
     ForeignKey,
     Identity,
+    Index,
     Integer,
     String,
-    and_,
     func,
     select,
     text,
@@ -20,7 +21,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.models.base import Base, CreationDate
+from app.models.base import Base, CreationDate, UpdateDate
 from app.models.loan import Loan, LoanRequest
 
 from .image import ItemImage
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Item(CreationDate, Base):
+class Item(CreationDate, UpdateDate, Base):
     __tablename__ = "item"
 
     # id is defined explicitly instead of using IntegerIdentifier subclassing
@@ -127,6 +128,20 @@ class Item(CreationDate, Base):
             .where(ItemLike.item_id == id)
             .scalar_subquery()
         )
+    )
+
+    # content used for fuzzy search
+    searchable_text: Mapped[str] = mapped_column(
+        Computed(func.normalize_text(name + " " + description))
+    )
+
+    __table_args__ = (
+        Index(
+            "idx_item_searchable_text",
+            "searchable_text",
+            postgresql_using="gist",
+            postgresql_ops={"searchable_text": "gist_trgm_ops"},
+        ),
     )
 
     def __repr__(self):

@@ -1,15 +1,15 @@
 from collections.abc import Collection
 from typing import Any, Mapping, Optional
 
-
-from sqlalchemy import select
+from sqlalchemy import Integer, func, select
+from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.clients.database import dbutils
 from app.clients.database.user import get_user
 from app.errors.exception import ItemNotFoundError
-from app.models.item import Item, ItemImage
+from app.models.item import Item, ItemImage, Region
 from app.models.user import User
 
 from .region import get_region
@@ -89,47 +89,96 @@ async def insert_item(
 async def list_items(
     db: Session,
     *,
-    terms: Optional[list[str]] = None,
+    words: Optional[list[str]] = None,
+    count: Optional[int] = 64,
+    offset: Optional[int] = None,
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
-    created_before_item_id: Optional[int] = None,
-    count: Optional[int] = None,
     load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
     options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> list[Item]:
     """List items matchings criteria in the database.
 
-    The items are ordered by inversed ID which should reflect their creation date.
+    If the list of strings `words` is provided, those strings are used to filter the
+    items based on their name and description via a fuzzy-search. This fuzzy-search also
+    generates a score for each item.
 
-    If the list of strings `terms` is provided, those strings are used to filter the
-    items based on their name and description. All the terms has to be present in the
-    name or the description of the item to be returned.
+    If `targeted_age_months` is provided, items with `targeted_age_months` range must
+    overlap the given range to be returned.
 
-    If `targeted_age_months` is provided, items with `targeted_age_months` range must overlap the
-    given range to be returned.
-
-    If `regions` is provided, the item must point to a least one of those regions to be
-    returned.
-
-    If `owner_id` is provided, the item must be owned by the user with this ID to be
-    returned.
-
-    If `created_before_item_id` is provided, only items created before that item id will
+    If `regions` is provided, items must be in one of those regions to
     be returned.
 
+    If `owner_id` is provided, item must be owned by the user with this ID to be
+    returned.
+
     If `count` is provided, the number of returned items is limited to `count`.
+
+    If `offset` is provided, the `offset` items are skipped.
+
+    The items are return sorted by descending ID (equivalent to creation date) and
+    descending fuzzy-search score (which means the most relevant items are given first).
     """
 
-    # TODO use quickwit or elasticsearch here
-
-    stmt = select(Item).order_by(Item.id.desc())
+    stmt = select(Item)
 
     stmt = dbutils.add_default_query_options(
         stmt=stmt,
         load_attributes=load_attributes,
         options=options,
     )
+
+    # if words is provided, apply where filtering based on words matchings and sort
+    # by distance based on word_similarity().
+    if words:
+        score = 0
+
+        for word in words:
+            score = score + Item.searchable_text.op("<->>", return_type=Integer)(
+                func.normalize_text(word)
+            )
+            stmt = stmt.where(
+                Item.searchable_text.op("%>", return_type=Integer)(
+                    func.normalize_text(word)
+                )
+            )
+
+        stmt = stmt.order_by(score)
+
+    # if targeted_age_months is provided, apply where filtering based on range overlap
+    if targeted_age_months is not None:
+        if len(targeted_age_months) != 2:
+            msg = (
+                f"targeted_age_months must be of length 2, got: "
+                f"{len(targeted_age_months)}."
+            )
+            raise ValueError(msg)
+
+        targeted_age_months = Range(*targeted_age_months, bounds="[]")
+        stmt = stmt.where(
+            Item.targeted_age_months.op("&&", return_type=INT4RANGE)(
+                targeted_age_months
+            )
+        )
+
+    # if regions is provided, apply where filtering to select only the items
+    # in the given region ids.
+    if regions is not None:
+        stmt = stmt.where(Item.regions.any(Region.id.in_(regions)))
+
+    # if owner_id is provide, apply where filtering to select only the items
+    # where owner_id is the ID of the owner.
+    if owner_id is not None:
+        stmt = stmt.where(Item.owner_id == owner_id)
+
+    # if count is provided, limit number of results
+    if count is not None:
+        stmt = stmt.limit(count)
+
+    # if offset is provided, offset the results
+    if offset is not None:
+        stmt = stmt.offset(offset)
 
     return (await db.scalars(stmt)).all()
 

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app import domain
 from app.clients import database
@@ -45,43 +46,46 @@ async def create_item(
 
 async def list_items(
     db: Session,
-    terms: Optional[list[str]] = None,
-    create_before_item_id: Optional[int] = None,
+    words: Optional[list[str]] = None,
     count: Optional[int] = 64,
+    offset: Optional[int] = None,
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
 ) -> list[ItemPreviewRead]:
     """List items matchings criteria in the database.
 
-    If the list of strings `terms` is provided, those strings are used to filter the
-    items based on their name and description. All the terms has to be present in the
-    name or the description of the item to be returned.
-
-    If `create_before_item_id` is provided, only items created before that item id will
-    be returned.
+    If the list of strings `words` is provided, those strings are used to filter the
+    items based on their name and description via a fuzzy-search. This fuzzy-search also
+    generates a score for each item.
 
     If `count` is provided, the number of returned items is limited to `count`.
 
-    If `targeted_age_months` is provided, items with `targeted_age_months` range must overlap the
-    given range to be returned.
+    If `offset` is provided, the `offset` items are skipped.
+
+    If `targeted_age_months` is provided, items with `targeted_age_months` range must
+    overlap the given range to be returned.
 
     If `regions` is provided, items must be in one of those regions to
     be returned.
 
     If `owner_id` is provided, item must be owned by the user with this ID to be
     returned.
+
+    The items are return sorted by descending ID (equivalent to creation date) and
+    descending fuzzy-search score (which means the most relevant items are given first).
     """
 
     # search in db
     # TODO use quickwit or elasticsearch here
     items = await database.item.list_items(
         db=db,
-        terms=terms,
-        created_before_item_id=create_before_item_id,
+        words=words,
         count=count,
+        offset=offset,
         targeted_age_months=targeted_age_months,
         regions=regions,
+        owner_id=owner_id,
         load_attributes=[Item.images, Item.active_loans],
     )
 

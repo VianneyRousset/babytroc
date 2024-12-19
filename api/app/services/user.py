@@ -5,9 +5,31 @@ from app.enums import ReportType
 from app.models.item import Item
 from app.models.user import User
 from app.schemas.report import ReportCreate
+from app.schemas.user.create import UserCreate
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.user.read import UserRead
 from app.schemas.user.update import UserUpdate
+
+
+async def create_user(
+    db: Session,
+    user_create: UserCreate,
+) -> UserRead:
+    """Create a user."""
+
+    # TODO password hash
+
+    user = await database.user.create_user(
+        db=db,
+        email=user_create.email,
+        name=user_create.name,
+        password_hash=user_create.password,
+        avatar_seed=user_create.avatar_seed,
+        load_attributes=[User.likes_count, User.items],
+        options=[selectinload(User.items).selectinload(Item.images)],
+    )
+
+    return UserRead.from_orm(user)
 
 
 async def list_users(
