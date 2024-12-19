@@ -87,18 +87,18 @@ class Item(CreationDate, UpdateDate, Base):
         default=False,
     )
 
-    # user that liked the item
+    # the users that liked the item
     liked_by: Mapped[list["User"]] = relationship(
         "User",
         secondary="item_like",
         back_populates="liked_items",
     )
 
-    # user that bookmarked the item
-    bookmarked_by: Mapped[list["User"]] = relationship(
+    # the users that saved the item
+    saved_by: Mapped[list["User"]] = relationship(
         "User",
-        secondary="item_bookmark",
-        back_populates="bookmarked_items",
+        secondary="item_save",
+        back_populates="saved_items",
     )
 
     # loans of the item

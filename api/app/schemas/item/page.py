@@ -9,3 +9,5 @@ class ItemPage(Base):
     limit: Optional[int] = None
     max_words_match_distance: Optional[float] = None
     min_item_id: Optional[int] = None
+    min_like_id: Optional[int] = None
+    min_save_id: Optional[int] = None

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.clients.database import dbutils
 from app.clients.database.user import get_user
 from app.errors.exception import ItemNotFoundError
-from app.models.item import Item, ItemImage, Region
+from app.models.item import Item, ItemSave, ItemImage, ItemLike, Region
 from app.models.user import User
 from app.schemas.item.page import ItemPage
 
@@ -94,6 +94,8 @@ async def list_items(
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
+    liked_by_user_id: Optional[int] = None,
+    saved_by_user_id: Optional[int] = None,
     limit: Optional[int] = 64,
     words_match_distance_ge: Optional[float] = None,
     item_id_less_than: Optional[int] = None,
@@ -115,6 +117,12 @@ async def list_items(
     If `owner_id` is provided, item must be owned by the user with this ID to be
     returned.
 
+    If `liked_by_user_id` is provided, item must be liked by the user with this ID
+    to be returned.
+
+    If `saved_by_user_id` is provided, item must be saved by the user
+    with this ID to be returned.
+
     If `limit` is provided, the number of returned items is limited to `limit`.
 
     If `words_match_distance_ge`, the item must have a words match distance
@@ -135,7 +143,16 @@ async def list_items(
             func.normalize_text(word)
         )
 
-    stmt = select(Item, distance)
+    like_id = None
+    save_id = None
+
+    if liked_by_user_id is not None:
+        like_id = ItemLike.id
+
+    if saved_by_user_id is not None:
+        save_id = ItemSave.id
+
+    stmt = select(Item, distance, like_id, save_id)
 
     # if words is provided, apply where filtering based on words matchings and sort
     # by distance based on word_similarity().
@@ -179,9 +196,6 @@ async def list_items(
     if limit is not None:
         stmt = stmt.limit(limit)
 
-    # sort item by descending ID (equivalent to creation date ordering)
-    stmt = stmt.order_by(Item.id.desc())
-
     # if words_match_distance_ge is provided, apply where filtering
     # where distance is greater than the provided value.
     if words_match_distance_ge is not None:
@@ -192,23 +206,45 @@ async def list_items(
     if item_id_less_than is not None:
         stmt = stmt.where(Item.id < item_id_less_than)
 
+    # if liked_by_user_id is provided, apply where filtering
+    # where user ID is in the item_like.user_id.
+    if liked_by_user_id is not None:
+        stmt = stmt.join(ItemLike).where(ItemLike.user_id == liked_by_user_id)
+        stmt = stmt.order_by(like_id.desc())
+
+    # if saved_by_user_id is provided, apply where filtering
+    # where user ID is in the item_save.user_id.
+    if saved_by_user_id is not None:
+        stmt = stmt.join(ItemSave).where(ItemSave.user_id == saved_by_user_id)
+        stmt = stmt.order_by(save_id.desc())
+
     stmt = dbutils.add_default_query_options(
         stmt=stmt,
         load_attributes=load_attributes,
         options=options,
     )
 
-    result = (await db.execute(stmt)).all()
+    # sort item by descending ID (equivalent to creation date ordering)
+    stmt = stmt.order_by(Item.id.desc())
 
-    items = [item for item, _ in result]
+    rows = (await db.execute(stmt)).all()
 
-    distances = [d for _, d in result]
+    if not rows:
+        page = ItemPage(
+            limit=limit,
+        )
+
+        return [], page
+
+    items, distances, like_ids, save_ids = zip(*rows)
 
     # fill pagination data
     page = ItemPage(
         limit=limit,
-        max_words_match_distance=max(distances) if distances else None,
-        min_item_id=min(item.id for item in items) if items else None,
+        max_words_match_distance=max(distances) if words is not None else None,
+        min_item_id=min(item.id for item in items),
+        min_like_id=(min(like_ids) if liked_by_user_id is not None else None),
+        min_save_id=(min(save_ids) if saved_by_user_id is not None else None),
     )
 
     return items, page

@@ -163,3 +163,33 @@ class ItemLikeNotExistsError(ApiError):
             message=message,
             status_code=HTTPStatus.CONFLICT,
         )
+
+
+class ItemSaveError(ApiError):
+    """Exception related to a item save."""
+
+    pass
+
+
+class ItemSaveAlreadyExistsError(ApiError):
+    """Exception related to an already existing item save."""
+
+    def __init__(self, *, user_id: int, item_id: int):
+        message = f"Item #{item_id} is already saved by user #{user_id}."
+
+        super().__init__(
+            message=message,
+            status_code=HTTPStatus.CONFLICT,
+        )
+
+
+class ItemSaveNotExistsError(ApiError):
+    """Exception related to a non-existing item save."""
+
+    def __init__(self, *, user_id: int, item_id: int):
+        message = f"Item #{item_id} is not saved by user #{user_id}."
+
+        super().__init__(
+            message=message,
+            status_code=HTTPStatus.CONFLICT,
+        )

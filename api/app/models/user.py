@@ -66,10 +66,10 @@ class User(CreationDate, Base):
         back_populates="liked_by",
     )
 
-    bookmarked_items: Mapped[list["Item"]] = relationship(
+    saved_items: Mapped[list["Item"]] = relationship(
         "Item",
-        secondary="item_bookmark",
-        back_populates="bookmarked_by",
+        secondary="item_save",
+        back_populates="saved_by",
     )
 
     borrowings: Mapped[list["Loan"]] = relationship(

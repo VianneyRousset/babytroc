@@ -51,6 +51,8 @@ async def list_items(
     targeted_age_months: Optional[list[int]] = None,
     regions: Optional[list[int]] = None,
     owner_id: Optional[int] = None,
+    liked_by_user_id: Optional[int] = None,
+    saved_by_user_id: Optional[int] = None,
     limit: Optional[int] = 64,
     words_match_distance_ge: Optional[float] = None,
     item_id_less_than: Optional[int] = None,
@@ -70,6 +72,12 @@ async def list_items(
     If `owner_id` is provided, item must be owned by the user with this ID to be
     returned.
 
+    If `liked_by_user_id` is provided, item must be liked by the user with this ID
+    to be returned.
+
+    If `saved_by_user_id` is provided, item must be saved by the user with this ID
+    to be returned.
+
     If `limit` is provided, the number of returned items is limited to `limit`.
 
     If `words_match_distance_ge`, the item must have a words match distance
@@ -77,7 +85,6 @@ async def list_items(
 
     If `item_id_less_than`, the item must have an ID less than this value to be
     returned.
-
 
     The items are return sorted by descending ID (equivalent to creation date) and
     increasing words match distance (the most relevant items are given first).
@@ -91,6 +98,8 @@ async def list_items(
         targeted_age_months=targeted_age_months,
         regions=regions,
         owner_id=owner_id,
+        liked_by_user_id=liked_by_user_id,
+        saved_by_user_id=saved_by_user_id,
         limit=limit,
         words_match_distance_ge=words_match_distance_ge,
         item_id_less_than=item_id_less_than,

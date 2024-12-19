@@ -1,20 +1,13 @@
-from sqlalchemy import (
-    ForeignKey,
-    Integer,
-    UniqueConstraint,
-)
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-)
+from sqlalchemy import ForeignKey, Integer, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, IntegerIdentifier
 
 
-class ItemLike(IntegerIdentifier, Base):
-    """Maps the users and their liked items."""
+class ItemSave(IntegerIdentifier, Base):
+    """Maps users and their saved items."""
 
-    __tablename__ = "item_like"
+    __tablename__ = "item_save"
 
     # the item
     item_id: Mapped[int] = mapped_column(
@@ -23,7 +16,7 @@ class ItemLike(IntegerIdentifier, Base):
         primary_key=True,
     )
 
-    # the user that liked the item
+    # the user that saved the item
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("user.id"),
