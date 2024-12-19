@@ -130,7 +130,7 @@ async def list_items(
     # represents the word match distance
     distance = 0
 
-    for word in words:
+    for word in words or []:
         distance = distance + Item.searchable_text.op("<->>", return_type=Integer)(
             func.normalize_text(word)
         )
@@ -139,14 +139,15 @@ async def list_items(
 
     # if words is provided, apply where filtering based on words matchings and sort
     # by distance based on word_similarity().
-    if words:
-        stmt = stmt.where(
-            Item.searchable_text.op("%>", return_type=Integer)(
-                func.normalize_text(word)
+    if words is not None:
+        for word in words or []:
+            stmt = stmt.where(
+                Item.searchable_text.op("%>", return_type=Integer)(
+                    func.normalize_text(word)
+                )
             )
-        )
 
-        stmt = stmt.order_by(distance)
+            stmt = stmt.order_by(distance)
 
     # if targeted_age_months is provided, apply where filtering based on range overlap
     if targeted_age_months is not None:
