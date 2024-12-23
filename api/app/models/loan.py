@@ -1,15 +1,11 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from asyncpg.types import Range
 from sqlalchemy import (
-    DateTime,
     Enum,
     ForeignKey,
-    Index,
     Integer,
     UniqueConstraint,
-    func,
     text,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
@@ -21,7 +17,7 @@ from sqlalchemy.orm import (
 
 from app.enums import LoanRequestState
 
-from .base import Base, IntegerIdentifier, CreationDate
+from .base import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:
     from .item import Item
@@ -64,6 +60,10 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
             (borrower_id, "="),
             where=(state == LoanRequestState.pending),
             name="loan_request_unique_pending_request",
+            comment=(
+                "Ensure borrower cannot emit two pending loan requests "
+                "of the same item."
+            ),
         ),
     )
 
@@ -106,5 +106,6 @@ class Loan(IntegerIdentifier, Base):
             (item_id, "="),
             (during, "&&"),
             name="loan_no_overlapping_date_ranges",
+            comment="Ensure that two loan of an item does not overlap in time",
         ),
     )
