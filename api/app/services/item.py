@@ -54,37 +54,19 @@ async def list_items(
     query_filter: Optional[ItemQueryFilter] = None,
     page_options: Optional[ItemQueryPageOptions] = None,
 ) -> ItemQueryPageResult[ItemPreviewRead]:
-    """List items using query_filter and page_options.
+    """List items matchings criteria in the database.
 
-    If the list of strings `words` is provided, those strings are used to filter the
-    items based on their name and description via a fuzzy-search. This fuzzy-search also
-    generates a words match distance for each item.
-
-    If `targeted_age_months` is provided, items with `targeted_age_months` range must
-    overlap the given range to be returned.
-
-    If `regions` is provided, items must be in one of those regions to
-    be returned.
-
-    If `owner_id` is provided, item must be owned by the user with this ID to be
-    returned.
-
-    If `liked_by_user_id` is provided, item must be liked by the user with this ID
-    to be returned.
-
-    If `saved_by_user_id` is provided, item must be saved by the user with this ID
-    to be returned.
-
-    If `limit` is provided, the number of returned items is limited to `limit`.
-
-    If `words_match_distance_ge`, the item must have a words match distance
-    greater or equal to this value to be returned.
-
-    If `item_id_less_than`, the item must have an ID less than this value to be
-    returned.
-
-    The items are return sorted by descending ID (equivalent to creation date) and
-    increasing words match distance (the most relevant items are given first).
+    Order
+    -----
+    The items are return sorted by:
+    - Increasing words match distance (the most relevant items are given first)
+      if query_filter.words is provided.
+    - Then, by descreasing `save_id` (the items saved the most recently
+      are given first) if query_filter.saved_by_user_id is provided.
+    - Then, by descreasing `like_id` (the items liked the most recently
+      are given first) if query_filter.liked_by_user_id is provided.
+    - Finally, by descreasing `item_id` (the items created most recently
+      are given first.
     """
 
     # search in db
