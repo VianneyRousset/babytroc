@@ -7,7 +7,11 @@ from app.clients import database
 from app.enums import ReportType
 from app.models.item import Item
 from app.schemas.item.create import ItemCreate
-from app.schemas.item.page import ItemPage
+from app.schemas.item.query import (
+    ItemQueryPageResult,
+    ItemQueryFilter,
+    ItemQueryPageOptions,
+)
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.private import ItemPrivateRead
 from app.schemas.item.read import ItemRead
@@ -47,17 +51,10 @@ async def create_item(
 async def list_items(
     db: Session,
     *,
-    words: Optional[list[str]] = None,
-    targeted_age_months: Optional[list[int]] = None,
-    regions: Optional[list[int]] = None,
-    owner_id: Optional[int] = None,
-    liked_by_user_id: Optional[int] = None,
-    saved_by_user_id: Optional[int] = None,
-    limit: Optional[int] = 64,
-    words_match_distance_ge: Optional[float] = None,
-    item_id_less_than: Optional[int] = None,
-) -> tuple[list[ItemPreviewRead], ItemPage]:
-    """List items matchings criteria in the database.
+    query_filter: Optional[ItemQueryFilter] = None,
+    page_options: Optional[ItemQueryPageOptions] = None,
+) -> ItemQueryPageResult[ItemPreviewRead]:
+    """List items using query_filter and page_options.
 
     If the list of strings `words` is provided, those strings are used to filter the
     items based on their name and description via a fuzzy-search. This fuzzy-search also
@@ -92,21 +89,19 @@ async def list_items(
 
     # search in db
     # TODO discard words shorter than 3 characters ?
-    items, page = await database.item.list_items(
+    result = await database.item.list_items(
         db=db,
-        words=words,
-        targeted_age_months=targeted_age_months,
-        regions=regions,
-        owner_id=owner_id,
-        liked_by_user_id=liked_by_user_id,
-        saved_by_user_id=saved_by_user_id,
-        limit=limit,
-        words_match_distance_ge=words_match_distance_ge,
-        item_id_less_than=item_id_less_than,
+        query_filter=query_filter,
+        page_options=page_options,
         load_attributes=[Item.images, Item.active_loans],
     )
 
-    return [ItemPreviewRead.from_orm(item) for item in items], page
+    return ItemQueryPageResult[ItemPreviewRead](
+        **{
+            **result.dict(),
+            "items": [ItemPreviewRead.from_orm(item) for item in result.items],
+        }
+    )
 
 
 async def get_item(

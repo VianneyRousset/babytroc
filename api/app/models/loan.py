@@ -47,7 +47,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     )
     state: Mapped[LoanRequestState] = mapped_column(
         Enum(LoanRequestState),
-        # server_default=LoanRequestState.pending,
+        default=LoanRequestState.pending,
     )
     item: Mapped["Item"] = relationship(
         "Item",
@@ -56,6 +56,14 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     borrower: Mapped["User"] = relationship(
         "User",
         back_populates="borrowing_requests",
+    )
+
+    __table_args__ = (
+        ExcludeConstraint(
+            (item_id, "="),
+            (borrower_id, "="),
+            where=(state == LoanRequestState.pending),
+        ),
     )
 
 
@@ -98,6 +106,4 @@ class Loan(IntegerIdentifier, Base):
             (during, "&&"),
             name="no_overlapping_date_ranges",
         ),
-        # optimize the queries using the loaner id
-        # Index("ix_loan_item_owner", "item.owner_id"),
     )

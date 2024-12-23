@@ -27,6 +27,7 @@ class ItemUpdate(ItemBase):
     regions: Optional[list[int]] = None
     blocked: Optional[bool] = None
 
+    # TODO global field validator for targeted_age_months ?
     @field_validator("targeted_age_months")
     def validate_targeted_age_months(cls, v):  # noqa: N805
         if len(v) != 2:
