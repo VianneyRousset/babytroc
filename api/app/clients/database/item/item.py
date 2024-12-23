@@ -184,12 +184,12 @@ async def get_item(
     )
 
     try:
-        item = (await db.execute(stmt)).unique().scalars().one()
+        return (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        raise ItemNotFoundError({"item_id": item_id}) from error
-
-    return item
+        key = {"item_id": item_id, "owner_id": owner_id}
+        key = {k: v for k, v in key.items() if v is not None}
+        raise ItemNotFoundError(key) from error
 
 
 async def update_item(

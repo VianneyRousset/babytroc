@@ -63,6 +63,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
             (item_id, "="),
             (borrower_id, "="),
             where=(state == LoanRequestState.pending),
+            name="loan_request_unique_pending_request",
         ),
     )
 
@@ -104,6 +105,6 @@ class Loan(IntegerIdentifier, Base):
         ExcludeConstraint(
             (item_id, "="),
             (during, "&&"),
-            name="no_overlapping_date_ranges",
+            name="loan_no_overlapping_date_ranges",
         ),
     )

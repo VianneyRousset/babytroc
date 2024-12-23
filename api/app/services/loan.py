@@ -1,26 +1,36 @@
 from typing import Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.clients import database
 from app.enums import LoanRequestState
+from app.models.item import Item
+from app.models.loan import LoanRequest
 from app.schemas.loan import LoanRead, LoanRequestCreate, LoanRequestRead
 
 
 async def create_loan_request(
     db: Session,
-    borrower_user_id: int,
+    borrower_id: int,
     loan_request: LoanRequestCreate,
 ):
     """Create a loan request."""
 
-    loan_request = await database.loan.insert_loan_request(
+    loan_request = await database.loan.create_loan_request(
         db=db,
-        borrower_user_id=borrower_user_id,
+        borrower_id=borrower_id,
         item_id=loan_request.item_id,
+        load_attributes=[LoanRequest.borrower],
+        options=[
+            selectinload(LoanRequest.item).selectinload(Item.images),
+            selectinload(LoanRequest.item).selectinload(Item.active_loans),
+        ],
     )
 
-    return LoanRequestRead.model_validate(loan_request)
+    return LoanRequestRead.from_orm(
+        loan_request=loan_request,
+        message=None,
+    )
 
 
 async def list_user_loan_requests(

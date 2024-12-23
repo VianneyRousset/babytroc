@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from app.enums import ChatMessageType
+from app import models
 
 from .base import Base
 
@@ -32,3 +33,7 @@ class ChatMessageRead(ChatBase):
     creation_date: datetime
     seen: bool
     payload: str
+
+    @classmethod
+    def from_orm(cls, message: models.chat.ChatMessage):
+        return cls.model_validate(message)
