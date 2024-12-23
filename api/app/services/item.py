@@ -7,13 +7,13 @@ from app.clients import database
 from app.enums import ReportType
 from app.models.item import Item
 from app.schemas.item.create import ItemCreate
-from app.schemas.item.query import (
-    ItemQueryPageResult,
-    ItemQueryFilter,
-    ItemQueryPageOptions,
-)
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.private import ItemPrivateRead
+from app.schemas.item.query import (
+    ItemQueryFilter,
+    ItemQueryPageOptions,
+    ItemQueryPageResult,
+)
 from app.schemas.item.read import ItemRead
 from app.schemas.item.update import ItemUpdate
 from app.schemas.report import ReportCreate
@@ -120,7 +120,6 @@ async def get_private_item(
     """
 
     # get item from databse
-    # TODO replace client concept with a non-client concept
     item = await database.item.get_item(
         db=db,
         item_id=item_id,
