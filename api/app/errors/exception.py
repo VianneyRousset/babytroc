@@ -1,6 +1,7 @@
 from datetime import datetime
 from http import HTTPStatus
 from typing import Any, Mapping, Optional
+from app.enums import LoanRequestState
 
 
 class ApiError(Exception):
@@ -68,6 +69,22 @@ class LoanRequestNotFoundError(NotFoundError, LoanRequestError):
         super().__init__(
             datatype="loan request",
             key=key,
+        )
+
+
+class LoanRequestStateError(LoanRequestError):
+    def __init__(
+        self,
+        *,
+        expected_state: LoanRequestState,
+        actual_state: LoanRequestState,
+    ):
+        super().__init__(
+            message=(
+                f"Loan request state is expected to be: {expected_state}, "
+                f"got: {actual_state}."
+            ),
+            status_code=HTTPStatus.HTTP_400_BAD_REQUEST,
         )
 
 

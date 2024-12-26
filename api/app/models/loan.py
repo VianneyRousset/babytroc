@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     UniqueConstraint,
+    CheckConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
@@ -54,6 +55,22 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         back_populates="borrowing_requests",
     )
 
+    # once executed, referes to the create loan
+    loan_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "loan.id",
+        ),
+        nullable=True,
+        server_default=None,
+        comment="The created loan originating from this loan request.",
+    )
+
+    loan: Mapped["Loan"] = relationship(
+        "Loan",
+        back_populates="loan_request",
+    )
+
     __table_args__ = (
         ExcludeConstraint(
             (item_id, "="),
@@ -64,6 +81,14 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
                 "Ensure borrower cannot emit two pending loan requests "
                 "of the same item."
             ),
+        ),
+        CheckConstraint(
+            (
+                ((state == LoanRequestState.executed) & (loan_id.is_not(None)))
+                | ((state != LoanRequestState.executed) & (loan_id.is_(None)))
+            ),
+            name="loan_request_executed_or_not",
+            comment="Ensure loan_id is NULL iff state != 'executed'.",
         ),
     )
 
@@ -98,6 +123,12 @@ class Loan(IntegerIdentifier, Base):
         TSTZRANGE,
         index=True,
         server_default=text("tstzrange(now(), 'infinity', '()')"),
+    )
+
+    # the executed loan request that created this loan
+    loan_request: Mapped[LoanRequest] = relationship(
+        LoanRequest,
+        back_populates="loan",
     )
 
     __table_args__ = (

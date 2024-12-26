@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class ItemImage(Base, IntegerIdentifier, CreationDate):
     """Images of items.
 
-    An incrementing integer is used as id instaed of a unique name to provide a
+    An incrementing integer is used as id instead of a unique name to provide a
     deterministic way to sort the image of an item.
     """
 
@@ -28,6 +28,7 @@ class ItemImage(Base, IntegerIdentifier, CreationDate):
 
     name: Mapped[str] = mapped_column(
         String,
+        unique=True,
     )
 
     # the item

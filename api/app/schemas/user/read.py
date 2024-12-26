@@ -1,8 +1,10 @@
+from app.schemas.base import ReadBase
 from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.user.base import UserBase
+
+from .base import UserBase
 
 
-class UserRead(UserBase):
+class UserRead(UserBase, ReadBase):
     id: int
     name: str
     avatar_seed: str

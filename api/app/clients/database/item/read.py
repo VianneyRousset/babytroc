@@ -1,11 +1,9 @@
-from collections.abc import Collection
 from typing import Optional
 
 from sqlalchemy import BinaryExpression, Integer, func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, Session
 
-from app.clients.database import dbutils
 from app.errors.exception import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.query import (
@@ -43,8 +41,6 @@ def list_items(
     *,
     query_filter: Optional[ItemQueryFilter] = None,
     page_options: Optional[ItemQueryPageOptions] = None,
-    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
-    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> ItemQueryPageResult[Item]:
     """List items matchings criteria in the database."""
 

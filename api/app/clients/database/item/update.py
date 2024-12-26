@@ -2,9 +2,8 @@ from typing import Any, Mapping
 
 from sqlalchemy.orm import Session
 
+from app.clients.database.region import get_region
 from app.models.item import Item, ItemImage
-
-from .region import get_region
 
 
 def update_item(

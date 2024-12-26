@@ -1,8 +1,8 @@
-def get_stars_gain_when_adding_item(new_items_count: int) -> int:
-    """Compute the number of stars won when adding `new_items_count` items."""
+def stars_gain_when_adding_item(added_items_count: int) -> int:
+    """Compute the number of stars won when adding `added_items_count` items."""
 
-    if not isinstance(new_items_count, int):
-        msg = f"new_items_count is to be an integer, got {type(new_items_count)}."
+    if not isinstance(added_items_count, int):
+        msg = f"added_items_count must be an integer, got {type(added_items_count)}."
         raise ValueError(msg)
 
-    return 20 * new_items_count
+    return 20 * added_items_count

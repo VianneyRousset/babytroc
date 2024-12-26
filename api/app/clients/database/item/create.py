@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from app.clients.database.user import get_user
 from app.models.item import Item, ItemImage
 
-from .region import get_region
+from app.clients.database.region import get_region
+from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
 
 def create_item(
@@ -24,7 +25,7 @@ def create_item(
     item = Item(
         name=name,
         description=description,
-        targeted_age_months=targeted_age_months,
+        targeted_age_months=Range(*targeted_age_months, bounds="[]"),
         blocked=blocked,
     )
 

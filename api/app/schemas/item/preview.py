@@ -1,9 +1,10 @@
 from app import domain
+from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
 from app.schemas.utils import integer_range_to_inclusive
 
 
-class ItemPreviewRead(ItemBase):
+class ItemPreviewRead(ItemBase, ReadBase):
     id: int
     name: str
     description: str
@@ -26,7 +27,7 @@ class ItemPreviewRead(ItemBase):
             images=[img.name for img in item.images],
             available=domain.item.compute_item_available(
                 is_blocked=item.blocked,
-                has_active_loan=bool(item.active_loans),
+                active_loans_count=item.active_loans_count,
             ),
             owner_id=item.owner_id,
         )

@@ -1,12 +1,13 @@
 from app import domain
+from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
-from app.schemas.loan import LoanRead
-from app.schemas.region import RegionRead
+from app.schemas.loan.read import LoanRead
+from app.schemas.region.read import RegionRead
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.utils import integer_range_to_inclusive
 
 
-class ItemPrivateRead(ItemBase):
+class ItemPrivateRead(ItemBase, ReadBase):
     id: int
     name: str
     description: str
@@ -36,7 +37,7 @@ class ItemPrivateRead(ItemBase):
             images=[img.name for img in item.images],
             available=domain.item.compute_item_available(
                 is_blocked=item.blocked,
-                has_active_loan=bool(item.active_loans),
+                active_loans_count=bool(item.active_loans),
             ),
             owner_id=item.owner_id,
             owner=UserPreviewRead.from_orm(item.owner),

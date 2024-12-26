@@ -5,7 +5,6 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.clients.database import dbutils
 from app.errors.exception import LoanNotFoundError, LoanRequestNotFoundError
 from app.models.loan import Loan, LoanRequest
 from app.schemas.loan.query import (
@@ -23,8 +22,6 @@ def get_loan_request(
     loan_request_id: int,
     *,
     query_filter: Optional[LoanRequestQueryFilter] = None,
-    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
-    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> LoanRequest:
     """Get loan request with ID `loan_request_id`."""
 
@@ -34,12 +31,6 @@ def get_loan_request(
     stmt = select(LoanRequest).where(LoanRequest.id == loan_request_id)
 
     stmt = query_filter.apply(stmt)
-
-    stmt = dbutils.add_default_query_options(
-        stmt=stmt,
-        load_attributes=load_attributes,
-        options=options,
-    )
 
     try:
         return (db.execute(stmt)).unique().scalars().one()
@@ -55,8 +46,6 @@ def list_loan_requests(
     *,
     query_filter: Optional[LoanRequestQueryFilter] = None,
     page_options: Optional[LoanRequestQueryPageOptions] = None,
-    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
-    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> LoanRequestQueryPageResult[LoanRequest]:
     """List loan requests matching criteria.
 
@@ -76,12 +65,6 @@ def list_loan_requests(
     stmt = query_filter.apply(stmt)
     stmt = page_options.apply(stmt)
 
-    stmt = dbutils.add_default_query_options(
-        stmt=stmt,
-        load_attributes=load_attributes,
-        options=options,
-    )
-
     loan_requests = (db.execute(stmt)).scalars().all()
 
     return LoanRequestQueryPageResult[LoanRequest].from_orm(
@@ -96,8 +79,6 @@ def get_loan(
     loan_id: int,
     *,
     query_filter: Optional[LoanQueryFilter] = None,
-    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
-    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> Loan:
     """Get loan with ID `loan_id`."""
 
@@ -107,12 +88,6 @@ def get_loan(
     stmt = select(Loan).where(Loan.id == loan_id)
 
     stmt = query_filter.apply(stmt)
-
-    stmt = dbutils.add_default_query_options(
-        stmt=stmt,
-        load_attributes=load_attributes,
-        options=options,
-    )
 
     try:
         return (db.execute(stmt)).unique().scalars().one()
@@ -127,8 +102,6 @@ def list_loans(
     *,
     query_filter: Optional[LoanQueryFilter] = None,
     page_options: Optional[LoanQueryPageOptions] = None,
-    load_attributes: Optional[Collection[dbutils.LoadableAttrType]] = None,
-    options: Optional[Collection[dbutils.ExecutableOption]] = None,
 ) -> LoanQueryPageResult[Loan]:
     """List items matching criteria.
 
@@ -147,12 +120,6 @@ def list_loans(
 
     stmt = page_options.apply(stmt)
     stmt = query_filter.apply(stmt)
-
-    stmt = dbutils.add_default_query_options(
-        stmt=stmt,
-        load_attributes=load_attributes,
-        options=options,
-    )
 
     loan = (db.execute(stmt)).scalars().all()
 

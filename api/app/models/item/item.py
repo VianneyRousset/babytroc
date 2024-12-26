@@ -109,9 +109,13 @@ class Item(CreationDate, UpdateDate, Base):
     )
 
     # all active loans (should be unique or empty)
-    active_loans: Mapped[list[Loan]] = relationship(
-        Loan,
-        viewonly=True,
+    active_loans_count: Mapped[int] = deferred(
+        column_property(
+            select(func.count(Loan.id))
+            .where(Loan.item_id == id)
+            .where(func.upper(Loan.during).is_(None))
+            .scalar_subquery()
+        )
     )
 
     # all loan requests of the item

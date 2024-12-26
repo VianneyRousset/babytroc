@@ -1,11 +1,12 @@
 from app import domain
+from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
-from app.schemas.region import RegionRead
+from app.schemas.region.read import RegionRead
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.utils import integer_range_to_inclusive
 
 
-class ItemRead(ItemBase):
+class ItemRead(ItemBase, ReadBase):
     id: int
     name: str
     description: str

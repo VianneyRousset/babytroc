@@ -4,11 +4,12 @@ from pydantic import Field
 from typing_extensions import Annotated
 
 from app import config
+from app.schemas.base import UpdateBase
 
 from .base import UserBase
 
 
-class UserUpdate(UserBase):
+class UserUpdate(UserBase, UpdateBase):
     name: Annotated[
         Optional[str],
         Field(

@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.clients.database.user import get_user
 from app.errors.exception import ItemLikeAlreadyExistsError
-from app.models.item import Item
 
-from .item import get_item
+from app.clients.database.item import get_item
 
 
 def create_item_like(
@@ -22,7 +21,6 @@ def create_item_like(
     item = get_item(
         db=db,
         item_id=item_id,
-        load_attributes=[Item.liked_by],
     )
 
     item.liked_by.append(user)

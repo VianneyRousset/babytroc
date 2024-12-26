@@ -4,10 +4,11 @@ from pydantic import Field, field_validator
 from typing_extensions import Annotated
 
 from app import config
+from app.schemas.base import UpdateBase
 from app.schemas.item.base import ItemBase
 
 
-class ItemUpdate(ItemBase):
+class ItemUpdate(ItemBase, UpdateBase):
     name: Annotated[
         Optional[str],
         Field(

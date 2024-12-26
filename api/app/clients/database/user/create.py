@@ -8,8 +8,6 @@ from sqlalchemy.orm import Session
 from app.errors.exception import UserNotFoundError
 from app.models.user import User
 
-from app.clients.database import dbutils
-
 
 def create_user(
     db: Session,

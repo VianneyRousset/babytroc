@@ -1,8 +1,8 @@
 def compute_item_available(
     is_blocked: bool,
-    has_active_loan: bool,
+    active_loans_count: int,
 ) -> bool:
-    if is_blocked or has_active_loan:
+    if is_blocked or active_loans_count > 0:
         return False
 
     return True

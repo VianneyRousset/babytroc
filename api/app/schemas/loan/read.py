@@ -1,24 +1,17 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
+from app import models
+from app.enums import ChatMessageType
+from app.schemas.base import ReadBase
+from app.schemas.chat.read import ChatMessageRead
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.user.preview import UserPreviewRead
-from app.enums import ChatMessageType
-from app import models
 
-from .base import Base
-from .chat import ChatMessageRead
+from .base import LoanBase, LoanRequestBase
 
 
-class LoanRequestBase(Base):
-    pass
-
-
-class LoanRequestCreate(LoanRequestBase):
-    item_id: int
-
-
-class LoanRequestRead(LoanRequestBase):
+class LoanRequestRead(LoanRequestBase, ReadBase):
     id: int
     item: ItemPreviewRead
     borrower: UserPreviewRead
@@ -47,11 +40,7 @@ class LoanRequestRead(LoanRequestBase):
         )
 
 
-class LoanBase(Base):
-    pass
-
-
-class LoanRead(LoanBase):
+class LoanRead(LoanBase, ReadBase):
     id: int
     item: ItemPreviewRead
     borrower: UserPreviewRead
