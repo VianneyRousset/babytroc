@@ -1,5 +1,7 @@
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.models.loan import Loan, LoanRequest
@@ -30,6 +32,20 @@ def update_loan(
 
     for key, value in attributes.items():
         setattr(loan, key, value)
+
+    db.flush()
+    db.refresh(loan)
+
+    return loan
+
+
+def end_loan(
+    db: Session,
+    loan: Loan,
+) -> Loan:
+    """Update upper bound of `loan.during` to `now()`."""
+
+    loan.during = text("tstzrange(lower(loan.during), now(), '()')")
 
     db.flush()
     db.refresh(loan)

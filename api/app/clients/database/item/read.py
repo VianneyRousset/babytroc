@@ -80,16 +80,15 @@ def list_items(
     else:
         items, distances, like_ids, save_ids = [], [], [], []
 
-    result = ItemQueryPageResult[Item].from_orm(
-        items=items,
-        words_match_distances=distances,
-        like_ids=like_ids,
-        save_ids=save_ids,
+    return ItemQueryPageResult[Item].from_orm(
+        data=items,
+        words_match_distances=(distances if query_filter.words is not None else None),
+        limit=page_options.limit,
+        like_ids=(like_ids if query_filter.liked_by_user_id is not None else None),
+        save_ids=(save_ids if query_filter.saved_by_user_id is not None else None),
         query_filter=query_filter,
         page_options=page_options,
     )
-
-    return result
 
 
 def _get_words_match_distance(

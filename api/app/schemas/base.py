@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Self, TypeVar
+from typing import Generic, Self, TypeVar, Type
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Select
@@ -30,23 +30,28 @@ class DeleteBase(Base, extra="forbid"):
     pass
 
 
-class QueryFilterBase(Base):
+class QueryFilterBase(Base, extra="forbid"):
     @abc.abstractmethod
     def apply(self, stmt: Select) -> Select:
         raise NotImplementedError(repr(self.apply))
 
 
-class QueryPageOptionsBase(Base):
-    pass
+class QueryPageOptionsBase(Base, extra="forbid"):
+    @abc.abstractmethod
+    def apply(self, stmt: Select) -> Select:
+        raise NotImplementedError(repr(self.apply))
 
 
-class QueryPageResultBase(Base, Generic[ResultType], arbitrary_types_allowed=True):
+class QueryPageResultBase(
+    Base, Generic[ResultType], arbitrary_types_allowed=True, extra="forbid"
+):
     data: list[ResultType]
 
-    def from_orm(self, obj: Self) -> Self:
-        return type(self)(
+    @classmethod
+    def from_orm(cls, obj: Self, t: Type[ResultType]) -> Self:
+        return cls(
             **{
                 **obj.model_dump(),
-                "data": [ResultType.from_orm(o) for o in obj.data],
+                "data": [t.from_orm(o) for o in obj.data],
             }
         )

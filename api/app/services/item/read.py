@@ -65,9 +65,4 @@ def list_items(
         page_options=page_options,
     )
 
-    return ItemQueryPageResult[ItemPreviewRead](
-        **{
-            **result.dict(),
-            "items": [ItemPreviewRead.from_orm(item) for item in result.items],
-        }
-    )
+    return ItemQueryPageResult[ItemPreviewRead].from_orm(result, ItemPreviewRead)

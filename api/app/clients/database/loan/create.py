@@ -84,12 +84,9 @@ def insert_loan(
         item_id=item_id,
     )
 
-    item.loan.append(loan)
+    item.loans.append(loan)
 
     db.flush()
     db.refresh(loan)
 
-    return get_loan_request(
-        db=db,
-        loan_id=loan.id,
-    )
+    return loan

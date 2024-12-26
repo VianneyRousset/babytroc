@@ -65,10 +65,12 @@ def list_loan_requests(
     stmt = query_filter.apply(stmt)
     stmt = page_options.apply(stmt)
 
+    stmt = stmt.order_by(LoanRequest.id.desc())
+
     loan_requests = (db.execute(stmt)).scalars().all()
 
-    return LoanRequestQueryPageResult[LoanRequest].from_orm(
-        loan_requests=loan_requests,
+    return LoanRequestQueryPageResult[LoanRequest](
+        data=loan_requests,
         query_filter=query_filter,
         page_options=page_options,
     )
@@ -121,10 +123,10 @@ def list_loans(
     stmt = page_options.apply(stmt)
     stmt = query_filter.apply(stmt)
 
-    loan = (db.execute(stmt)).scalars().all()
+    loans = (db.execute(stmt)).scalars().all()
 
-    return LoanQueryPageResult[Loan].from_orm(
-        loan=loan,
+    return LoanQueryPageResult[Loan](
+        data=loans,
         query_filter=query_filter,
         page_options=page_options,
     )

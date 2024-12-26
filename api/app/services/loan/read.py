@@ -46,7 +46,7 @@ def list_loan_requests(
         page_options=page_options,
     )
 
-    return LoanRequestQueryPageResult[LoanRequestRead].from_orm(result)
+    return LoanRequestQueryPageResult[LoanRequestRead].from_orm(result, LoanRequestRead)
 
 
 def get_loan(
@@ -81,4 +81,4 @@ def list_loans(
         page_options=page_options,
     )
 
-    return LoanQueryPageResult[LoanRead].from_orm(result)
+    return LoanQueryPageResult[LoanRead].from_orm(result, LoanRead)

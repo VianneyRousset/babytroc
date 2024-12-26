@@ -37,7 +37,7 @@ class ItemPrivateRead(ItemBase, ReadBase):
             images=[img.name for img in item.images],
             available=domain.item.compute_item_available(
                 is_blocked=item.blocked,
-                active_loans_count=bool(item.active_loans),
+                active_loans_count=item.active_loans_count,
             ),
             owner_id=item.owner_id,
             owner=UserPreviewRead.from_orm(item.owner),

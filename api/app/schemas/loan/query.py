@@ -1,6 +1,6 @@
 from typing import Any, Generic, Optional
 
-from sqlalchemy import Select
+from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
 from app.models.loan import Loan, LoanRequest
@@ -54,7 +54,15 @@ class LoanRequestQueryPageOptions(QueryPageOptionsBase):
     loan_request_id_lt: Optional[int] = None
 
     def apply(self, stmt: Select) -> Select:
-        """Apply filtering."""
+        # apply limit
+        if self.limit is not None:
+            stmt = stmt.limit(self.limit)
+
+        # if loan_request_id_lt is provided, add it to the query
+        if self.loan_request_id_lt is not None:
+            stmt = stmt.where(LoanRequest.id < self.loan_request_id_lt)
+
+        return stmt
 
 
 class LoanRequestQueryPageResult(QueryPageResultBase, Generic[ResultType]):
@@ -69,20 +77,6 @@ class LoanRequestQueryPageResult(QueryPageResultBase, Generic[ResultType]):
             return min(req.id for req in self.loan_requests)
         return None
 
-    @classmethod
-    def from_orm(
-        cls,
-        *,
-        loan_requests: list[LoanRequest],
-        query_filter: LoanRequestQueryFilter,
-        page_options: LoanRequestQueryPageOptions,
-    ):
-        return cls(
-            data=loan_requests,
-            query_filter=query_filter,
-            page_options=page_options,
-        )
-
 
 class LoanQueryFilter(QueryFilterBase):
     """Filter of the loans query."""
@@ -92,12 +86,46 @@ class LoanQueryFilter(QueryFilterBase):
     owner_id: Optional[int] = None
     active: Optional[bool] = None
 
+    def apply(self, stmt: Select) -> Select:
+        """Apply filtering."""
+
+        # filter item_id
+        if self.item_id is not None:
+            stmt = stmt.where(Loan.item_id == self.item_id)
+
+        # filter borrower_id
+        if self.borrower_id is not None:
+            stmt = stmt.where(Loan.borrower_id == self.borrower_id)
+
+        # filter owner_id
+        if self.owner_id is not None:
+            stmt = stmt.join(User).where(User.id == self.owner_id)
+
+        # filter state
+        if self.active is not None:
+            stmt = stmt.where(func.upper_inf(Loan.during))
+
+        return stmt
+
 
 class LoanQueryPageOptions(QueryPageOptionsBase):
     """Options on the queried page of loans."""
 
     limit: Optional[int] = None
-    loan_id: Optional[int] = None
+    loan_id_lt: Optional[int] = None
+
+    def apply(self, stmt: Select) -> Select:
+        """Apply pagination options."""
+
+        # apply limit
+        if self.limit is not None:
+            stmt = stmt.limit(self.limit)
+
+        # filter loan_id_lt
+        if self.loan_id_lt is not None:
+            stmt = stmt.where(Loan.id < self.loan_id_lt)
+
+        return stmt
 
 
 class LoanQueryPageResult(QueryPageResultBase, Generic[ResultType]):
@@ -111,17 +139,3 @@ class LoanQueryPageResult(QueryPageResultBase, Generic[ResultType]):
         if self.loans:
             return min(loan.id for loan in self.loans)
         return None
-
-    @classmethod
-    def from_orm(
-        cls,
-        *,
-        loans: list[Loan],
-        query_filter: LoanQueryFilter,
-        page_options: LoanQueryPageOptions,
-    ):
-        return cls(
-            data=loans,
-            query_filter=query_filter,
-            page_options=page_options,
-        )

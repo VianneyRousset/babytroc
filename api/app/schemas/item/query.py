@@ -114,7 +114,6 @@ class ItemQueryPageOptions(QueryPageOptionsBase):
 class ItemQueryPageResult(QueryPageResultBase, Generic[ResultType]):
     """Info on the result page of items."""
 
-    items: list[ResultType]
     words_match_distances: Optional[list[float]] = None
     like_ids: Optional[list[int]] = None
     save_ids: Optional[list[int]] = None
@@ -145,26 +144,3 @@ class ItemQueryPageResult(QueryPageResultBase, Generic[ResultType]):
         if self.save_ids:
             return min(self.save_ids)
         return None
-
-    @classmethod
-    def from_orm(
-        cls,
-        *,
-        items: list["Item"],
-        words_match_distances: list[float | None],
-        like_ids: list[int | None],
-        save_ids: list[int | None],
-        query_filter: ItemQueryFilter,
-        page_options: ItemQueryPageOptions,
-    ):
-        return cls(
-            limit=page_options.limit,
-            items=items,
-            words_match_distances=(
-                words_match_distances if query_filter.words is not None else None
-            ),
-            like_ids=(like_ids if query_filter.liked_by_user_id is not None else None),
-            save_ids=(save_ids if query_filter.saved_by_user_id is not None else None),
-            query_filter=query_filter,
-            page_options=page_options,
-        )

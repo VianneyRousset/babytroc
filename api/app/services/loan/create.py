@@ -23,10 +23,7 @@ def create_loan_request(
         item_id=loan_request.item_id,
     )
 
-    return LoanRequestRead.from_orm(
-        loan_request=loan_request,
-        message=None,
-    )
+    return LoanRequestRead.from_orm(loan_request)
 
 
 def execute_loan_request(
@@ -56,9 +53,9 @@ def execute_loan_request(
     )
 
     # check loan request state
-    if not force and loan_request.state != LoanRequestState.pending:
+    if not force and loan_request.state != LoanRequestState.accepted:
         raise LoanRequestStateError(
-            expected_state=LoanRequestState.pending,
+            expected_state=LoanRequestState.accepted,
             actual_state=loan_request.state,
         )
 
@@ -70,6 +67,7 @@ def execute_loan_request(
     )
 
     database.loan.update_loan_request(
+        db=db,
         loan_request=loan_request,
         attributes={
             "state": LoanRequestState.executed,

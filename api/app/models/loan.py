@@ -122,7 +122,7 @@ class Loan(IntegerIdentifier, Base):
     during: Mapped[Range] = mapped_column(
         TSTZRANGE,
         index=True,
-        server_default=text("tstzrange(now(), 'infinity', '()')"),
+        server_default=text("tstzrange(now(), NULL, '()')"),
     )
 
     # the executed loan request that created this loan
