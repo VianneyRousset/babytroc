@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .api.v1 import router as v1_router
+from .routers import v1 as router
 from .database import create_session_maker
 
 
@@ -16,16 +16,14 @@ def create_app(db_url: str) -> FastAPI:
         return Response()
 
     @app.exception_handler(RequestValidationError)
-    def validation_exception_handler(
-        request: Request, exc: RequestValidationError
-    ):
+    def validation_exception_handler(request: Request, exc: RequestValidationError):
         return JSONResponse(
             status_code=400,
             content={"detail": exc.errors()},
         )
 
     app.include_router(
-        router=v1_router,
+        router=router,
         prefix="/v1",
     )
 

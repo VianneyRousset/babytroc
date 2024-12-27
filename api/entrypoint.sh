@@ -21,8 +21,9 @@ set -eu
 : ${API_HOST:="0.0.0.0"}
 : ${API_PORT:=8080}
 : ${API_APP:="app.main:app"}
+: ${API_PREFIX:=".main:app"}
 
-: ${API_TEST_MODE=false}
+: ${API_TEST_MODE:=false}
 
 # test mode
 if ${API_TEST_MODE}; then
@@ -30,9 +31,9 @@ if ${API_TEST_MODE}; then
 
 # production mode
 else
-  uvicorn ${API_APP} \
-    --host=${API_HOST} \
-    --port=${API_PORT} \
-    --root-path ${API_PREFIX}
+  gunicorn \
+    --workers=1 \
+    --bind="${API_HOST}:${API_PORT}" \
+    ${API_APP}
 
 fi

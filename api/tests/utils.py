@@ -1,8 +1,9 @@
 from collections import Counter
+from collections.abc import Coroutine, Mapping, Sequence
 from contextlib import AbstractAsyncContextManager
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Coroutine, Mapping, Optional, Self, Sequence
+from typing import Any, Optional, Self
 
 from deepdiff import DeepDiff
 from httpx import AsyncClient
@@ -17,6 +18,9 @@ def async_partial(call: Coroutine, *args: Sequence[Any], **kwargs: Mapping[str, 
 
 
 class ChangesRecorder(AbstractAsyncContextManager):
+    class Undefined:
+        pass
+
     def __init__(self, call: Coroutine, **kwargs) -> Self:
         self.call = call
         self.start_value = self.Undefined()
@@ -42,9 +46,6 @@ class ChangesRecorder(AbstractAsyncContextManager):
         if isinstance(self.stop_value, self.Undefined):
             msg = "No stop value set"
             raise RuntimeError(msg)
-
-    class Undefined:
-        pass
 
 
 class EndpointChangesRecorder(ChangesRecorder):

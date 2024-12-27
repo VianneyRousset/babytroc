@@ -1,5 +1,3 @@
-import asyncio
-import os
 from logging.config import fileConfig
 
 import app
@@ -63,7 +61,7 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
-async def run_async_migrations() -> None:
+def run_migrations() -> None:
     """In this scenario we need to create an Engine
     and associate a connection with the context.
 
@@ -75,7 +73,7 @@ async def run_async_migrations() -> None:
         poolclass=pool.NullPool,
     )
 
-    async with connectable.connect() as connection:
+    with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
 
     await connectable.dispose()
@@ -87,7 +85,7 @@ def run_migrations_online() -> None:
     connectable = config.attributes.get("connection", None)
 
     if connectable is None:
-        asyncio.run(run_async_migrations())
+        run(run_async_migrations())
     else:
         do_run_migrations(connectable)
 
