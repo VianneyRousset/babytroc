@@ -34,7 +34,7 @@ loan_request_id_annotation = (
 
 
 @router.post("/items", status_code=status.HTTP_201_CREATED)
-async def create_client_item(
+def create_client_item(
     request: Request,
     item_create: Annotated[
         ItemCreate,
@@ -54,7 +54,7 @@ async def create_client_item(
 
 
 @router.get("/items", status_code=status.HTTP_200_OK)
-async def list_client_items(
+def list_client_items(
     request: Request,
     before: Annotated[
         Optional[int],
@@ -75,7 +75,7 @@ async def list_client_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.list_user_items(
+    return services.items.list_user_items(
         db=db,
         owner_user_id=client_user_id,
         created_before_item_id=before,
@@ -84,7 +84,7 @@ async def list_client_items(
 
 
 @router.get("/items/{item_id}", status_code=status.HTTP_200_OK)
-async def get_client_item_by_id(
+def get_client_item_by_id(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -93,7 +93,7 @@ async def get_client_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.get_user_item_by_id(
+    return services.items.get_user_item_by_id(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -101,7 +101,7 @@ async def get_client_item_by_id(
 
 
 @router.post("/items/{item_id}", status_code=status.HTTP_200_OK)
-async def update_client_item(
+def update_client_item(
     request: Request,
     item_id: item_id_annotation,
     item_update: Annotated[
@@ -114,7 +114,7 @@ async def update_client_item(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.update_user_item(
+    return services.items.update_user_item(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -123,7 +123,7 @@ async def update_client_item(
 
 
 @router.delete("/items/{item_id}", status_code=status.HTTP_200_OK)
-async def delete_client_item(
+def delete_client_item(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -140,7 +140,7 @@ async def delete_client_item(
 
 
 @router.get("/items/{item_id}/requests", status_code=status.HTTP_200_OK)
-async def list_client_item_loan_requests(
+def list_client_item_loan_requests(
     request: Request,
     item_id: item_id_annotation,
     active: Annotated[
@@ -166,7 +166,7 @@ async def list_client_item_loan_requests(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loans.list_user_item_loan_requests(
+    return services.loans.list_user_item_loan_requests(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -180,7 +180,7 @@ async def list_client_item_loan_requests(
     "/items/{item_id}/requests/{loan_request_id}",
     status_code=status.HTTP_200_OK,
 )
-async def get_client_item_loan_request_by_id(
+def get_client_item_loan_request_by_id(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
@@ -190,7 +190,7 @@ async def get_client_item_loan_request_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.get_user_item_loan_request_by_id(
+    return services.loan.get_user_item_loan_request_by_id(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -202,7 +202,7 @@ async def get_client_item_loan_request_by_id(
     "/items/{item_id}/requests/{loan_request_id}/accept",
     status_code=status.HTTP_200_OK,
 )
-async def accept_client_item_loan_request(
+def accept_client_item_loan_request(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
@@ -212,7 +212,7 @@ async def accept_client_item_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.accept_user_item_loan_request(
+    return services.loan.accept_user_item_loan_request(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,
@@ -224,7 +224,7 @@ async def accept_client_item_loan_request(
     "/items/{item_id}/requests/{loan_request_id}/reject",
     status_code=status.HTTP_200_OK,
 )
-async def reject_client_item_loan_request(
+def reject_client_item_loan_request(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
@@ -234,7 +234,7 @@ async def reject_client_item_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.reject_user_item_loan_request(
+    return services.loan.reject_user_item_loan_request(
         db=db,
         owner_user_id=client_user_id,
         item_id=item_id,

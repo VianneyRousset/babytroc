@@ -23,7 +23,7 @@ item_id_annotation = (
 
 
 @router.get("/saved", status_code=status.HTTP_200_OK)
-async def list_client_saved_items(
+def list_client_saved_items(
     request: Request,
     before: Annotated[
         Optional[datetime],
@@ -44,7 +44,7 @@ async def list_client_saved_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.saved.list_items_saved_by_user(
+    return services.saved.list_items_saved_by_user(
         db=db,
         user_id=client_user_id,
         saved_before_item_id=before,
@@ -53,7 +53,7 @@ async def list_client_saved_items(
 
 
 @router.post("/saved/{item_id}", status_code=status.HTTP_201_CREATED)
-async def add_item_to_client_saved_items(
+def add_item_to_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -70,7 +70,7 @@ async def add_item_to_client_saved_items(
 
 
 @router.get("/saved/{item_id}", status_code=status.HTTP_200_OK)
-async def get_client_saved_item_by_id(
+def get_client_saved_item_by_id(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -79,7 +79,7 @@ async def get_client_saved_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.items.get_user_saved_item_by_id(
+    return services.items.get_user_saved_item_by_id(
         db=db,
         user_id=client_user_id,
         item_id=item_id,
@@ -87,7 +87,7 @@ async def get_client_saved_item_by_id(
 
 
 @router.delete("/saved/{item_id}", status_code=status.HTTP_200_OK)
-async def remove_item_from_client_saved_items(
+def remove_item_from_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),

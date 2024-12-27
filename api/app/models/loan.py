@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from asyncpg.types import Range
 from sqlalchemy import (
     CheckConstraint,
     Enum,
@@ -9,7 +8,11 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import (
+    TSTZRANGE,
+    ExcludeConstraint,
+    Range,
+)
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,

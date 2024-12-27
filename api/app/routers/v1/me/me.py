@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.get("", status_code=status.HTTP_200_OK)
-async def get_client_user(
+def get_client_user(
     request: Request,
     db: Session = Depends(db.get_session),
 ) -> UserRead:
@@ -20,14 +20,14 @@ async def get_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.user.get_user_by_id(
+    return services.user.get_user_by_id(
         db=db,
         user_id=client_user_id,
     )
 
 
 @router.post("", status_code=status.HTTP_200_OK)
-async def update_client_user(
+def update_client_user(
     request: Request,
     user_update: Annotated[
         UserUpdate,
@@ -39,7 +39,7 @@ async def update_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.user.update_user(
+    return services.user.update_user(
         db=db,
         user_id=client_user_id,
         user_update=user_update,
@@ -47,7 +47,7 @@ async def update_client_user(
 
 
 @router.delete("", status_code=status.HTTP_200_OK)
-async def delete_client_user(
+def delete_client_user(
     request: Request,
     db: Session = Depends(db.get_session),
 ) -> UserRead:
@@ -55,7 +55,7 @@ async def delete_client_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    await services.user.delete_user(
+    services.user.delete_user(
         db=db,
         user_id=client_user_id,
     )

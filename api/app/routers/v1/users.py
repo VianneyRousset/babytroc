@@ -21,7 +21,7 @@ user_id_annotation = Annotated[
 
 
 @router.get("/{user_id}", status_code=status.HTTP_200_OK)
-async def get_user_by_id(
+def get_user_by_id(
     request: Request,
     user_id: user_id_annotation,
     db: Session = Depends(get_db_session),
@@ -30,14 +30,14 @@ async def get_user_by_id(
 
     services.auth.check_auth(request)
 
-    return await services.user.get_user_by_id(
+    return services.user.get_user_by_id(
         db=db,
         user_id=user_id,
     )
 
 
 @router.post("/{user_id}/report", status_code=status.HTTP_201_CREATED)
-async def report_user(
+def report_user(
     request: Request,
     user_id: user_id_annotation,
     report_create: Annotated[
@@ -50,7 +50,7 @@ async def report_user(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.user.report_user(
+    return services.user.report_user(
         db=db,
         user_id=user_id,
         reported_by_user_id=client_user_id,

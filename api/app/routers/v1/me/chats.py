@@ -29,7 +29,7 @@ chat_message_id_annotation = Annotated[
 
 
 @router.get("/chats", status_code=status.HTTP_200_OK)
-async def list_client_chats(
+def list_client_chats(
     request: Request,
     db: Session = Depends(db.get_session),
 ) -> ChatsListRead:
@@ -37,14 +37,14 @@ async def list_client_chats(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.get_user_chats_list(
+    return services.chats.get_user_chats_list(
         db=db,
         user_id=client_user_id,
     )
 
 
 @router.websocket("/chats/ws")
-async def get_client_chats_websocket(
+def get_client_chats_websocket(
     request: Request,
     websocket: WebSocket,
 ):
@@ -53,7 +53,7 @@ async def get_client_chats_websocket(
 
 
 @router.get("/chats/{chat_id}", status_code=status.HTTP_200_OK)
-async def get_client_chat_by_id(
+def get_client_chat_by_id(
     request: Request,
     chat_id: chat_id_annotation,
     db: Session = Depends(db.get_session),
@@ -62,7 +62,7 @@ async def get_client_chat_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.get_user_chat_by_id(
+    return services.chats.get_user_chat_by_id(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,
@@ -70,7 +70,7 @@ async def get_client_chat_by_id(
 
 
 @router.get("/chats/{chat_id}/messages", status_code=status.HTTP_200_OK)
-async def list_client_chat_messages(
+def list_client_chat_messages(
     request: Request,
     chat_id: chat_id_annotation,
     before: Annotated[
@@ -92,7 +92,7 @@ async def list_client_chat_messages(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.list_user_chat_messages(
+    return services.chats.list_user_chat_messages(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,
@@ -105,7 +105,7 @@ async def list_client_chat_messages(
     "/chats/{chat_id}/messages/{message_id}",
     status_code=status.HTTP_200_OK,
 )
-async def get_client_chat_message_by_id(
+def get_client_chat_message_by_id(
     request: Request,
     chat_id: chat_id_annotation,
     chat_message_id: chat_message_id_annotation,
@@ -115,7 +115,7 @@ async def get_client_chat_message_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.get_user_chat_message_by_id(
+    return services.chats.get_user_chat_message_by_id(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,
@@ -127,7 +127,7 @@ async def get_client_chat_message_by_id(
     "/chats/{chat_id}/messages/{message_id}/see",
     status_code=status.HTTP_200_OK,
 )
-async def mark_client_chat_message_as_seen(
+def mark_client_chat_message_as_seen(
     request: Request,
     chat_id: chat_id_annotation,
     chat_message_id: chat_message_id_annotation,
@@ -137,7 +137,7 @@ async def mark_client_chat_message_as_seen(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.mark_user_chat_message_as_seen(
+    return services.chats.mark_user_chat_message_as_seen(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,
@@ -149,7 +149,7 @@ async def mark_client_chat_message_as_seen(
     "/chats/{chat_id}/report",
     status_code=status.HTTP_201_CREATED,
 )
-async def report_client_chat(
+def report_client_chat(
     request: Request,
     chat_id: chat_id_annotation,
     report_create: Annotated[
@@ -162,7 +162,7 @@ async def report_client_chat(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.chats.report_user_chat(
+    return services.chats.report_user_chat(
         db=db,
         user_id=client_user_id,
         chat_id=chat_id,

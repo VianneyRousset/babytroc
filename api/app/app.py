@@ -12,11 +12,11 @@ def create_app(db_url: str) -> FastAPI:
     app.state.db_session_maker = create_session_maker(db_url)
 
     @app.get("/")
-    async def root(request: Request) -> str:
+    def root(request: Request) -> str:
         return Response()
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(
+    def validation_exception_handler(
         request: Request, exc: RequestValidationError
     ):
         return JSONResponse(

@@ -13,7 +13,7 @@ from .me import router
 
 
 @router.get("/borrowings", status_code=status.HTTP_200_OK)
-async def list_client_borrowings(
+def list_client_borrowings(
     request: Request,
     active: Annotated[
         Optional[bool],
@@ -40,7 +40,7 @@ async def list_client_borrowings(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.list_user_borrowings(
+    return services.loan.list_user_borrowings(
         db=db,
         user_id=client_user_id,
         active=active,

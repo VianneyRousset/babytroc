@@ -18,7 +18,7 @@ router = APIRouter()
     },
     response_class=Response,
 )
-async def generate_avatar(
+def generate_avatar(
     request: Request,
     size: Annotated[Optional[int], Query(title="Size of the image in pixels.")] = 64,
     seed: Annotated[Optional[str], Query(title="Seed for the avatar generation.")] = 0,

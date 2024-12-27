@@ -23,7 +23,7 @@ loan_request_id_annotation = (
 
 
 @router.post("/requests", status_code=status.HTTP_201_CREATED)
-async def create_loan_request(
+def create_loan_request(
     request: Request,
     loan_request_create: Annotated[
         LoanRequestCreate,
@@ -45,7 +45,7 @@ async def create_loan_request(
 
 
 @router.get("/requests", status_code=status.HTTP_200_OK)
-async def list_client_loan_requests(
+def list_client_loan_requests(
     request: Request,
     active: Annotated[
         Optional[bool],
@@ -72,7 +72,7 @@ async def list_client_loan_requests(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.list_user_loan_requests(
+    return services.loan.list_user_loan_requests(
         db=db,
         user_id=client_user_id,
         created_before_loan_request_id=before,
@@ -81,7 +81,7 @@ async def list_client_loan_requests(
 
 
 @router.get("/requests/{loan_request_id}", status_code=status.HTTP_200_OK)
-async def get_client_loan_request_by_id(
+def get_client_loan_request_by_id(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
@@ -90,7 +90,7 @@ async def get_client_loan_request_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.get_loan_request_by_id(
+    return services.loan.get_loan_request_by_id(
         db=db,
         loan_request_id=loan_request_id,
         borrower_user_id=client_user_id,
@@ -98,7 +98,7 @@ async def get_client_loan_request_by_id(
 
 
 @router.delete("/requests/{loan_request_id}", status_code=status.HTTP_200_OK)
-async def cancel_client_loan_request(
+def cancel_client_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
@@ -107,7 +107,7 @@ async def cancel_client_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.loan.cancel_loan_request(
+    return services.loan.cancel_loan_request(
         db=db,
         user_id=client_user_id,
         loan_request_id=loan_request_id,
@@ -115,7 +115,7 @@ async def cancel_client_loan_request(
 
 
 @router.post("/request/{loan_request_id}/execute", status_code=status.HTTP_200_OK)
-async def create_loan_from_client_loan_request(
+def create_loan_from_client_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),

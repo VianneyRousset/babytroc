@@ -24,7 +24,7 @@ item_id_annotation = (
 
 
 @router.get("", status_code=status.HTTP_200_OK)
-async def list_items(
+def list_items(
     request: Request,
     terms: Annotated[
         Optional[list[str]],
@@ -71,7 +71,7 @@ async def list_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.item.list_items(
+    return services.item.list_items(
         db=db,
         client_user_id=client_user_id,
         terms=terms,
@@ -83,7 +83,7 @@ async def list_items(
 
 
 @router.get("/{item_id}", status_code=status.HTTP_200_OK)
-async def get_item_by_id(
+def get_item_by_id(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -92,7 +92,7 @@ async def get_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return await services.item.get_item_by_id_for_client(
+    return services.item.get_item_by_id_for_client(
         db=db,
         client_user_id=client_user_id,
         item_id=item_id,
@@ -100,7 +100,7 @@ async def get_item_by_id(
 
 
 @router.post("/{item_id}/report", status_code=status.HTTP_201_CREATED)
-async def report_item(
+def report_item(
     request: Request,
     item_id: item_id_annotation,
     report_create: Annotated[
