@@ -23,6 +23,7 @@ from sqlalchemy.orm import (
 
 from app.models.base import Base, CreationDate, UpdateDate
 from app.models.loan import Loan, LoanRequest
+from app.models.chat import Chat
 
 from .image import ItemImage
 from .like import ItemLike
@@ -137,6 +138,13 @@ class Item(CreationDate, UpdateDate, Base):
     # content used for fuzzy search
     searchable_text: Mapped[str] = mapped_column(
         Computed(func.normalize_text(name + " " + description))
+    )
+
+    # chats about this item
+    chats: Mapped[list[Chat]] = relationship(
+        Chat,
+        back_populates="item",
+        cascade="all, delete-orphan",
     )
 
     __table_args__ = (

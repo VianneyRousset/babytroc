@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional
+from typing import Generic, Optional
 
 from sqlalchemy import Select, func
 
@@ -41,10 +41,6 @@ class LoanRequestQueryFilter(QueryFilterBase):
             stmt = stmt.where(LoanRequest.state == self.state)
 
         return stmt
-
-    @property
-    def key(self) -> dict[str, Any]:
-        return self.dict(exclude_none=True)
 
 
 class LoanRequestQueryPageOptions(QueryPageOptionsBase):

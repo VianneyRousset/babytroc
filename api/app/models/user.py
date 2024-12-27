@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from sqlalchemy.orm import validates
 
 from sqlalchemy import (
     CheckConstraint,
@@ -21,7 +22,6 @@ from .base import Base, CreationDate
 from .item import Item, ItemLike
 
 if TYPE_CHECKING:
-    from .chat import Chat
     from .loan import Loan, LoanRequest
 
 
@@ -81,12 +81,6 @@ class User(CreationDate, Base):
         back_populates="borrower",
         cascade="all, delete-orphan",
     )
-    chats: Mapped[list["Chat"]] = relationship(
-        "Chat",
-        secondary="chat_participant",
-        back_populates="participants",
-    )
-
     stars_count: Mapped[int] = mapped_column(
         Integer,
         default=0,
@@ -110,6 +104,13 @@ class User(CreationDate, Base):
     )
 
     __table_args__ = (CheckConstraint(stars_count >= 0, name="positive_stars_count"),)
+
+    @validates("email")
+    def validate_email(self, key, email):
+        if "@" not in email:
+            msg = f"Invalid email format: {email!r}"
+            raise ValueError(msg)
+        return email
 
     def __repr__(self):
         return f"<{self.__class__.__name__} #{self.id!r} {self.email!r} {self.name!r}>"

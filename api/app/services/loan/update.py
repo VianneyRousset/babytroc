@@ -7,6 +7,12 @@ from app.enums import LoanRequestState
 from app.errors.exception import LoanAlreadyInactiveError, LoanRequestStateError
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.services.chat import (
+    send_message_loan_ended,
+    send_message_loan_request_accepted,
+    send_message_loan_request_canceled,
+    send_message_loan_request_rejected,
+)
 
 
 def cancel_loan_request(
@@ -20,15 +26,35 @@ def cancel_loan_request(
     Loan request state must be `pending` if `force` is `False`.
     """
 
-    # TODO generate message
-
-    return _set_loan_request_state(
+    # get loan request from database
+    loan_request = database.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        state=LoanRequestState.canceled,
         query_filter=query_filter,
-        force=force,
     )
+
+    # create chat message
+    send_message_loan_request_canceled(
+        db=db,
+        item_id=loan_request.item_id,
+        borrower_id=loan_request.borrower_id,
+    )
+
+    # check loan request state
+    if not force and loan_request.state != LoanRequestState.pending:
+        raise LoanRequestStateError(
+            expected_state=LoanRequestState.pending,
+            actual_state=loan_request.state,
+        )
+
+    # update loan request state
+    loan_request = database.loan.update_loan_request(
+        db=db,
+        loan_request=loan_request,
+        attributes={"state": LoanRequestState.canceled},
+    )
+
+    return LoanRequestRead.from_orm(loan_request)
 
 
 def accept_loan_request(
@@ -42,15 +68,35 @@ def accept_loan_request(
     Loan request state must be `pending` if `force` is `False`.
     """
 
-    # TODO generate message
-
-    return _set_loan_request_state(
+    # get loan request from database
+    loan_request = database.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        state=LoanRequestState.accepted,
         query_filter=query_filter,
-        force=force,
     )
+
+    # create chat message
+    send_message_loan_request_accepted(
+        db=db,
+        item_id=loan_request.item_id,
+        borrower_id=loan_request.borrower_id,
+    )
+
+    # check loan request state
+    if not force and loan_request.state != LoanRequestState.pending:
+        raise LoanRequestStateError(
+            expected_state=LoanRequestState.pending,
+            actual_state=loan_request.state,
+        )
+
+    # update loan request state
+    loan_request = database.loan.update_loan_request(
+        db=db,
+        loan_request=loan_request,
+        attributes={"state": LoanRequestState.accepted},
+    )
+
+    return LoanRequestRead.from_orm(loan_request)
 
 
 def reject_loan_request(
@@ -64,15 +110,35 @@ def reject_loan_request(
     Loan request state must be `pending` if `force` is `False`.
     """
 
-    # TODO generate message
-
-    return _set_loan_request_state(
+    # get loan request from database
+    loan_request = database.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        state=LoanRequestState.rejected,
         query_filter=query_filter,
-        force=force,
     )
+
+    # create chat message
+    send_message_loan_request_rejected(
+        db=db,
+        item_id=loan_request.item_id,
+        borrower_id=loan_request.borrower_id,
+    )
+
+    # check loan request state
+    if not force and loan_request.state != LoanRequestState.pending:
+        raise LoanRequestStateError(
+            expected_state=LoanRequestState.pending,
+            actual_state=loan_request.state,
+        )
+
+    # update loan request state
+    loan_request = database.loan.update_loan_request(
+        db=db,
+        loan_request=loan_request,
+        attributes={"state": LoanRequestState.rejected},
+    )
+
+    return LoanRequestRead.from_orm(loan_request)
 
 
 def end_loan(
@@ -85,8 +151,6 @@ def end_loan(
     The loan must be active.
     """
 
-    # TODO generate message
-
     # get loan from database
     loan = database.loan.get_loan(
         db=db,
@@ -98,6 +162,13 @@ def end_loan(
     if loan.during.upper is not None:
         raise LoanAlreadyInactiveError()
 
+    # create chat message
+    send_message_loan_ended(
+        db=db,
+        item_id=loan.item_id,
+        borrower_id=loan.borrower_id,
+    )
+
     # set loan.during upper bound to now()
     loan = database.loan.end_loan(
         db=db,
@@ -105,34 +176,3 @@ def end_loan(
     )
 
     return LoanRead.from_orm(loan)
-
-
-def _set_loan_request_state(
-    db: Session,
-    *,
-    loan_request_id: int,
-    state: LoanRequestState,
-    query_filter: LoanRequestQueryFilter,
-    force: bool = False,
-) -> LoanRequestRead:
-    # get loan request from database
-    loan_request = database.loan.get_loan_request(
-        db=db,
-        loan_request_id=loan_request_id,
-        query_filter=query_filter,
-    )
-
-    # check loan request state
-    if not force and loan_request.state != LoanRequestState.pending:
-        raise LoanRequestStateError(
-            expected_state=LoanRequestState.pending,
-            actual_state=loan_request.state,
-        )
-
-    loan_request = database.loan.update_loan_request(
-        db=db,
-        loan_request=loan_request,
-        attributes={"state": state},
-    )
-
-    return LoanRequestRead.from_orm(loan_request)

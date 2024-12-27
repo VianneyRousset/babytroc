@@ -1,5 +1,5 @@
 import abc
-from typing import Generic, Self, TypeVar, Type
+from typing import Any, Generic, Self, Type, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Select
@@ -34,6 +34,10 @@ class QueryFilterBase(Base, extra="forbid"):
     @abc.abstractmethod
     def apply(self, stmt: Select) -> Select:
         raise NotImplementedError(repr(self.apply))
+
+    @property
+    def key(self) -> dict[str, Any]:
+        return self.dict(exclude_none=True)
 
 
 class QueryPageOptionsBase(Base, extra="forbid"):

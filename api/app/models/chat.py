@@ -1,97 +1,142 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
     Enum,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
-    String,
-    UniqueConstraint,
-    func,
+    PrimaryKeyConstraint,
+    Text,
 )
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.enums import ChatMessageType
 
 from .base import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:
-    from .user import User
+    from app.models.item import Item
+    from app.models.user import User
 
 
-class Chat(IntegerIdentifier, Base):
+class Chat(Base):
     __tablename__ = "chat"
 
     item_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("item.id"),
+        ForeignKey(
+            "item.id",
+            ondelete="CASCADE",
+        ),
     )
 
-    participants: Mapped[list["User"]] = relationship(
-        "User",
-        secondary="chat_participant",
+    borrower_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "user.id",
+            ondelete="CASCADE",
+        ),
+    )
+
+    item: Mapped["Item"] = relationship(
+        "Item",
         back_populates="chats",
+        foreign_keys=[item_id],
+    )
+    borrower: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[borrower_id],
     )
 
-    messages: Mapped["ChatMessage"] = relationship(
+    messages: Mapped[list["ChatMessage"]] = relationship(
         "ChatMessage",
-        back_populates="chat",
+        cascade="all, delete-orphan",
     )
 
+    @hybrid_property
+    def owner_id(self) -> int:
+        return self.item.owner_id
 
-class ChatParticipant(Base):
-    __tablename__ = "chat_participant"
+    @hybrid_property
+    def owner(self) -> "User":
+        return self.item.owner
 
-    chat_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("chat.id"),
-        primary_key=True,
+    @hybrid_property
+    def members_ids(self) -> set[int]:
+        return {self.borrower_id, self.item.owner_id}
+
+    @hybrid_property
+    def members(self) -> set["User"]:
+        return {self.borrower, self.item.owner}
+
+    # check that the sender is a member of the chat
+    @validates("messages")
+    def validate_message(self, key, msg):
+        sender_id = msg.sender.id if msg.sender else msg.sender_id
+
+        if sender_id not in self.members_ids:
+            errmsg = f"Sender #{sender_id!r} is not chat members"
+            raise ValueError(errmsg)
+
+        return msg
+
+    """
+    last_message_id: Mapped[datetime] = mapped_column(
+        ForeignKey(
+            "chat_message.id",
+        ),
+        nullable=True,
+        default=None,
     )
+    """
 
-    user_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("user.id"),
-        primary_key=True,
-    )
+    __table_args__ = (PrimaryKeyConstraint(item_id, borrower_id),)
 
 
 class ChatMessage(IntegerIdentifier, CreationDate, Base):
     __tablename__ = "chat_message"
 
-    message_type: Mapped[ChatMessageType] = mapped_column(
-        Enum(ChatMessageType),
-        # server_default=ChatMessageType.text,
-    )
+    item_id: Mapped[int] = mapped_column(Integer)
 
-    chat_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("chat.id"),
-    )
+    borrower_id: Mapped[int] = mapped_column(Integer)
 
-    chat: Mapped["Chat"] = relationship(
+    chat: Mapped[Chat] = relationship(
         Chat,
         back_populates="messages",
+        foreign_keys=[item_id, borrower_id],
+    )
+
+    message_type: Mapped[ChatMessageType] = mapped_column(
+        Enum(ChatMessageType),
+        default=ChatMessageType.text,
     )
 
     sender_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="CASCADE",
+        ),
     )
 
-    receiver_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("user.id"),
+    sender: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[sender_id],
     )
 
     payload: Mapped[str] = mapped_column(
-        String,
+        Text,
+        nullable=True,
     )
 
     seen: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+    )
+
+    __table_args__ = (
+        ForeignKeyConstraint([item_id, borrower_id], [Chat.item_id, Chat.borrower_id]),
     )

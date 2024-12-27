@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 
 from asyncpg.types import Range
 from sqlalchemy import (
+    CheckConstraint,
     Enum,
     ForeignKey,
     Integer,
     UniqueConstraint,
-    CheckConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import TSTZRANGE, ExcludeConstraint
@@ -19,6 +19,7 @@ from sqlalchemy.orm import (
 from app.enums import LoanRequestState
 
 from .base import Base, CreationDate, IntegerIdentifier
+from .chat import ChatMessage
 
 if TYPE_CHECKING:
     from .item import Item
@@ -69,7 +70,11 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     loan: Mapped["Loan"] = relationship(
         "Loan",
         back_populates="loan_request",
+        single_parent=True,
     )
+
+    creation_chat_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
+    creation_chat_message: Mapped[ChatMessage] = relationship(ChatMessage)
 
     __table_args__ = (
         ExcludeConstraint(
@@ -129,6 +134,13 @@ class Loan(IntegerIdentifier, Base):
     loan_request: Mapped[LoanRequest] = relationship(
         LoanRequest,
         back_populates="loan",
+    )
+
+    # chat messages linked to this loan
+    creation_chat_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
+    creation_chat_message: Mapped[ChatMessage] = relationship(
+        ChatMessage,
+        foreign_keys=[creation_chat_message_id],
     )
 
     __table_args__ = (

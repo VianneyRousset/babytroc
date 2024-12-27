@@ -3,12 +3,13 @@ import enum
 
 class ChatMessageType(enum.Enum):
     text = 1
-    request_accept = 2
-    request_reject = 3
-    loan_start = 4
-    loan_stop = 5
-    not_available = 6
-    available = 7
+    request_created = 2
+    request_accept = 3
+    request_reject = 4
+    loan_start = 5
+    loan_stop = 6
+    not_available = 7
+    available = 8
 
 
 class ReportType(enum.Enum):

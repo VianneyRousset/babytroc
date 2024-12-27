@@ -32,7 +32,7 @@ def get_item(
         return (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        key = {"id": item_id, **query_filter.key()}
+        key = query_filter.key | {"id": item_id}
         raise ItemNotFoundError(key) from error
 
 
@@ -80,10 +80,9 @@ def list_items(
     else:
         items, distances, like_ids, save_ids = [], [], [], []
 
-    return ItemQueryPageResult[Item].from_orm(
+    return ItemQueryPageResult[Item](
         data=items,
         words_match_distances=(distances if query_filter.words is not None else None),
-        limit=page_options.limit,
         like_ids=(like_ids if query_filter.liked_by_user_id is not None else None),
         save_ids=(save_ids if query_filter.saved_by_user_id is not None else None),
         query_filter=query_filter,

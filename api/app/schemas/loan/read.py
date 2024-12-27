@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Optional
 
 from app import models
 from app.enums import LoanRequestState
 from app.schemas.base import ReadBase
+from app.schemas.chat.read import ChatMessageRead
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.user.preview import UserPreviewRead
 
@@ -15,6 +15,7 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
     item: ItemPreviewRead
     borrower: UserPreviewRead
     state: LoanRequestState
+    creation_chat_message: ChatMessageRead
 
     @classmethod
     def from_orm(cls, loan_request: models.loan.LoanRequest):
@@ -23,6 +24,9 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
             item=ItemPreviewRead.from_orm(loan_request.item),
             borrower=UserPreviewRead.from_orm(loan_request.borrower),
             state=loan_request.state,
+            creation_chat_message=ChatMessageRead.from_orm(
+                loan_request.creation_chat_message
+            ),
         )
 
 

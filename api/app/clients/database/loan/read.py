@@ -36,8 +36,7 @@ def get_loan_request(
         return (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        key = query_filter.key() + {"loan_request_id": loan_request_id}
-        key = {k: v for k, v in key.items() if v is not None}
+        key = query_filter.key | {"id": loan_request_id}
         raise LoanRequestNotFoundError(key) from error
 
 
@@ -51,7 +50,7 @@ def list_loan_requests(
 
     Order
     -----
-    The loan requests are returned sorted by `loan_request_id`.
+    The loan requests are returned sorted by decreasing `loan_request_id`.
     """
 
     # if no query filter is provided, use an empty filter
@@ -95,7 +94,7 @@ def get_loan(
         return (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        key = query_filter.key() + {"loan_id": loan_id}
+        key = query_filter.key | {"loan_id": loan_id}
         raise LoanNotFoundError(key) from error
 
 
@@ -109,7 +108,7 @@ def list_loans(
 
     Order
     -----
-    The loans are returned sorted by `loan_id`.
+    The loans are returned sorted by decreasing `loan_id`.
     """
 
     # if no query filter is provided, use an empty filter
@@ -122,6 +121,8 @@ def list_loans(
 
     stmt = page_options.apply(stmt)
     stmt = query_filter.apply(stmt)
+
+    stmt = stmt.order_by(Loan.id.desc())
 
     loans = (db.execute(stmt)).scalars().all()
 

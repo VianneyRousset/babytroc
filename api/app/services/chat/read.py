@@ -1,94 +1,88 @@
+from typing import Optional
+
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.enums import ReportType
-from app.schemas.chat import (
-    ChatListRead,
-    ChatMessageRead,
-    ChatRead,
-    ReportCreate,
+from app.schemas.chat.query import (
+    ChatMessageQueryFilter,
+    ChatMessageQueryPageOptions,
+    ChatMessageQueryPageResult,
+    ChatQueryFilter,
+    ChatQueryPageOptions,
+    ChatQueryPageResult,
 )
+from app.schemas.chat.read import ChatMessageRead, ChatRead
 
 
-def get_user_chats_list(db: Session, user_id: int) -> ChatListRead:
-    """List all chats where the user with `user_id` participates."""
-
-    # TODO can it be done in one single query ?
-    chats = database.chat.list_chats_with_user(
-        db=db,
-        user_id=user_id,
-    )
-
-    chats = [ChatRead.model_validate(chat) for chat in chats]
-
-    unseen_messages = database.chat.list_messages(
-        db=db,
-        receiver_user_id=user_id,
-        seen=False,
-    )
-
-    unseen_messages = [ChatMessageRead.model_validate(msg) for msg in unseen_messages]
-
-    return ChatListRead(
-        chats=chats,
-        unseen_messages=unseen_messages,
-    )
-
-
-def get_user_chat_by_id(
+def get_chat(
     db: Session,
-    user_id: int,
     chat_id: int,
+    *,
+    query_filter: Optional[ChatQueryFilter] = None,
+    page_options: Optional[ChatQueryPageOptions] = None,
 ) -> ChatRead:
-    """Get the chat with ID `chat_id` where the user with `user_id` is a participant."""
+    """Get chat by id."""
 
-    chats = database.chat.list_chats_with_user(
+    # get chat from database
+    chat = database.chat.get_chat(
         db=db,
-        user_id=user_id,
-    )
-
-    # TODO properly handle KeyError -> 404
-    chat = next(iter(chat for chat in chats if chat.id == chat_id))
-
-    return ChatRead.model_validate(chat)
-
-
-def list_user_chat_messages(
-    db: Session,
-    user_id: int,
-    chat_id: int,
-    before_message_id: int,
-    count: int,
-) -> list[ChatMessageRead]:
-    """List messages in chat `chat_id` where the receiver is `user_id`."""
-
-    messages = database.chat.list_user_chat_messages(
-        db=db,
-        receiver_user_id=user_id,
         chat_id=chat_id,
-        before_message_id=before_message_id,
-        count=count,
+        query_filter=query_filter,
+        page_options=page_options,
     )
 
-    return [ChatMessageRead.model_validate(msg) for msg in messages]
+    return ChatRead.from_orm(chat)
 
 
-def get_user_chat_message_by_id(
+def list_chats(
     db: Session,
-    chat_id: int,
-    user_id: int,
-    chat_message_id: int,
+    *,
+    query_filter: Optional[ChatQueryFilter] = None,
+    page_options: Optional[ChatQueryPageOptions] = None,
+) -> ChatQueryPageResult[ChatRead]:
+    """List chats match criteria."""
+
+    # chats in the database
+    result = database.chat.list_chats(
+        db=db,
+        query_filter=query_filter,
+        page_options=page_options,
+    )
+
+    return ChatQueryPageResult[ChatRead].from_orm(result, ChatRead)
+
+
+def get_message(
+    db: Session,
+    message_id: int,
+    *,
+    query_filter: Optional[ChatMessageQueryFilter] = None,
 ) -> ChatMessageRead:
-    """Get message with `chat_message_id`.
+    """Get message with `message_id`."""
 
-    The message must have `user_id` as a receiver user ID and `chat_id` as chat ID.
-    """
-
-    message = database.chat.get_user_chat_message_by_id(
+    # get message from database
+    message = database.chat.get_message(
         db=db,
-        chat_id=chat_id,
-        receiver_user_id=user_id,
-        chat_message_id=chat_message_id,
+        message_id=message_id,
+        query_filter=query_filter,
     )
 
-    return ChatMessageRead.model_validate(message)
+    return ChatMessageRead.from_orm(message)
+
+
+def list_messages(
+    db: Session,
+    *,
+    query_filter: Optional[ChatMessageQueryFilter] = None,
+    page_options: Optional[ChatMessageQueryPageOptions] = None,
+) -> ChatMessageQueryPageResult[ChatMessageRead]:
+    """List messages."""
+
+    # messages in the database
+    result = database.chat.list_messages(
+        db=db,
+        query_filter=query_filter,
+        page_options=page_options,
+    )
+
+    return ChatMessageQueryPageResult[ChatMessageRead].from_orm(result, ChatMessageRead)

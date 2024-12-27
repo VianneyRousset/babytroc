@@ -4,18 +4,19 @@ from app.clients.database.item import get_item
 from app.clients.database.user import get_user
 from app.models.loan import Loan, LoanRequest
 
-from .read import get_loan_request
-
 
 def create_loan_request(
     db: Session,
     *,
     borrower_id: int,
     item_id: int,
+    creation_chat_message_id: int,
 ) -> LoanRequest:
     """Create and insert a loan request."""
 
-    loan_request = LoanRequest()
+    loan_request = LoanRequest(
+        creation_chat_message_id=creation_chat_message_id,
+    )
 
     loan_request.borrower = get_user(
         db=db,
@@ -46,10 +47,7 @@ def insert_loan_request(
     db.flush()
     db.refresh(loan_request)
 
-    return get_loan_request(
-        db=db,
-        loan_request_id=loan_request.id,
-    )
+    return loan_request
 
 
 def create_loan(
@@ -57,10 +55,13 @@ def create_loan(
     *,
     item_id: int,
     borrower_id: int,
+    creation_chat_message_id: int,
 ) -> Loan:
     """Create and insert a loan."""
 
-    loan = Loan()
+    loan = Loan(
+        creation_chat_message_id=creation_chat_message_id,
+    )
 
     loan.borrower = get_user(db=db, user_id=borrower_id)
 

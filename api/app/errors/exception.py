@@ -112,6 +112,38 @@ class LoanAlreadyInactiveError(LoanError):
         )
 
 
+class ChatError(ApiError):
+    """Exception related to a chat."""
+
+    pass
+
+
+class ChatNotFoundError(NotFoundError, ChatError):
+    """Exception raised when a chat is not found."""
+
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="chat",
+            key=key,
+        )
+
+
+class ChatMessageError(ApiError):
+    """Exception related to a chat message."""
+
+    pass
+
+
+class ChatMessageNotFoundError(NotFoundError, ChatMessageError):
+    """Exception raised when a chat message is not found."""
+
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="chat message",
+            key=key,
+        )
+
+
 class UserError(ApiError):
     """Exception related to a user."""
 

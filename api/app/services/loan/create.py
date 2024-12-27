@@ -3,24 +3,36 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.enums import LoanRequestState
+from app.enums import LoanRequestState, ChatMessageType
 from app.errors.exception import LoanRequestStateError
 from app.schemas.loan.create import LoanRequestCreate
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.services.chat import (
+    send_message_loan_request_created,
+    send_message_loan_started,
+)
 
 
 def create_loan_request(
     db: Session,
     borrower_id: int,
-    loan_request: LoanRequestCreate,
+    loan_request_create: LoanRequestCreate,
 ) -> LoanRequestRead:
     """Create a loan request."""
+
+    # create messages
+    message = send_message_loan_request_created(
+        db=db,
+        item_id=loan_request_create.item_id,
+        borrower_id=borrower_id,
+    )
 
     loan_request = database.loan.create_loan_request(
         db=db,
         borrower_id=borrower_id,
-        item_id=loan_request.item_id,
+        item_id=loan_request_create.item_id,
+        creation_chat_message_id=message.id,
     )
 
     return LoanRequestRead.from_orm(loan_request)
@@ -43,13 +55,18 @@ def execute_loan_request(
     borrower.
     """
 
-    # TODO generate message
-
     # get loan request from database
     loan_request = database.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=query_filter,
+    )
+
+    # create messages
+    message = send_message_loan_started(
+        db=db,
+        item_id=loan_request.item_id,
+        borrower_id=loan_request.borrower_id,
     )
 
     # check loan request state
@@ -64,6 +81,7 @@ def execute_loan_request(
         db=db,
         item_id=loan_request.item_id,
         borrower_id=loan_request.borrower_id,
+        creation_chat_message_id=message.id,
     )
 
     database.loan.update_loan_request(
