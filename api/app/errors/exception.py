@@ -1,6 +1,8 @@
+from collections.abc import Mapping
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, Mapping, Optional
+from typing import Any, Optional
+
 from app.enums import LoanRequestState
 
 
@@ -19,7 +21,7 @@ class ApiError(Exception):
 
         self.message = message
         self.status_code = status_code
-        self.creation_date = creation_date
+        self.creation_date = creation_date.astimezone()
 
         super().__init__(message)
 
@@ -36,7 +38,10 @@ class NotFoundError(ApiError):
     ):
         super().__init__(
             message=f"{datatype.capitalize()} with {key!r} not found.",
-            **kwargs,
+            **{
+                "status_code": HTTPStatus.NOT_FOUND,
+                **kwargs,
+            },
         )
 
 

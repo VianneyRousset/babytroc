@@ -47,8 +47,6 @@ def list_items(
     # default empty query page options
     page_options = page_options or QueryPageOptions()
 
-    print("--->", query_filter)
-
     # represents the word match distance
     if query_filter.words is None:
         words_match = None
