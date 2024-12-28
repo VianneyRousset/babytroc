@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Query, Request, status
+from fastapi import Query, Request, status, Response
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
@@ -9,36 +9,59 @@ from app.database import get_db_session
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
+from app.schemas.item.api import ItemApiQuery
 from app.schemas.query import QueryPageOptions
+from app.utils import set_query_param
 
 from .annotations import item_id_annotation
 from .router import router
 
 
-# TODO check pagination parameters
-@router.get("/items", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK)
 def list_items_owned_by_client(
     request: Request,
-    page_options: Annotated[
-        QueryPageOptions,
-        Query(),
-    ],
+    response: Response,
+    query: Annotated[ItemApiQuery, Query()],
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
     """List items owned by the client."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.list_items(
+    result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
             owner_id=client_user_id,
+            words=query.q,
+            targeted_age_months=query.mo,
+            regions=query.reg,
         ),
-        page_options=page_options,
+        page_options=QueryPageOptions(
+            limit=query.n,
+            order=["words_match", "item_id"],
+            cursor={"words_match": query.cwm, "item_id": query.cid},
+            desc=True,
+        ),
     )
 
+    query_params = request.query_params
+    for k, v in result.next_cursor().items():
+        # rename query parameters
+        k = {
+            "words_match": "cwm",
+            "item_id": "cid",
+        }[k]
 
-@router.get("/items/{item_id}", status_code=status.HTTP_200_OK)
+        query_params = set_query_param(query_params, k, v)
+
+    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
+
+    response.headers["X-Total-Count"] = str(result.total_count)
+
+    return result.data
+
+
+@router.get("/{item_id}", status_code=status.HTTP_200_OK)
 def get_client_item_by_id(
     request: Request,
     item_id: item_id_annotation,
@@ -48,8 +71,10 @@ def get_client_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.get_user_item_by_id(
+    return services.item.get_item(
         db=db,
-        owner_user_id=client_user_id,
         item_id=item_id,
+        query_filter=ItemQueryFilter(
+            owner_id=client_user_id,
+        ),
     )
