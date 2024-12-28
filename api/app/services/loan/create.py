@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.exception import LoanRequestStateError
+from app.schemas.chat.base import ChatId
 from app.schemas.loan.create import LoanRequestCreate
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
@@ -12,7 +13,6 @@ from app.services.chat import (
     send_message_loan_request_created,
     send_message_loan_started,
 )
-from app.schemas.chat.base import ChatId
 
 
 def create_loan_request(
@@ -27,7 +27,7 @@ def create_loan_request(
         db=db,
         chat_id=ChatId(
             item_id=loan_request_create.item_id,
-            borrower_id=loan_request_create.borrower_id,
+            borrower_id=borrower_id,
         ),
     )
 

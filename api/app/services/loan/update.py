@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.exception import LoanAlreadyInactiveError, LoanRequestStateError
-from app.schemas.base import ChatId
+from app.schemas.chat.base import ChatId
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.services.chat import (
