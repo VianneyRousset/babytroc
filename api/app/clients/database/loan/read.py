@@ -26,11 +26,13 @@ def get_loan_request(
     stmt = query_filter.apply(stmt)
 
     try:
-        return (db.execute(stmt)).unique().scalars().one()
+        req = (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": loan_request_id}
         raise LoanRequestNotFoundError(key) from error
+
+    return req
 
 
 def list_loan_requests(
@@ -111,10 +113,10 @@ def list_loans(
     stmt = select(Loan)
 
     # apply filtering
-    stmt = page_options.apply(stmt)
+    stmt = query_filter.apply(stmt)
 
     # apply pagination
-    stmt = query_filter.apply(
+    stmt = page_options.apply(
         stmt=stmt,
         columns={
             "loan_id": Loan.id,
