@@ -1,5 +1,16 @@
 from . import borrowings, chats, items, liked, loans, me, requests, saved
-from .me import router
+from .router import router
+
+router.include_router(
+    router=items.router,
+    prefix="/items",
+)
+
+router.include_router(
+    router=chats.router,
+    prefix="/chats",
+)
+
 
 __all__ = [
     "borrowings",
@@ -9,6 +20,7 @@ __all__ = [
     "loans",
     "me",
     "requests",
-    "saved",
     "router",
+    "router",
+    "saved",
 ]

@@ -1,4 +1,3 @@
-from collections.abc import Collection
 from typing import Optional
 
 from sqlalchemy import select
@@ -7,14 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.errors.exception import LoanNotFoundError, LoanRequestNotFoundError
 from app.models.loan import Loan, LoanRequest
-from app.schemas.loan.query import (
-    LoanQueryFilter,
-    LoanQueryPageOptions,
-    LoanQueryPageResult,
-    LoanRequestQueryFilter,
-    LoanRequestQueryPageOptions,
-    LoanRequestQueryPageResult,
-)
+from app.schemas.loan.query import LoanQueryFilter, LoanRequestQueryFilter
+from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def get_loan_request(
@@ -44,34 +37,37 @@ def list_loan_requests(
     db: Session,
     *,
     query_filter: Optional[LoanRequestQueryFilter] = None,
-    page_options: Optional[LoanRequestQueryPageOptions] = None,
-) -> LoanRequestQueryPageResult[LoanRequest]:
-    """List loan requests matching criteria.
-
-    Order
-    -----
-    The loan requests are returned sorted by decreasing `loan_request_id`.
-    """
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[LoanRequest]:
+    """List loan requests matching criteria."""
 
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or LoanRequestQueryFilter()
 
     # if no page options are provided, use default page options
-    page_options = page_options or LoanRequestQueryPageOptions()
+    page_options = page_options or QueryPageOptions()
 
     stmt = select(LoanRequest)
 
+    # apply filtering
     stmt = query_filter.apply(stmt)
-    stmt = page_options.apply(stmt)
 
-    stmt = stmt.order_by(LoanRequest.id.desc())
+    # apply pagination
+    stmt = page_options.apply(
+        stmt=stmt,
+        columns={
+            "loan_request_id": LoanRequest.id,
+        },
+    )
 
     loan_requests = (db.execute(stmt)).scalars().all()
 
-    return LoanRequestQueryPageResult[LoanRequest](
+    return QueryPageResult[LoanRequest](
         data=loan_requests,
-        query_filter=query_filter,
-        page_options=page_options,
+        order={
+            "loan_request_id": [req.id for req in loan_requests],
+        },
+        desc=page_options.desc,
     )
 
 
@@ -102,32 +98,35 @@ def list_loans(
     db: Session,
     *,
     query_filter: Optional[LoanQueryFilter] = None,
-    page_options: Optional[LoanQueryPageOptions] = None,
-) -> LoanQueryPageResult[Loan]:
-    """List items matching criteria.
-
-    Order
-    -----
-    The loans are returned sorted by decreasing `loan_id`.
-    """
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[Loan]:
+    """List items matching criteria."""
 
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or LoanQueryFilter()
 
     # if no page options are provided, use default page options
-    page_options = page_options or LoanQueryPageOptions()
+    page_options = page_options or QueryPageOptions()
 
     stmt = select(Loan)
 
+    # apply filtering
     stmt = page_options.apply(stmt)
-    stmt = query_filter.apply(stmt)
 
-    stmt = stmt.order_by(Loan.id.desc())
+    # apply pagination
+    stmt = query_filter.apply(
+        stmt=stmt,
+        columns={
+            "loan_id": Loan.id,
+        },
+    )
 
     loans = (db.execute(stmt)).scalars().all()
 
-    return LoanQueryPageResult[Loan](
+    return QueryPageResult[Loan](
         data=loans,
-        query_filter=query_filter,
-        page_options=page_options,
+        order={
+            "loan_id": [loan.id for loan in loans],
+        },
+        desc=page_options.desc,
     )

@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Path, Query, Request, status
 from fastapi.params import Depends
@@ -7,48 +6,41 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.item import ItemPreviewRead, ItemRead
+from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.read import ItemRead
+from app.schemas.query import QueryPageOptions
 
 from .me import router
 
-item_id_annotation = (
-    Annotated[
-        int,
-        Path(
-            title="The ID of the item.",
-            ge=0,
-        ),
-    ],
-)
+item_id_annotation = Annotated[
+    int,
+    Path(
+        title="The ID of the item.",
+        ge=0,
+    ),
+]
 
 
 @router.get("/saved", status_code=status.HTTP_200_OK)
-def list_client_saved_items(
+def list_items_saved_by_client(
     request: Request,
-    before: Annotated[
-        Optional[datetime],
-        Query(
-            title="Select item with save date before the item with this id.",
-        ),
-    ] = None,
-    count: Annotated[
-        Optional[int],
-        Query(
-            title="Maximum number of items to return",
-            ge=0,
-        ),
-    ] = None,
+    page_options: Annotated[
+        QueryPageOptions,
+        Query(),
+    ],
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
-    """List client saved items ordered by inversed save date."""
+    """List client saved items."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.saved.list_items_saved_by_user(
+    return services.saved.list_items(
         db=db,
-        user_id=client_user_id,
-        saved_before_item_id=before,
-        count=count,
+        query_filter=ItemQueryFilter(
+            saved_by_user_id=client_user_id,
+        ),
+        page_options=page_options,
     )
 
 
@@ -62,7 +54,7 @@ def add_item_to_client_saved_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.add_item_to_user_saved_items(
+    return services.item.save.add_item_to_user_saved_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,
@@ -79,10 +71,12 @@ def get_client_saved_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.get_user_saved_item_by_id(
+    return services.item.get_item(
         db=db,
-        user_id=client_user_id,
         item_id=item_id,
+        query_filter=ItemQueryFilter(
+            saved_by_user_id=client_user_id,
+        ),
     )
 
 
@@ -96,7 +90,7 @@ def remove_item_from_client_saved_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.remove_item_from_user_saved_items(
+    return services.item.save.remove_item_from_user_saved_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,

@@ -3,15 +3,9 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.schemas.loan.query import (
-    LoanQueryFilter,
-    LoanQueryPageOptions,
-    LoanQueryPageResult,
-    LoanRequestQueryFilter,
-    LoanRequestQueryPageOptions,
-    LoanRequestQueryPageResult,
-)
+from app.schemas.loan.query import LoanQueryFilter, LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def get_loan_request(
@@ -35,8 +29,8 @@ def list_loan_requests(
     db: Session,
     *,
     query_filter: Optional[LoanRequestQueryFilter] = None,
-    page_options: Optional[LoanRequestQueryPageOptions] = None,
-) -> LoanRequestQueryPageResult[LoanRequestRead]:
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[LoanRequestRead]:
     """List the loan requests matching criteria."""
 
     # search loan requests in database
@@ -46,7 +40,7 @@ def list_loan_requests(
         page_options=page_options,
     )
 
-    return LoanRequestQueryPageResult[LoanRequestRead].from_orm(result, LoanRequestRead)
+    return QueryPageResult[LoanRequestRead].from_orm(result, LoanRequestRead)
 
 
 def get_loan(
@@ -70,8 +64,8 @@ def list_loans(
     db: Session,
     *,
     query_filter: Optional[LoanQueryFilter] = None,
-    page_options: Optional[LoanQueryPageOptions] = None,
-) -> LoanQueryPageResult[LoanRead]:
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[LoanRead]:
     """List the loans matching criteria."""
 
     # search loan in database
@@ -81,4 +75,4 @@ def list_loans(
         page_options=page_options,
     )
 
-    return LoanQueryPageResult[LoanRead].from_orm(result, LoanRead)
+    return QueryPageResult[LoanRead].from_orm(result, LoanRead)

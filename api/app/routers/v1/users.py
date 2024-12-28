@@ -1,19 +1,19 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Query, Request, status
+from fastapi import APIRouter, Body, Path, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.report import ReportCreate
-from app.schemas.user import UserRead
+from app.schemas.report.create import ReportCreate
+from app.schemas.user.read import UserRead
 
 router = APIRouter()
 
 user_id_annotation = Annotated[
     int,
-    Query(
+    Path(
         title="The ID of the user.",
         ge=0,
     ),
@@ -21,7 +21,7 @@ user_id_annotation = Annotated[
 
 
 @router.get("/{user_id}", status_code=status.HTTP_200_OK)
-def get_user_by_id(
+def get_user(
     request: Request,
     user_id: user_id_annotation,
     db: Session = Depends(get_db_session),

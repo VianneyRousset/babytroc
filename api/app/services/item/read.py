@@ -5,12 +5,9 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.private import ItemPrivateRead
-from app.schemas.item.query import (
-    ItemQueryFilter,
-    ItemQueryPageOptions,
-    ItemQueryPageResult,
-)
+from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
+from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def get_item(
@@ -53,8 +50,8 @@ def list_items(
     db: Session,
     *,
     query_filter: Optional[ItemQueryFilter] = None,
-    page_options: Optional[ItemQueryPageOptions] = None,
-) -> ItemQueryPageResult[ItemPreviewRead]:
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[ItemPreviewRead]:
     """List items matchings criteria in the database."""
 
     # search items in database
@@ -65,4 +62,4 @@ def list_items(
         page_options=page_options,
     )
 
-    return ItemQueryPageResult[ItemPreviewRead].from_orm(result, ItemPreviewRead)
+    return QueryPageResult[ItemPreviewRead].from_orm(result, ItemPreviewRead)

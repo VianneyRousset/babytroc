@@ -1,38 +1,31 @@
-from collections.abc import Collection
 from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import ChatNotFoundError, ChatMessageNotFoundError
+from app.errors.exception import ChatMessageNotFoundError, ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
-from app.schemas.chat.query import (
-    ChatQueryFilter,
-    ChatQueryPageOptions,
-    ChatQueryPageResult,
-    ChatMessageQueryFilter,
-    ChatMessageQueryPageOptions,
-    ChatMessageQueryPageResult,
-)
+from app.schemas.chat.base import ChatId
+from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
+from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def get_chat(
     db: Session,
+    chat_id: ChatId,
     *,
-    item_id: int,
-    borrower_id: int,
     query_filter: Optional[ChatQueryFilter] = None,
 ) -> Chat:
-    """Get chat with `item_id` and `borrower_id`."""
+    """Get chat with `chat_id`."""
 
     # default query filter
     query_filter = query_filter or ChatQueryFilter()
 
     stmt = (
         select(Chat)
-        .where(Chat.item_id == item_id)
-        .where(Chat.borrower_id == borrower_id)
+        .where(Chat.item_id == chat_id.item_id)
+        .where(Chat.borrower_id == chat_id.borrower_id)
     )
 
     stmt = query_filter.apply(stmt)
@@ -41,7 +34,7 @@ def get_chat(
         return (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        key = query_filter.key | {"item_id": item_id, "borrower_id": borrower_id}
+        key = query_filter.key | {"chat_id": str(chat_id)}
         raise ChatNotFoundError(key) from error
 
 
@@ -49,34 +42,37 @@ def list_chats(
     db: Session,
     *,
     query_filter: Optional[ChatQueryFilter] = None,
-    page_options: Optional[ChatQueryPageOptions] = None,
-) -> ChatQueryPageResult[Chat]:
-    """List chats matching criteria.
-
-    Order
-    -----
-    The chat are returned sorted by decreasing `last_message_id`.
-    """
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[Chat]:
+    """List chats matching criteria."""
 
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or ChatQueryFilter()
 
     # if no page options are provided, use default page options
-    page_options = page_options or ChatQueryPageOptions()
+    page_options = page_options or QueryPageOptions()
 
     stmt = select(Chat)
 
+    # apply filtering
     stmt = query_filter.apply(stmt)
-    stmt = page_options.apply(stmt)
 
-    stmt = stmt.order_by(Chat.last_message_id.desc())
+    # apply pagination
+    stmt = page_options.apply(
+        stmt=stmt,
+        columns={
+            "last_message_date": Chat.last_message_date,
+        },
+    )
 
     chats = (db.execute(stmt)).scalars().all()
 
-    return ChatQueryPageResult[Chat](
+    return QueryPageResult[Chat](
         data=chats,
-        query_filter=query_filter,
-        page_options=page_options,
+        order={
+            "last_message_date": [chat.last_message_date for chat in chats],
+        },
+        desc=page_options.desc,
     )
 
 
@@ -107,32 +103,33 @@ def list_messages(
     db: Session,
     *,
     query_filter: Optional[ChatMessageQueryFilter] = None,
-    page_options: Optional[ChatMessageQueryPageOptions] = None,
-) -> ChatMessageQueryPageResult[ChatMessage]:
-    """List chat messages matching criteria.
-
-    Order
-    -----
-    The messages are returned sorted by decreasing `message_id`.
-    """
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[ChatMessage]:
+    """List chat messages matching criteria."""
 
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or ChatMessageQueryFilter()
 
     # if no page options are provided, use default page options
-    page_options = page_options or ChatMessageQueryPageOptions()
+    page_options = page_options or QueryPageOptions()
 
     stmt = select(ChatMessage)
 
+    # apply filtering
     stmt = page_options.apply(stmt)
-    stmt = query_filter.apply(stmt)
 
-    stmt = stmt.order_by(ChatMessage.id.desc())
+    # apply pagination
+    stmt = query_filter.apply(
+        stmt=stmt,
+        columns={"message_id": ChatMessage.id},
+    )
 
-    loans = (db.execute(stmt)).scalars().all()
+    messages = (db.execute(stmt)).scalars().all()
 
-    return ChatMessageQueryPageResult[ChatMessage](
-        data=loans,
-        query_filter=query_filter,
-        page_options=page_options,
+    return QueryPageResult[ChatMessage](
+        data=messages,
+        order={
+            "message_id": [message.id for message in messages],
+        },
+        desc=page_options.desc,
     )

@@ -2,8 +2,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .routers import v1 as router
 from .database import create_session_maker
+from .routers.v1 import router
 
 
 def create_app(db_url: str) -> FastAPI:

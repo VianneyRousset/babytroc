@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Body, Path, Query, Request, status
 from fastapi.params import Depends
@@ -7,19 +6,20 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.loan import LoanRead, LoanRequestCreate, LoanRequestRead
+from app.schemas.loan.create import LoanRequestCreate
+from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.schemas.query import QueryPageOptions
 
 from .me import router
 
-loan_request_id_annotation = (
-    Annotated[
-        int,
-        Path(
-            title="The ID of the loan request.",
-            ge=0,
-        ),
-    ],
-)
+loan_request_id_annotation = Annotated[
+    int,
+    Path(
+        title="The ID of the loan request.",
+        ge=0,
+    ),
+]
 
 
 @router.post("/requests", status_code=status.HTTP_201_CREATED)
@@ -47,37 +47,22 @@ def create_loan_request(
 @router.get("/requests", status_code=status.HTTP_200_OK)
 def list_client_loan_requests(
     request: Request,
-    active: Annotated[
-        Optional[bool],
-        Query(
-            title="Select only requests that have not been canceled.",
-        ),
-    ] = None,
-    before: Annotated[
-        Optional[int],
-        Query(
-            title="Select all requests with creation date before this loan_request_id.",
-        ),
-    ] = None,
-    count: Annotated[
-        Optional[int],
-        Query(
-            title="Maximum number of requests to return.",
-            ge=0,
-        ),
-    ] = None,
+    page_options: Annotated[QueryPageOptions, Query()],
     db: Session = Depends(get_db_session),
 ) -> list[LoanRequestRead]:
-    """List loan requests made by the client ordered by inversed creation date."""
+    """List loan requests made by the client."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.loan.list_user_loan_requests(
+    # TODO add pagination info in headers
+    result = services.loan.list_loan_requests(
         db=db,
-        user_id=client_user_id,
-        created_before_loan_request_id=before,
-        count=count,
+        query_filter=LoanRequestQueryFilter(
+            borrower_id=client_user_id,
+        ),
+        page_options=page_options,
     )
+    return result.data
 
 
 @router.get("/requests/{loan_request_id}", status_code=status.HTTP_200_OK)
@@ -90,10 +75,12 @@ def get_client_loan_request_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.loan.get_loan_request_by_id(
+    return services.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        borrower_user_id=client_user_id,
+        query_filter=LoanRequestQueryFilter(
+            borrower_id=client_user_id,
+        ),
     )
 
 
@@ -109,13 +96,15 @@ def cancel_client_loan_request(
 
     return services.loan.cancel_loan_request(
         db=db,
-        user_id=client_user_id,
         loan_request_id=loan_request_id,
+        query_filter=LoanRequestQueryFilter(
+            borrower_id=client_user_id,
+        ),
     )
 
 
-@router.post("/request/{loan_request_id}/execute", status_code=status.HTTP_200_OK)
-def create_loan_from_client_loan_request(
+@router.post("/request/{loan_request_id}/confirm", status_code=status.HTTP_200_OK)
+def execute_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
@@ -127,8 +116,10 @@ def create_loan_from_client_loan_request(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.loan.create_loan_from_loan_request(
+    return services.loan.execute_loan_request(
         db=db,
-        user_id=client_user_id,
         loan_request_id=loan_request_id,
+        query_filter=LoanRequestQueryFilter(
+            borrower_id=client_user_id,
+        ),
     )

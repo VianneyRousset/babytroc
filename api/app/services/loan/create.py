@@ -3,7 +3,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.enums import LoanRequestState, ChatMessageType
+from app.enums import LoanRequestState
 from app.errors.exception import LoanRequestStateError
 from app.schemas.loan.create import LoanRequestCreate
 from app.schemas.loan.query import LoanRequestQueryFilter

@@ -1,17 +1,10 @@
-from datetime import datetime
-from typing import Generic, Optional
+from typing import Optional
 
 from sqlalchemy import Select
 
 from app.models.chat import Chat, ChatMessage
-from app.models.user import User
 from app.models.item import Item
-from app.schemas.base import (
-    QueryFilterBase,
-    QueryPageOptionsBase,
-    QueryPageResultBase,
-    ResultType,
-)
+from app.schemas.base import QueryFilterBase
 
 
 class ChatQueryFilter(QueryFilterBase):
@@ -46,31 +39,6 @@ class ChatQueryFilter(QueryFilterBase):
             )
 
         return stmt
-
-
-class ChatQueryPageOptions(QueryPageOptionsBase):
-    """Options on the queried page of chats."""
-
-    limit: Optional[int] = None
-    last_message_date_lt: Optional[datetime] = None
-
-    def apply(self, stmt: Select) -> Select:
-        # apply limit
-        if self.limit is not None:
-            stmt = stmt.limit(self.limit)
-
-        # if loan_request_id_lt is provided, add it to the query
-        if self.loan_request_id_lt is not None:
-            stmt = stmt.where(Chat.id < self.loan_request_id_lt)
-
-        return stmt
-
-
-class ChatQueryPageResult(QueryPageResultBase, Generic[ResultType]):
-    """Info on the result page of chats."""
-
-    query_filter: ChatQueryFilter
-    page_options: ChatQueryPageOptions
 
 
 class ChatMessageQueryFilter(QueryFilterBase):
@@ -110,28 +78,3 @@ class ChatMessageQueryFilter(QueryFilterBase):
             stmt = stmt.where(ChatMessage.seen == self.seen)
 
         return stmt
-
-
-class ChatMessageQueryPageOptions(QueryPageOptionsBase):
-    """Options on the queried page of messages."""
-
-    limit: Optional[int] = None
-    message_id_lt: Optional[int] = None
-
-    def apply(self, stmt: Select) -> Select:
-        # apply limit
-        if self.limit is not None:
-            stmt = stmt.limit(self.limit)
-
-        # if loan_request_id_lt is provided, add it to the query
-        if self.message_id_lt is not None:
-            stmt = stmt.where(ChatMessage.id < self.loan_request_id_lt)
-
-        return stmt
-
-
-class ChatMessageQueryPageResult(QueryPageResultBase, Generic[ResultType]):
-    """Info on the result page of messages."""
-
-    query_filter: ChatMessageQueryFilter
-    page_options: ChatMessageQueryPageOptions

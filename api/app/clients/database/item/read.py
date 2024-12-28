@@ -6,11 +6,8 @@ from sqlalchemy.orm import InstrumentedAttribute, Session
 
 from app.errors.exception import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
-from app.schemas.item.query import (
-    ItemQueryFilter,
-    ItemQueryPageOptions,
-    ItemQueryPageResult,
-)
+from app.schemas.item.query import ItemQueryFilter
+from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def get_item(
@@ -40,57 +37,63 @@ def list_items(
     db: Session,
     *,
     query_filter: Optional[ItemQueryFilter] = None,
-    page_options: Optional[ItemQueryPageOptions] = None,
-) -> ItemQueryPageResult[Item]:
+    page_options: Optional[QueryPageOptions] = None,
+) -> QueryPageResult[Item]:
     """List items matchings criteria in the database."""
 
     # default empty query filter
     query_filter = query_filter or ItemQueryFilter()
 
     # default empty query page options
-    page_options = page_options or ItemQueryPageOptions()
+    page_options = page_options or QueryPageOptions()
+
+    print("--->", query_filter)
 
     # represents the word match distance
     if query_filter.words is None:
-        distance = None
+        words_match = None
     else:
-        distance = _get_words_match_distance(Item.searchable_text, query_filter.words)
+        words_match = _get_words_match(Item.searchable_text, query_filter.words)
 
     like_id = ItemLike.id if query_filter.liked_by_user_id is not None else None
     save_id = ItemSave.id if query_filter.saved_by_user_id is not None else None
 
-    stmt = select(Item, distance, like_id, save_id)
+    stmt = select(Item, words_match, like_id, save_id)
 
+    # apply filtering
     stmt = query_filter.apply(stmt)
-    stmt = page_options.apply(stmt, words_match_distance=distance)
 
-    # set ordering
-    if query_filter.words:
-        stmt = stmt.order_by(distance)
-    if query_filter.saved_by_user_id is not None:
-        stmt = stmt.order_by(ItemSave.id.desc())
-    if query_filter.liked_by_user_id is not None:
-        stmt = stmt.order_by(ItemLike.id.desc())
-    stmt = stmt.order_by(Item.id.desc())
+    # apply pagination
+    stmt = page_options.apply(
+        stmt=stmt,
+        columns={
+            "item_id": Item.id,
+            "words_match": words_match,
+            "like_id": like_id,
+            "save_id": save_id,
+        },
+    )
 
     rows = (db.execute(stmt)).all()
 
     if rows:
-        items, distances, like_ids, save_ids = zip(*rows)
+        items, words_matchs, like_ids, save_ids = zip(*rows)
     else:
-        items, distances, like_ids, save_ids = [], [], [], []
+        items, words_matchs, like_ids, save_ids = [], [], [], []
 
-    return ItemQueryPageResult[Item](
+    return QueryPageResult[Item](
         data=items,
-        words_match_distances=(distances if query_filter.words is not None else None),
-        like_ids=(like_ids if query_filter.liked_by_user_id is not None else None),
-        save_ids=(save_ids if query_filter.saved_by_user_id is not None else None),
-        query_filter=query_filter,
-        page_options=page_options,
+        order={
+            "words_match": None if words_match is None else words_matchs,
+            "like_id": None if like_id is None else like_ids,
+            "save_id": None if save_id is None else save_ids,
+            "item_id": [item.id for item in items],
+        },
+        desc=page_options.desc,
     )
 
 
-def _get_words_match_distance(
+def _get_words_match(
     column: InstrumentedAttribute, words: list[str]
 ) -> int | BinaryExpression:
     """Expression of the words match distance between `column` and `words`.
@@ -105,8 +108,8 @@ def _get_words_match_distance(
     distance = 0
 
     for word in words:
-        distance = distance + column.op("<->>", return_type=Integer)(
+        distance = distance - column.op("<->>", return_type=Integer)(
             func.normalize_text(word)
         )
 
-    return distance
+    return func.cast(func.round(distance * 1e5), Integer)

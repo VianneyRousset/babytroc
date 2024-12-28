@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 
 def create_session_maker(db_url: str) -> sessionmaker:
-    engine = create_engine(db_url, echo=True)
+    engine = create_engine(db_url, echo=False)
 
     return sessionmaker(
         bind=engine,

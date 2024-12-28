@@ -1,3 +1,4 @@
+from . import like, save
 from .create import create_item
 from .delete import delete_item
 from .read import get_item, get_private_item, list_items
@@ -8,6 +9,8 @@ __all__ = [
     "delete_item",
     "get_item",
     "get_private_item",
+    "like",
     "list_items",
+    "save",
     "update_private_item",
 ]

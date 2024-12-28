@@ -1,26 +1,27 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Request, status
+from fastapi import Body, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import database as db
 from app import services
-from app.schemas.user import UserRead, UserUpdate
+from app.schemas.user.read import UserRead
+from app.schemas.user.update import UserUpdate
 
-router = APIRouter()
+from .router import router
 
 
 @router.get("", status_code=status.HTTP_200_OK)
 def get_client_user(
     request: Request,
-    db: Session = Depends(db.get_session),
+    db: Session = Depends(db.get_db_session),
 ) -> UserRead:
     """Get client user."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.user.get_user_by_id(
+    return services.user.get_user(
         db=db,
         user_id=client_user_id,
     )
@@ -33,7 +34,7 @@ def update_client_user(
         UserUpdate,
         Body(title="User fields to update."),
     ],
-    db: Session = Depends(db.get_session),
+    db: Session = Depends(db.get_db_session),
 ) -> UserRead:
     """Update client user."""
 
@@ -49,7 +50,7 @@ def update_client_user(
 @router.delete("", status_code=status.HTTP_200_OK)
 def delete_client_user(
     request: Request,
-    db: Session = Depends(db.get_session),
+    db: Session = Depends(db.get_db_session),
 ) -> UserRead:
     """Delete client user."""
 

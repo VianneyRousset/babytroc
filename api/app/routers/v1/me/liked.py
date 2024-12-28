@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Path, Query, Request, status
 from fastapi.params import Depends
@@ -7,49 +6,42 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.item import ItemPreviewRead, ItemRead
+from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.read import ItemRead
+from app.schemas.query import QueryPageOptions
 
 from .me import router
 
-item_id_annotation = (
-    Annotated[
-        int,
-        Path(
-            title="The ID of the item.",
-            ge=0,
-        ),
-    ],
-)
+item_id_annotation = Annotated[
+    int,
+    Path(
+        title="The ID of the item.",
+        ge=0,
+    ),
+]
 
 
+# TODO check pagination parameters
 @router.get("/liked", status_code=status.HTTP_200_OK)
 def list_items_liked_by_client(
     request: Request,
-    liked_before: Annotated[
-        Optional[int],
-        Query(
-            title="Select item with liked date before the item with this id",
-        ),
-    ] = None,
-    count: Annotated[
-        Optional[int],
-        Query(
-            title="Maximum number of items to return",
-            ge=0,
-            le=1024,
-        ),
-    ] = 64,
+    page_options: Annotated[
+        QueryPageOptions,
+        Query(),
+    ],
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
-    """List client liked items ordered by save date."""
+    """List client liked items."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.list_items_liked_by_user(
+    return services.item.list_items(
         db=db,
-        user_id=client_user_id,
-        liked_before_item_id=liked_before,
-        count=count,
+        query_filter=ItemQueryFilter(
+            liked_by_user_id=client_user_id,
+        ),
+        page_options=page_options,
     )
 
 
@@ -63,7 +55,7 @@ def add_item_to_client_liked_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.add_item_to_user_liked_items(
+    return services.item.like.add_item_to_user_liked_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,
@@ -80,10 +72,12 @@ def get_client_liked_item_by_id(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.get_user_liked_item_by_id(
+    return services.item.get_item(
         db=db,
-        user_id=client_user_id,
         item_id=item_id,
+        query_filter=ItemQueryFilter(
+            liked_by_user_id=client_user_id,
+        ),
     )
 
 
@@ -97,7 +91,7 @@ def remove_item_from_client_liked_items(
 
     client_user_id = services.auth.check_auth(request)
 
-    services.items.remove_item_from_user_liked_items(
+    services.item.like.remove_item_from_user_liked_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,
