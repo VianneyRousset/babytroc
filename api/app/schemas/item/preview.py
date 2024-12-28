@@ -7,9 +7,8 @@ from app.schemas.utils import integer_range_to_inclusive
 class ItemPreviewRead(ItemBase, ReadBase):
     id: int
     name: str
-    description: str
     targeted_age_months: list[int | None]
-    images: list[str]
+    first_image: str
     available: bool
     owner_id: int
 
@@ -22,9 +21,8 @@ class ItemPreviewRead(ItemBase, ReadBase):
         return cls(
             id=item.id,
             name=item.name,
-            description=item.description,
             targeted_age_months=targeted_age_months,
-            images=[img.name for img in item.images],
+            first_image=item.images[0].name,
             available=domain.item.compute_item_available(
                 is_blocked=item.blocked,
                 active_loans_count=item.active_loans_count,
