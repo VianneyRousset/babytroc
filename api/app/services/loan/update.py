@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.exception import LoanAlreadyInactiveError, LoanRequestStateError
+from app.schemas.base import ChatId
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.services.chat import (
@@ -36,8 +37,10 @@ def cancel_loan_request(
     # create chat message
     send_message_loan_request_canceled(
         db=db,
-        item_id=loan_request.item_id,
-        borrower_id=loan_request.borrower_id,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
     )
 
     # check loan request state
@@ -78,8 +81,10 @@ def accept_loan_request(
     # create chat message
     send_message_loan_request_accepted(
         db=db,
-        item_id=loan_request.item_id,
-        borrower_id=loan_request.borrower_id,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
     )
 
     # check loan request state
@@ -120,8 +125,10 @@ def reject_loan_request(
     # create chat message
     send_message_loan_request_rejected(
         db=db,
-        item_id=loan_request.item_id,
-        borrower_id=loan_request.borrower_id,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
     )
 
     # check loan request state
@@ -165,8 +172,10 @@ def end_loan(
     # create chat message
     send_message_loan_ended(
         db=db,
-        item_id=loan.item_id,
-        borrower_id=loan.borrower_id,
+        chat_id=ChatId(
+            item_id=loan.item_id,
+            borrower_id=loan.borrower_id,
+        ),
     )
 
     # set loan.during upper bound to now()

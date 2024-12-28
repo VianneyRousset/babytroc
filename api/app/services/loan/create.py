@@ -12,6 +12,7 @@ from app.services.chat import (
     send_message_loan_request_created,
     send_message_loan_started,
 )
+from app.schemas.chat.base import ChatId
 
 
 def create_loan_request(
@@ -24,8 +25,10 @@ def create_loan_request(
     # create messages
     message = send_message_loan_request_created(
         db=db,
-        item_id=loan_request_create.item_id,
-        borrower_id=borrower_id,
+        chat_id=ChatId(
+            item_id=loan_request_create.item_id,
+            borrower_id=loan_request_create.borrower_id,
+        ),
     )
 
     loan_request = database.loan.create_loan_request(
@@ -65,8 +68,10 @@ def execute_loan_request(
     # create messages
     message = send_message_loan_started(
         db=db,
-        item_id=loan_request.item_id,
-        borrower_id=loan_request.borrower_id,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
     )
 
     # check loan request state
