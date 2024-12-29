@@ -13,24 +13,26 @@ from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions
 from app.utils import set_query_param
 
-from .annotations import item_id_annotation
+from .annotations import item_id_annotation, user_id_annotation
 from .router import router
 
 
-@router.get("", status_code=status.HTTP_200_OK)
-def list_items(
+@router.get("/{user_id}/items", status_code=status.HTTP_200_OK)
+def list_items_owned_by_user(
     request: Request,
     response: Response,
+    user_id: user_id_annotation,
     query: Annotated[ItemApiQuery, Query()],
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
-    """List items."""
+    """List items owned by user."""
 
     services.auth.check_auth(request)
 
     result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
+            owner_id=user_id,
             words=query.q,
             targeted_age_months=query.parsed_mo,
             regions=query.reg,
@@ -60,17 +62,21 @@ def list_items(
     return result.data
 
 
-@router.get("/{item_id}", status_code=status.HTTP_200_OK)
-def get_item(
+@router.get("/{user_id}/items/{item_id}", status_code=status.HTTP_200_OK)
+def get_client_item_by_id(
     request: Request,
+    user_id: user_id_annotation,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
 ) -> ItemRead:
-    """Get item."""
+    """Get user's item by id."""
 
     services.auth.check_auth(request)
 
     return services.item.get_item(
         db=db,
         item_id=item_id,
+        query_filter=ItemQueryFilter(
+            owner_id=user_id,
+        ),
     )
