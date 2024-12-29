@@ -19,9 +19,10 @@ def create_app(db_url: str) -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     def validation_exception_handler(request: Request, exc: RequestValidationError):
+        # TODO extract error message
         return JSONResponse(
             status_code=400,
-            content={"detail": exc.errors()},
+            content={"detail": str(exc)},
         )
 
     @app.exception_handler(ApiError)

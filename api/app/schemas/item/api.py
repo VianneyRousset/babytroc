@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from app.schemas.base import ApiQueryBase
 
@@ -23,7 +23,8 @@ class ItemApiQuery(ApiQueryBase):
     )
 
     # targeted_age_months
-    mo: Optional[list[int | None]] = Field(
+    mo: Optional[str] = Field(
+        alias="mo",
         title="Targeted age months",
         description=(
             "An item is returned if its targeted age months is included in this range. "
@@ -31,11 +32,45 @@ class ItemApiQuery(ApiQueryBase):
             "an infinite bound."
         ),
         examples=[
-            [3, 12],
-            [8, None],
+            "3-12",
+            "8-",
         ],
         default=None,
+        pattern=r"^\d*-\d*$",
     )
+
+    @field_validator("mo")
+    def validate_mo(cls, mo):  # noqa: N805
+        mo_range = cls.parse_mo(mo)
+
+        if len(mo_range) != 2:
+            msg = "mo must have 2 values"
+            raise ValueError(msg)
+
+        if (
+            mo_range[0] is not None
+            and mo_range[1] is not None
+            and mo_range[0] > mo_range[1]
+        ):
+            msg = "mo values must be in order"
+            raise ValueError(msg)
+
+        return mo
+
+    @staticmethod
+    def parse_mo(mo):
+        if mo is None:
+            return None
+
+        lower, upper = mo.split("-")
+        lower = int(lower) if lower else None
+        upper = int(upper) if upper else None
+
+        return [lower, upper]
+
+    @property
+    def parsed_mo(self) -> Optional[list[int | None]]:
+        return self.parse_mo(self.mo)
 
     # regions
     reg: Optional[list[int]] = Field(

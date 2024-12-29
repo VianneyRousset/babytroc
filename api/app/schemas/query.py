@@ -33,7 +33,9 @@ class QueryPageOptions(QueryPageBase):
         if not self.order:
             return stmt
 
-        columns = tuple_(*[columns[name] for name in self.order if columns[name]])
+        columns = tuple_(
+            *[columns[name] for name in self.order if columns[name] is not None]
+        )
 
         if self.desc:
             return stmt.order_by(columns.desc())

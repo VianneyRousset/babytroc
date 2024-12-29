@@ -33,7 +33,7 @@ def list_items_owned_by_client(
         query_filter=ItemQueryFilter(
             owner_id=client_user_id,
             words=query.q,
-            targeted_age_months=query.mo,
+            targeted_age_months=query.parsed_mo,
             regions=query.reg,
         ),
         page_options=QueryPageOptions(

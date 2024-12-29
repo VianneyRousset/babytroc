@@ -33,7 +33,7 @@ def list_items(
         db=db,
         query_filter=ItemQueryFilter(
             words=query.q,
-            targeted_age_months=query.mo,
+            targeted_age_months=query.parsed_mo,
             regions=query.reg,
         ),
         page_options=QueryPageOptions(
