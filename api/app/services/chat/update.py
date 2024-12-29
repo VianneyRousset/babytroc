@@ -13,7 +13,7 @@ def mark_message_as_seen(
     *,
     query_filter: Optional[ChatMessageQueryFilter] = None,
 ) -> ChatMessageRead:
-    """Mark message with `chat_message_id` as seen."""
+    """Mark message with `message_id` as seen."""
 
     # get message from database
     message = database.get_message(

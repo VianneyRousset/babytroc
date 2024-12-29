@@ -119,4 +119,10 @@ def insert_message(
     db.flush()
     db.refresh(message)
 
+    # update chat last message id
+    chat.last_message_id = message.id
+
+    db.flush()
+    db.refresh(chat)
+
     return message

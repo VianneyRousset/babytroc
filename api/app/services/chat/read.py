@@ -6,13 +6,13 @@ from app.clients import database
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
+from app.schemas.chat.base import ChatId
 
 
 def get_chat(
     db: Session,
     *,
-    item_id: int,
-    borrower_id: int,
+    chat_id: ChatId,
     query_filter: Optional[ChatQueryFilter] = None,
 ) -> ChatRead:
     """Get chat by id."""
@@ -20,8 +20,7 @@ def get_chat(
     # get chat from database
     chat = database.chat.get_chat(
         db=db,
-        item_id=item_id,
-        borrower_id=borrower_id,
+        chat_id=chat_id,
         query_filter=query_filter,
     )
 

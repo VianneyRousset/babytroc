@@ -10,12 +10,12 @@ def create_loan_request(
     *,
     borrower_id: int,
     item_id: int,
-    creation_chat_message_id: int,
+    creation_message_id: int,
 ) -> LoanRequest:
     """Create and insert a loan request."""
 
     loan_request = LoanRequest(
-        creation_chat_message_id=creation_chat_message_id,
+        creation_message_id=creation_message_id,
     )
 
     loan_request.borrower = get_user(
@@ -55,12 +55,12 @@ def create_loan(
     *,
     item_id: int,
     borrower_id: int,
-    creation_chat_message_id: int,
+    creation_message_id: int,
 ) -> Loan:
     """Create and insert a loan."""
 
     loan = Loan(
-        creation_chat_message_id=creation_chat_message_id,
+        creation_message_id=creation_message_id,
     )
 
     loan.borrower = get_user(db=db, user_id=borrower_id)

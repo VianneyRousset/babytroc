@@ -76,7 +76,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    creation_chat_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
+    creation_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
     creation_chat_message: Mapped[ChatMessage] = relationship(ChatMessage)
 
     __table_args__ = (
@@ -140,10 +140,10 @@ class Loan(IntegerIdentifier, Base):
     )
 
     # chat messages linked to this loan
-    creation_chat_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
+    creation_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
     creation_chat_message: Mapped[ChatMessage] = relationship(
         ChatMessage,
-        foreign_keys=[creation_chat_message_id],
+        foreign_keys=[creation_message_id],
     )
 
     __table_args__ = (

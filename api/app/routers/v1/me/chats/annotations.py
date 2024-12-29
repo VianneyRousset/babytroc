@@ -9,11 +9,11 @@ chat_id_annotation = Annotated[
     str,
     Path(
         title="The ID of the chat.",
-        ge=0,
+        pattern=r"\d+-\d+",
     ),
 ]
 
-chat_message_id_annotation = Annotated[
+message_id_annotation = Annotated[
     int,
     Path(
         title="The ID of the chat message.",

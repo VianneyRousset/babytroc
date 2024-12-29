@@ -35,7 +35,7 @@ def create_loan_request(
         db=db,
         borrower_id=borrower_id,
         item_id=loan_request_create.item_id,
-        creation_chat_message_id=message.id,
+        creation_message_id=message.id,
     )
 
     return LoanRequestRead.from_orm(loan_request)
@@ -86,7 +86,7 @@ def execute_loan_request(
         db=db,
         item_id=loan_request.item_id,
         borrower_id=loan_request.borrower_id,
-        creation_chat_message_id=message.id,
+        creation_message_id=message.id,
     )
 
     database.loan.update_loan_request(

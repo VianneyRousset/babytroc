@@ -61,7 +61,9 @@ def list_chats(
     stmt = page_options.apply(
         stmt=stmt,
         columns={
-            "last_message_date": Chat.last_message_date,
+            "item_id": Chat.item_id,
+            "borrower_id": Chat.borrower_id,
+            "last_message_id": Chat.last_message_id,
         },
     )
 
@@ -70,7 +72,7 @@ def list_chats(
     return QueryPageResult[Chat](
         data=chats,
         order={
-            "last_message_date": [chat.last_message_date for chat in chats],
+            "last_message_id": [chat.last_message_id for chat in chats],
         },
         desc=page_options.desc,
     )
@@ -116,10 +118,10 @@ def list_messages(
     stmt = select(ChatMessage)
 
     # apply filtering
-    stmt = page_options.apply(stmt)
+    stmt = query_filter.apply(stmt)
 
     # apply pagination
-    stmt = query_filter.apply(
+    stmt = page_options.apply(
         stmt=stmt,
         columns={"message_id": ChatMessage.id},
     )

@@ -83,15 +83,8 @@ class Chat(Base):
 
         return msg
 
-    """
-    last_message_id: Mapped[datetime] = mapped_column(
-        ForeignKey(
-            "chat_message.id",
-        ),
-        nullable=True,
-        default=None,
-    )
-    """
+    # TODO cleaner metric ?
+    last_message_id: Mapped[int] = mapped_column(default=0)
 
     __table_args__ = (PrimaryKeyConstraint(item_id, borrower_id),)
 

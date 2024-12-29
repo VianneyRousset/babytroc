@@ -7,6 +7,8 @@
  - X **`GET /items -> list[ItemPreviewRead]`**
 -  X **`GET /items/{id} -> ItemRead`**
 - **`POST /items/{id}/report [ReportCreate]`**
+- **`POST /items/{id}/request`**
+- **`DELETE /items/{id}/request`**
 
 # /users
 
@@ -35,14 +37,6 @@
 - **`POST /me/liked/{id} -> ItemRead`**
 - **`DELETE /me/liked/{id}`**
 
-# /me/requests
-
-- X **`GET /me/requests -> list[LoanRequestRead]`**
-- **`POST /me/requests [LoanRequestCreate] -> LoanRequestRead`**
-- X **`GET /me/requests/{id} -> LoanRequestRead`**
-- **`DELETE /me/requests/{id}`**
-- **`POST /me/requests/{id}/confirm -> LoanRead`**
-
 # /me/borrowings
 
 - **`GET /me/borrowings -> list[LoanRead]`**
@@ -66,18 +60,18 @@
 
 # /me/chats
 
-- **`GET /me/chats -> ChatListRead`**
+- X **`GET /me/chats -> ChatListRead`**
 - **`GET /me/chats/ws -> websocket of ChatMessageRead`**
   - populate websocket with unsee messages
-- **`GET /me/chats/{id} -> ChatRead`**
+- X **`GET /me/chats/{id} -> ChatRead`**
 
-- **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
+- X **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
   - Parameters
     - to=date
     - count=int
-- **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
+- X **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
 - **`POST /me/chats/{id}/messages -> ChatMessageRead`**
-- **`GET /me/chats/{id}/messages/{id} -> ChatMessageRead`**
+- X **`GET /me/chats/{id}/messages/{id} -> ChatMessageRead`**
 - **`POST /me/chats/{id}/messages/{id}/see`**
 
 - **`POST /me/chats/{id}/report [ReportCreate]`**

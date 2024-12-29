@@ -9,7 +9,7 @@ from app.schemas.chat.query import (
 )
 from app.schemas.chat.read import ChatMessageRead
 
-from .annotations import chat_id_annotation, chat_message_id_annotation
+from .annotations import chat_id_annotation, message_id_annotation
 from .router import router
 
 
@@ -20,7 +20,7 @@ from .router import router
 def mark_client_chat_message_as_seen(
     request: Request,
     chat_id: chat_id_annotation,
-    message_id: chat_message_id_annotation,
+    message_id: message_id_annotation,
     db: Session = Depends(db.get_db_session),
 ) -> ChatMessageRead:
     """Mark client's chat message as seen."""
@@ -29,7 +29,7 @@ def mark_client_chat_message_as_seen(
 
     return services.chat.mark_user_chat_message_as_seen(
         db=db,
-        chat_message_id=message_id,
+        message_id=message_id,
         query_filter=ChatMessageQueryFilter(
             item_id=chat_id.item_id,
             borrower_id=chat_id.borrower_id,
