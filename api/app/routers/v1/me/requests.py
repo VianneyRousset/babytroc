@@ -1,4 +1,7 @@
 from typing import Annotated
+from app.utils import set_query_param
+from fastapi import Query, Request, status, Response
+from app.schemas.loan.api import LoanRequestApiQuery
 
 from fastapi import Body, Path, Query, Request, status
 from fastapi.params import Depends
@@ -47,31 +50,52 @@ def create_loan_request(
 @router.get("/requests", status_code=status.HTTP_200_OK)
 def list_client_loan_requests(
     request: Request,
-    page_options: Annotated[QueryPageOptions, Query()],
+    response: Response,
+    query: Annotated[LoanRequestApiQuery, Query()],
     db: Session = Depends(get_db_session),
 ) -> list[LoanRequestRead]:
     """List loan requests made by the client."""
 
     client_user_id = services.auth.check_auth(request)
 
-    # TODO add pagination info in headers
+    # get list of loan requests where the client is the borrower
     result = services.loan.list_loan_requests(
         db=db,
         query_filter=LoanRequestQueryFilter(
             borrower_id=client_user_id,
+            state=query.state,
         ),
-        page_options=page_options,
+        page_options=QueryPageOptions(
+            limit=query.n,
+            order=["loan_request_id"],
+            cursor={"loan_request_id": query.cid},
+            desc=True,
+        ),
     )
+
+    query_params = request.query_params
+    for k, v in result.next_cursor().items():
+        # rename query parameters
+        k = {
+            "loan_request_id": "cid",
+        }[k]
+
+        query_params = set_query_param(query_params, k, v)
+
+    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
+
+    response.headers["X-Total-Count"] = str(result.total_count)
+
     return result.data
 
 
 @router.get("/requests/{loan_request_id}", status_code=status.HTTP_200_OK)
-def get_client_loan_request_by_id(
+def get_client_loan_request(
     request: Request,
     loan_request_id: loan_request_id_annotation,
     db: Session = Depends(get_db_session),
 ) -> LoanRequestRead:
-    """Get client loan request by id."""
+    """Get loan request made by the client."""
 
     client_user_id = services.auth.check_auth(request)
 

@@ -25,7 +25,7 @@ class LoanRequestQueryFilter(QueryFilterBase):
 
         # filter borrower_id
         if self.borrower_id is not None:
-            stmt = stmt.where(Loan.borrower_id == self.borrower_id)
+            stmt = stmt.where(LoanRequest.borrower_id == self.borrower_id)
 
         # filter owner_id
         if self.owner_id is not None:
