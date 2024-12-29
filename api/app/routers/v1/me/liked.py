@@ -1,48 +1,68 @@
 from typing import Annotated
 
-from fastapi import Path, Query, Request, status
+from fastapi import Query, Request, Response, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.schemas.item.api import LikedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions
+from app.utils import set_query_param
 
+from .annotations import item_id_annotation
 from .me import router
 
-item_id_annotation = Annotated[
-    int,
-    Path(
-        title="The ID of the item.",
-        ge=0,
-    ),
-]
 
-
-# TODO check pagination parameters
 @router.get("/liked", status_code=status.HTTP_200_OK)
 def list_items_liked_by_client(
     request: Request,
-    page_options: Annotated[
-        QueryPageOptions,
-        Query(),
-    ],
+    response: Response,
+    query: Annotated[LikedItemApiQuery, Query()],
     db: Session = Depends(get_db_session),
 ) -> list[ItemPreviewRead]:
-    """List client liked items."""
+    """List items like by client."""
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.item.list_items(
+    result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
+            words=query.q,
+            targeted_age_months=query.parsed_mo,
             liked_by_user_id=client_user_id,
         ),
-        page_options=page_options,
+        page_options=QueryPageOptions(
+            limit=query.n,
+            order=["words_match", "like_id", "item_id"],
+            cursor={
+                "words_match": query.cwm,
+                "like_id": query.lid,
+                "item_id": query.cid,
+            },
+            desc=True,
+        ),
     )
+
+    query_params = request.query_params
+    for k, v in result.next_cursor().items():
+        # rename query parameters
+        k = {
+            "words_match": "cwm",
+            "like_id": "lid",
+            "item_id": "cid",
+        }[k]
+
+        query_params = set_query_param(query_params, k, v)
+
+    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
+
+    response.headers["X-Total-Count"] = str(result.total_count)
+
+    return result.data
 
 
 @router.post("/liked/{item_id}", status_code=status.HTTP_201_CREATED)
@@ -68,7 +88,7 @@ def get_client_liked_item_by_id(
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
 ) -> ItemRead:
-    """Get client liked item by id."""
+    """Get item liked by client."""
 
     client_user_id = services.auth.check_auth(request)
 

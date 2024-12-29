@@ -110,3 +110,21 @@ class ItemApiQuery(ApiQueryBase):
         le=0,
         default=None,
     )
+
+
+class SavedItemApiQuery(ItemApiQuery):
+    # cursor save_id
+    sid: Optional[int] = Field(
+        title="Page cursor for save ID",
+        gt=0,
+        default=None,
+    )
+
+
+class LikedItemApiQuery(ItemApiQuery):
+    # cursor save_id
+    lid: Optional[int] = Field(
+        title="Page cursor for like ID",
+        gt=0,
+        default=None,
+    )
