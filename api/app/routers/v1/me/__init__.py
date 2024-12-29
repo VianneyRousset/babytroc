@@ -1,4 +1,4 @@
-from . import borrowings, chats, items, liked, loans, me, requests, saved
+from . import borrowings, chats, items, liked, loans, me, saved
 from .router import router
 
 router.include_router(
@@ -19,7 +19,6 @@ __all__ = [
     "liked",
     "loans",
     "me",
-    "requests",
     "router",
     "router",
     "saved",
