@@ -43,7 +43,7 @@
 
 # /me/loans
 
-- **`GET /me/loans -> list[LoanRead]`**
+- X **`GET /me/loans -> list[LoanRead]`**
 
 # /me/items
 

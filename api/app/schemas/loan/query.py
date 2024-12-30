@@ -3,8 +3,8 @@ from typing import Optional
 from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
+from app.models.item import Item
 from app.models.loan import Loan, LoanRequest
-from app.models.user import User
 from app.schemas.base import QueryFilterBase
 
 
@@ -29,7 +29,7 @@ class LoanRequestQueryFilter(QueryFilterBase):
 
         # filter owner_id
         if self.owner_id is not None:
-            stmt = stmt.join(User).where(User.id == self.owner_id)
+            stmt = stmt.join(Item).where(Item.owner_id == self.owner_id)
 
         # filter state
         if self.state is not None:
@@ -59,7 +59,7 @@ class LoanQueryFilter(QueryFilterBase):
 
         # filter owner_id
         if self.owner_id is not None:
-            stmt = stmt.join(User).where(User.id == self.owner_id)
+            stmt = stmt.join(Item).where(Item.owner_id == self.owner_id)
 
         # filter state
         if self.active is not None:
