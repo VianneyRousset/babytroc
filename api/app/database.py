@@ -1,6 +1,12 @@
+import warnings
+
+import sqlalchemy.exc
 from fastapi import Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+
+# make sqlalchemy warnings as errors
+warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
 
 def create_session_maker(db_url: str) -> sessionmaker:
