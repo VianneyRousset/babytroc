@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.errors.exception import ApiError
+from app.errors import ApiError
 
 from .database import create_session_maker
 from .routers.v1 import router

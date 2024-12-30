@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import LoanNotFoundError, LoanRequestNotFoundError
+from app.errors.loan import LoanNotFoundError, LoanRequestNotFoundError
 from app.models.loan import Loan, LoanRequest
 from app.schemas.loan.query import LoanQueryFilter, LoanRequestQueryFilter
 from app.schemas.query import QueryPageOptions, QueryPageResult

@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import UserNotFoundError
+from app.errors.user import UserNotFoundError
 from app.models.user import User
 
 

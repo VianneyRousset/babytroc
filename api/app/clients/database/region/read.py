@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import RegionNotFoundError
+from app.errors.region import RegionNotFoundError
 from app.models.item import Region
 
 

@@ -1,11 +1,7 @@
-from collections.abc import Collection
-from typing import Any, Mapping, Optional
+from typing import Optional
 
-from sqlalchemy import select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import UserNotFoundError
 from app.models.user import User
 
 

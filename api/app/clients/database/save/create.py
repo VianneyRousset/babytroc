@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.clients.database.item import get_item
 from app.clients.database.user import get_user
-from app.errors.exception import ItemSaveAlreadyExistsError
+from app.errors.save import ItemSaveAlreadyExistsError
 
 
 def create_item_save(

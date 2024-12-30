@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import ChatMessageNotFoundError, ChatNotFoundError
+from app.errors.chat import ChatMessageNotFoundError, ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter

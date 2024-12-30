@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from sqlalchemy.orm import validates
 
 from sqlalchemy import (
     CheckConstraint,
@@ -16,6 +15,7 @@ from sqlalchemy.orm import (
     deferred,
     mapped_column,
     relationship,
+    validates,
 )
 
 from .base import Base, CreationDate

@@ -1,10 +1,9 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.clients.database.user import get_user
-from app.errors.exception import ItemLikeAlreadyExistsError
-
 from app.clients.database.item import get_item
+from app.clients.database.user import get_user
+from app.errors.like import ItemLikeAlreadyExistsError
 
 
 def create_item_like(

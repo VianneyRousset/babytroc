@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.exception import ItemImageNotFoundError
+from app.errors.image import ItemImageNotFoundError
 from app.models.item import ItemImage
 
 

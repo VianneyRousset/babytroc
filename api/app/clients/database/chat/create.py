@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.clients.database.item import get_item
 from app.clients.database.user import get_user
 from app.enums import ChatMessageType
-from app.errors.exception import NotFoundError
+from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
 from app.models.item import Item
 from app.schemas.chat.base import ChatId
@@ -24,7 +24,7 @@ def ensure_chat(
             db=db,
             chat_id=chat_id,
         )
-    except NotFoundError:
+    except ChatNotFoundError:
         pass
 
     return create_chat(

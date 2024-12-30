@@ -4,7 +4,7 @@ from sqlalchemy import BinaryExpression, Integer, func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, Session
 
-from app.errors.exception import ItemNotFoundError
+from app.errors.item import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.query import QueryPageOptions, QueryPageResult
@@ -26,7 +26,7 @@ def get_item(
     stmt = query_filter.apply(stmt)
 
     try:
-        return (db.execute(stmt)).unique().scalars().one()
+        return db.execute(stmt).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": item_id}
