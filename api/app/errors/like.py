@@ -1,4 +1,7 @@
-from .base import ApiError, ConflictError
+from collections.abc import Mapping
+from typing import Any
+
+from .base import ApiError, ConflictError, NotFoundError
 
 
 class ItemLikeError(ApiError):
@@ -15,9 +18,12 @@ class ItemLikeAlreadyExistsError(ItemLikeError, ConflictError):
         super().__init__(message)
 
 
-class ItemLikeNotExistsError(ItemLikeError, ConflictError):
+class ItemLikeNotFoundError(ItemLikeError, NotFoundError):
     """Exception related to a non-existing item like."""
 
-    def __init__(self, *, user_id: int, item_id: int):
-        message = f"Item #{item_id} is not liked by user #{user_id}."
-        super().__init__(message)
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="item like",
+            key=key,
+            **kwargs,
+        )

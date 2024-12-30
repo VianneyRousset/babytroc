@@ -1,8 +1,6 @@
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.item import Item, ItemLike
-from app.models.user import User
+from .read import get_item_like_by_user_item
 
 
 def delete_item_like(
@@ -12,8 +10,10 @@ def delete_item_like(
 ) -> None:
     """Delete the item like from `user_id` to item `item_id`."""
 
-    item_like = (
-        select(ItemLike).where(User.id == user_id).where(Item.id == item_id).scalar()
+    item_like = get_item_like_by_user_item(
+        db=db,
+        user_id=user_id,
+        item_id=item_id,
     )
 
     db.delete(item_like)

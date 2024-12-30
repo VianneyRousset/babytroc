@@ -16,6 +16,28 @@ from app.utils import set_query_param
 from .annotations import item_id_annotation
 from .me import router
 
+# CREATE
+
+
+@router.post("/liked/{item_id}", status_code=status.HTTP_200_OK)
+def add_item_to_client_liked_items(
+    request: Request,
+    item_id: item_id_annotation,
+    db: Session = Depends(get_db_session),
+):
+    """Add the specified item to client liked items."""
+
+    client_user_id = services.auth.check_auth(request)
+
+    return services.item.like.add_item_to_user_liked_items(
+        db=db,
+        user_id=client_user_id,
+        item_id=item_id,
+    )
+
+
+# READ
+
 
 @router.get("/liked", status_code=status.HTTP_200_OK)
 def list_items_liked_by_client(
@@ -65,23 +87,6 @@ def list_items_liked_by_client(
     return result.data
 
 
-@router.post("/liked/{item_id}", status_code=status.HTTP_201_CREATED)
-def add_item_to_client_liked_items(
-    request: Request,
-    item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
-):
-    """Add the specified item to client liked items."""
-
-    client_user_id = services.auth.check_auth(request)
-
-    return services.item.like.add_item_to_user_liked_items(
-        db=db,
-        user_id=client_user_id,
-        item_id=item_id,
-    )
-
-
 @router.get("/liked/{item_id}", status_code=status.HTTP_200_OK)
 def get_client_liked_item_by_id(
     request: Request,
@@ -101,17 +106,20 @@ def get_client_liked_item_by_id(
     )
 
 
+# DELETE
+
+
 @router.delete("/liked/{item_id}", status_code=status.HTTP_200_OK)
 def remove_item_from_client_liked_items(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
-):
+) -> ItemRead:
     """Remove the specified item from client liked items."""
 
     client_user_id = services.auth.check_auth(request)
 
-    services.item.like.remove_item_from_user_liked_items(
+    return services.item.like.remove_item_from_user_liked_items(
         db=db,
         user_id=client_user_id,
         item_id=item_id,

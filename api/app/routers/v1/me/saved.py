@@ -114,7 +114,7 @@ def remove_item_from_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
-):
+) -> ItemRead:
     """Remove the specified item from client saved items."""
 
     client_user_id = services.auth.check_auth(request)

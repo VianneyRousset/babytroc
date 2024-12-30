@@ -34,8 +34,8 @@
 
 - X **`GET /me/liked -> list[ItemPreviewRead]`**
 - X **`GET /me/liked/{id} -> ItemRead`**
-- **`POST /me/liked/{id} -> ItemRead`**
-- **`DELETE /me/liked/{id}`**
+- X **`POST /me/liked/{id} -> ItemRead`**
+- X **`DELETE /me/liked/{id}`**
 
 # /me/borrowings
 
