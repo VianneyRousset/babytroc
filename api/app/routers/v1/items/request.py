@@ -10,6 +10,9 @@ from .annotations import item_id_annotation
 from .router import router
 
 
+# CREATE
+
+
 @router.post("/{item_id}/request", status_code=status.HTTP_201_CREATED)
 def create_loan_request(
     request: Request,
@@ -25,6 +28,9 @@ def create_loan_request(
         item_id=item_id,
         borrower_id=client_user_id,
     )
+
+
+# DELETE
 
 
 @router.delete("/{item_id}/request", status_code=status.HTTP_200_OK)

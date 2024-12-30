@@ -17,7 +17,9 @@ from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
 
 
-# TODO check pagination parameters
+# READ
+
+
 @router.get("/{item_id}/requests", status_code=status.HTTP_200_OK)
 def list_client_item_loan_requests(
     request: Request,

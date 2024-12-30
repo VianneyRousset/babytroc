@@ -39,7 +39,7 @@
 
 # /me/borrowings
 
-- **`GET /me/borrowings -> list[LoanRead]`**
+- X **`GET /me/borrowings -> list[LoanRead]`**
 
 # /me/loans
 

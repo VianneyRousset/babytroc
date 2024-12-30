@@ -29,7 +29,7 @@ def get_loan_request(
     stmt = query_filter.apply(stmt)
 
     try:
-        req = (db.execute(stmt)).unique().scalars().one()
+        req = db.execute(stmt).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": loan_request_id}
@@ -126,7 +126,7 @@ def list_loans(
         },
     )
 
-    loans = (db.execute(stmt)).scalars().all()
+    loans = db.execute(stmt).scalars().all()
 
     return QueryPageResult[Loan](
         data=loans,
