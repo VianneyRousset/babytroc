@@ -16,6 +16,30 @@ from app.services.chat import (
 )
 
 
+def cancel_pending_loan_request(
+    db: Session,
+    *,
+    item_id: int,
+    borrower_id: int,
+) -> LoanRequestRead:
+    """Cancel the pending loan request made by `borrower_id` to `item_id`."""
+
+    # find pending loan request
+    loan_request = database.loan.get_loan_request(
+        db=db,
+        query_filter=LoanRequestQueryFilter(
+            item_id=item_id,
+            borrower_id=borrower_id,
+            state=LoanRequestState.pending,
+        ),
+    )
+
+    return cancel_loan_request(
+        db=db,
+        loan_request_id=loan_request.id,
+    )
+
+
 def cancel_loan_request(
     db: Session,
     loan_request_id: int,

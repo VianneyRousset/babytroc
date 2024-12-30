@@ -12,7 +12,7 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 
 def get_loan_request(
     db: Session,
-    loan_request_id: int,
+    loan_request_id: Optional[int] = None,
     *,
     query_filter: Optional[LoanRequestQueryFilter] = None,
 ) -> LoanRequest:
@@ -21,7 +21,10 @@ def get_loan_request(
     # default query filter
     query_filter = query_filter or LoanRequestQueryFilter()
 
-    stmt = select(LoanRequest).where(LoanRequest.id == loan_request_id)
+    stmt = select(LoanRequest)
+
+    if loan_request_id is not None:
+        stmt = stmt.where(LoanRequest.id == loan_request_id)
 
     stmt = query_filter.apply(stmt)
 

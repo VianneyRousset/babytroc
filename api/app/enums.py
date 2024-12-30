@@ -4,12 +4,13 @@ import enum
 class ChatMessageType(enum.Enum):
     text = 1
     loan_request_created = 2
-    loan_request_accept = 3
-    loan_request_reject = 4
-    loan_start = 5
-    loan_stop = 6
-    not_available = 7
-    available = 8
+    loan_request_canceled = 3
+    loan_request_accepted = 4
+    loan_request_rejected = 5
+    loan_start = 6
+    loan_stop = 7
+    item_not_available = 9
+    item_available = 9
 
 
 class ReportType(enum.Enum):
@@ -20,6 +21,7 @@ class ReportType(enum.Enum):
 
 class LoanRequestState(enum.Enum):
     pending = 1
-    accepted = 2
-    rejected = 3
-    executed = 4
+    canceled = 2
+    accepted = 3
+    rejected = 4
+    executed = 5

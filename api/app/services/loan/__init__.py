@@ -3,6 +3,7 @@ from .read import get_loan, get_loan_request, list_loan_requests, list_loans
 from .update import (
     accept_loan_request,
     cancel_loan_request,
+    cancel_pending_loan_request,
     end_loan,
     reject_loan_request,
 )
@@ -10,6 +11,7 @@ from .update import (
 __all__ = [
     "accept_loan_request",
     "cancel_loan_request",
+    "cancel_pending_loan_request",
     "create_loan_request",
     "end_loan",
     "execute_loan_request",

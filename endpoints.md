@@ -7,8 +7,8 @@
  - X **`GET /items -> list[ItemPreviewRead]`**
 -  X **`GET /items/{id} -> ItemRead`**
 - **`POST /items/{id}/report [ReportCreate]`**
-- **`POST /items/{id}/request`**
-- **`DELETE /items/{id}/request`**
+- X **`POST /items/{id}/request`**
+- X **`DELETE /items/{id}/request`**
 
 # /users
 

@@ -11,7 +11,7 @@ from .router import router
 
 
 @router.post("/{item_id}/request", status_code=status.HTTP_201_CREATED)
-def report_item(
+def create_loan_request(
     request: Request,
     item_id: item_id_annotation,
     db: Session = Depends(get_db_session),
@@ -21,6 +21,23 @@ def report_item(
     client_user_id = services.auth.check_auth(request)
 
     return services.loan.create_loan_request(
+        db=db,
+        item_id=item_id,
+        borrower_id=client_user_id,
+    )
+
+
+@router.delete("/{item_id}/request", status_code=status.HTTP_200_OK)
+def cancel_loan_request(
+    request: Request,
+    item_id: item_id_annotation,
+    db: Session = Depends(get_db_session),
+) -> LoanRequestRead:
+    """Add a loan request of the item."""
+
+    client_user_id = services.auth.check_auth(request)
+
+    return services.loan.cancel_pending_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_user_id,
