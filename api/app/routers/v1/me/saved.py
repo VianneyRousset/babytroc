@@ -16,6 +16,28 @@ from app.utils import set_query_param
 from .annotations import item_id_annotation
 from .me import router
 
+# CREATE
+
+
+@router.post("/saved/{item_id}", status_code=status.HTTP_200_OK)
+def add_item_to_client_saved_items(
+    request: Request,
+    item_id: item_id_annotation,
+    db: Session = Depends(get_db_session),
+) -> ItemRead:
+    """Add item to client saved items."""
+
+    client_user_id = services.auth.check_auth(request)
+
+    return services.item.save.add_item_to_user_saved_items(
+        db=db,
+        user_id=client_user_id,
+        item_id=item_id,
+    )
+
+
+# READ
+
 
 @router.get("/saved", status_code=status.HTTP_200_OK)
 def list_items_saved_by_client(
@@ -65,23 +87,6 @@ def list_items_saved_by_client(
     return result.data
 
 
-@router.post("/saved/{item_id}", status_code=status.HTTP_201_CREATED)
-def add_item_to_client_saved_items(
-    request: Request,
-    item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
-) -> ItemRead:
-    """Add the specified item to client saved items."""
-
-    client_user_id = services.auth.check_auth(request)
-
-    return services.item.save.add_item_to_user_saved_items(
-        db=db,
-        user_id=client_user_id,
-        item_id=item_id,
-    )
-
-
 @router.get("/saved/{item_id}", status_code=status.HTTP_200_OK)
 def get_client_saved_item_by_id(
     request: Request,
@@ -99,6 +104,9 @@ def get_client_saved_item_by_id(
             saved_by_user_id=client_user_id,
         ),
     )
+
+
+# DELETE
 
 
 @router.delete("/saved/{item_id}", status_code=status.HTTP_200_OK)

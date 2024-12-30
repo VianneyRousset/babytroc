@@ -27,8 +27,8 @@
 
 - X **`GET /me/saved -> list[ItemPreviewRead]`**
 - X **`GET /me/saved/{id} -> ItemRead`**
-- **`POST /me/saved/{id} -> ItemRead`**
-- **`DELETE /me/saved/{id}`**
+- X **`POST /me/saved/{id} -> ItemRead`**
+- X **`DELETE /me/saved/{id}`**
 
 # /me/liked
 

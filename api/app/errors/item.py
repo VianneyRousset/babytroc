@@ -17,4 +17,5 @@ class ItemNotFoundError(ItemError, NotFoundError):
         super().__init__(
             datatype="item",
             key=key,
+            **kwargs,
         )

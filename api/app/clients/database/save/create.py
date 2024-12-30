@@ -4,13 +4,14 @@ from sqlalchemy.orm import Session
 from app.clients.database.item import get_item
 from app.clients.database.user import get_user
 from app.errors.save import ItemSaveAlreadyExistsError
+from app.models.item import Item
 
 
 def create_item_save(
     db: Session,
     user_id: int,
     item_id: int,
-) -> None:
+) -> Item:
     """Create and insert an item save from `user_id` to item `item_id`."""
 
     user = get_user(
@@ -32,3 +33,5 @@ def create_item_save(
             user_id=user_id,
             item_id=item_id,
         ) from error
+
+    return item

@@ -1,8 +1,6 @@
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.item import Item, ItemSave
-from app.models.user import User
+from .read import get_item_save_by_user_item
 
 
 def delete_item_save(
@@ -12,8 +10,10 @@ def delete_item_save(
 ) -> None:
     """Delete the item save from `user_id` to item `item_id`."""
 
-    item_save = (
-        select(ItemSave).where(User.id == user_id).where(Item.id == item_id).scalar()
+    item_save = get_item_save_by_user_item(
+        db=db,
+        user_id=user_id,
+        item_id=item_id,
     )
 
     db.delete(item_save)
