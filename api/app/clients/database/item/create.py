@@ -27,43 +27,34 @@ def create_item(
         description=description,
         targeted_age_months=Range(*targeted_age_months, bounds="[]"),
         blocked=blocked,
+        owner_id=owner_id,
     )
 
     # add images to item
     item.images.extend([ItemImage(name=name) for name in images])
 
     # add regions to item
-    regions = [
-        get_region(
-            db=db,
-            region_id=region_id,
-        )
-        for region_id in regions
-    ]
-    item.regions.extend(regions)
+    for region_id in regions:
+        region = get_region(db, region_id)
+        region.items.append(item)
 
     return insert_item(
         db=db,
         item=item,
-        owner_id=owner_id,
     )
 
 
 def insert_item(
     db: Session,
     item: Item,
-    owner_id: int,
 ) -> Item:
     """Insert item into the database."""
 
-    # get the user that will be owner of the item
-    owner = get_user(
+    # check owner exists
+    get_user(
         db=db,
-        user_id=owner_id,
+        user_id=item.owner_id,
     )
-
-    # add item to user items
-    owner.items.append(item)
 
     db.flush()
     db.refresh(item)

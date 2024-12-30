@@ -22,8 +22,8 @@ from sqlalchemy.orm import (
 )
 
 from app.models.base import Base, CreationDate, UpdateDate
-from app.models.loan import Loan, LoanRequest
 from app.models.chat import Chat
+from app.models.loan import Loan, LoanRequest
 
 from .image import ItemImage
 from .like import ItemLike

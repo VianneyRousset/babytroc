@@ -17,7 +17,7 @@ from .annotations import item_id_annotation
 from .router import router
 
 
-@router.get("/", status_code=status.HTTP_200_OK)
+@router.get("", status_code=status.HTTP_200_OK)
 def list_items_owned_by_client(
     request: Request,
     response: Response,

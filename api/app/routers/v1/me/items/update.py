@@ -29,7 +29,7 @@ def update_client_item(
 
     return services.items.update_user_item(
         db=db,
-        owner_user_id=client_user_id,
+        user_id=client_user_id,
         item_id=item_id,
         item_update=item_update,
     )

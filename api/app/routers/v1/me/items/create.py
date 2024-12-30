@@ -12,7 +12,7 @@ from app.schemas.item.preview import ItemPreviewRead
 from .router import router
 
 
-@router.post("/items", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_client_item(
     request: Request,
     item_create: Annotated[
@@ -25,8 +25,8 @@ def create_client_item(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.items.create_item(
+    return services.item.create_item(
         db=db,
-        owner_user_id=client_user_id,
+        owner_id=client_user_id,
         item_create=item_create,
     )

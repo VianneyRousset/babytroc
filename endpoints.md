@@ -48,7 +48,7 @@
 # /me/items
 
 - X **`GET /me/items -> list[ItemPreviewRead]`**
-- **`POST /me/items [ItemCreate] -> ItemRead`**
+- X **`POST /me/items [ItemCreate] -> ItemRead`**
 - X **`GET /me/items/{id} -> ItemRead`**
 - **`POST /me/items/{id} [ItemUpdate] -> ItemRead`**
 - **`DELETE /me/items/{id}`**
