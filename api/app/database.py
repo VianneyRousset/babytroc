@@ -14,7 +14,6 @@ def create_session_maker(db_url: str) -> sessionmaker:
 
     return sessionmaker(
         bind=engine,
-        expire_on_commit=False,
     )
 
 
