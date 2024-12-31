@@ -30,6 +30,10 @@ class DeleteBase(Base, extra="forbid"):
     pass
 
 
+class NetworkingBase(Base):
+    pass
+
+
 class QueryPageBase(Base, extra="forbid"):
     pass
 

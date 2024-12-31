@@ -26,7 +26,7 @@ class ChatRead(ChatBase, ReadBase):
         )
 
     @field_serializer("id")
-    def serialize_dt(self, chat_id: ChatId, _info):
+    def serialize_id(self, chat_id: ChatId, _info):
         return str(chat_id)
 
 

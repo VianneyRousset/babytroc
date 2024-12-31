@@ -1,12 +1,12 @@
 from typing import Optional
 
+from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
 
-from app.clients.database.user import get_user
-from app.models.item import Item, ItemImage
-
+from app.clients.database.image import get_image_by_name
 from app.clients.database.region import get_region
-from sqlalchemy.dialects.postgresql import INT4RANGE, Range
+from app.clients.database.user import get_user
+from app.models.item import Item
 
 
 def create_item(
@@ -31,7 +31,7 @@ def create_item(
     )
 
     # add images to item
-    item.images.extend([ItemImage(name=name) for name in images])
+    item.images.extend([get_image_by_name(db, name) for name in images])
 
     # add regions to item
     for region_id in regions:

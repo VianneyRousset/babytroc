@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from . import items, me, users, utils
+from . import images, items, me, users, utils
 
 __all__ = ["items", "me", "users", "utils"]
 
@@ -25,4 +25,10 @@ router.include_router(
 router.include_router(
     router=utils.router,
     prefix="/utils",
+)
+
+
+router.include_router(
+    router=images.router,
+    prefix="/images",
 )

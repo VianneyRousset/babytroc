@@ -1,5 +1,5 @@
 from app import config
-from app.clients import dicebear
+from app.clients.networking import dicebear
 
 
 def get_avatar(

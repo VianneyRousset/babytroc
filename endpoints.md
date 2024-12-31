@@ -23,6 +23,13 @@
 - **`POST /me [UserUpdate] -> UserRead`**
 - **`DELETE /me`**
 
+
+# /images
+
+- **`GET /images/{image_name} -> ItemImageRead`**
+- X **`POST /images -> ItemImageRead`**
+
+
 # /me/saved
 
 - X **`GET /me/saved -> list[ItemPreviewRead]`**
