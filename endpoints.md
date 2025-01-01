@@ -21,7 +21,7 @@
 
 - X **`GET /me -> UserRead`**
 - X **`POST /me [UserUpdate] -> UserRead`**
-- **`DELETE /me`**
+- X **`DELETE /me`**
 
 
 # /images

@@ -11,6 +11,8 @@ from app.schemas.user.update import UserUpdate
 
 from .router import router
 
+# GET
+
 
 @router.get("", status_code=status.HTTP_200_OK)
 def get_client_user(
@@ -25,6 +27,9 @@ def get_client_user(
         db=db,
         user_id=client_user_id,
     )
+
+
+# UPDATE
 
 
 @router.post("", status_code=status.HTTP_200_OK)
@@ -47,11 +52,14 @@ def update_client_user(
     )
 
 
+# DELETE
+
+
 @router.delete("", status_code=status.HTTP_200_OK)
 def delete_client_user(
     request: Request,
     db: Session = Depends(db.get_db_session),
-) -> UserRead:
+) -> None:
     """Delete client user."""
 
     client_user_id = services.auth.check_auth(request)

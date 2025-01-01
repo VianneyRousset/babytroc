@@ -45,10 +45,12 @@ class Chat(Base):
         "Item",
         back_populates="chats",
         foreign_keys=[item_id],
+        single_parent=True,
     )
     borrower: Mapped["User"] = relationship(
         "User",
         foreign_keys=[borrower_id],
+        single_parent=True,
     )
 
     messages: Mapped[list["ChatMessage"]] = relationship(
@@ -100,6 +102,7 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         Chat,
         back_populates="messages",
         foreign_keys=[item_id, borrower_id],
+        single_parent=True,
     )
 
     message_type: Mapped[ChatMessageType] = mapped_column(
@@ -118,6 +121,7 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
     sender: Mapped["User"] = relationship(
         "User",
         foreign_keys=[sender_id],
+        single_parent=True,
     )
 
     payload: Mapped[str] = mapped_column(
@@ -131,5 +135,9 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
     )
 
     __table_args__ = (
-        ForeignKeyConstraint([item_id, borrower_id], [Chat.item_id, Chat.borrower_id]),
+        ForeignKeyConstraint(
+            columns=[item_id, borrower_id],
+            refcolumns=[Chat.item_id, Chat.borrower_id],
+            ondelete="CASCADE",
+        ),
     )

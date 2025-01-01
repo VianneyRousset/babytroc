@@ -53,10 +53,12 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     item: Mapped["Item"] = relationship(
         "Item",
         back_populates="loan_requests",
+        single_parent=True,
     )
     borrower: Mapped["User"] = relationship(
         "User",
         back_populates="borrowing_requests",
+        single_parent=True,
     )
 
     # once executed, referes to the create loan
@@ -106,7 +108,10 @@ class Loan(IntegerIdentifier, Base):
 
     item_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("item.id"),
+        ForeignKey(
+            "item.id",
+            ondelete="CASCADE",
+        ),
         index=True,
     )
     borrower_id: Mapped[int] = mapped_column(
@@ -121,10 +126,12 @@ class Loan(IntegerIdentifier, Base):
     item: Mapped["Item"] = relationship(
         "Item",
         back_populates="loans",
+        single_parent=True,
     )
     borrower: Mapped["User"] = relationship(
         "User",
         back_populates="borrowings",
+        single_parent=True,
     )
 
     during: Mapped[Range] = mapped_column(
@@ -137,13 +144,20 @@ class Loan(IntegerIdentifier, Base):
     loan_request: Mapped[LoanRequest] = relationship(
         LoanRequest,
         back_populates="loan",
+        single_parent=True,
     )
 
     # chat messages linked to this loan
-    creation_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
+    creation_message_id: Mapped[int] = mapped_column(
+        ForeignKey(
+            ChatMessage.id,
+            ondelete="CASCADE",
+        )
+    )
     creation_chat_message: Mapped[ChatMessage] = relationship(
         ChatMessage,
         foreign_keys=[creation_message_id],
+        single_parent=True,
     )
 
     __table_args__ = (

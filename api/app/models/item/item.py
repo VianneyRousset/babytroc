@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from .user import User
 
 
+# TODO use passive_delete=True to let the db handle cascade deletions
+
+
 class Item(CreationDate, UpdateDate, Base):
     __tablename__ = "item"
 
@@ -66,6 +69,7 @@ class Item(CreationDate, UpdateDate, Base):
     owner: Mapped["User"] = relationship(
         "User",
         back_populates="items",
+        single_parent=True,
     )
 
     # image of the item
