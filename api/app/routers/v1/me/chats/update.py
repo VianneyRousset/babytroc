@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import database as db
 from app import services
+from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import (
     ChatMessageQueryFilter,
 )
@@ -27,12 +28,15 @@ def mark_client_chat_message_as_seen(
 
     client_user_id = services.auth.check_auth(request)
 
-    return services.chat.mark_user_chat_message_as_seen(
+    chat_id = ChatId.from_str(chat_id)
+
+    return services.chat.mark_message_as_seen(
         db=db,
         message_id=message_id,
         query_filter=ChatMessageQueryFilter(
             item_id=chat_id.item_id,
             borrower_id=chat_id.borrower_id,
             member_id=client_user_id,
+            sender_id_not=client_user_id,
         ),
     )

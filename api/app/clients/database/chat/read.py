@@ -97,7 +97,7 @@ def get_message(
         return (db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
-        key = query_filter.key() | {"id": message_id}
+        key = query_filter.key | {"id": message_id}
         raise ChatMessageNotFoundError(key) from error
 
 
@@ -126,7 +126,7 @@ def list_messages(
         columns={"message_id": ChatMessage.id},
     )
 
-    messages = (db.execute(stmt)).scalars().all()
+    messages = db.execute(stmt).scalars().all()
 
     return QueryPageResult[ChatMessage](
         data=messages,

@@ -4,9 +4,9 @@ from fastapi import Body, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
-from app.schemas.chat.base import ChatId
 from app import database as db
 from app import services
+from app.schemas.chat.base import ChatId
 from app.schemas.chat.create import ChatMessageCreate
 from app.schemas.chat.read import ChatMessageRead
 

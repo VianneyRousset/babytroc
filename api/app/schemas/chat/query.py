@@ -19,6 +19,9 @@ class ChatQueryFilter(QueryFilterBase):
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
 
+        if self.owner_id is not None or self.member_id is not None:
+            stmt = stmt.join(Item)
+
         # filter item_id
         if self.item_id is not None:
             stmt = stmt.where(Chat.item_id == self.item_id)
@@ -29,12 +32,10 @@ class ChatQueryFilter(QueryFilterBase):
 
         # filter owner_id
         if self.owner_id is not None:
-            stmt = stmt.join(Item)
             stmt = stmt.where(Item.owner_id == self.owner_id)
 
         # filter member_id
         if self.member_id is not None:
-            stmt = stmt.join(Item)
             stmt = stmt.where(
                 (Chat.borrower_id == self.member_id) | (Item.owner_id == self.member_id)
             )
@@ -50,16 +51,28 @@ class ChatMessageQueryFilter(QueryFilterBase):
     borrower_id: Optional[int] = None
     owner_id: Optional[int] = None
     sender_id: Optional[int] = None
+    sender_id_not: Optional[int] = None
     member_id: Optional[int] = None
 
     seen: Optional[bool] = None
 
-    def apply(self, stmt: Select) -> Select:
+    def apply(self, stmt: Select) -> Select:  # noqa: C901
         """Apply filtering."""
+
+        if (
+            self.chat_id is not None
+            or self.item_id is not None
+            or self.borrower_id is not None
+            or self.owner_id is not None
+            or self.member_id is not None
+        ):
+            stmt = stmt.join(Chat)
+
+        if self.owner_id is not None or self.member_id:
+            stmt = stmt.join(Item)
 
         # filter chat_id
         if self.chat_id is not None:
-            stmt = stmt.join(Chat)
             stmt = stmt.where(
                 (Chat.item_id == self.chat_id.item_id)
                 & (Chat.borrower_id == self.chat_id.borrower_id)
@@ -67,28 +80,26 @@ class ChatMessageQueryFilter(QueryFilterBase):
 
         # filter item_id
         if self.item_id is not None:
-            stmt = stmt.join(Chat)
             stmt = stmt.where(Chat.item_id == self.item_id)
 
         # filter borrower_id
         if self.borrower_id is not None:
-            stmt = stmt.join(Chat)
             stmt = stmt.where(Chat.borrower_id == self.borrower_id)
 
         # filter owner_id
-        if self.borrower_id is not None:
-            stmt = stmt.join(Chat)
-            stmt = stmt.join(Item)
+        if self.owner_id is not None:
             stmt = stmt.where(Item.owner_id == self.owner_id)
 
         # filter sender_id
         if self.sender_id is not None:
             stmt = stmt.where(ChatMessage.sender_id == self.sender_id)
 
+        # filter sender_id_not
+        if self.sender_id_not is not None:
+            stmt = stmt.where(ChatMessage.sender_id != self.sender_id_not)
+
         # filter member_id
         if self.member_id is not None:
-            stmt = stmt.join(Chat)
-            stmt = stmt.join(Item)
             stmt = stmt.where(
                 (Chat.borrower_id == self.member_id) | (Item.owner_id == self.member_id)
             )

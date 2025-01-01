@@ -16,14 +16,14 @@ def mark_message_as_seen(
     """Mark message with `message_id` as seen."""
 
     # get message from database
-    message = database.get_message(
+    message = database.chat.get_message(
         db=db,
         message_id=message_id,
         query_filter=query_filter,
     )
 
     # set seen to True
-    message = database.update_message(
+    message = database.chat.update_message(
         db=db,
         message=message,
         attributes={"seen": True},
