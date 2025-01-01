@@ -20,7 +20,7 @@
 # /me
 
 - X **`GET /me -> UserRead`**
-- **`POST /me [UserUpdate] -> UserRead`**
+- X **`POST /me [UserUpdate] -> UserRead`**
 - **`DELETE /me`**
 
 
