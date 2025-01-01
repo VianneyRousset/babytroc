@@ -129,7 +129,7 @@ def accept_client_item_loan_request(
 
 
 @router.post(
-    "/item_id}/requests/{loan_request_id}/reject",
+    "/{item_id}/requests/{loan_request_id}/reject",
     status_code=status.HTTP_200_OK,
 )
 def reject_client_item_loan_request(

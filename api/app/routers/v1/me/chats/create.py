@@ -4,6 +4,7 @@ from fastapi import Body, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
+from app.schemas.chat.base import ChatId
 from app import database as db
 from app import services
 from app.schemas.chat.create import ChatMessageCreate
@@ -28,12 +29,13 @@ def send_message_to_chat(
 ) -> ChatMessageRead:
     """Send message to chat."""
 
+    chat_id = ChatId.from_str(chat_id)
+
     client_user_id = services.auth.check_auth(request)
 
     return services.chat.send_message_text(
         db=db,
-        item_id=item_id,
-        borrower_id=borrower_id,
+        chat_id=chat_id,
         sender_id=client_user_id,
         payload=chat_message_create.payload,
     )

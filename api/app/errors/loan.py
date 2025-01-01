@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from http import HTTPStatus
 from typing import Any
 
 from app.enums import LoanRequestState
@@ -27,7 +26,6 @@ class LoanAlreadyInactiveError(LoanError, ConflictError):
     def __init__(self):
         super().__init__(
             message="Loan is already inactive.",
-            status_code=HTTPStatus.BAD_REQUEST,
         )
 
 
@@ -59,7 +57,6 @@ class LoanRequestStateError(LoanRequestError, ConflictError):
                 f"Loan request state is expected to be {expected_state.name!r}, "
                 f"got: {actual_state.name!r}."
             ),
-            status_code=HTTPStatus.BAD_REQUEST,
         )
 
 

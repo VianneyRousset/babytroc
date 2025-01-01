@@ -62,8 +62,8 @@
 
 - X **`GET /me/items/{id}/requests -> list[LoanRequestRead]`**
 - X **`GET /me/items/{id}/requests/{id} -> LoanRequestRead`**
-- **`POST /me/items/{id}/requests/{id}/accept`**
-- **`POST /me/items/{id}/requests/{id}/reject`**
+- X **`POST /me/items/{id}/requests/{id}/accept`**
+- X **`POST /me/items/{id}/requests/{id}/reject`**
 
 # /me/chats
 
@@ -77,7 +77,7 @@
     - to=date
     - count=int
 - X **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
-- **`POST /me/chats/{id}/messages -> ChatMessageRead`**
+- X **`POST /me/chats/{id}/messages -> ChatMessageRead`**
 - X **`GET /me/chats/{id}/messages/{id} -> ChatMessageRead`**
 - **`POST /me/chats/{id}/messages/{id}/see`**
 
