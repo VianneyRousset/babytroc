@@ -55,7 +55,7 @@ def update_client_user(
 # DELETE
 
 
-@router.delete("", status_code=status.HTTP_200_OK)
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
 def delete_client_user(
     request: Request,
     db: Session = Depends(db.get_db_session),

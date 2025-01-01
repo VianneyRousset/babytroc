@@ -40,13 +40,19 @@ class ItemImage(Base, CreationDate):
 
     owner_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="CASCADE",
+        ),
     )
 
     # the item
     item_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("item.id"),
+        ForeignKey(
+            "item.id",
+            ondelete="CASCADE",
+        ),
         nullable=True,
     )
     item: Mapped["Item"] = relationship(
@@ -55,4 +61,4 @@ class ItemImage(Base, CreationDate):
     )
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} {self.id!r}>"
+        return f"<{self.__class__.__name__} {self.name!r}>"

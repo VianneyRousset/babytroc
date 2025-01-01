@@ -1,9 +1,12 @@
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
+from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
 
+from app.clients.database.image import get_image
 from app.clients.database.region import get_region
-from app.models.item import Item, ItemImage
+from app.models.item import Item
 
 
 def update_item(
@@ -13,19 +16,18 @@ def update_item(
 ) -> Item:
     """Update the given `attributes` of `item`."""
 
-    # create required images
-    if "images" in attributes:
-        attributes["images"] = [ItemImage(name=name) for name in attributes["images"]]
-
-    # TODO should raise 404 or something else ?
     if "regions" in attributes:
         attributes["regions"] = [
-            get_region(
-                db=db,
-                region_id=region_id,
-            )
-            for region_id in attributes["regions"]
+            get_region(db, region_id) for region_id in attributes["regions"]
         ]
+
+    if "images" in attributes:
+        attributes["images"] = [get_image(db, name) for name in attributes["images"]]
+
+    if "targeted_age_months" in attributes:
+        attributes["targeted_age_months"] = Range(
+            *attributes["targeted_age_months"], bounds="[]"
+        )
 
     for key, value in attributes.items():
         setattr(item, key, value)

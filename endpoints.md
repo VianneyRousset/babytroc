@@ -57,8 +57,8 @@
 - X **`GET /me/items -> list[ItemPreviewRead]`**
 - X **`POST /me/items [ItemCreate] -> ItemRead`**
 - X **`GET /me/items/{id} -> ItemRead`**
-- **`POST /me/items/{id} [ItemUpdate] -> ItemRead`**
-- **`DELETE /me/items/{id}`**
+- X **`POST /me/items/{id} [ItemUpdate] -> ItemRead`**
+- X **`DELETE /me/items/{id}`**
 
 - X **`GET /me/items/{id}/requests -> list[LoanRequestRead]`**
 - X **`GET /me/items/{id}/requests/{id} -> LoanRequestRead`**

@@ -15,7 +15,7 @@ def get_image(
     stmt = select(ItemImage).where(ItemImage.name == name)
 
     try:
-        return (db.execute(stmt)).unique().scalars().one()
+        return db.execute(stmt).unique().scalars().one()
 
     except NoResultFound as error:
         raise ItemImageNotFoundError({"name": name}) from error

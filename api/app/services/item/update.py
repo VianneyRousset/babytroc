@@ -10,7 +10,7 @@ from app.schemas.item.query import (
 from app.schemas.item.update import ItemUpdate
 
 
-def update_private_item(
+def update_item(
     db: Session,
     *,
     item_id: int,
@@ -30,6 +30,7 @@ def update_private_item(
 
     # update item attributes
     item = database.item.update_item(
+        db=db,
         item=item,
         attributes=item_update.dict(exclude_none=True),
     )
