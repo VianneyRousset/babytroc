@@ -1,6 +1,6 @@
 # /utils
 
-- **`GET /utils/avatar -> svg`**
+- **`GET /utils/avatar/{seed} -> svg`**
 
 # /items 
 
@@ -79,7 +79,7 @@
 - X **`GET /me/chats/{id}/messages -> list[ChatMessageRead]`**
 - X **`POST /me/chats/{id}/messages -> ChatMessageRead`**
 - X **`GET /me/chats/{id}/messages/{id} -> ChatMessageRead`**
-- **`POST /me/chats/{id}/messages/{id}/see`**
+- X **`POST /me/chats/{id}/messages/{id}/see`**
 
 - **`POST /me/chats/{id}/report [ReportCreate]`**
   - save the whole chat, who reported it, the message, the context and the creation date
