@@ -11,6 +11,7 @@ def load_image(fp: IOBase) -> Image:
 def serialize_image(image: Image, format="jpeg") -> IOBase:
     fp = BytesIO()
     image.save(fp, format=format)
+    fp.seek(0)
     return fp
 
 

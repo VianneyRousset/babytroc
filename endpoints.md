@@ -26,7 +26,7 @@
 
 # /images
 
-- **`GET /images/{image_name} -> ItemImageRead`**
+- X **`GET /images/{image_name} -> ItemImageRead`**
 - X **`POST /images -> ItemImageRead`**
 
 
