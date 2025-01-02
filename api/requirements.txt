@@ -1,8 +1,8 @@
-uvicorn==0.*
 fastapi[standard]==0.*
-sqlalchemy==2.*
-sqlalchemy-utils
-asyncpg
+sqlalchemy[postgresql-psycopg2binary,mypy]==2.*
+pillow
+requests
+
 alembic
 ruff
 
