@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+}
+
+.header-bar {
+
+  background-color: $neutral-50;
+  color: $neutral-500;
+  border-bottom: 1px solid $neutral-300;
+  padding: 15px 18px;
+  font-family: 'Plus Jakarta Sans', serif;
+
+
+  svg {
+    stroke: $neutral-500;
+  }
+
+  input {
+    font-family: inherit;
+  }
+
+}

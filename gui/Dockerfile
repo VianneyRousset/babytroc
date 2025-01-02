@@ -1,12 +1,11 @@
-
 # Use Node.js LTS version
 FROM node:lts-alpine
 
 # Set working directory
 WORKDIR /usr/src/gui
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+# Copy package.json, package-lock.json and prisma
+COPY package.json package-lock.json prisma ./
 
 RUN npm install --global typescript esrun
 
