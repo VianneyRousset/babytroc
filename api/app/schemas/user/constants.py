@@ -1,0 +1,2 @@
+AVATAR_SEED_LENGTH = range(5, 10)
+NAME_LENGTH = range(3, 30)

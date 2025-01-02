@@ -3,24 +3,25 @@ from typing import Optional
 from pydantic import Field, field_validator
 from typing_extensions import Annotated
 
-from app import config
 from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase
+
+from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
 
 
 class ItemCreate(ItemBase, CreateBase):
     name: Annotated[
         str,
         Field(
-            min_length=config.ITEM_NAME_MIN_LENGTH,
-            max_length=config.ITEM_NAME_MAX_LENGTH,
+            min_length=NAME_LENGTH.start,
+            max_length=NAME_LENGTH.stop,
         ),
     ]
     description: Annotated[
         str,
         Field(
-            min_length=config.ITEM_DESCRIPTION_MIN_LENGTH,
-            max_length=config.ITEM_DESCRIPTION_MAX_LENGTH,
+            min_length=DESCRIPTION_LENGTH.start,
+            max_length=DESCRIPTION_LENGTH.stop,
         ),
     ]
     images: list[str]

@@ -2,10 +2,12 @@ import io
 
 from sqlalchemy.orm import Session
 
-from app import config, utils
+from app import utils
 from app.clients import database
 from app.clients.networking import imgpush
 from app.schemas.image.read import ItemImageRead
+
+from .constants import MAX_DIMENSION
 
 
 def upload_image(
@@ -18,7 +20,7 @@ def upload_image(
 
     # load and process image
     image = utils.image.load_image(fp)
-    image = utils.image.limit_image_size(image, config.ITEM_IMAGE_MAX_DIMENSION)
+    image = utils.image.limit_image_size(image, MAX_DIMENSION)
     image = utils.image.apply_exif_orientation(image)
     image = utils.image.clear_exif(image)
 

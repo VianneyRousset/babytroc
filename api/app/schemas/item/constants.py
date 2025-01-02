@@ -1,0 +1,2 @@
+NAME_LENGTH = range(5, 30)
+DESCRIPTION_LENGTH = range(20, 600)

@@ -1,5 +1,6 @@
-from app import config
 from app.clients.networking import dicebear
+
+from .constants import BG, FG, RADIUS, SCALE
 
 
 def get_avatar(
@@ -12,8 +13,8 @@ def get_avatar(
     return dicebear.generate_avatar(
         seed=seed,
         size=size,
-        scale=config.AVATAR_SCALE,
-        radius=config.AVATAR_RADIUS,
-        bg=config.AVATAR_BG,
-        fg=config.AVATAR_FG,
+        scale=SCALE,
+        radius=RADIUS,
+        bg=BG,
+        fg=FG,
     )
