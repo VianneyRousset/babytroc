@@ -1,9 +1,11 @@
 import os
 from typing import NamedTuple
 
+from sqlalchemy import URL as sqlURL
+
 
 class Config(NamedTuple):
-    database_url: str
+    database_url: sqlURL
     imgpush_url: str
 
     @staticmethod
@@ -18,6 +20,13 @@ class Config(NamedTuple):
         IMGPUSH_PORT = int(os.environ["IMGPUSH_PORT"])
 
         return Config(
-            database_url=f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/${POSTGRES_DATABASE}",
+            database_url=sqlURL.create(
+                "postgresql+psycopg2",
+                username=POSTGRES_USER,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT,
+                database=POSTGRES_DATABASE,
+            ),
             imgpush_url=f"http://{IMGPUSH_HOST}:{IMGPUSH_PORT}",
         )
