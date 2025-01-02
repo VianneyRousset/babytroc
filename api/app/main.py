@@ -1,6 +1,5 @@
-from . import config
+from .config import Config
 from .app import create_app
 
-app = create_app(
-    db_url=config.DATABASE_URL,
-)
+config = Config.from_env()
+app = create_app(config)

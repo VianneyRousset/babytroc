@@ -22,6 +22,7 @@ async def upload_image(
     client_user_id = services.auth.check_auth(request)
 
     return services.image.upload_image(
+        config=request.app.state.config,
         db=db,
         fp=file.file,
         owner_id=client_user_id,

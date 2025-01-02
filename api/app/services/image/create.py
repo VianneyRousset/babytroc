@@ -5,12 +5,14 @@ from sqlalchemy.orm import Session
 from app import utils
 from app.clients import database
 from app.clients.networking import imgpush
+from app.config import Config
 from app.schemas.image.read import ItemImageRead
 
 from .constants import MAX_DIMENSION
 
 
 def upload_image(
+    config: Config,
     db: Session,
     *,
     owner_id: int,
@@ -26,7 +28,7 @@ def upload_image(
 
     # serialize and upload image to imgpush
     fp = utils.image.serialize_image(image)
-    name = imgpush.upload_image(fp).name
+    name = imgpush.upload_image(config, fp).name
 
     # create item in database
     item = database.image.create_image(

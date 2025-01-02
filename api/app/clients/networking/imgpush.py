@@ -2,7 +2,7 @@ import io
 
 import requests
 
-from app import config
+from app.config import Config
 from app.schemas.networking.imgpush import ImgpushUploadResponse
 
 TIMEOUT = 2
@@ -12,11 +12,9 @@ TIMEOUT = 2
 # CREATE
 
 
-def upload_image(fp: io.IOBase) -> ImgpushUploadResponse:
-    url = config.IMGPUSH_URL
-
+def upload_image(config: Config, fp: io.IOBase) -> ImgpushUploadResponse:
     response = requests.post(
-        url=url,
+        url=config.imgpush_url,
         timeout=TIMEOUT,
         files={"file": ("file.jpg", fp, "image/jpeg")},
     )
@@ -30,10 +28,9 @@ def upload_image(fp: io.IOBase) -> ImgpushUploadResponse:
 # READ
 
 
-def get_image(name: str) -> bytes:
-    url = f"{config.IMGPUSH_URL}/{name}.jpg"
+def get_image(config: Config, name: str) -> bytes:
     response = requests.get(
-        url=url,
+        url=f"{config.imgpush_url}/{name}.jpg",
         timeout=TIMEOUT,
     )
 
