@@ -20,7 +20,9 @@ target_metadata = app.models.Base.metadata
 
 # # Set the database URL in the Alembic config
 jls_extract_var = config
-jls_extract_var.set_main_option("sqlalchemy.url", app.config.DATABASE_URL)
+if config.get_main_option("sqlalchemy.url") is None:
+    app_config = app.config.Config.from_env()
+    jls_extract_var.set_main_option("sqlalchemy.url", str(app_config.postgres_url))
 
 
 def run_migrations_offline() -> None:
