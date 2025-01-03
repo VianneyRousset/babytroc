@@ -24,7 +24,10 @@ class ItemCreate(ItemBase, CreateBase):
             max_length=DESCRIPTION_LENGTH.stop,
         ),
     ]
-    images: list[str]
+    images: Annotated[
+        list[str],
+        Field(min_length=1),
+    ]
     targeted_age_months: list[int | None]
     regions: list[int]
     blocked: Optional[bool] = False
