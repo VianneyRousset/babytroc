@@ -1,0 +1,59 @@
+[env]
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = 5432
+POSTGRES_DATABASE = "kindbaby"
+POSTGRES_USER = "kindbaby"
+IMGPUSH_HOST = "localhost"
+IMGPUSH_PORT = 5000
+_.file = ".env.yaml"
+
+[tools]
+python = { version = "3.13", virtualenv = ".venv" }
+
+[tasks."deps:venv"]
+description = "Create a virtualenv."
+run = "python -m venv .venv"
+
+[tasks."deps:uv"]
+description = "Install uv package manager."
+depends = ["deps:venv"]
+run = "pip install uv"
+
+[tasks."deps:ruff"]
+description = "Install ruff linter."
+depends = ["deps:uv"]
+run = "uv pip install ruff"
+
+[tasks."deps:mypy"]
+description = "Install ruff linter."
+depends = ["deps:uv"]
+run = "uv pip install mypy"
+
+[tasks.deps]
+description = "Install dependencies"
+depends = ["deps:*"]
+run = "uv pip install -r requirements.txt"
+
+[tasks.dev]
+description = "Run the application"
+depends = ["deps"]
+run = "./entrypoint.sh"
+
+[tasks."lint:ruff"]
+description = "Lint - ruff pass"
+depends = ["deps:ruff"]
+run = "ruff check app/"
+
+[tasks."lint:mypy"]
+description = "Lint - mypy pass"
+depends = ["deps:*"]
+run = "mypy app/"
+
+[tasks.lint]
+description = "Lint the code"
+depends = ["lint:*"]
+run = "ruff check app/"
+
+[tasks.build]
+description = "Build docker image"
+run = "docker build . --tag=vianneyrousset/kindbaby-api"

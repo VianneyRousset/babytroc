@@ -13,6 +13,8 @@ EXPOSE 8080
 COPY app ./app
 COPY pyproject.toml .
 COPY entrypoint.sh .
+COPY alembic.ini .
+COPY alembic ./alembic
 
 # Define entrypoint
 # docker will run the following script when started
