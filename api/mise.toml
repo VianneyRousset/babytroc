@@ -6,17 +6,13 @@ POSTGRES_USER = "kindbaby"
 IMGPUSH_HOST = "localhost"
 IMGPUSH_PORT = 5000
 _.file = ".env.yaml"
+_.python.venv = { path = ".venv", create = true }
 
 [tools]
 python = { version = "3.13", virtualenv = ".venv" }
 
-[tasks."deps:venv"]
-description = "Create a virtualenv."
-run = "python -m venv .venv"
-
 [tasks."deps:uv"]
 description = "Install uv package manager."
-depends = ["deps:venv"]
 run = "pip install uv"
 
 [tasks."deps:ruff"]
