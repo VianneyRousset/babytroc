@@ -1,35 +1,41 @@
 import os
+from typing import NamedTuple
 
-POSTGRES_USER = os.environ["POSTGRES_USER"]
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_HOST = os.environ["POSTGRES_HOST"]
-POSTGRES_PORT = os.environ["POSTGRES_PORT"]
-POSTGRES_DATABASE = os.environ["POSTGRES_DATABASE"]
-DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DATABASE}"
+from sqlalchemy import URL as sqlURL
 
-IMGPUSH_HOST = os.environ["IMGPUSH_HOST"]
-IMGPUSH_PORT = os.environ["IMGPUSH_PORT"]
-IMGPUSH_URL = f"http://{IMGPUSH_HOST}:{IMGPUSH_PORT}"
-IMGPUSH_TIMEOUT = 2
 
-USER_NAME_MIN_LENGTH = 3
-USER_NAME_MAX_LENGTH = 30
+class Config(NamedTuple):
+    class ImgPush(NamedTuple):
+        url: str
 
-ITEM_NAME_MIN_LENGTH = 5
-ITEM_NAME_MAX_LENGTH = 30
-ITEM_DESCRIPTION_MIN_LENGTH = 20
-ITEM_DESCRIPTION_MAX_LENGTH = 600
+        @staticmethod
+        def from_env() -> "Config.ImgPush":
+            IMGPUSH_HOST = os.environ["IMGPUSH_HOST"]
+            IMGPUSH_PORT = int(os.environ["IMGPUSH_PORT"])
 
-ITEM_IMAGE_FORMAT = "jpeg"
-ITEM_IMAGE_MAX_DIMENSION = 1024
+            return Config.ImgPush(
+                url=f"http://{IMGPUSH_HOST}:{IMGPUSH_PORT}",
+            )
 
-DICEBEAR_URL = "https://api.dicebear.com/7.x/thumbs/svg"
-DICEBEAR_TIMEOUT = 2
+    postgres_url: sqlURL
+    imgpush: ImgPush
 
-AVATAR_SEED_MIN_LENGTH = 5
-AVATAR_SEED_MAX_LENGTH = 10
+    @staticmethod
+    def from_env() -> "Config":
+        POSTGRES_USER = os.environ["POSTGRES_USER"]
+        POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+        POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+        POSTGRES_PORT = int(os.environ["POSTGRES_PORT"])
+        POSTGRES_DATABASE = os.environ["POSTGRES_DATABASE"]
 
-AVATAR_SCALE = 80
-AVATAR_RADIUS = 50
-AVATAR_BG = "9ec8b9"
-AVATAR_FG = "88ab8e"
+        return Config(
+            postgres_url=sqlURL.create(
+                "postgresql+psycopg2",
+                username=POSTGRES_USER,
+                password=POSTGRES_PASSWORD,
+                host=POSTGRES_HOST,
+                port=POSTGRES_PORT,
+                database=POSTGRES_DATABASE,
+            ),
+            imgpush=Config.ImgPush.from_env(),
+        )

@@ -1,33 +1,17 @@
 services:
 
-  # backend api server
-  api:
-    environment:
-      API_PREFIX: ${API_PREFIX}
-      API_PORT: 8080
-      API_TEST_MODE: true
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      JWT_SECRET: 89f29e10db6bf143f91496ed4cd1952f
-    build:
-      context: api/
-      dockerfile: Dockerfile
-    volumes:
-      - type: bind
-        source: api/
-        target: /usr/src/api/
-    depends_on:
-      - db
-
   # database
   db:
     image: postgres
+    ports: [5432]
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     # use in-memory db data for speed
     tmpfs:
       - /var/lib/postgresql/data
-    expose:
-      - ${POSTGRES_PORT}
+
+  # images storage service
+  images:
+    image: "hauxir/imgpush:latest"
+    ports: [5000]

@@ -56,6 +56,7 @@ def insert_item(
         user_id=item.owner_id,
     )
 
+    db.add(item)
     db.flush()
     db.refresh(item)
 

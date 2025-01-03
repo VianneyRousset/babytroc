@@ -3,18 +3,18 @@ from typing import Optional
 from pydantic import Field
 from typing_extensions import Annotated
 
-from app import config
 from app.schemas.base import CreateBase
 
 from .base import UserBase
+from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH
 
 
 class UserCreate(UserBase, CreateBase):
     name: Annotated[
         str,
         Field(
-            min_length=config.USER_NAME_MIN_LENGTH,
-            max_length=config.USER_NAME_MAX_LENGTH,
+            min_length=NAME_LENGTH.start,
+            max_length=NAME_LENGTH.stop,
         ),
     ] = None
     email: str
@@ -22,7 +22,7 @@ class UserCreate(UserBase, CreateBase):
     avatar_seed: Annotated[
         Optional[str],
         Field(
-            min_length=config.AVATAR_SEED_MIN_LENGTH,
-            max_length=config.AVATAR_SEED_MAX_LENGTH,
+            min_length=AVATAR_SEED_LENGTH.start,
+            max_length=AVATAR_SEED_LENGTH.stop,
         ),
     ] = None

@@ -4,14 +4,16 @@ from fastapi.responses import JSONResponse
 
 from app.errors import ApiError
 
+from .config import Config
 from .database import create_session_maker
 from .routers.v1 import router
 
 
-def create_app(db_url: str) -> FastAPI:
+def create_app(config: Config) -> FastAPI:
     app = FastAPI()
 
-    app.state.db_session_maker = create_session_maker(db_url)
+    app.state.config = config
+    app.state.db_session_maker = create_session_maker(config.postgres_url)
 
     @app.get("/")
     def root(request: Request) -> str:

@@ -1,6 +1,7 @@
 import requests
 
-from app import config
+URL = "https://api.dicebear.com/7.x/thumbs/svg"
+TIMEOUT = 2
 
 # READ
 
@@ -14,10 +15,8 @@ def generate_avatar(
     bg: str,
     fg: str,
 ) -> bytes:
-    url = config.DICEBEAR_URL
-
     response = requests.get(
-        url=url,
+        url=URL,
         params={
             "seed": seed,
             "size": size,
@@ -26,7 +25,7 @@ def generate_avatar(
             "backgroundColor": bg,
             "shapeColor": fg,
         },
-        timeout=config.IMGPUSH_TIMEOUT,
+        timeout=TIMEOUT,
     )
 
     # TODO handler raised exceptions
