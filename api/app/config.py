@@ -1,7 +1,7 @@
 import os
 from typing import NamedTuple
 
-from sqlalchemy import URL as sqlURL
+import sqlalchemy
 
 
 class Config(NamedTuple):
@@ -10,32 +10,32 @@ class Config(NamedTuple):
 
         @staticmethod
         def from_env() -> "Config.ImgPush":
-            IMGPUSH_HOST = os.environ["IMGPUSH_HOST"]
-            IMGPUSH_PORT = int(os.environ["IMGPUSH_PORT"])
+            imgpush_host = os.environ["IMGPUSH_HOST"]
+            imgpush_port = int(os.environ["IMGPUSH_PORT"])
 
             return Config.ImgPush(
-                url=f"http://{IMGPUSH_HOST}:{IMGPUSH_PORT}",
+                url=f"http://{imgpush_host}:{imgpush_port}",
             )
 
-    postgres_url: sqlURL
+    postgres_url: sqlalchemy.URL
     imgpush: ImgPush
 
     @staticmethod
     def from_env() -> "Config":
-        POSTGRES_USER = os.environ["POSTGRES_USER"]
-        POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-        POSTGRES_HOST = os.environ["POSTGRES_HOST"]
-        POSTGRES_PORT = int(os.environ["POSTGRES_PORT"])
-        POSTGRES_DATABASE = os.environ["POSTGRES_DATABASE"]
+        postgres_user = os.environ["POSTGRES_USER"]
+        postgres_password = os.environ["POSTGRES_PASSWORD"]
+        postgres_host = os.environ["POSTGRES_HOST"]
+        postgres_port = int(os.environ["POSTGRES_PORT"])
+        postgres_database = os.environ["POSTGRES_DATABASE"]
 
         return Config(
-            postgres_url=sqlURL.create(
+            postgres_url=sqlalchemy.URL.create(
                 "postgresql+psycopg2",
-                username=POSTGRES_USER,
-                password=POSTGRES_PASSWORD,
-                host=POSTGRES_HOST,
-                port=POSTGRES_PORT,
-                database=POSTGRES_DATABASE,
+                username=postgres_user,
+                password=postgres_password,
+                host=postgres_host,
+                port=postgres_port,
+                database=postgres_database,
             ),
             imgpush=Config.ImgPush.from_env(),
         )

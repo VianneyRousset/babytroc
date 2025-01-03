@@ -9,7 +9,6 @@ from app.schemas.loan.read import LoanRequestRead
 from .annotations import item_id_annotation
 from .router import router
 
-
 # CREATE
 
 

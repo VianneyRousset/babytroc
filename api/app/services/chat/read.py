@@ -3,10 +3,10 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.clients import database
+from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
-from app.schemas.chat.base import ChatId
 
 
 def get_chat(

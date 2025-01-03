@@ -1,7 +1,6 @@
-from typing import Optional
+from typing import Annotated, Optional
 
 from pydantic import Field, field_validator
-from typing_extensions import Annotated
 
 from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase

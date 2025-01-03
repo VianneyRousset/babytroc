@@ -41,6 +41,11 @@ description = "Lint the code"
 depends = ["lint:*"]
 run = "ruff check app/"
 
+[tasks.test]
+description = "Test the code"
+depends = ["deps"]
+run = "pytest"
+
 [tasks.build]
 description = "Build docker image"
 run = "docker build . --tag=vianneyrousset/kindbaby-api"

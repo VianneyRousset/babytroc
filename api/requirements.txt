@@ -8,8 +8,6 @@ alembic
 ruff
 
 pytest
-pytest-asyncio
-pytest-xdist
 deepdiff
 asgi-lifespan
 httpx

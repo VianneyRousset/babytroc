@@ -1,21 +1,20 @@
 from typing import Annotated
 
-from fastapi import Query, Request, status, Response
+from fastapi import Query, Request, Response, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.item.query import ItemQueryFilter
-from app.schemas.loan.read import LoanRequestRead
 from app.schemas.loan.api import LoanRequestApiQuery
+from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.read import LoanRequestRead
 from app.schemas.query import QueryPageOptions
 from app.utils import set_query_param
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
-
 
 # READ
 

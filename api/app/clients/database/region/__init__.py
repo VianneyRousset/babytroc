@@ -5,9 +5,9 @@ from .update import update_region
 
 __all__ = [
     "create_region",
-    "insert_region",
     "delete_region",
     "get_region",
+    "insert_region",
     "list_regions",
     "update_region",
 ]
