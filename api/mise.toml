@@ -10,19 +10,11 @@ _.python.venv = { path = ".venv", create = true }
 
 [tools]
 python = { version = "3.13", virtualenv = ".venv" }
-
-[tasks."deps:uv"]
-description = "Install uv package manager."
-run = "pip install uv"
-
-[tasks."deps:ruff"]
-description = "Install ruff linter."
-depends = ["deps:uv"]
-run = "uv pip install ruff"
+ruff = "latest"
+uv = "latest"
 
 [tasks."deps:mypy"]
 description = "Install ruff linter."
-depends = ["deps:uv"]
 run = "uv pip install mypy"
 
 [tasks.deps]
@@ -37,12 +29,11 @@ run = "./entrypoint.sh"
 
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
-depends = ["deps:ruff"]
 run = "ruff check app/"
 
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
-depends = ["deps:*"]
+depends = ["deps"]
 run = "mypy app/"
 
 [tasks.lint]
