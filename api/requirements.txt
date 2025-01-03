@@ -1,5 +1,6 @@
 fastapi[standard]==0.*
 sqlalchemy[postgresql-psycopg2binary,mypy]==2.*
+sqlalchemy_utils
 pillow
 requests
 

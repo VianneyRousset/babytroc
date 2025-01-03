@@ -1,17 +1,19 @@
-from collections.abc import Generator
-from pathlib import Path
 import os
 import random
 import string
+import warnings
+from collections.abc import Generator
+from pathlib import Path
 
-from alembic.config import Config as AlembicConfig
-from alembic import command
+import pytest
+import sqlalchemy
 from fastapi.testclient import TestClient
-from pytest import fixture
-from sqlalchemy import create_engine, URL as sqlURL
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from sqlalchemy_utils import create_database, drop_database
 
+from alembic import command
+from alembic.config import Config as AlembicConfig
 from app.app import create_app
 from app.config import Config
 from app.schemas.user.create import UserCreate
@@ -23,11 +25,11 @@ def random_string(length: int):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-@fixture
-def database() -> Generator[sqlURL]:
+@pytest.fixture
+def database() -> Generator[sqlalchemy.URL]:
     database = random_string(4)
 
-    postgres_url = sqlURL.create(
+    postgres_url = sqlalchemy.URL.create(
         "postgresql+psycopg2",
         username=os.environ["POSTGRES_USER"],
         password=os.environ["POSTGRES_PASSWORD"],
@@ -51,8 +53,11 @@ def database() -> Generator[sqlURL]:
     drop_database(postgres_url)
 
 
-@fixture
-def database_user(database: sqlURL) -> int:
+@pytest.fixture
+def database_user(database: sqlalchemy.URL) -> int:
+    # make sqlalchemy warnings as errors
+    warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
+
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
         user = create_user(
@@ -67,8 +72,8 @@ def database_user(database: sqlURL) -> int:
         return user.id
 
 
-@fixture
-def client(database: sqlURL) -> TestClient:
+@pytest.fixture
+def client(database: sqlalchemy.URL) -> TestClient:
     config = Config(
         postgres_url=database,
         imgpush=Config.ImgPush.from_env(),

@@ -22,13 +22,21 @@ def create_item(
 ) -> Item:
     """Create and insert item into database."""
 
+    # check owner exists
+    owner = get_user(
+        db=db,
+        user_id=owner_id,
+    )
+
     item = Item(
         name=name,
         description=description,
         targeted_age_months=Range(*targeted_age_months, bounds="[]"),
         blocked=blocked,
-        owner_id=owner_id,
+        owner_id=owner.id,
     )
+
+    db.add(item)
 
     # add images to item
     item.images.extend([get_image(db, name) for name in images])
@@ -37,24 +45,6 @@ def create_item(
     for region_id in regions:
         region = get_region(db, region_id)
         region.items.append(item)
-
-    return insert_item(
-        db=db,
-        item=item,
-    )
-
-
-def insert_item(
-    db: Session,
-    item: Item,
-) -> Item:
-    """Insert item into the database."""
-
-    # check owner exists
-    get_user(
-        db=db,
-        user_id=item.owner_id,
-    )
 
     db.add(item)
     db.flush()
