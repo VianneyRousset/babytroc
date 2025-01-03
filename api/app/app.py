@@ -13,7 +13,7 @@ def create_app(config: Config) -> FastAPI:
     app = FastAPI()
 
     app.state.config = config
-    app.state.db_session_maker = create_session_maker(config.database_url)
+    app.state.db_session_maker = create_session_maker(config.postgres_url)
 
     @app.get("/")
     def root(request: Request) -> str:

@@ -5,7 +5,7 @@ from sqlalchemy import URL as sqlURL
 
 
 class Config(NamedTuple):
-    database_url: sqlURL
+    postgres_url: sqlURL
     imgpush_url: str
 
     @staticmethod
@@ -20,7 +20,7 @@ class Config(NamedTuple):
         IMGPUSH_PORT = int(os.environ["IMGPUSH_PORT"])
 
         return Config(
-            database_url=sqlURL.create(
+            postgres_url=sqlURL.create(
                 "postgresql+psycopg2",
                 username=POSTGRES_USER,
                 password=POSTGRES_PASSWORD,
