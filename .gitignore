@@ -32,6 +32,7 @@ logs/*
 .env.test.local
 .env.production.local
 .env.local
+.secrets.env
 
 # Cache
 **/.cache
