@@ -14,7 +14,7 @@ TIMEOUT = 2
 
 def upload_image(config: Config, fp: io.IOBase) -> ImgpushUploadResponse:
     response = requests.post(
-        url=config.imgpush_url,
+        url=config.imgpush.url,
         timeout=TIMEOUT,
         files={"file": ("file.jpg", fp, "image/jpeg")},
     )
@@ -30,7 +30,7 @@ def upload_image(config: Config, fp: io.IOBase) -> ImgpushUploadResponse:
 
 def get_image(config: Config, name: str) -> bytes:
     response = requests.get(
-        url=f"{config.imgpush_url}/{name}.jpg",
+        url=f"{config.imgpush.url}/{name}.jpg",
         timeout=TIMEOUT,
     )
 
