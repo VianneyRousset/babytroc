@@ -35,4 +35,4 @@ def update_item(
         attributes=item_update.dict(exclude_none=True),
     )
 
-    return ItemPrivateRead.from_orm(item)
+    return ItemPrivateRead.model_validate(item)

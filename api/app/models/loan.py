@@ -13,6 +13,7 @@ from sqlalchemy.dialects.postgresql import (
     ExcludeConstraint,
     Range,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -159,6 +160,10 @@ class Loan(IntegerIdentifier, Base):
         foreign_keys=[creation_message_id],
         single_parent=True,
     )
+
+    @hybrid_property
+    def active(self) -> bool:
+        return self.during.upper is None
 
     __table_args__ = (
         UniqueConstraint(borrower_id),

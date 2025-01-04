@@ -38,7 +38,7 @@ def create_loan_request(
         creation_message_id=message.id,
     )
 
-    return LoanRequestRead.from_orm(loan_request)
+    return LoanRequestRead.model_validate(loan_request)
 
 
 def execute_loan_request(
@@ -98,4 +98,4 @@ def execute_loan_request(
         },
     )
 
-    return LoanRead.from_orm(loan)
+    return LoanRead.model_validate(loan)

@@ -1,34 +1,35 @@
 import os
-from typing import NamedTuple
+from typing import NamedTuple, Self
 
 import sqlalchemy
 
 
+class ImgPushConfig(NamedTuple):
+    url: str
+
+    @classmethod
+    def from_env(cls) -> Self:
+        imgpush_host = os.environ["IMGPUSH_HOST"]
+        imgpush_port = int(os.environ["IMGPUSH_PORT"])
+
+        return cls(
+            url=f"http://{imgpush_host}:{imgpush_port}",
+        )
+
+
 class Config(NamedTuple):
-    class ImgPush(NamedTuple):
-        url: str
-
-        @staticmethod
-        def from_env() -> "Config.ImgPush":
-            imgpush_host = os.environ["IMGPUSH_HOST"]
-            imgpush_port = int(os.environ["IMGPUSH_PORT"])
-
-            return Config.ImgPush(
-                url=f"http://{imgpush_host}:{imgpush_port}",
-            )
-
     postgres_url: sqlalchemy.URL
-    imgpush: ImgPush
+    imgpush: ImgPushConfig
 
-    @staticmethod
-    def from_env() -> "Config":
+    @classmethod
+    def from_env(cls) -> "Config":
         postgres_user = os.environ["POSTGRES_USER"]
         postgres_password = os.environ["POSTGRES_PASSWORD"]
         postgres_host = os.environ["POSTGRES_HOST"]
         postgres_port = int(os.environ["POSTGRES_PORT"])
         postgres_database = os.environ["POSTGRES_DATABASE"]
 
-        return Config(
+        return cls(
             postgres_url=sqlalchemy.URL.create(
                 "postgresql+psycopg2",
                 username=postgres_user,
@@ -37,5 +38,5 @@ class Config(NamedTuple):
                 port=postgres_port,
                 database=postgres_database,
             ),
-            imgpush=Config.ImgPush.from_env(),
+            imgpush=ImgPushConfig.from_env(),
         )

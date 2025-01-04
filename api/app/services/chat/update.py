@@ -29,4 +29,4 @@ def mark_message_as_seen(
         attributes={"seen": True},
     )
 
-    return ChatMessageRead.from_orm(message)
+    return ChatMessageRead.model_validate(message)

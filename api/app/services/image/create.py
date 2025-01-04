@@ -37,4 +37,4 @@ def upload_image(
         owner_id=owner_id,
     )
 
-    return ItemImageRead.from_orm(item)
+    return ItemImageRead.model_validate(item)

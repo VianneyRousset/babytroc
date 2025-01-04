@@ -1,14 +1,15 @@
 from enum import Enum
-from io import BytesIO, IOBase
+from io import BytesIO
+from typing import IO
 
-from PIL import Image
-
-
-def load_image(fp: IOBase) -> Image:
-    return Image.open(fp)
+import PIL.Image
 
 
-def serialize_image(image: Image, format="jpeg") -> IOBase:
+def load_image(fp: IO[bytes]) -> PIL.Image.Image:
+    return PIL.Image.open(fp)
+
+
+def serialize_image(image: PIL.Image.Image, format="jpeg") -> BytesIO:
     fp = BytesIO()
     image.save(fp, format=format)
     fp.seek(0)
@@ -16,9 +17,9 @@ def serialize_image(image: Image, format="jpeg") -> IOBase:
 
 
 def limit_image_size(
-    image: Image,
+    image: PIL.Image.Image,
     max_dim: int,
-) -> Image:
+) -> PIL.Image.Image:
     aspect_ratio = image.width / image.height
 
     # image already small enough
@@ -34,7 +35,7 @@ def limit_image_size(
 
     return image.resize(
         size=[w, h],
-        resample=Image.Resampling.BILINEAR,
+        resample=PIL.Image.Resampling.BILINEAR,
         reducing_gap=4.0,
     )
 
@@ -53,7 +54,7 @@ class ExifOrientation(Enum):
     rotate_270_cw = 8
 
 
-def get_exif_orientation(image: Image) -> ExifOrientation | None:
+def get_exif_orientation(image: PIL.Image.Image) -> ExifOrientation | None:
     exif = image.getexif()
 
     if not exif or EXIF_ORIENTATION_TAG not in exif:
@@ -66,7 +67,7 @@ def get_exif_orientation(image: Image) -> ExifOrientation | None:
         return None
 
 
-def apply_exif_orientation(image: Image) -> Image:
+def apply_exif_orientation(image: PIL.Image.Image) -> PIL.Image.Image:
     orientation = get_exif_orientation(image)
 
     if orientation is None:
@@ -76,22 +77,22 @@ def apply_exif_orientation(image: Image) -> Image:
         case ExifOrientation.horizontal:
             return image
         case ExifOrientation.mirror_horizontal:
-            return image.transpose(Image.Transpose.MIRROR_HORIZONTAL)
+            return image.transpose(PIL.Image.Transpose.FLIP_LEFT_RIGHT)
         case ExifOrientation.rotate_180:
-            return image.transpose(Image.Transpose.ROTATE_180)
+            return image.transpose(PIL.Image.Transpose.ROTATE_180)
         case ExifOrientation.mirror_vertical:
-            return image.transpose(Image.Transpose.MIRROR_VERTICAL)
+            return image.transpose(PIL.Image.Transpose.FLIP_TOP_BOTTOM)
         case ExifOrientation.mirror_horizontal_and_rotate_270_cw:
-            return image.transpose(Image.Transpose.TRANSPOSE)
+            return image.transpose(PIL.Image.Transpose.TRANSPOSE)
         case ExifOrientation.rotate_90_cw:
-            return image.transpose(Image.Transpose.ROTATE_270)
+            return image.transpose(PIL.Image.Transpose.ROTATE_270)
         case ExifOrientation.mirror_horizontal_and_rotate_90_cw:
-            return image.transpose(Image.Transpose.TRANSVERSE)
+            return image.transpose(PIL.Image.Transpose.TRANSVERSE)
         case ExifOrientation.rotate_270_cw:
-            return image.transpose(Image.Transpose.ROTATE_90)
+            return image.transpose(PIL.Image.Transpose.ROTATE_90)
 
 
-def clear_exif(image: Image) -> Image:
+def clear_exif(image: PIL.Image.Image) -> PIL.Image.Image:
     exif = image.getexif()
 
     for k in set(exif.keys()):

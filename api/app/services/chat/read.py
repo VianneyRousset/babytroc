@@ -24,7 +24,7 @@ def get_chat(
         query_filter=query_filter,
     )
 
-    return ChatRead.from_orm(chat)
+    return ChatRead.model_validate(chat)
 
 
 def list_chats(
@@ -42,7 +42,7 @@ def list_chats(
         page_options=page_options,
     )
 
-    return QueryPageResult[ChatRead].from_orm(result, ChatRead)
+    return QueryPageResult[ChatRead].cast(result, ChatRead)
 
 
 def get_message(
@@ -60,7 +60,7 @@ def get_message(
         query_filter=query_filter,
     )
 
-    return ChatMessageRead.from_orm(message)
+    return ChatMessageRead.model_validate(message)
 
 
 def list_messages(
@@ -78,4 +78,4 @@ def list_messages(
         page_options=page_options,
     )
 
-    return QueryPageResult[ChatMessageRead].from_orm(result, ChatMessageRead)
+    return QueryPageResult[ChatMessageRead].cast(result, ChatMessageRead)

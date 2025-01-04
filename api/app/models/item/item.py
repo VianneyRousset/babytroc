@@ -13,6 +13,7 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
     column_property,
@@ -21,6 +22,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from app import domain
 from app.models.base import Base, CreationDate, UpdateDate
 from app.models.chat import Chat
 from app.models.loan import Loan, LoanRequest
@@ -30,7 +32,7 @@ from .like import ItemLike
 from .region import Region
 
 if TYPE_CHECKING:
-    from .user import User
+    from app.models.user import User
 
 
 # TODO use passive_delete=True to let the db handle cascade deletions
@@ -150,6 +152,21 @@ class Item(CreationDate, UpdateDate, Base):
         back_populates="item",
         cascade="all, delete-orphan",
     )
+
+    @hybrid_property
+    def first_image_name(self) -> str:
+        return self.images[0].name
+
+    @hybrid_property
+    def images_names(self):
+        return [img.name for img in self.images]
+
+    @hybrid_property
+    def available(self):
+        return domain.item.compute_item_available(
+            is_blocked=self.blocked,
+            active_loans_count=self.active_loans_count,
+        )
 
     __table_args__ = (
         Index(

@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from typing import Any
 
 from sqlalchemy.dialects.postgresql import Range
@@ -12,7 +11,7 @@ from app.models.item import Item
 def update_item(
     db: Session,
     item: Item,
-    attributes: Mapping[str, Any],
+    attributes: dict[str, Any],
 ) -> Item:
     """Update the given `attributes` of `item`."""
 

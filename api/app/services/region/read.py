@@ -10,5 +10,5 @@ def list_regions(
     """List all regions."""
 
     return [
-        RegionRead.from_orm(region) for region in database.region.list_regions(db=db)
+        RegionRead.model_validate(region) for region in database.region.list_regions(db)
     ]

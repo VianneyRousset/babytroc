@@ -13,6 +13,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.enums import ChatMessageType
+from app.schemas.chat.base import ChatId
 
 from .base import Base, CreationDate, IntegerIdentifier
 
@@ -56,6 +57,13 @@ class Chat(Base):
         "ChatMessage",
         cascade="all, delete-orphan",
     )
+
+    @hybrid_property
+    def id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
+        )
 
     @hybrid_property
     def owner_id(self) -> int:

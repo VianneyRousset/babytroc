@@ -15,7 +15,7 @@ from sqlalchemy_utils import create_database, drop_database
 from alembic import command
 from alembic.config import Config as AlembicConfig
 from app.app import create_app
-from app.config import Config
+from app.config import Config, ImgPushConfig
 from app.schemas.user.create import UserCreate
 from app.services.user import create_user
 
@@ -76,7 +76,7 @@ def database_user(database: sqlalchemy.URL) -> int:
 def client(database: sqlalchemy.URL) -> TestClient:
     config = Config(
         postgres_url=database,
-        imgpush=Config.ImgPush.from_env(),
+        imgpush=ImgPushConfig.from_env(),
     )
 
     return TestClient(create_app(config))

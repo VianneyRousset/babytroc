@@ -22,4 +22,4 @@ def create_user(
         avatar_seed=user_create.avatar_seed,
     )
 
-    return UserRead.from_orm(user)
+    return UserRead.model_validate(user)

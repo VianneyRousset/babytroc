@@ -6,7 +6,7 @@ from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.loan import LoanAlreadyInactiveError, LoanRequestStateError
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanQueryFilter, LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.services.chat import (
     send_message_loan_ended,
@@ -81,7 +81,7 @@ def cancel_loan_request(
         attributes={"state": LoanRequestState.canceled},
     )
 
-    return LoanRequestRead.from_orm(loan_request)
+    return LoanRequestRead.model_validate(loan_request)
 
 
 def accept_loan_request(
@@ -125,7 +125,7 @@ def accept_loan_request(
         attributes={"state": LoanRequestState.accepted},
     )
 
-    return LoanRequestRead.from_orm(loan_request)
+    return LoanRequestRead.model_validate(loan_request)
 
 
 def reject_loan_request(
@@ -169,13 +169,13 @@ def reject_loan_request(
         attributes={"state": LoanRequestState.rejected},
     )
 
-    return LoanRequestRead.from_orm(loan_request)
+    return LoanRequestRead.model_validate(loan_request)
 
 
 def end_loan(
     db: Session,
     loan_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: Optional[LoanQueryFilter] = None,
 ):
     """Set loan end date to now.
 
@@ -208,4 +208,4 @@ def end_loan(
         loan=loan,
     )
 
-    return LoanRead.from_orm(loan)
+    return LoanRead.model_validate(loan)

@@ -242,4 +242,4 @@ def send_message(
         sender_id=sender_id,
     )
 
-    return ChatMessageRead.from_orm(message)
+    return ChatMessageRead.model_validate(message)

@@ -13,7 +13,7 @@ def list_regions(
 
     stmt = select(Region)
 
-    return (db.execute(stmt)).scalars().all()
+    return list(db.execute(stmt).scalars().all())
 
 
 def get_region(
@@ -25,7 +25,7 @@ def get_region(
     stmt = select(Region).where(Region.id == region_id)
 
     try:
-        return (db.execute(stmt)).unique().scalars().one()
+        return db.execute(stmt).unique().scalars().one()
 
     except NoResultFound as error:
         raise RegionNotFoundError({"id": region_id}) from error

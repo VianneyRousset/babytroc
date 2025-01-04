@@ -2,6 +2,7 @@ from typing import Any, Generic, Optional, Self
 
 from pydantic import Field, field_validator
 from sqlalchemy import Select, tuple_
+from sqlalchemy.sql.expression import ColumnExpressionArgument
 
 from .base import QueryPageBase, ResultType
 
@@ -18,7 +19,9 @@ class QueryPageOptions(QueryPageBase):
     def validate_cursor(cls, cursor):  # noqa: N805
         return {k: v for k, v in cursor.items() if v is not None}
 
-    def apply(self, stmt: Select, columns: dict[str, Any]) -> Select:
+    def apply(
+        self, stmt: Select, columns: dict[str, ColumnExpressionArgument]
+    ) -> Select:
         stmt = self.apply_limit(stmt)
         stmt = self.apply_order(stmt, columns)
         return self.apply_cursor(stmt, columns)
@@ -29,32 +32,36 @@ class QueryPageOptions(QueryPageBase):
 
         return stmt
 
-    def apply_order(self, stmt: Select, columns: dict[str, Any]) -> Select:
+    def apply_order(
+        self, stmt: Select, columns: dict[str, ColumnExpressionArgument]
+    ) -> Select:
         if not self.order:
             return stmt
 
-        columns = tuple_(
+        cols = tuple_(
             *[columns[name] for name in self.order if columns[name] is not None]
         )
 
         if self.desc:
-            return stmt.order_by(columns.desc())
+            return stmt.order_by(cols.desc())
 
-        return stmt.order_by(columns)
+        return stmt.order_by(cols)
 
-    def apply_cursor(self, stmt: Select, columns: dict[str, Any]) -> Select:
+    def apply_cursor(
+        self, stmt: Select, columns: dict[str, ColumnExpressionArgument]
+    ) -> Select:
         if not self.cursor:
             return stmt
 
-        columns = tuple_(*[columns[name] for name in self.order if name in self.cursor])
+        cols = tuple_(*[columns[name] for name in self.order if name in self.cursor])
         cursor = tuple_(
             *[self.cursor[name] for name in self.order if name in self.cursor]
         )
 
         if self.desc:
-            return stmt.where(columns < cursor)
+            return stmt.where(cols < cursor)
 
-        return stmt.where(columns > cursor)
+        return stmt.where(cols > cursor)
 
 
 class QueryPageResult(QueryPageBase, Generic[ResultType]):
@@ -88,10 +95,10 @@ class QueryPageResult(QueryPageBase, Generic[ResultType]):
         return len(self.data)
 
     @classmethod
-    def from_orm(cls, obj: Self, t: type[ResultType]) -> Self:
+    def cast(cls, obj: Self, t: type[ResultType]) -> Self:
         return cls(
             **{
                 **obj.model_dump(),
-                "data": [t.from_orm(o) for o in obj.data],
+                "data": [t.model_validate(o) for o in obj.data],
             }
         )

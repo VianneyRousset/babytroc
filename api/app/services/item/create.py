@@ -32,4 +32,4 @@ def create_item(
         count=domain.star.stars_gain_when_adding_item(1),
     )
 
-    return ItemPreviewRead.from_orm(item)
+    return ItemPreviewRead.model_validate(item)

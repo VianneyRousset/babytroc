@@ -17,7 +17,7 @@ def get_user(
         user_id=user_id,
     )
 
-    return UserRead.from_orm(user)
+    return UserRead.model_validate(user)
 
 
 def list_users(
@@ -28,4 +28,4 @@ def list_users(
     # get all users from database
     users = database.user.list_users(db=db)
 
-    return [UserPreviewRead.from_orm(user) for user in users]
+    return [UserPreviewRead.model_validate(user) for user in users]

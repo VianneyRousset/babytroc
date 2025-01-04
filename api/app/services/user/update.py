@@ -25,4 +25,4 @@ def update_user(
         attributes=user_update.model_dump(exclude_none=True),
     )
 
-    return UserRead.from_orm(user)
+    return UserRead.model_validate(user)

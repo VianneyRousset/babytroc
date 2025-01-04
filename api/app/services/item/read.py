@@ -25,7 +25,7 @@ def get_item(
         query_filter=query_filter,
     )
 
-    return ItemRead.from_orm(item)
+    return ItemRead.model_validate(item)
 
 
 def get_private_item(
@@ -43,7 +43,7 @@ def get_private_item(
         query_filter=query_filter,
     )
 
-    return ItemPrivateRead.from_orm(item)
+    return ItemPrivateRead.model_validate(item)
 
 
 def list_items(
@@ -62,4 +62,4 @@ def list_items(
         page_options=page_options,
     )
 
-    return QueryPageResult[ItemPreviewRead].from_orm(result, ItemPreviewRead)
+    return QueryPageResult[ItemPreviewRead].cast(result, ItemPreviewRead)

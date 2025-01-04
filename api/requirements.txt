@@ -3,6 +3,7 @@ sqlalchemy[postgresql-psycopg2binary,mypy]==2.*
 sqlalchemy_utils
 pillow
 requests
+types-requests
 
 alembic
 ruff

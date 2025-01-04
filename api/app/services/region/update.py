@@ -19,10 +19,10 @@ def update_region(
     )
 
     # update region
-    region = database.item.update_region(
+    region = database.region.update_region(
         db=db,
         region=region,
         attributes=region_update.dict(),
     )
 
-    return RegionRead.from_orm(region)
+    return RegionRead.model_validate(region)

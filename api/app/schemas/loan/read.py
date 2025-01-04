@@ -1,6 +1,9 @@
 from datetime import datetime
+from typing import Union
 
-from app import models
+from pydantic import field_validator
+from sqlalchemy.dialects.postgresql import Range
+
 from app.enums import LoanRequestState
 from app.schemas.base import ReadBase
 from app.schemas.chat.read import ChatMessageRead
@@ -17,32 +20,17 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
     state: LoanRequestState
     creation_chat_message: ChatMessageRead
 
-    @classmethod
-    def from_orm(cls, loan_request: models.loan.LoanRequest):
-        return cls(
-            id=loan_request.id,
-            item=ItemPreviewRead.from_orm(loan_request.item),
-            borrower=UserPreviewRead.from_orm(loan_request.borrower),
-            state=loan_request.state,
-            creation_chat_message=ChatMessageRead.from_orm(
-                loan_request.creation_chat_message
-            ),
-        )
-
 
 class LoanRead(LoanBase, ReadBase):
     id: int
     item: ItemPreviewRead
     borrower: UserPreviewRead
-    during: list[datetime | None]
+    during: tuple[datetime | None, datetime | None]
     active: bool
 
-    @classmethod
-    def from_orm(cls, loan: models.loan.Loan):
-        return cls(
-            id=loan.id,
-            item=ItemPreviewRead.from_orm(loan.item),
-            borrower=UserPreviewRead.from_orm(loan.borrower),
-            during=[loan.during.lower, loan.during.upper],
-            active=loan.during.upper is None,
-        )
+    @field_validator("during")
+    def validate_during(
+        cls,  # noqa: N805
+        v: Union[tuple[datetime | None, datetime | None], Range],
+    ):
+        return tuple(*v)

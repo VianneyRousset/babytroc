@@ -39,4 +39,4 @@ def list_users(
     """List users from database."""
 
     stmt = select(User)
-    return (db.scalars(stmt)).all()
+    return list(db.scalars(stmt).all())

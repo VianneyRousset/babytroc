@@ -22,4 +22,4 @@ def remove_item_from_user_saved_items(
         item_id=item.id,
     )
 
-    return ItemRead.from_orm(item)
+    return ItemRead.model_validate(item)
