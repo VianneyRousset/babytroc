@@ -141,6 +141,13 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         default=False,
     )
 
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
+        )
+
     __table_args__ = (
         ForeignKeyConstraint(
             columns=[item_id, borrower_id],
