@@ -32,7 +32,7 @@ def update_item(
     item = database.item.update_item(
         db=db,
         item=item,
-        attributes=item_update.model_dump(exclude_none=True),
+        attributes=item_update.dict(exclude_none=True),
     )
 
     return ItemPrivateRead.model_validate(item)
