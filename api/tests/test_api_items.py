@@ -27,7 +27,7 @@ def post_image(client: TestClient) -> str:
     return added["name"]
 
 
-def test_created_item_can_be_read(client: TestClient, database_user: int):
+def test_created_item_can_be_read(client: TestClient, user_alice: int):
     # create image
     image_name = post_image(client)
 
@@ -48,7 +48,7 @@ def test_created_item_can_be_read(client: TestClient, database_user: int):
     assert read["name"] == ITEM["name"]
     assert read["description"] == ITEM["description"]
     assert read["targeted_age_months"] == ITEM["targeted_age_months"]
-    assert read["owner_id"] == database_user
+    assert read["owner_id"] == user_alice
 
     # get item by id from client list
     resp = client.get(f"/v1/me/items/{item_id}")
@@ -58,10 +58,10 @@ def test_created_item_can_be_read(client: TestClient, database_user: int):
     assert read["name"] == ITEM["name"]
     assert read["description"] == ITEM["description"]
     assert read["targeted_age_months"] == ITEM["targeted_age_months"]
-    assert read["owner_id"] == database_user
+    assert read["owner_id"] == user_alice
 
 
-def test_created_item_can_be_updated(client: TestClient, database_user: int):
+def test_created_item_can_be_updated(client: TestClient, user_alice: int):
     # create image
     image_name = post_image(client)
 
@@ -89,10 +89,10 @@ def test_created_item_can_be_updated(client: TestClient, database_user: int):
     assert read["name"] == "forest"
     assert read["description"] == ITEM["description"]
     assert read["targeted_age_months"] == ITEM["targeted_age_months"]
-    assert read["owner_id"] == database_user
+    assert read["owner_id"] == user_alice
 
 
-def test_created_item_can_be_deleted(client: TestClient, database_user: int):
+def test_created_item_can_be_deleted(client: TestClient, user_alice: int):
     # create image
     image_name = post_image(client)
 
@@ -116,7 +116,7 @@ def test_created_item_can_be_deleted(client: TestClient, database_user: int):
     assert items == []
 
 
-def test_created_item_shows_up_in_global_list(client: TestClient, database_user: int):
+def test_created_item_shows_up_in_global_list(client: TestClient, user_alice: int):
     # create image
     image_name = post_image(client)
 
@@ -133,10 +133,10 @@ def test_created_item_shows_up_in_global_list(client: TestClient, database_user:
     items = resp.json()
 
     assert items[0]["name"] == ITEM["name"]
-    assert items[0]["owner_id"] == database_user
+    assert items[0]["owner_id"] == user_alice
 
 
-def test_created_item_shows_up_in_client_list(client: TestClient, database_user: int):
+def test_created_item_shows_up_in_client_list(client: TestClient, user_alice: int):
     # create image
     image_name = post_image(client)
 
@@ -153,4 +153,4 @@ def test_created_item_shows_up_in_client_list(client: TestClient, database_user:
     items = resp.json()
 
     assert items[0]["name"] == ITEM["name"]
-    assert items[0]["owner_id"] == database_user
+    assert items[0]["owner_id"] == user_alice

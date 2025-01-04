@@ -54,7 +54,25 @@ def database() -> Generator[sqlalchemy.URL]:
 
 
 @pytest.fixture
-def database_user(database: sqlalchemy.URL) -> int:
+def user_alice_data() -> dict:
+    return {
+        "name": "alice",
+        "email": "alice@ekindbaby.ch",
+        "password": "password-alice",
+    }
+
+
+@pytest.fixture
+def user_bob_data() -> dict:
+    return {
+        "name": "bob",
+        "email": "bob@ekindbaby.ch",
+        "password": "password-bob",
+    }
+
+
+@pytest.fixture
+def user_alice(database: sqlalchemy.URL, user_alice_data: dict) -> int:
     # make sqlalchemy warnings as errors
     warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
@@ -62,11 +80,22 @@ def database_user(database: sqlalchemy.URL) -> int:
     with Session(engine) as session, session.begin():
         user = create_user(
             session,
-            UserCreate(
-                name="test",
-                email="test@example.com",
-                password="test",
-            ),
+            UserCreate(**user_alice_data),
+        )
+
+        return user.id
+
+
+@pytest.fixture
+def user_bob(database: sqlalchemy.URL, user_bob_data: dict) -> int:
+    # make sqlalchemy warnings as errors
+    warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        user = create_user(
+            session,
+            UserCreate(**user_bob_data),
         )
 
         return user.id
