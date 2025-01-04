@@ -6,7 +6,7 @@ on:
   pull_request:
   push:
     tags: ["*"]
-    branches: ["main"]
+    branches: ["dev", "rc", "main"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,4 +25,32 @@ jobs:
       - uses: jdx/mise-action@v2
       - name: mise run lint
         run: mise run lint
+        working-directory: ./api
+
+  api-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: kindbaby
+          POSTGRES_PASSWORD: xxx
+        ports:
+          - 5432:5432
+      imgpush:
+        image: hauxir/imgpush
+        env:
+          MAX_UPLOADS_PER_MINUTE: 0
+          MAX_UPLOADS_PER_HOUR: 0
+          MAX_UPLOADS_PER_DAY: 0
+        ports:
+          - 5000:5000
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: jdx/mise-action@v2
+      - name: mise run test
+        run: mise run test
         working-directory: ./api
