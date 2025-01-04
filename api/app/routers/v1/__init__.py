@@ -23,7 +23,7 @@ router.include_router(
 )
 
 router.include_router(
-    router=utils.router,
+    router=APIRouter(),
     prefix="/utils",
 )
 
