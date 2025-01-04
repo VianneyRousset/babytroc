@@ -1,0 +1,20 @@
+[env]
+HOST = "0"
+PORT = 3000
+_.path = ['{{config_root}}/node_modules/.bin']
+
+[tools]
+node = "22"
+
+[tasks.deps]
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.dev]
+description = "Run gui in development mode"
+depends = ["deps"]
+run = "npx nuxi dev"
+
+[tasks.build]
+description = "Build docker image"
+run = "docker build . --tag=vianneyrousset/kindbaby-gui"
