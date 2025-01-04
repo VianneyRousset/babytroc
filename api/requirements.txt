@@ -12,3 +12,5 @@ pytest
 deepdiff
 asgi-lifespan
 httpx
+
+tqdm
