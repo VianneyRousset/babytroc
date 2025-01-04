@@ -22,7 +22,7 @@ def list_client_borrowings(
     request: Request,
     response: Response,
     query: Annotated[LoanApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[LoanRead]:
     """List loans where the client is the borrower."""
 

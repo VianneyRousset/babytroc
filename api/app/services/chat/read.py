@@ -42,7 +42,7 @@ def list_chats(
         page_options=page_options,
     )
 
-    return QueryPageResult[ChatRead].cast(result, ChatRead)
+    return QueryPageResult[ChatRead].model_validate(result)
 
 
 def get_message(
@@ -78,4 +78,4 @@ def list_messages(
         page_options=page_options,
     )
 
-    return QueryPageResult[ChatMessageRead].cast(result, ChatMessageRead)
+    return QueryPageResult[ChatMessageRead].model_validate(result)

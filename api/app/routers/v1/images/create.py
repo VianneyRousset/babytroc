@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, Request, Response, UploadFile
 from sqlalchemy.orm import Session
 
@@ -15,7 +17,7 @@ async def upload_image(
     request: Request,
     response: Response,
     file: UploadFile,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemImageRead:
     """Upload item image."""
 

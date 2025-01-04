@@ -1,4 +1,4 @@
-import io
+from typing import IO
 
 from sqlalchemy.orm import Session
 
@@ -16,7 +16,7 @@ def upload_image(
     db: Session,
     *,
     owner_id: int,
-    fp: io.IOBase,
+    fp: IO[bytes],
 ) -> ItemImageRead:
     """Upload a new item image."""
 

@@ -17,7 +17,7 @@ from .router import router
 def get_user(
     request: Request,
     user_id: user_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> UserRead:
     """Get user."""
 
@@ -38,7 +38,7 @@ def report_user(
         ReportCreate,
         Body(title="Report fields."),
     ],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ):
     """Report user."""
 

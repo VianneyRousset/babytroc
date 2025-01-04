@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -14,7 +16,7 @@ from .router import router
 def delete_client_item(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ):
     """Delete the specified item owned by the client."""
 

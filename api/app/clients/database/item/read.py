@@ -1,6 +1,12 @@
-from typing import Optional
+from typing import Optional, cast
 
-from sqlalchemy import BinaryExpression, Integer, func, select
+from sqlalchemy import (
+    BinaryExpression,
+    ColumnElement,
+    Integer,
+    func,
+    select,
+)
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, Session
 
@@ -47,16 +53,31 @@ def list_items(
     # default empty query page options
     page_options = page_options or QueryPageOptions()
 
-    # represents the word match distance
-    if query_filter.words is None:
-        words_match = None
-    else:
-        words_match = _get_words_match(Item.searchable_text, query_filter.words)
+    active_selections = cast(
+        dict[
+            str,
+            type[Item]
+            | ColumnElement[int]
+            | BinaryExpression[int]
+            | InstrumentedAttribute,
+        ],
+        {"item": Item},
+    )
+    active_selections = {"item": Item}
 
-    like_id = ItemLike.id if query_filter.liked_by_user_id is not None else None
-    save_id = ItemSave.id if query_filter.saved_by_user_id is not None else None
+    if query_filter.words:
+        active_selections["words_match"] = _get_words_match(
+            Item.searchable_text, query_filter.words
+        )
 
-    stmt = select(Item, words_match, like_id, save_id)
+    if query_filter.liked_by_user_id is not None:
+        active_selections["like_id"] = ItemLike.id
+
+    if query_filter.saved_by_user_id is not None:
+        active_selections["save_id"] = ItemSave.id
+
+    # apply selection
+    stmt = select(*active_selections.values())
 
     # apply filtering
     stmt = query_filter.apply(stmt)
@@ -66,34 +87,38 @@ def list_items(
         stmt=stmt,
         columns={
             "item_id": Item.id,
-            "words_match": words_match,
-            "like_id": like_id,
-            "save_id": save_id,
+            "words_match": cast(
+                ColumnElement[int] | BinaryExpression[int],
+                active_selections.get("words_match"),
+            ),
+            "like_id": cast(InstrumentedAttribute, active_selections.get("like_id")),
+            "save_id": cast(InstrumentedAttribute, active_selections.get("save_id")),
         },
     )
 
-    rows = (db.execute(stmt)).all()
+    rows = db.execute(stmt).all()
 
-    if rows:
-        items, words_matchs, like_ids, save_ids = zip(*rows)
-    else:
-        items, words_matchs, like_ids, save_ids = [], [], [], []
+    result = {k: [row[n] for row in rows] for n, k in enumerate(active_selections)}
+
+    order = {"item_id": [item.id for item in result["item"]]}
+
+    for k in set(active_selections) - {"item"}:
+        order[k] = result[k]
 
     return QueryPageResult[Item](
-        data=items,
-        order={
-            "words_match": None if words_match is None else words_matchs,
-            "like_id": None if like_id is None else like_ids,
-            "save_id": None if save_id is None else save_ids,
-            "item_id": [item.id for item in items],
-        },
+        data=result["item"],
+        order=order,
         desc=page_options.desc,
     )
 
 
+def normalized_word_distance(col: InstrumentedAttribute, word: str):
+    return col.op("<->>", return_type=Integer)(func.normalize_text(word))
+
+
 def _get_words_match(
     column: InstrumentedAttribute, words: list[str]
-) -> int | BinaryExpression:
+) -> ColumnElement[int] | BinaryExpression[int]:
     """Expression of the words match distance between `column` and `words`.
 
     `words` are normalized and compared with `column` using `<->>` operator
@@ -103,11 +128,18 @@ def _get_words_match(
     and each word in `words`.
     """
 
-    distance = 0
+    if not words:
+        msg = "Empty words"
+        raise ValueError(msg)
+
+    if len(words) == 1:
+        return func.round(-normalized_word_distance(column, words[0]) * 1e5)
+
+    distance = normalized_word_distance(column, words[0]) + normalized_word_distance(
+        column, words[1]
+    )
 
     for word in words:
-        distance = distance - column.op("<->>", return_type=Integer)(
-            func.normalize_text(word)
-        )
+        distance -= normalized_word_distance(column, word)
 
-    return func.cast(func.round(distance * 1e5), Integer)
+    return func.round(-distance * 1e5)

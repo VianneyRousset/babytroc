@@ -65,7 +65,7 @@ def list_loan_requests(
         },
     )
 
-    loan_requests = (db.execute(stmt)).scalars().all()
+    loan_requests = list(db.execute(stmt).scalars().all())
 
     return QueryPageResult[LoanRequest](
         data=loan_requests,
@@ -126,7 +126,7 @@ def list_loans(
         },
     )
 
-    loans = db.execute(stmt).scalars().all()
+    loans = list(db.execute(stmt).scalars().all())
 
     return QueryPageResult[Loan](
         data=loans,

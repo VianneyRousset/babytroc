@@ -11,8 +11,10 @@ def create_region(
 ) -> RegionRead:
     """Create a region."""
 
-    return database.region.create_region(
+    region = database.region.create_region(
         db=db,
         region_id=region_create.id,
         name=region_create.name,
     )
+
+    return RegionRead.model_validate(region)

@@ -8,7 +8,7 @@ def add_item_to_user_liked_items(
     db: Session,
     user_id: int,
     item_id: int,
-) -> None:
+) -> ItemRead:
     """Add the item with `item_id` to items liked by user with `user_id`."""
 
     item = database.like.create_item_like(

@@ -1,4 +1,5 @@
 import warnings
+from collections.abc import Generator
 
 import sqlalchemy.exc
 from fastapi import Request
@@ -18,6 +19,6 @@ def create_session_maker(db_url: URL) -> sessionmaker:
 
 
 # TODO switch to connections pool ?
-def get_db_session(request: Request) -> Session:
+def get_db_session(request: Request) -> Generator[Session]:
     with request.app.state.db_session_maker.begin() as session:
         yield session

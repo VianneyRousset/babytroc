@@ -8,7 +8,7 @@ class ChatMessageType(enum.Enum):
     loan_request_accepted = 4
     loan_request_rejected = 5
     loan_started = 6
-    loan_stoped = 7
+    loan_ended = 7
     item_not_available = 9
     item_available = 9
 

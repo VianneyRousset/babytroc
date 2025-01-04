@@ -40,7 +40,7 @@ def list_loan_requests(
         page_options=page_options,
     )
 
-    return QueryPageResult[LoanRequestRead].cast(result, LoanRequestRead)
+    return QueryPageResult[LoanRequestRead].model_validate(result)
 
 
 def get_loan(
@@ -57,7 +57,7 @@ def get_loan(
         query_filter=query_filter,
     )
 
-    return LoanRead.cast(loan)
+    return LoanRead.model_validate(loan)
 
 
 def list_loans(
@@ -75,4 +75,4 @@ def list_loans(
         page_options=page_options,
     )
 
-    return QueryPageResult[LoanRead].cast(result, LoanRead)
+    return QueryPageResult[LoanRead].model_validate(result)

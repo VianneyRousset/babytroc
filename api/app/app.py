@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -16,8 +16,11 @@ def create_app(config: Config) -> FastAPI:
     app.state.db_session_maker = create_session_maker(config.postgres_url)
 
     @app.get("/")
-    def root(request: Request) -> str:
-        return Response()
+    def root(request: Request) -> JSONResponse:
+        return JSONResponse(
+            status_code=200,
+            content={"status": "ok"},
+        )
 
     @app.exception_handler(RequestValidationError)
     def validation_exception_handler(request: Request, exc: RequestValidationError):

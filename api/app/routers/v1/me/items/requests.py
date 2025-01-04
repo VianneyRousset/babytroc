@@ -25,7 +25,7 @@ def list_client_item_loan_requests(
     response: Response,
     item_id: item_id_annotation,
     query: Annotated[LoanRequestApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[LoanRequestRead]:
     """List loan requests of the item owned by the client."""
 
@@ -79,7 +79,7 @@ def get_client_item_loan_request(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Get client's item loan request by id."""
 
@@ -111,7 +111,7 @@ def accept_client_item_loan_request(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
@@ -135,7 +135,7 @@ def reject_client_item_loan_request(
     request: Request,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 

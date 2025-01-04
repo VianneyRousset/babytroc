@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
@@ -16,7 +18,7 @@ from .router import router
 def create_loan_request(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
@@ -36,7 +38,7 @@ def create_loan_request(
 def cancel_loan_request(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 

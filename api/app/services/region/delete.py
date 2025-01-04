@@ -10,7 +10,7 @@ def delete_region(
     """Delete region with `region_id`."""
 
     # get region
-    region = database.item.get_region(
+    region = database.region.get_region(
         db=db,
         region_id=region_id,
     )

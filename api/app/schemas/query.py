@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional, Self
+from typing import Any, Generic, Optional
 
 from pydantic import Field, field_validator
 from sqlalchemy import Select, tuple_
@@ -93,12 +93,3 @@ class QueryPageResult(QueryPageBase, Generic[ResultType]):
     @property
     def total_count(self):
         return len(self.data)
-
-    @classmethod
-    def cast(cls, obj: Self, t: type[ResultType]) -> Self:
-        return cls(
-            **{
-                **obj.model_dump(),
-                "data": [t.model_validate(o) for o in obj.data],
-            }
-        )

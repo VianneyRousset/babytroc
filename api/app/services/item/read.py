@@ -62,4 +62,4 @@ def list_items(
         page_options=page_options,
     )
 
-    return QueryPageResult[ItemPreviewRead].cast(result, ItemPreviewRead)
+    return QueryPageResult[ItemPreviewRead].model_validate(result)

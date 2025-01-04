@@ -22,7 +22,7 @@ def list_items(
     request: Request,
     response: Response,
     query: Annotated[ItemApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items."""
 
@@ -64,7 +64,7 @@ def list_items(
 def get_item(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item."""
 

@@ -15,7 +15,7 @@ class UserCreate(UserBase, CreateBase):
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
-    ] = None
+    ]
     email: str
     password: str
     avatar_seed: Annotated[

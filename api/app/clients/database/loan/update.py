@@ -1,8 +1,11 @@
 from collections.abc import Mapping
+from datetime import datetime
 from typing import Any
 
-from sqlalchemy import text
+from sqlalchemy import func
+from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import now
 
 from app.models.loan import Loan, LoanRequest
 
@@ -45,7 +48,7 @@ def end_loan(
 ) -> Loan:
     """Update upper bound of `loan.during` to `now()`."""
 
-    loan.during = text("tstzrange(lower(loan.during), now(), '()')")
+    loan.during = Range[datetime | now](loan.during.lower, func.now(), bounds="()")
 
     db.flush()
     db.refresh(loan)

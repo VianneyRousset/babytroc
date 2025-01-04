@@ -31,7 +31,7 @@ def get_chat(
     stmt = query_filter.apply(stmt)
 
     try:
-        return (db.execute(stmt)).unique().scalars().one()
+        return db.execute(stmt).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"chat_id": str(chat_id)}
@@ -67,7 +67,7 @@ def list_chats(
         },
     )
 
-    chats = (db.execute(stmt)).scalars().all()
+    chats = list(db.execute(stmt).scalars().all())
 
     return QueryPageResult[Chat](
         data=chats,
@@ -126,7 +126,7 @@ def list_messages(
         columns={"message_id": ChatMessage.id},
     )
 
-    messages = db.execute(stmt).scalars().all()
+    messages = list(db.execute(stmt).scalars().all())
 
     return QueryPageResult[ChatMessage](
         data=messages,

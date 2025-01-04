@@ -20,15 +20,8 @@ def report_item(
         ReportCreate,
         Body(title="Report creation fields."),
     ],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ):
     """Report the specified item."""
 
-    client_user_id = services.auth.check_auth(request)
-
-    return services.item.report_item(
-        db=db,
-        item_id=item_id,
-        reported_by_user_id=client_user_id,
-        report_create=report_create,
-    )
+    services.auth.check_auth(request)

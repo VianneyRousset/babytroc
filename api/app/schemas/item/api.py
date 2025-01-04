@@ -66,10 +66,10 @@ class ItemApiQuery(ApiQueryBase):
         lower = int(lower) if lower else None
         upper = int(upper) if upper else None
 
-        return [lower, upper]
+        return (lower, upper)
 
     @property
-    def parsed_mo(self) -> Optional[list[int | None]]:
+    def parsed_mo(self) -> Optional[tuple[int | None, int | None]]:
         return self.parse_mo(self.mo)
 
     # regions

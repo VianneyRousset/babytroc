@@ -252,7 +252,7 @@ def upgrade() -> None:
                 "loan_request_accepted",
                 "loan_request_rejected",
                 "loan_started",
-                "loan_stoped",
+                "loan_ended",
                 "item_not_available",
                 name="chatmessagetype",
             ),

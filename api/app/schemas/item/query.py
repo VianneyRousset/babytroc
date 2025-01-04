@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import field_validator
-from sqlalchemy import Integer, Select, func
+from sqlalchemy import BooleanClauseList, Integer, Select, func
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
 from app.models.item import Item, ItemLike, ItemSave, Region
@@ -12,7 +12,7 @@ class ItemQueryFilter(QueryFilterBase):
     """Filters of the items query."""
 
     words: Optional[list[str]] = None
-    targeted_age_months: Optional[list[int | None]] = None
+    targeted_age_months: Optional[tuple[int | None, int | None]] = None
     regions: Optional[list[int]] = None
     owner_id: Optional[int] = None
     liked_by_user_id: Optional[int] = None
@@ -23,10 +23,6 @@ class ItemQueryFilter(QueryFilterBase):
         if v is None:
             return None
 
-        if len(v) != 2:
-            msg = "targeted_age_months must have 2 values"
-            raise ValueError(msg)
-
         if v[0] is not None and v[1] is not None and v[0] > v[1]:
             msg = "targeted_age_months values must be in order"
             raise ValueError(msg)
@@ -34,14 +30,15 @@ class ItemQueryFilter(QueryFilterBase):
     def apply(self, stmt: Select) -> Select:
         # if words is provided, apply filtering based on words matchings
         if self.words:
-            op = Item.searchable_text.op("%>", return_type=Integer)(
-                func.normalize_text(self.words[0])
+            op = BooleanClauseList.or_(
+                *(
+                    Item.searchable_text.op("%>", return_type=Integer)(
+                        func.normalize_text(self.words[0])
+                    )
+                    for word in self.words
+                )
             )
 
-            for word in self.words[1:]:
-                op = op | Item.searchable_text.op("%>", return_type=Integer)(
-                    func.normalize_text(word)
-                )
             stmt = stmt.where(op)
 
         # if targeted_age_months is provided, apply filtering based on range overlap

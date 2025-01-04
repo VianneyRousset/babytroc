@@ -11,7 +11,7 @@ from .router import router
 def get_item_image(
     request: Request,
     image_name: Annotated[str, Path()],
-) -> bytes:
+) -> Response:
     """Get item image."""
 
     services.auth.check_auth(request)

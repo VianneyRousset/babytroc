@@ -4,8 +4,8 @@ from fastapi import Query, Request, Response, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
-from app import database as db
 from app import services
+from app.database import get_db_session
 from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
@@ -22,7 +22,7 @@ def list_client_chats(
     request: Request,
     response: Response,
     query: Annotated[ChatApiQuery, Query()],
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ChatRead]:
     """List all chats where the client is a member."""
 
@@ -76,7 +76,7 @@ def list_client_chats(
 def get_client_chat(
     request: Request,
     chat_id: chat_id_annotation,
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ChatRead:
     """Get client chat info by chat id."""
 
@@ -97,18 +97,16 @@ def list_client_chat_messages(
     response: Response,
     chat_id: chat_id_annotation,
     query: Annotated[ChatMessageApiQuery, Query()],
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ChatMessageRead]:
     """List messages in the chat."""
-
-    chat_id = ChatId.from_str(chat_id)
 
     client_user_id = services.auth.check_auth(request)
 
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=chat_id,
+        chat_id=ChatId.from_str(chat_id),
         query_filter=ChatQueryFilter(
             member_id=client_user_id,
         ),
@@ -155,18 +153,16 @@ def get_client_chat_message_by_id(
     request: Request,
     chat_id: chat_id_annotation,
     message_id: message_id_annotation,
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ChatMessageRead:
     """Get client's chat message by id."""
-
-    chat_id = ChatId.from_str(chat_id)
 
     client_user_id = services.auth.check_auth(request)
 
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=chat_id,
+        chat_id=ChatId.from_str(chat_id),
         query_filter=ChatQueryFilter(
             member_id=client_user_id,
         ),

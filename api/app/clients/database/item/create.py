@@ -14,7 +14,7 @@ def create_item(
     *,
     name: str,
     description: str,
-    targeted_age_months: list[int],
+    targeted_age_months: tuple[int | None, int | None],
     owner_id: int,
     images: list[str],
     regions: list[int],

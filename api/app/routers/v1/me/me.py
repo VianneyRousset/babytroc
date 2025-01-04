@@ -4,8 +4,8 @@ from fastapi import Body, Request, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
-from app import database as db
 from app import services
+from app.database import get_db_session
 from app.schemas.user.read import UserRead
 from app.schemas.user.update import UserUpdate
 
@@ -17,7 +17,7 @@ from .router import router
 @router.get("", status_code=status.HTTP_200_OK)
 def get_client_user(
     request: Request,
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> UserRead:
     """Get client user."""
 
@@ -39,7 +39,7 @@ def update_client_user(
         UserUpdate,
         Body(title="User fields to update."),
     ],
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> UserRead:
     """Update client user."""
 
@@ -58,7 +58,7 @@ def update_client_user(
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT)
 def delete_client_user(
     request: Request,
-    db: Session = Depends(db.get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> None:
     """Delete client user."""
 

@@ -23,7 +23,7 @@ def list_items_owned_by_user(
     response: Response,
     user_id: user_id_annotation,
     query: Annotated[ItemApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items owned by user."""
 
@@ -67,7 +67,7 @@ def get_client_item_by_id(
     request: Request,
     user_id: user_id_annotation,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get user's item by id."""
 

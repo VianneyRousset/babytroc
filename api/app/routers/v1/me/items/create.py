@@ -19,7 +19,7 @@ def create_client_item(
         ItemCreate,
         Body(title="Fields for the item creation."),
     ],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemPreviewRead:
     """Create an item owned by the client."""
 

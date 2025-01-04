@@ -8,7 +8,6 @@ ResultType = TypeVar("ResultType")
 
 
 class Base(BaseModel, Generic[ResultType], abc.ABC):
-    # TODO move `from_attributes` to ReadBase only ?
     model_config = ConfigDict(
         from_attributes=True,
     )

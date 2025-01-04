@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.schemas.item.private import ItemPrivateRead
 from app.schemas.item.query import ItemQueryFilter
-from app.schemas.item.read import ItemRead
 from app.schemas.item.update import ItemUpdate
 
 from .annotations import item_id_annotation
@@ -22,8 +22,8 @@ def update_client_item(
         ItemUpdate,
         Body(title="Item fields to update."),
     ],
-    db: Session = Depends(get_db_session),
-) -> ItemRead:
+    db: Annotated[Session, Depends(get_db_session)],
+) -> ItemPrivateRead:
     """Update client's item."""
 
     client_user_id = services.auth.check_auth(request)

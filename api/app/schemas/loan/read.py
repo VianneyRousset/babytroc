@@ -32,5 +32,8 @@ class LoanRead(LoanBase, ReadBase):
     def validate_during(
         cls,  # noqa: N805
         v: Union[tuple[datetime | None, datetime | None], Range],
-    ):
-        return tuple(*v)
+    ) -> tuple[datetime | None, datetime | None]:
+        if isinstance(v, tuple):
+            return v
+
+        return v.lower, v.upper

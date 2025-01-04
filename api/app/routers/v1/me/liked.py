@@ -23,7 +23,7 @@ from .me import router
 def add_item_to_client_liked_items(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ):
     """Add the specified item to client liked items."""
 
@@ -44,7 +44,7 @@ def list_items_liked_by_client(
     request: Request,
     response: Response,
     query: Annotated[LikedItemApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items like by client."""
 
@@ -91,7 +91,7 @@ def list_items_liked_by_client(
 def get_client_liked_item_by_id(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item liked by client."""
 
@@ -113,7 +113,7 @@ def get_client_liked_item_by_id(
 def remove_item_from_client_liked_items(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Remove the specified item from client liked items."""
 

@@ -23,7 +23,7 @@ from .me import router
 def add_item_to_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Add item to client saved items."""
 
@@ -44,7 +44,7 @@ def list_items_saved_by_client(
     request: Request,
     response: Response,
     query: Annotated[SavedItemApiQuery, Query()],
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items saved by client."""
 
@@ -91,7 +91,7 @@ def list_items_saved_by_client(
 def get_client_saved_item_by_id(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item saved by client."""
 
@@ -113,7 +113,7 @@ def get_client_saved_item_by_id(
 def remove_item_from_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
-    db: Session = Depends(get_db_session),
+    db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Remove the specified item from client saved items."""
 

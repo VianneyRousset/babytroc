@@ -27,16 +27,12 @@ class ItemCreate(ItemBase, CreateBase):
         list[str],
         Field(min_length=1),
     ]
-    targeted_age_months: list[int | None]
+    targeted_age_months: tuple[int | None, int | None]
     regions: list[int]
     blocked: Optional[bool] = False
 
     @field_validator("targeted_age_months")
     def validate_targeted_age_months(cls, v):  # noqa: N805
-        if len(v) != 2:
-            msg = "targeted_age_months must have 2 values"
-            raise ValueError(msg)
-
         if v[0] is not None and v[1] is not None and v[0] > v[1]:
             msg = "targeted_age_months values must be in order"
             raise ValueError(msg)

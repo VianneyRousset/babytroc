@@ -24,17 +24,13 @@ class ItemUpdate(ItemBase, UpdateBase):
         ),
     ] = None
     images: Optional[list[str]] = None
-    targeted_age_months: Optional[list[int | None]] = None
+    targeted_age_months: Optional[tuple[int | None, int | None]] = None
     regions: Optional[list[int]] = None
     blocked: Optional[bool] = None
 
     # TODO global field validator for targeted_age_months ?
     @field_validator("targeted_age_months")
     def validate_targeted_age_months(cls, v):  # noqa: N805
-        if len(v) != 2:
-            msg = "targeted_age_months must have 2 values"
-            raise ValueError(msg)
-
         if v[0] is not None and v[1] is not None and v[0] > v[1]:
             msg = "targeted_age_months values must be in order"
             raise ValueError(msg)
