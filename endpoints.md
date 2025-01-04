@@ -1,11 +1,7 @@
-# /utils
+# /# /items 
 
-- **`GET /utils/avatar/{seed} -> svg`**
-
-# /items 
-
- - X **`GET /items -> list[ItemPreviewRead]`**
--  X **`GET /items/{id} -> ItemRead`**
+ - XT  **`GET /items -> list[ItemPreviewRead]`**
+-  XT  **`GET /items/{id} -> ItemRead`**
 - **`POST /items/{id}/report [ReportCreate]`**
 - X **`POST /items/{id}/request`**
 - X **`DELETE /items/{id}/request`**
@@ -54,11 +50,11 @@
 
 # /me/items
 
-- X **`GET /me/items -> list[ItemPreviewRead]`**
-- X **`POST /me/items [ItemCreate] -> ItemRead`**
-- X **`GET /me/items/{id} -> ItemRead`**
-- X **`POST /me/items/{id} [ItemUpdate] -> ItemRead`**
-- X **`DELETE /me/items/{id}`**
+- XT  **`GET /me/items -> list[ItemPreviewRead]`**
+- XT  **`POST /me/items [ItemCreate] -> ItemRead`**
+- XT  **`GET /me/items/{id} -> ItemRead`**
+- XT **`POST /me/items/{id} [ItemUpdate] -> ItemRead`**
+- XT **`DELETE /me/items/{id}`**
 
 - X **`GET /me/items/{id}/requests -> list[LoanRequestRead]`**
 - X **`GET /me/items/{id}/requests/{id} -> LoanRequestRead`**
