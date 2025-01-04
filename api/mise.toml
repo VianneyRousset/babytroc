@@ -17,11 +17,6 @@ uv = "latest"
 description = "Install mypy linter"
 run = "uv pip install mypy"
 
-[tasks."deps:mypy-types"]
-description = "Install mypy missing stub packages"
-depends = ["deps:mypy"]
-run = "yes | mypy --install-types"
-
 [tasks.deps]
 description = "Install dependencies"
 depends = ["deps:*"]
