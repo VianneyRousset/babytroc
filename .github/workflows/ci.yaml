@@ -41,9 +41,9 @@ jobs:
       imgpush:
         image: hauxir/imgpush
         env:
-          MAX_UPLOADS_PER_MINUTE: 0
-          MAX_UPLOADS_PER_HOUR: 0
-          MAX_UPLOADS_PER_DAY: 0
+          MAX_UPLOADS_PER_MINUTE: 100
+          MAX_UPLOADS_PER_HOUR: 1000
+          MAX_UPLOADS_PER_DAY: 10000
         ports:
           - 5000:5000
 
