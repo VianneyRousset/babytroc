@@ -4,4 +4,4 @@
 rm -f /tmp/nitro/worker-*.sock
 
 # Start the Nuxt.js application
-npm run dev
+node .output/server/index.mjs
