@@ -5,9 +5,10 @@ export default defineNuxtConfig({
 
   // route rules
   routeRules: {
-    "/": {
-      redirect: "/home"
-    },
+    "/": { redirect: "/home" },
+    // TODO use env variable
+    // use CORS ?
+    "/api/**": { proxy: "http://localhost:8080/**" }
   },
 
   // use typescript type checking
@@ -26,6 +27,24 @@ export default defineNuxtConfig({
         }
       }
     }
-  }
+  },
 
+
+  modules: ['nuxt-open-fetch'],
+  openFetch: {
+    clients: {
+      api: {
+        baseURL: '/api'
+      }
+    }
+  },
+  runtimeConfig: {
+    public: {
+      openFetch: {
+        api: {
+          baseURL: '/api'
+        }
+      },
+    }
+  },
 })

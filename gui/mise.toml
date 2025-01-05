@@ -13,7 +13,7 @@ run = "npm install"
 [tasks.dev]
 description = "Run gui in development mode"
 depends = ["deps"]
-run = "npx nuxi dev"
+run = "npx nuxi dev --inspect"
 
 [tasks.build]
 description = "Build docker image"

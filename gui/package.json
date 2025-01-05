@@ -16,6 +16,7 @@
     "vue-router": "latest"
   },
   "devDependencies": {
+    "nuxt-open-fetch": "^0.9.5",
     "sass": "^1.83.0",
     "typescript": "^5.7.2",
     "vue-tsc": "^2.1.10"

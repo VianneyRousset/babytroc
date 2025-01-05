@@ -1,33 +1,48 @@
 <script setup lang="ts">
 
+import type { ApiResponse } from '#open-fetch';
 import { Search, Filter } from 'lucide-vue-next';
 
-const route = useRoute();
+type ItemList = ApiResponse<'list_items_v1_items_get'>;
+type Item = ItemList[number];
 
-// const { data } = await useFetch('localhost:8080/v1/item1');
+//const { data: items, pending, error } = await useFetch<ItemList>('/api/v1/items', {
+//  query: { n: 32 },
+//});
+//
 
-// console.log(data);
+const { data: items, pending, error } = await useApi('/v1/items', {
+  query: { n: 32 },
+  key: "/items", // provided to avoid missmatch with ssr (bug with openfetch?)
+});
 
 </script>
 
 
 <template>
-  <div class="header-bar">
+  <div>
 
-    <div class="search">
-      <Search :size="24" :strokeWidth="1" :absoluteStrokeWidth="true" />
-      <input placeholder=" Search" type="search" class="input">
+    <div class="header-bar">
+
+      <div class="search">
+        <Search :size="24" :strokeWidth="1" :absoluteStrokeWidth="true" />
+        <input placeholder="Search" type="search" class="input" tabindex="1">
+      </div>
+
+      <NuxtLink to="/home/filter">
+        <Filter :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+      </NuxtLink>
+
     </div>
 
-    <NuxtLink to="/home/filter">
-      <Filter :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-    </NuxtLink>
+
+    <div v-if="error">Error: {{ error }}</div>
+    <div v-else-if="pending">Loading...</div>
+    <div v-else>
+      <ItemCardsList :items="items" />
+    </div>
 
   </div>
-
-
-  <ItemList items="Put items here" />
-
 </template>
 
 <style scoped lang="scss">

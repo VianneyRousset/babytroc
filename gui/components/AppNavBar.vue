@@ -62,6 +62,9 @@ const route = useRoute();
 
 <style scoped lang="scss">
 nav {
+
+  @include bar-shadow;
+
   position: fixed;
   bottom: 0px;
   width: 100%;
@@ -110,6 +113,7 @@ nav {
 
 
         &.plus {
+
           background: $primary-200;
           border: 2px solid $primary-300;
 
