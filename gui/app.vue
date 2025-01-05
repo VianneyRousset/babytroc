@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <AppNavBar />
     <NuxtPage />
+    <AppFooterBar />
   </div>
 </template>

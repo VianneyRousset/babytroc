@@ -13,7 +13,7 @@ const route = useRoute();
       <li :active="route.path.startsWith('/home')">
         <NuxtLink to="/home">
           <div>
-            <House :size="32" :strokeWidth="route.path.startsWith('/home') ? 2 : 1.33" :absoluteStrokeWidth="true" />
+            <House :size="24" :strokeWidth="route.path.startsWith('/home') ? 2 : 1.33" :absoluteStrokeWidth="true" />
             <div>Accueil</div>
           </div>
         </NuxtLink>
@@ -22,7 +22,7 @@ const route = useRoute();
       <li :active="route.path.startsWith('/saved')">
         <NuxtLink active to="/saved">
           <div>
-            <Bookmark :size="32" :strokeWidth="route.path.startsWith('/saved') ? 2 : 1.33"
+            <Bookmark :size="24" :strokeWidth="route.path.startsWith('/saved') ? 2 : 1.33"
               :absoluteStrokeWidth="true" />
             <div>Sauvés</div>
           </div>
@@ -40,7 +40,7 @@ const route = useRoute();
       <li :active="route.path.startsWith('/chats')">
         <NuxtLink to="/chats">
           <div>
-            <MessageSquare :size="32" :strokeWidth="route.path.startsWith('/chats') ? 2 : 1.33"
+            <MessageSquare :size="24" :strokeWidth="route.path.startsWith('/chats') ? 2 : 1.33"
               :absoluteStrokeWidth="true" />
             <div>Chats</div>
           </div>
@@ -50,7 +50,7 @@ const route = useRoute();
       <li :active="route.path.startsWith('/me')">
         <NuxtLink to="/me">
           <div>
-            <UserRound :size="32" :strokeWidth="route.path.startsWith('/me') ? 2 : 1.33" :absoluteStrokeWidth="true" />
+            <UserRound :size="24" :strokeWidth="route.path.startsWith('/me') ? 2 : 1.33" :absoluteStrokeWidth="true" />
             <div>Moi</div>
           </div>
         </NuxtLink>
@@ -67,6 +67,7 @@ nav {
 
   position: fixed;
   bottom: 0px;
+  box-sizing: border-box;
   width: 100%;
 
   ul {
@@ -79,7 +80,7 @@ nav {
     background: $neutral-50;
     border-top: 1px solid $neutral-300;
     color: $neutral-400;
-    height: 88px;
+    height: 64px;
 
     li {
       @include flex-column;
@@ -117,11 +118,11 @@ nav {
           background: $primary-200;
           border: 2px solid $primary-300;
 
-          width: 92px;
-          height: 92px;
+          width: 64px;
+          height: 64px;
           border-radius: 50%;
           position: relative;
-          bottom: 40px;
+          bottom: 20px;
 
           svg {
             stroke: $primary-300;

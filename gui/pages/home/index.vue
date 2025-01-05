@@ -22,18 +22,18 @@ const { data: items, pending, error } = await useApi('/v1/items', {
 <template>
   <div>
 
-    <div class="header-bar">
+    <AppHeaderBar class="header-bar">
 
       <div class="search">
-        <Search :size="24" :strokeWidth="1" :absoluteStrokeWidth="true" />
+        <Search :size="20" :strokeWidth="1" :absoluteStrokeWidth="true" />
         <input placeholder="Search" type="search" class="input" tabindex="1">
       </div>
 
       <NuxtLink to="/home/filter">
-        <Filter :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </NuxtLink>
 
-    </div>
+    </AppHeaderBar>
 
 
     <div v-if="error">Error: {{ error }}</div>
@@ -50,6 +50,15 @@ const { data: items, pending, error } = await useApi('/v1/items', {
 
   @include flex-row;
   gap: 16px;
+  height: 64px;
+
+  svg {
+    stroke: $neutral-500;
+  }
+
+  input {
+    font-family: inherit;
+  }
 
   .search {
 
@@ -64,7 +73,6 @@ const { data: items, pending, error } = await useApi('/v1/items', {
       position: absolute;
       left: 0.7rem;
       stroke: $neutral-400;
-
     }
 
     input {
