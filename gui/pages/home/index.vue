@@ -6,13 +6,16 @@ import { Search, Filter } from 'lucide-vue-next';
 type ItemList = ApiResponse<'list_items_v1_items_get'>;
 type Item = ItemList[number];
 
-//const { data: items, pending, error } = await useFetch<ItemList>('/api/v1/items', {
-//  query: { n: 32 },
-//});
-//
+const searchText = ref("");
+const wordsQuery = computed(() => {
+  return searchText.value.split(" ").filter((word => word.length > 0));
+});
 
-const { data: items, pending, error } = await useApi('/v1/items', {
-  query: { n: 32 },
+const { data: items, pending, error, refresh } = await useApi('/v1/items', {
+  query: {
+    n: 32,
+    q: wordsQuery,
+  },
   key: "/items", // provided to avoid missmatch with ssr (bug with openfetch?)
 });
 
@@ -20,13 +23,13 @@ const { data: items, pending, error } = await useApi('/v1/items', {
 
 
 <template>
-  <div>
+  <div class="main">
 
     <AppHeaderBar class="header-bar">
 
       <div class="search">
         <Search :size="20" :strokeWidth="1" :absoluteStrokeWidth="true" />
-        <input placeholder="Search" type="search" class="input" tabindex="1">
+        <input v-model="searchText" placeholder="Search" type="search" class="input" tabindex="1">
       </div>
 
       <NuxtLink to="/home/filter">
@@ -37,9 +40,16 @@ const { data: items, pending, error } = await useApi('/v1/items', {
 
 
     <div v-if="error">Error: {{ error }}</div>
-    <div v-else-if="pending">Loading...</div>
-    <div v-else>
+    <div v-else-if="pending">
+      <div class="loader">
+        <Loader />
+      </div>
+    </div>
+    <div v-else-if="items && items.length > 0">
       <ItemCardsList :items="items" />
+    </div>
+    <div v-else="items" class="no-result">
+      Aucun résultat
     </div>
 
   </div>
@@ -99,6 +109,28 @@ const { data: items, pending, error } = await useApi('/v1/items', {
       }
 
     }
+  }
+}
+
+.main {
+
+  padding-top: 64px;
+  padding-bottom: 64px;
+
+  .loader {
+
+    @include flex-column;
+    margin-top: 1em;
+  }
+
+  .no-result {
+
+    @include flex-column;
+    margin-top: 2em;
+
+    color: $neutral-300;
+    font-size: 1rem;
+
   }
 }
 </style>
