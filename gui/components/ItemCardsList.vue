@@ -9,12 +9,13 @@ const props = defineProps<{
 }>();
 
 
+
 </script>
 
 <template>
 
   <div class="list">
-    <ItemCard v-for="item in props.items" v-if="props.items !== null" :item="item" />
+    <ItemCard v-for="item in props.items" v-if="props.items !== null" :item="item" :id="item.id" />
   </div>
 
 </template>

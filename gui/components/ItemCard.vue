@@ -13,9 +13,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["select"]);
 
-
-const { name, first_image_name, targeted_age_months } = toRefs(props.item);
-
 const backgroundImage = computed(() => {
 
   const backgrounds = []
@@ -28,6 +25,26 @@ const backgroundImage = computed(() => {
 
 });
 
+const formatedTargetedAge = computed(() => {
+
+  const ageMin = props.item.targeted_age_months[0];
+  const ageMax = props.item.targeted_age_months[1];
+
+
+  if (ageMin !== null && ageMin > 0) {
+
+    if (ageMax === null)
+      return `À partie de ${ageMin} mois`;
+
+    return `De ${ageMin} à ${ageMax} mois`
+  }
+
+  if (ageMax !== null)
+    return `Jusqu'à ${ageMax} mois`
+
+  return "Pour tous âges"
+});
+
 
 </script>
 
@@ -38,8 +55,8 @@ const backgroundImage = computed(() => {
     </div>
 
     <div class="info">
-      <div class="age">{{ targeted_age_months }}</div>
-      <div class="name">{{ name }}</div>
+      <div class="age">{{ formatedTargetedAge }}</div>
+      <div class="name">{{ props.item.name }}</div>
     </div>
   </div>
 

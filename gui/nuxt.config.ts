@@ -30,7 +30,7 @@ export default defineNuxtConfig({
   },
 
 
-  modules: ['nuxt-open-fetch'],
+  modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt'],
   openFetch: {
     clients: {
       api: {

@@ -1,35 +1,60 @@
 <script setup lang="ts">
 
-import type { ApiResponse } from '#open-fetch';
-import { Search, Filter } from 'lucide-vue-next';
+import { Search, Filter, X } from 'lucide-vue-next';
+import { vInfiniteScroll } from '@vueuse/components'
 
-type ItemList = ApiResponse<'list_items_v1_items_get'>;
-type Item = ItemList[number];
+const store = useAllItemsStore();
 
-const searchText = ref("");
-const wordsQuery = computed(() => {
-  return searchText.value.split(" ").filter((word => word.length > 0));
-});
 
-const { data: items, pending, error, refresh } = await useApi('/v1/items', {
-  query: {
-    n: 32,
-    q: wordsQuery,
-  },
-  key: "/items", // provided to avoid missmatch with ssr (bug with openfetch?)
-});
+function canLoadMore() {
+  return store.canFetchMore;
+}
+
+function onLoadMore() {
+
+  console.log("onLoadMore");
+
+  if (store.firstFetchStatus === 'pending' || store.extraFetchStatus === 'pending')
+    return;
+
+  store.fetchMore();
+}
+
+function onInputEnter(event: Event) {
+
+  if (event.target instanceof HTMLElement)
+    event.target.blur();
+
+  store.refresh();
+}
+
+function onInputEscape(event: Event) {
+
+  if (event.target instanceof HTMLElement)
+    event.target.blur();
+
+  clearSearch();
+}
+
+function clearSearch() {
+  store.filters.searchText = "";
+  store.refresh()
+}
 
 </script>
 
 
 <template>
-  <div class="main">
+  <div>
 
     <AppHeaderBar class="header-bar">
 
       <div class="search">
         <Search :size="20" :strokeWidth="1" :absoluteStrokeWidth="true" />
-        <input v-model="searchText" placeholder="Search" type="search" class="input" tabindex="1">
+        <input v-model="store.filters.searchText" placeholder="Search" type="search" class="input" tabindex="1"
+          autofocus @keyup.enter="onInputEnter" @keyup.escape="onInputEscape">
+        <X v-if="store.filters.searchText !== ''" @click="clearSearch" :size="20" :strokeWidth="1"
+          :absoluteStrokeWidth="true" />
       </div>
 
       <NuxtLink to="/home/filter">
@@ -39,19 +64,30 @@ const { data: items, pending, error, refresh } = await useApi('/v1/items', {
     </AppHeaderBar>
 
 
-    <div v-if="error">Error: {{ error }}</div>
-    <div v-else-if="pending">
-      <div class="loader">
-        <Loader />
-      </div>
-    </div>
-    <div v-else-if="items && items.length > 0">
-      <ItemCardsList :items="items" />
-    </div>
-    <div v-else="items" class="no-result">
-      Aucun résultat
-    </div>
+    <div class="main" v-infinite-scroll="[onLoadMore, { distance: 600, canLoadMore: () => store.canFetchMore }]">
 
+      <!-- first items fetch error -->
+      <div v-if="store.firstFetchStatus === 'error'">{{ store.firstFetchError }}</div>
+
+      <!-- list of items -->
+      <ItemCardsList :items="store.items" />
+
+      <!-- extra items fetch error -->
+      <div v-if="store.extraFetchStatus === 'error'">{{ store.extraFetchError }}</div>
+
+      <!-- loader -->
+      <div v-else-if="store.firstFetchStatus === 'pending' || store.extraFetchStatus === 'pending'" class="loader">
+        <div class="loader">
+          <Loader />
+        </div>
+      </div>
+
+      <!-- no items -->
+      <div v-else-if="store.items.length === 0" class="no-result">
+        Aucun résultat
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -81,8 +117,16 @@ const { data: items, pending, error, refresh } = await useApi('/v1/items', {
 
     svg {
       position: absolute;
-      left: 0.7rem;
       stroke: $neutral-400;
+
+      &:first-child {
+        left: 0.7rem;
+      }
+
+      &:last-child {
+        right: 0.7rem;
+        cursor: pointer;
+      }
     }
 
     input {
@@ -92,8 +136,7 @@ const { data: items, pending, error, refresh } = await useApi('/v1/items', {
       border-radius: 8px;
       background-color: #ffffff;
       line-height: 28px;
-      padding: 0 1rem;
-      padding-left: 2.5rem;
+      padding: 0 2.5rem;
       outline: none;
       transition: .3s ease;
 
@@ -116,11 +159,15 @@ const { data: items, pending, error, refresh } = await useApi('/v1/items', {
 
   padding-top: 64px;
   padding-bottom: 64px;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: scroll;
 
   .loader {
 
     @include flex-column;
     margin-top: 1em;
+    margin-bottom: 1em;
   }
 
   .no-result {
