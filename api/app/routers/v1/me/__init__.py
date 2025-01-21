@@ -11,6 +11,11 @@ router.include_router(
     prefix="/chats",
 )
 
+router.include_router(
+    router=borrowings.router,
+    prefix="/borrowings",
+)
+
 
 __all__ = [
     "borrowings",

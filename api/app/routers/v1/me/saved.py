@@ -58,13 +58,7 @@ def list_items_saved_by_client(
             saved_by_user_id=client_user_id,
         ),
         page_options=QueryPageOptions(
-            limit=query.n,
-            order=["words_match", "save_id", "item_id"],
-            cursor={
-                "words_match": query.cwm,
-                "save_id": query.sid,
-                "item_id": query.cid,
-            },
+            order=["save_id", "item_id"],
             desc=True,
         ),
     )

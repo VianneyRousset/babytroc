@@ -6,36 +6,36 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.loan.api import LoanApiQuery
-from app.schemas.loan.query import LoanQueryFilter
-from app.schemas.loan.read import LoanRead
+from app.schemas.loan.api import LoanRequestApiQuery
+from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.read import LoanRequestRead
 from app.schemas.query import QueryPageOptions
 
-from .me import router
+from .router import router
 
 # READ
 
 
-@router.get("/borrowings", status_code=status.HTTP_200_OK)
-def list_client_borrowings(
+@router.get("/requests", status_code=status.HTTP_200_OK)
+def list_client_borrowing_loan_requests(
     request: Request,
     response: Response,
-    query: Annotated[LoanApiQuery, Query()],
+    query: Annotated[LoanRequestApiQuery, Query()],
     db: Annotated[Session, Depends(get_db_session)],
-) -> list[LoanRead]:
-    """List loans where the client is the borrower."""
+) -> list[LoanRequestRead]:
+    """List pending loan requests made by the client."""
 
     client_user_id = services.auth.check_auth(request)
 
-    result = services.loan.list_loans(
+    # get list of loan requests of the item
+    result = services.loan.list_loan_requests(
         db=db,
-        query_filter=LoanQueryFilter(
+        query_filter=LoanRequestQueryFilter(
             borrower_id=client_user_id,
-            item_id=query.item,
-            active=query.active,
+            state=query.state,
         ),
         page_options=QueryPageOptions(
-            order=["loan_id"],
+            order=["loan_request_id"],
             desc=True,
         ),
     )

@@ -16,7 +16,9 @@ from alembic import command
 from alembic.config import Config as AlembicConfig
 from app.app import create_app
 from app.config import Config, ImgPushConfig
+from app.schemas.item.create import ItemCreate
 from app.schemas.user.create import UserCreate
+from app.services.item import create_item
 from app.services.user import create_user
 
 
@@ -51,6 +53,16 @@ def database() -> Generator[sqlalchemy.URL]:
     yield postgres_url
 
     drop_database(postgres_url)
+
+
+@pytest.fixture
+def client(database: sqlalchemy.URL) -> TestClient:
+    config = Config(
+        postgres_url=database,
+        imgpush=ImgPushConfig.from_env(),
+    )
+
+    return TestClient(create_app(config))
 
 
 @pytest.fixture
@@ -102,10 +114,51 @@ def user_bob(database: sqlalchemy.URL, user_bob_data: dict) -> int:
 
 
 @pytest.fixture
-def client(database: sqlalchemy.URL) -> TestClient:
-    config = Config(
-        postgres_url=database,
-        imgpush=ImgPushConfig.from_env(),
+def image(client: TestClient) -> str:
+    # basic PBM image
+    image = "\n".join(
+        [
+            "P1",
+            "3 3",
+            "101",
+            "101",
+            "010",
+        ]
     )
 
-    return TestClient(create_app(config))
+    resp = client.post("/v1/images", files={"file": image})
+    resp.raise_for_status()
+    added = resp.json()
+
+    return added["name"]
+
+
+@pytest.fixture
+def item_candle_data(image: str) -> dict:
+    return {
+        "name": "candle",
+        "description": "dwell into a flowerbed",
+        "targeted_age_months": [4, 10],
+        "regions": [],
+        "images": [image],
+    }
+
+
+@pytest.fixture
+def item_candle(
+    database: sqlalchemy.URL,
+    user_alice: int,
+    item_candle_data: dict,
+) -> int:
+    # make sqlalchemy warnings as errors
+    warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        item = create_item(
+            db=session,
+            owner_id=user_alice,
+            item_create=ItemCreate(**item_candle_data),
+        )
+
+        return item.id
