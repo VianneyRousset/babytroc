@@ -25,6 +25,7 @@ div {
   top: 0px;
   box-sizing: border-box;
   width: 100%;
+  z-index: 10;
 
   transform: translate3d(0, 0, 0);
   transition: 0.1s all ease-out;
@@ -32,14 +33,9 @@ div {
   padding: 0px 18px;
 
   background-color: $neutral-50;
-  color: $neutral-500;
+  color: $neutral-700;
   border-bottom: 1px solid $neutral-300;
-  font-family: 'Plus Jakarta Sans', serif;
 
-
-  svg {
-    stroke: $neutral-500;
-  }
 
   input {
     font-family: inherit;

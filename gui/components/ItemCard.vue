@@ -11,14 +11,12 @@ const props = defineProps<{
   item: Item
 }>();
 
-const emit = defineEmits(["select"]);
-
 const backgroundImage = computed(() => {
 
   const backgrounds = []
   const params = "";
 
-  backgrounds.push("linear-gradient(transparent 0 50%, #202020 100%)");
+  backgrounds.push("linear-gradient(transparent 0 40%, #202020 100%)");
   backgrounds.push(`url('/api/v1/images/${props.item.first_image_name}${params}')`);
 
   return backgrounds.join(", ");
@@ -49,7 +47,7 @@ const formatedTargetedAge = computed(() => {
 </script>
 
 <template>
-  <div :class="{ box: true }" @click="emit('select');" :style="{ backgroundImage: backgroundImage }">
+  <div class="box" :style="{ backgroundImage: backgroundImage }">
 
     <div class="status">
     </div>
@@ -75,7 +73,6 @@ const formatedTargetedAge = computed(() => {
   background-position: center;
   cursor: pointer;
   color: $neutral-50;
-
 }
 
 .box:target {
@@ -95,7 +92,7 @@ const formatedTargetedAge = computed(() => {
 }
 
 .age {
-  color: $primary-400;
+  color: $primary-300;
   margin-bottom: 0.2em;
 }
 

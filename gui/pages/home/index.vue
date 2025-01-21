@@ -3,21 +3,21 @@
 import { Search, Filter, X } from 'lucide-vue-next';
 import { vInfiniteScroll } from '@vueuse/components'
 
-const store = useAllItemsStore();
+const itemsStore = useAllItemsStore();
+const routeStack = useRouteStack();
 
+routeStack.reset();
 
 function canLoadMore() {
-  return store.canFetchMore;
+  return itemsStore.canFetchMore;
 }
 
 function onLoadMore() {
 
-  console.log("onLoadMore");
-
-  if (store.firstFetchStatus === 'pending' || store.extraFetchStatus === 'pending')
+  if (itemsStore.firstFetchStatus === 'pending' || itemsStore.extraFetchStatus === 'pending')
     return;
 
-  store.fetchMore();
+  itemsStore.fetchMore();
 }
 
 function onInputEnter(event: Event) {
@@ -25,7 +25,7 @@ function onInputEnter(event: Event) {
   if (event.target instanceof HTMLElement)
     event.target.blur();
 
-  store.refresh();
+  itemsStore.refresh();
 }
 
 function onInputEscape(event: Event) {
@@ -37,8 +37,8 @@ function onInputEscape(event: Event) {
 }
 
 function clearSearch() {
-  store.filters.searchText = "";
-  store.refresh()
+  itemsStore.filters.searchText = "";
+  itemsStore.refresh()
 }
 
 </script>
@@ -51,9 +51,9 @@ function clearSearch() {
 
       <div class="search">
         <Search :size="20" :strokeWidth="1" :absoluteStrokeWidth="true" />
-        <input v-model="store.filters.searchText" placeholder="Search" type="search" class="input" tabindex="1"
+        <input v-model="itemsStore.filters.searchText" placeholder="Search" type="search" class="input" tabindex="1"
           autofocus @keyup.enter="onInputEnter" @keyup.escape="onInputEscape">
-        <X v-if="store.filters.searchText !== ''" @click="clearSearch" :size="20" :strokeWidth="1"
+        <X v-if="itemsStore.filters.searchText !== ''" @click="clearSearch" :size="20" :strokeWidth="1"
           :absoluteStrokeWidth="true" />
       </div>
 
@@ -64,30 +64,32 @@ function clearSearch() {
     </AppHeaderBar>
 
 
-    <div class="main" v-infinite-scroll="[onLoadMore, { distance: 600, canLoadMore: () => store.canFetchMore }]">
+    <div class="main" v-infinite-scroll="[onLoadMore, { distance: 600, canLoadMore: () => itemsStore.canFetchMore }]">
 
       <!-- first items fetch error -->
-      <div v-if="store.firstFetchStatus === 'error'">{{ store.firstFetchError }}</div>
+      <div v-if="itemsStore.firstFetchStatus === 'error'">{{ itemsStore.firstFetchError }}</div>
 
       <!-- list of items -->
-      <ItemCardsList :items="store.items" />
+      <ItemCardsList :items="itemsStore.items" target="home-item-item_id" />
 
       <!-- extra items fetch error -->
-      <div v-if="store.extraFetchStatus === 'error'">{{ store.extraFetchError }}</div>
+      <div v-if="itemsStore.extraFetchStatus === 'error'">{{ itemsStore.extraFetchError }}</div>
 
       <!-- loader -->
-      <div v-else-if="store.firstFetchStatus === 'pending' || store.extraFetchStatus === 'pending'" class="loader">
+      <div v-else-if="itemsStore.firstFetchStatus === 'pending' || itemsStore.extraFetchStatus === 'pending'"
+        class="loader">
         <div class="loader">
           <Loader />
         </div>
       </div>
 
       <!-- no items -->
-      <div v-else-if="store.items.length === 0" class="no-result">
+      <div v-else-if="itemsStore.items.length === 0" class="no-result">
         Aucun résultat
       </div>
 
     </div>
+
   </div>
 </template>
 

@@ -23,6 +23,22 @@
   align-items: center;
 }
 
+@mixin flex-row-center {
+  @include flex-row;
+  justify-content: center;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  justify-content: center;
+}
+
 @mixin bar-shadow {
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.3);
+}
+
+@mixin ellipsis-overflow {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
