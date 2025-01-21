@@ -10,7 +10,6 @@ from app.schemas.loan.api import LoanApiQuery
 from app.schemas.loan.query import LoanQueryFilter
 from app.schemas.loan.read import LoanRead
 from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .me import router
 
@@ -36,23 +35,10 @@ def list_client_loans(
             active=query.active,
         ),
         page_options=QueryPageOptions(
-            limit=query.n,
             order=["loan_id"],
-            cursor={"loan_id": query.cid},
             desc=True,
         ),
     )
-
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "loan_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
 
     response.headers["X-Total-Count"] = str(result.total_count)
 

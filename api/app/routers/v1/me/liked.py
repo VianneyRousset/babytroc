@@ -11,7 +11,6 @@ from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation
 from .me import router

@@ -48,22 +48,3 @@ class LoanApiQuery(ApiQueryBase):
         description="Only return active loans.",
         default=None,
     )
-
-    # limit
-    n: Optional[int] = Field(
-        title="Limit returned loans count",
-        description="Limit the number of loans returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
-    )
-
-    # cursor loan_request_id
-    cid: Optional[int] = Field(
-        title="Page cursor for loan ID",
-        gt=0,
-        default=None,
-    )
