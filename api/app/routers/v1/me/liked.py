@@ -58,31 +58,10 @@ def list_items_liked_by_client(
             liked_by_user_id=client_user_id,
         ),
         page_options=QueryPageOptions(
-            limit=query.n,
             order=["words_match", "like_id", "item_id"],
-            cursor={
-                "words_match": query.cwm,
-                "like_id": query.lid,
-                "item_id": query.cid,
-            },
             desc=True,
         ),
     )
-
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "words_match": "cwm",
-            "like_id": "lid",
-            "item_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
 
     return result.data
 

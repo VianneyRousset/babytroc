@@ -1,4 +1,5 @@
 # API
+- Removed pagination on liked and saved items, would be nice to limit the number of liked and saved items
 
 # GUI
 

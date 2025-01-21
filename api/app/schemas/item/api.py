@@ -5,7 +5,7 @@ from pydantic import Field, field_validator
 from app.schemas.base import ApiQueryBase
 
 
-class ItemApiQuery(ApiQueryBase):
+class ItemApiQueryBase(ApiQueryBase):
     # words
     q: Optional[list[str]] = Field(
         title="Words used for fuzzy search",
@@ -85,6 +85,8 @@ class ItemApiQuery(ApiQueryBase):
         default=None,
     )
 
+
+class ItemApiQuery(ItemApiQueryBase):
     # limit
     n: Optional[int] = Field(
         title="Limit returned items count",
@@ -112,19 +114,9 @@ class ItemApiQuery(ApiQueryBase):
     )
 
 
-class SavedItemApiQuery(ItemApiQuery):
-    # cursor save_id
-    sid: Optional[int] = Field(
-        title="Page cursor for save ID",
-        gt=0,
-        default=None,
-    )
+class SavedItemApiQuery(ItemApiQueryBase):
+    pass
 
 
-class LikedItemApiQuery(ItemApiQuery):
-    # cursor save_id
-    lid: Optional[int] = Field(
-        title="Page cursor for like ID",
-        gt=0,
-        default=None,
-    )
+class LikedItemApiQuery(ItemApiQueryBase):
+    pass
