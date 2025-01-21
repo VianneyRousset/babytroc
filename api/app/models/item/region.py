@@ -2,19 +2,28 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     ForeignKey,
+    Identity,
     Integer,
     String,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base, IntegerIdentifier
+from app.models.base import Base
 
 if TYPE_CHECKING:
     from .item import Item
 
 
-class Region(IntegerIdentifier, Base):
+class Region(Base):
     __tablename__ = "region"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Identity(),
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
 
     name: Mapped[str] = mapped_column(
         String,

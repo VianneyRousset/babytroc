@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column(
             "id",
             sa.Integer(),
-            sa.Identity(always=True),
+            sa.Identity(),
             autoincrement=True,
             nullable=False,
         ),

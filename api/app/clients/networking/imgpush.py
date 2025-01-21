@@ -3,6 +3,7 @@ import io
 import requests
 
 from app.config import Config
+from app.errors.image import ItemImageNotFoundError
 from app.schemas.networking.imgpush import ImgpushUploadResponse
 
 TIMEOUT = 2
@@ -34,7 +35,10 @@ def get_image(config: Config, name: str) -> bytes:
         timeout=TIMEOUT,
     )
 
-    # TODO handler raised exceptions
+    if response.status_code == 404:
+        raise ItemImageNotFoundError({"name": name})
+
+    # TODO better handler other status codes
     response.raise_for_status()
 
     return response.content

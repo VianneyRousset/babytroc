@@ -103,9 +103,9 @@ def user_bob(database: sqlalchemy.URL, user_bob_data: dict) -> int:
 
 @pytest.fixture
 def client(database: sqlalchemy.URL) -> TestClient:
-    config = Config(
+    config = config(
         postgres_url=database,
-        imgpush=ImgPushConfig.from_env(),
+        imgpush=imgpushconfig.from_env(),
     )
 
     return TestClient(create_app(config))
