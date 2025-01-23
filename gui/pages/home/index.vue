@@ -6,8 +6,6 @@ import { vInfiniteScroll } from '@vueuse/components'
 const itemsStore = useAllItemsStore();
 const routeStack = useRouteStack();
 
-routeStack.reset();
-
 function canLoadMore() {
   return itemsStore.canFetchMore;
 }

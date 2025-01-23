@@ -13,8 +13,14 @@ export const useRouteStack = () => {
     return stack.push(fullPath);
   }
 
+  function amend(fullPath: string) {
+    stack[stack.length - 1] = fullPath;
+  };
+
   function pop() {
+    const route = current.value;
     stack.pop();
+    return route;
   }
 
   function reset() {
@@ -27,19 +33,23 @@ export const useRouteStack = () => {
     }
   }
 
-  const last = computed(() => {
+  const current = computed(() => stack[stack.length - 1]);
 
-    if (!stack || stack.length === 0)
+  const previous = computed(() => {
+
+    if (!stack || stack.length < 2)
       return null;
 
-    return stack[stack.length - 1];
+    return stack[stack.length - 2];
   });
 
   return {
     stack,
     push,
+    amend,
     pop,
     reset,
-    last
+    current,
+    previous,
   }
 }

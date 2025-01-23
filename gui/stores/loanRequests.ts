@@ -4,12 +4,10 @@ export const useLoanRequestsStore = defineStore('loanRequests', () => {
 
   const { $api } = useNuxtApp()
 
-  /*
-  const { data: items, status, error, refresh } = useApi('/v1/me/liked', {
-    key: "/me/liked", // provided to avoid missmatch with ssr (bug with openfetch?)
+  const { data: loanRequests, refresh } = useApi('/v1/me/borrowings/requests', {
+    key: "/me/borrowings/requests", // provided to avoid missmatch with ssr (bug with openfetch?)
     watch: false,
   });
-  */
 
   async function requestItem(itemId: number) {
     await $api('/v1/items/{item_id}/request', {
@@ -19,22 +17,22 @@ export const useLoanRequestsStore = defineStore('loanRequests', () => {
       }
     });
 
-    //refresh();
+    refresh();
   }
 
-  /*
   const hasItem = (itemId: number | Ref<number>) => {
 
     if (isRef(itemId))
-      return computed(() => items.value?.map(item => item.id).includes(itemId.value) ?? false);
+      return computed(() => loanRequests.value?.map(req => req.item.id).includes(itemId.value) ?? false);
 
-    return items.value?.map(item => item.id).includes(itemId) ?? false;
+    return loanRequests.value?.map(req => req.item.id).includes(itemId) ?? false;
   };
-  */
 
 
   return {
+    loanRequests,
     requestItem,
+    hasItem,
   }
 
 });

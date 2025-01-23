@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
-import { ArrowLeft, Ellipsis, Heart } from 'lucide-vue-next';
+import { Ellipsis, Heart } from 'lucide-vue-next';
+import { computedAsync } from '@vueuse/core'
 
 const { $api } = useNuxtApp()
 
@@ -15,7 +16,6 @@ const { data: item, refresh: refreshItem } = await useApi('/v1/items/{item_id}',
   key: `item/${itemId.value}`
 });
 
-const routeStack = useRouteStack();
 
 const images = computed(() => {
 
@@ -25,6 +25,8 @@ const images = computed(() => {
   return item.value.images_names.map((name: string) => `/api/v1/images/${name}`);
 
 });
+
+const meStore = useMeStore();
 
 const likedItemsStore = useLikedItemsStore();
 const liked = likedItemsStore.has(itemId) as ComputedRef<boolean>;
@@ -55,8 +57,19 @@ async function toggleLike() {
   }
 }
 
+const usersStore = useUsersStore();
+
+const owner = computedAsync(async () => {
+
+  if (item.value === null)
+    return null;
+
+  return await usersStore.get(item.value.owner.id);
+
+});
+
 const loanRequestsStore = useLoanRequestsStore();
-//const requested = loanRequestsStore.hasItem(itemId) as ComputedRef<boolean>;
+const requested = loanRequestsStore.hasItem(itemId) as ComputedRef<boolean>;
 const requestItemLoading = ref(false);
 
 function timeout(ms: number) {
@@ -64,6 +77,10 @@ function timeout(ms: number) {
 }
 
 async function requestItem() {
+
+  // do not trigger request if already requested
+  if (loanRequestsStore.hasItem(itemId.value))
+    return;
 
   try {
 
@@ -111,49 +128,53 @@ function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
   <div>
 
     <AppHeaderBar class="header-bar">
-      <NuxtLink :to="routeStack.last.value ?? '/home'">
-        <ArrowLeft style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-      </NuxtLink>
-      <h1>{{ item?.name }}</h1>
+      <AppBack fallback="/home" />
+      <h1 :title="item?.name">{{ item?.name }}</h1>
       <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
 
     </AppHeaderBar>
 
     <div class="main">
 
-      <div v-if="item !== null">
+      <Gallery :images="item?.images_names ?? []" />
 
-        <Gallery :images="item?.images_names ?? []" />
+      <div v-if="item !== null" class="info">
 
-        <div style="padding-bottom: 1rem;">
+        <div>
 
           <div class="status">
             <Availability :available="item?.available ?? false" :loading="true" />
-
-            <LikesCount :count="item?.likes_count ?? 0" :liked="liked" :loading="likeLoading" @click="toggleLike" />
+            <Counter symbol="heart" size="normal" :count="item?.likes_count ?? 0" :active="liked" :loading="likeLoading"
+              @click="toggleLike" />
           </div>
 
           <Fold title="Description">
             <p>{{ item.description }}</p>
           </Fold>
 
-          <div style="margin-bottom: 2rem;">
-            <Fold title="Détails">
-              <div class="table">
-                <div class="label">Âge</div>
-                <div>{{ formatedTargetedAge(...item.targeted_age_months) }}</div>
-                <div class="label">Régions</div>
-                <ul>
-                  <li v-for="region in item.regions">{{ region.name }}</li>
-                </ul>
-              </div>
-              <RegionsMap style="width: 100%; height: auto;" :actives="item?.regions.map((reg) => reg.id) ?? []" />
-            </Fold>
-          </div>
-
-          <Button type="bezel" :loading="requestItemLoading" @click="requestItem">Demander</Button>
+          <Fold title="Détails">
+            <div class="table">
+              <div class="label">Âge</div>
+              <div>{{ formatedTargetedAge(...item.targeted_age_months) }}</div>
+              <div class="label">Régions</div>
+              <ul>
+                <li v-for="region in item.regions">{{ region.name }}</li>
+              </ul>
+            </div>
+            <RegionsMap style="width: 100%; height: auto;" :actives="item?.regions.map((reg) => reg.id) ?? []" />
+          </Fold>
 
         </div>
+
+        <ClientOnly>
+          <UserCard :user="owner" target="home-user-user_id" />
+        </ClientOnly>
+
+        <Button type="bezel" v-if="item.owner_id !== meStore.me?.id" :loading="requestItemLoading" :disabled="requested"
+          @click="requestItem">
+          {{ requested ? "Demande envoyée" : "Demander" }}
+        </Button>
+
       </div>
     </div>
 
@@ -187,37 +208,44 @@ function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
 }
 
 .main {
+
   padding: calc(64px + 1rem) 1rem;
   box-sizing: border-box;
   height: 100vh;
   overflow-y: scroll;
   color: $neutral-700;
 
-  .status {
-    @include flex-row;
-    justify-content: space-between;
-  }
-
-  p {
-    margin: 0;
-  }
-
-  .table {
-    display: grid;
+  .info {
+    @include flex-column;
     gap: 1rem;
-    grid-template-columns: 1fr 3fr;
-    margin-bottom: 2rem;
+    align-items: stretch;
 
-    .label {
-      color: $neutral-400;
+    .status {
+      @include flex-row;
+      justify-content: space-between;
     }
 
-    ul {
-      @include reset-list;
-      @include flex-column;
-      gap: 0.5rem;
-      align-items: flex-start;
+    p {
+      margin: 0;
+    }
 
+    .table {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 3fr;
+      margin-bottom: 2rem;
+
+      .label {
+        color: $neutral-400;
+      }
+
+      ul {
+        @include reset-list;
+        @include flex-column;
+        gap: 0.5rem;
+        align-items: flex-start;
+
+      }
     }
   }
 }

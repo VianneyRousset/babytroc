@@ -3,6 +3,7 @@
 const props = defineProps<{
   type: string,
   loading?: Boolean,
+  disabled?: Boolean,
 }>();
 
 const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>);
@@ -39,7 +40,7 @@ watch(toRef(props, "loading"), (loading) => {
       <Loader :small="true" />
     </div>
     <div
-      :class="{ flat: props.type == 'flat', outline: props.type == 'outline', bezel: props.type == 'bezel', small: props.loading }"
+      :class="{ flat: props.type == 'flat', outline: props.type == 'outline', bezel: props.type == 'bezel', small: props.loading, disabled: props.disabled === true }"
       class="button">
       <slot />
     </div>
@@ -59,7 +60,6 @@ watch(toRef(props, "loading"), (loading) => {
     position: absolute;
     top: 0;
     left: 0;
-    background: rgba(255, 255, 255, 0.2);
   }
 
   .button {
@@ -69,8 +69,6 @@ watch(toRef(props, "loading"), (loading) => {
     border-radius: 0.5rem;
     cursor: pointer;
     font-size: 1.5rem;
-
-    background: $neutral-500;
 
     transition: transform 200ms ease-out, opacity 200ms ease-out;
 
@@ -89,6 +87,33 @@ watch(toRef(props, "loading"), (loading) => {
       &:active {
         background: $primary-700;
       }
+
+      &.disabled {
+        background: $primary-100;
+        color: $primary-400;
+        cursor: default;
+      }
+    }
+
+    &.outline {
+      color: $primary-500;
+      border: $primary-500 1px solid;
+
+      &:hover {
+        color: $primary-600;
+        border-color: $primary-600;
+      }
+
+      &:active {
+        color: $primary-700;
+        border-color: $primary-700;
+      }
+
+      &.disabled {
+        color: $primary-200;
+        border-color: $primary-200;
+        cursor: default;
+      }
     }
 
     &.bezel {
@@ -101,6 +126,13 @@ watch(toRef(props, "loading"), (loading) => {
 
       &:active {
         background: linear-gradient($primary-700 0%, $primary-800 100%);
+      }
+
+      &.disabled {
+        background: $primary-100;
+        color: $primary-300;
+        box-shadow: none;
+        cursor: default;
       }
     }
   }

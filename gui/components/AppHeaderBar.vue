@@ -30,7 +30,7 @@ div {
   transform: translate3d(0, 0, 0);
   transition: 0.1s all ease-out;
 
-  padding: 0px 18px;
+  padding: 0 1rem;
 
   background-color: $neutral-50;
   color: $neutral-700;

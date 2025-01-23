@@ -84,8 +84,6 @@ export const useAllItemsStore = defineStore('allItems', () => {
 
   function fetchMore() {
 
-    console.log("fetch more");
-
     if (extraFetchLink.value === null)
       return console.error("Null extraFetchLink");
 

@@ -11,11 +11,10 @@ const props = defineProps<{
 
 const route = useRoute();
 const router = useRouter();
+const routeStack = useRouteStack();
 
-
-async function onClick(itemId: number) {
-  await navigateTo(`#item${itemId}`);
-  navigateTo(getTargetRoute(itemId));
+async function onClick(event: Event, itemId: number) {
+  routeStack.amend(router.resolve({ path: route.path, hash: `#item${itemId}` }).fullPath);
 }
 
 function getTargetRoute(itemId: number) {
@@ -28,7 +27,7 @@ function getTargetRoute(itemId: number) {
 
   <div class="list">
     <NuxtLink v-for="item in props.items" v-if="props.items !== null" :to="getTargetRoute(item.id)"
-      @click="onClick(item.id)">
+      @click.native="event => onClick(event, item.id)">
       <ItemCard :item="item" :id="`item${item.id}`" />
     </NuxtLink>
   </div>
