@@ -8,6 +8,8 @@ watch(y, (newY, oldY) => {
   scrollingDown.value = (newY > oldY);
 });
 
+const routeStack = useRouteStack();
+
 </script>
 
 <template>

@@ -11,6 +11,7 @@ const routeStack = useRouteStack();
 const targetRoute = computed(() => routeStack.previous.value ?? props.fallback);
 
 async function onclick() {
+  routeStack.markBackward();
   routeStack.pop();
   routeStack.pop();
 }

@@ -1,6 +1,8 @@
 export const useRouteStack = () => {
 
   const stack = useNuxtApp().$routeStack;
+  const backwardFlag = useNuxtApp().$routeStackBackwardFlag;
+  const direction = useNuxtApp().$routeStackDirection;
 
   function push(fullPath: string) {
 
@@ -23,14 +25,9 @@ export const useRouteStack = () => {
     return route;
   }
 
-  function reset() {
-
-    if (!stack)
-      return
-
-    while (stack.length > 0) {
-      stack.pop();
-    }
+  function markBackward() {
+    backwardFlag.value = true;
+    direction.value = "backward";
   }
 
   const current = computed(() => stack[stack.length - 1]);
@@ -45,11 +42,12 @@ export const useRouteStack = () => {
 
   return {
     stack,
+    direction,
     push,
     amend,
     pop,
-    reset,
     current,
     previous,
+    markBackward,
   }
 }

@@ -36,7 +36,7 @@ watch(toRef(props, "loading"), (loading) => {
 });
 
 const router = useRouter();
-const targetRoute = computed(() => router.resolve({ name: props.target, params: { user_id: 1 } }))
+const targetRoute = computed(() => router.resolve({ name: props.target, params: { user_id: props.user?.id ?? 0 } }))
 
 </script>
 

@@ -29,7 +29,6 @@ export default defineNuxtConfig({
     }
   },
 
-
   modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper'],
   openFetch: {
     clients: {
@@ -47,4 +46,4 @@ export default defineNuxtConfig({
       },
     }
   },
-})
+});
