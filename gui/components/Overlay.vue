@@ -2,13 +2,15 @@
 
 const model = defineModel<boolean>();
 
-function onKeyPressed(event: KeyboardEvent) {
-  if (event.key == 'Escape')
+function onKeyDown(event: KeyboardEvent) {
+  if (event.key == 'Escape') {
     model.value = false;
+    event.preventDefault();
+  }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyPressed));
-onUnmounted(() => window.removeEventListener('keydown', onKeyPressed));
+onMounted(() => window.addEventListener('keydown', onKeyDown));
+onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 
 </script>
 

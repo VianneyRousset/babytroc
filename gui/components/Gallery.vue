@@ -12,6 +12,22 @@ const swiper = useSwiper(containerRef, {
   rewind: true,
 })
 
+function onKeyDown(event: KeyboardEvent) {
+  switch (event.key) {
+    case 'ArrowLeft':
+      swiper.prev();
+      break;
+    case 'ArrowRight':
+      swiper.next();
+      break;
+  }
+
+  event.preventDefault();
+}
+
+onMounted(() => window.addEventListener('keydown', onKeyDown));
+onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
+
 </script>
 
 <template>
