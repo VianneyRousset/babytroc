@@ -15,6 +15,8 @@ const usersStore = useUsersStore();
 
 const user = computedAsync(async () => await usersStore.get(userId.value));
 
+const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0]);
+
 </script>
 
 <template>
@@ -23,7 +25,7 @@ const user = computedAsync(async () => await usersStore.get(userId.value));
     <AppHeaderBar class="header-bar">
 
       <div>
-        <AppBack fallback="/home" />
+        <AppBack :fallback="fallback" />
         <h1 :title="user?.name ?? '...'">{{ user?.name ?? '...' }}</h1>
         <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </div>
@@ -123,10 +125,8 @@ const user = computedAsync(async () => await usersStore.get(userId.value));
 }
 
 .main {
-
   padding-top: 170px;
   padding-bottom: 64px;
   box-sizing: border-box;
-
 }
 </style>

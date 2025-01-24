@@ -122,16 +122,17 @@ function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
   return "Pour tous âges"
 }
 
+const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0]);
+
 </script>
 
 <template>
   <div>
 
     <AppHeaderBar class="header-bar">
-      <AppBack fallback="/home" />
+      <AppBack :fallback="fallback" />
       <h1 :title="item?.name">{{ item?.name }}</h1>
       <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-
     </AppHeaderBar>
 
     <div class="main">
@@ -244,7 +245,6 @@ function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
         @include flex-column;
         gap: 0.5rem;
         align-items: flex-start;
-
       }
     }
   }
