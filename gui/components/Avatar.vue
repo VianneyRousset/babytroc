@@ -6,11 +6,12 @@ import { thumbs } from '@dicebear/collection';
 
 const props = defineProps<{
   seed?: string,
+  size?: number,
 }>();
 
 const avatar = createAvatar(thumbs, {
   seed: "weloifjwoiegfjew",
-  size: 64,
+  size: props.size ?? 64,
   scale: 80,
   radius: 50,
   backgroundColor: ["c4d6c5"],
@@ -20,7 +21,11 @@ const avatar = createAvatar(thumbs, {
 </script>
 
 <template>
-  <div>
-    <img :src="avatar">
-  </div>
+  <img :src="avatar">
 </template>
+
+<style lang="scss" scoped>
+img {
+  vertical-align: middle;
+}
+</style>

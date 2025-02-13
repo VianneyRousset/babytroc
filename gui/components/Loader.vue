@@ -7,45 +7,39 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div>
-    <div v-if="small" class="spinner-small">
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-      <div class="spinner-small-blade"></div>
-    </div>
-    <div v-else class="spinner-big"></div>
+  <div v-if="small" class="spinner-small">
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+    <div class="spinner-small-blade"></div>
+  </div>
+  <div v-else class="spinner-big">
+    <div></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .spinner-big {
-  border: 4px solid rgba(0, 0, 0, .1);
-  border-left-color: transparent;
-  border-radius: 50%;
-}
+  @include flex-row-center;
+  width: 48px;
+  height: 48px;
 
-.spinner-big {
-  border: 4px solid rgba(0, 0, 0, .1);
-  border-left-color: transparent;
-  width: 36px;
-  height: 36px;
-}
-
-.spinner-big {
-  border: 4px solid rgba(0, 0, 0, .1);
-  border-left-color: transparent;
-  width: 36px;
-  height: 36px;
-  animation: spin89345 1s linear infinite;
+  &>div {
+    border: 4px solid rgba(0, 0, 0, .1);
+    border-left-color: transparent;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    animation: spin89345 1s linear infinite;
+  }
 }
 
 @keyframes spin89345 {

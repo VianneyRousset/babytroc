@@ -55,10 +55,7 @@ const maxHeight = computed(() => {
     }
 
     h2 {
-      color: $neutral-600;
       margin: 0.8rem 0;
-      font-size: 1.3rem;
-      font-weight: 600;
     }
 
   }

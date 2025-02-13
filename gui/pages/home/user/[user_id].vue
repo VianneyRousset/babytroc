@@ -51,7 +51,6 @@ const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0
     <div class="main">
 
       <!-- list of items -->
-      <ItemCardsList :items="user?.items ?? []" target="home-item-item_id" />
     </div>
   </div>
 </template>

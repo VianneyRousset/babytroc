@@ -2,6 +2,10 @@ body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   font-size: 16px;
+
+  --page-padding: 1rem;
+  --header-height: 0px;
+  --footer-height: 64px;
 }
 
 h1,
@@ -10,4 +14,57 @@ h3,
 h4,
 h5 {
   font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+input {
+  border: 1px solid $neutral-200;
+  border-radius: 8px;
+
+  outline: none;
+
+  line-height: 2rem;
+  padding: 0.2rem 0.3rem;
+
+  transition: .3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+
+  &::placeholder {
+    color: #9e9ea7;
+  }
+
+  &:focus,
+  &:hover {
+    outline: none;
+    border-color: $primary-200;
+    box-shadow: 0 0 0 2px $primary-50;
+  }
+}
+
+.app-content {
+  padding-top: var(--header-height);
+  padding-bottom: var(--footer-height);
+  box-sizing: border-box;
+  height: 100vh;
+}
+
+.page {
+  padding: var(--page-padding);
+
+  h2 {
+    color: $neutral-600;
+    font-size: 1.3rem;
+    font-weight: 600;
+
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+.app-content.page {
+  padding: var(--page-padding);
+  padding-top: calc(var(--page-padding) + var(--header-height));
+  padding-bottom: calc(var(--page-padding) + var(--footer-height));
 }

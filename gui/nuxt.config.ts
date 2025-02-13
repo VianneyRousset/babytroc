@@ -19,6 +19,14 @@ export default defineNuxtConfig({
   // inject SCSS code (colors definition)
   css: [`assets/styles/main.scss`],
 
+  // do not name components based on path
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
+
   vite: {
     css: {
       preprocessorOptions: {

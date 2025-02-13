@@ -21,19 +21,6 @@ const routeStack = useRouteStack();
     <div class="main">
 
       <!-- list of items -->
-      <ItemCardsList v-if="savedItemsStore.items?.length" :items="savedItemsStore.items" target="saved-item-item_id" />
-
-      <!-- loader -->
-      <div v-else-if="savedItemsStore.status === 'pending'" class="loader">
-        <div class="loader">
-          <Loader />
-        </div>
-      </div>
-
-      <!-- no items -->
-      <div v-else-if="savedItemsStore.items?.length === 0" class="no-result">
-        Aucun objets sauvegardés
-      </div>
 
     </div>
 
@@ -41,26 +28,6 @@ const routeStack = useRouteStack();
 </template>
 
 <style scoped lang="scss">
-.header-bar {
-
-  @include flex-row;
-  gap: 16px;
-  height: 64px;
-
-  svg {
-    stroke: $neutral-500;
-  }
-
-  h1 {
-    @include ellipsis-overflow;
-    flex-grow: 1;
-
-    font-weight: 500;
-    font-size: 1.6rem;
-  }
-
-}
-
 .main {
 
   padding-top: 64px;

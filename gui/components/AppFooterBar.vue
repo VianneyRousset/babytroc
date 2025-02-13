@@ -68,6 +68,7 @@ nav {
   position: fixed;
   bottom: 0px;
   box-sizing: border-box;
+  z-index: 10;
   width: 100%;
 
   ul {
