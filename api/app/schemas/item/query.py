@@ -27,6 +27,8 @@ class ItemQueryFilter(QueryFilterBase):
             msg = "targeted_age_months values must be in order"
             raise ValueError(msg)
 
+        return v
+
     def apply(self, stmt: Select) -> Select:
         # if words is provided, apply filtering based on words matchings
         if self.words:
