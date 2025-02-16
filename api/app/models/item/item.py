@@ -77,8 +77,8 @@ class Item(CreationDate, UpdateDate, Base):
     # image of the item
     images: Mapped[list[ItemImage]] = relationship(
         ItemImage,
-        back_populates="item",
-        cascade="all, delete-orphan",
+        secondary="item_image_association",
+        back_populates="items",
     )
 
     # regions where the item is available

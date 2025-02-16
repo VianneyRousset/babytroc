@@ -37,14 +37,14 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "user.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
     )
     state: Mapped[LoanRequestState] = mapped_column(
@@ -111,7 +111,7 @@ class Loan(IntegerIdentifier, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
         index=True,
     )

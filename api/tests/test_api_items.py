@@ -142,3 +142,20 @@ def test_created_item_shows_up_in_client_list(
 
     assert items[0]["name"] == item_data["name"]
     assert items[0]["owner_id"] == item_data["owner_id"]
+
+
+def test_list_item_filter_targeted_age_month(
+    client: TestClient,
+    items: list[int],
+):
+    # get client items list
+    resp = client.get(
+        url="/v1/items",
+        params={
+            "mo": "8-12",
+        },
+    )
+    resp.raise_for_status()
+    items = resp.json()
+
+    assert len(items) == 1

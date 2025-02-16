@@ -151,7 +151,11 @@ def image(client: TestClient, users: list[int], image_data: str) -> str:
 
 
 @pytest.fixture
-def items_data(image: str, regions: list[int], users: list[int]) -> list[dict]:
+def items_data(
+    image: str,
+    regions: list[int],
+    users: list[int],
+) -> list[dict]:
     return [
         {
             "owner_id": users[0],
@@ -165,7 +169,7 @@ def items_data(image: str, regions: list[int], users: list[int]) -> list[dict]:
             "owner_id": users[1],
             "name": "Dark side",
             "description": "Breathe, breathe in the air. Don't be afraid to care",
-            "targeted_age_months": [2, None],
+            "targeted_age_months": [16, None],
             "regions": [regions[0], regions[1]],
             "images": [image],
         },
