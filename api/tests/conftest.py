@@ -14,12 +14,12 @@ from sqlalchemy_utils import create_database, drop_database
 
 from alembic import command
 from alembic.config import Config as AlembicConfig
+from app import services
 from app.app import create_app
 from app.config import Config, ImgPushConfig
 from app.schemas.item.create import ItemCreate
+from app.schemas.region.create import RegionCreate
 from app.schemas.user.create import UserCreate
-from app.services.item import create_item
-from app.services.user import create_user
 
 
 def random_string(length: int):
@@ -66,57 +66,71 @@ def client(database: sqlalchemy.URL) -> TestClient:
 
 
 @pytest.fixture
-def user_alice_data() -> dict:
-    return {
-        "name": "alice",
-        "email": "alice@ekindbaby.ch",
-        "password": "password-alice",
-    }
+def users_data() -> list[dict]:
+    return [
+        {
+            "name": "alice",
+            "email": "alice@ekindbaby.ch",
+            "password": "password-alice",
+        },
+        {
+            "name": "bob",
+            "email": "bob@ekindbaby.ch",
+            "password": "password-bob",
+        },
+    ]
 
 
 @pytest.fixture
-def user_bob_data() -> dict:
-    return {
-        "name": "bob",
-        "email": "bob@ekindbaby.ch",
-        "password": "password-bob",
-    }
-
-
-@pytest.fixture
-def user_alice(database: sqlalchemy.URL, user_alice_data: dict) -> int:
+def users(database: sqlalchemy.URL, users_data: list[dict]) -> list[int]:
     # make sqlalchemy warnings as errors
     warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        user = create_user(
-            session,
-            UserCreate(**user_alice_data),
-        )
-
-        return user.id
+        return [
+            services.user.create_user(
+                session,
+                UserCreate(**user),
+            ).id
+            for user in users_data
+        ]
 
 
 @pytest.fixture
-def user_bob(database: sqlalchemy.URL, user_bob_data: dict) -> int:
+def regions_data() -> list[dict]:
+    return [
+        {
+            "id": 1,
+            "name": "region1",
+        },
+        {
+            "id": 2,
+            "name": "region2",
+        },
+    ]
+
+
+@pytest.fixture
+def regions(database: sqlalchemy.URL, regions_data: list[dict]) -> list[int]:
     # make sqlalchemy warnings as errors
     warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        user = create_user(
-            session,
-            UserCreate(**user_bob_data),
-        )
-
-        return user.id
+        return [
+            services.region.create_region(
+                session,
+                RegionCreate(**region),
+            ).id
+            for region in regions_data
+        ]
 
 
 @pytest.fixture
-def image(client: TestClient) -> str:
+def image_data() -> str:
     # basic PBM image
-    image = "\n".join(
+    return "\n".join(
         [
             "P1",
             "3 3",
@@ -126,7 +140,10 @@ def image(client: TestClient) -> str:
         ]
     )
 
-    resp = client.post("/v1/images", files={"file": image})
+
+@pytest.fixture
+def image(client: TestClient, users: list[int], image_data: str) -> str:
+    resp = client.post("/v1/images", files={"file": image_data})
     resp.raise_for_status()
     added = resp.json()
 
@@ -134,31 +151,44 @@ def image(client: TestClient) -> str:
 
 
 @pytest.fixture
-def item_candle_data(image: str) -> dict:
-    return {
-        "name": "candle",
-        "description": "dwell into a flowerbed",
-        "targeted_age_months": [4, 10],
-        "regions": [],
-        "images": [image],
-    }
+def items_data(image: str, regions: list[int], users: list[int]) -> list[dict]:
+    return [
+        {
+            "owner_id": users[0],
+            "name": "candle",
+            "description": "dwell into a flowerbed",
+            "targeted_age_months": [4, 10],
+            "regions": [regions[0]],
+            "images": [image],
+        },
+        {
+            "owner_id": users[1],
+            "name": "Dark side",
+            "description": "Breathe, breathe in the air. Don't be afraid to care",
+            "targeted_age_months": [2, None],
+            "regions": [regions[0], regions[1]],
+            "images": [image],
+        },
+    ]
 
 
 @pytest.fixture
-def item_candle(
+def items(
     database: sqlalchemy.URL,
-    user_alice: int,
-    item_candle_data: dict,
-) -> int:
+    items_data: list[dict],
+) -> list[int]:
     # make sqlalchemy warnings as errors
     warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        item = create_item(
-            db=session,
-            owner_id=user_alice,
-            item_create=ItemCreate(**item_candle_data),
-        )
-
-        return item.id
+        return [
+            services.item.create_item(
+                db=session,
+                owner_id=item["owner_id"],
+                item_create=ItemCreate(
+                    **{k: v for k, v in item.items() if k != "owner_id"}
+                ),
+            ).id
+            for item in items_data
+        ]

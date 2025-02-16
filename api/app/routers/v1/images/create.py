@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Request, Response, UploadFile
+from fastapi import Depends, Request, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app import services
@@ -12,7 +12,7 @@ from .router import router
 # TODO limite upload size (middleware)
 
 
-@router.post("")
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_image(
     request: Request,
     response: Response,

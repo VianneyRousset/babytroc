@@ -5,6 +5,7 @@ from pydantic import field_serializer
 
 from app.enums import ChatMessageType
 from app.schemas.base import ReadBase
+from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.user.preview import UserPreviewRead
 
 from .base import ChatBase, ChatId
@@ -13,6 +14,8 @@ from .base import ChatBase, ChatId
 class ChatRead(ChatBase, ReadBase):
     id: ChatId
     borrower: UserPreviewRead
+    item: ItemPreviewRead
+    last_message_id: int
 
     @field_serializer("id")
     def serialize_id(self, chat_id: ChatId, _info):
