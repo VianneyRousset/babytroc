@@ -135,11 +135,9 @@ def _get_words_match(
     if len(words) == 1:
         return func.round(-normalized_word_distance(column, words[0]) * 1e5)
 
-    distance = normalized_word_distance(column, words[0]) + normalized_word_distance(
-        column, words[1]
-    )
+    distance = normalized_word_distance(column, words[0])
 
-    for word in words:
-        distance -= normalized_word_distance(column, word)
+    for word in words[1:]:
+        distance += normalized_word_distance(column, word)
 
     return func.round(-distance * 1e5)
