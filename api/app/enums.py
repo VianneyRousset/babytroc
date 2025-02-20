@@ -25,3 +25,9 @@ class LoanRequestState(enum.Enum):
     accepted = 3
     rejected = 4
     executed = 5
+
+
+class ItemQueryAvailability(enum.Enum):
+    ok = 1
+    nok = 2
+    all = 3

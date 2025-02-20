@@ -1,9 +1,10 @@
 from typing import Optional
 
 from pydantic import field_validator
-from sqlalchemy import BooleanClauseList, Integer, Select, func
+from sqlalchemy import BooleanClauseList, Integer, Select, func, not_, and_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
+from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
 from app.schemas.base import QueryFilterBase
 
@@ -14,6 +15,7 @@ class ItemQueryFilter(QueryFilterBase):
     words: Optional[list[str]] = None
     targeted_age_months: Optional[tuple[int | None, int | None]] = None
     regions: Optional[list[int]] = None
+    availability: Optional[ItemQueryAvailability] = None
     owner_id: Optional[int] = None
     liked_by_user_id: Optional[int] = None
     saved_by_user_id: Optional[int] = None
@@ -56,12 +58,29 @@ class ItemQueryFilter(QueryFilterBase):
         if self.regions is not None:
             stmt = stmt.where(Item.regions.any(Region.id.in_(self.regions)))
 
+        # if available is provided, filter by availability
+        if self.availability is not None:
+            match self.availability:
+                case ItemQueryAvailability.ok:
+                    stmt = stmt.where(
+                        and_(
+                            not_(Item.blocked),
+                            Item.active_loans_count == 0,
+                        )
+                    )
+                case ItemQueryAvailability.nok:
+                    stmt = stmt.where(
+                        or_(
+                            Item.blocked,
+                            Item.active_loans_count > 0,
+                        )
+                    )
+
         # if owner_id is provide, select items where owner_id is the given ID.
         if self.owner_id is not None:
             stmt = stmt.where(Item.owner_id == self.owner_id)
 
         # if saved_by_user_id is provided, select items saved by the given user ID.
-        # TODO should use right join ?
         if self.saved_by_user_id is not None:
             stmt = stmt.join(ItemSave).where(ItemSave.user_id == self.saved_by_user_id)
 
