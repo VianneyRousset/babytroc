@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { parseLinkHeader } from '@web3-storage/parse-link-header'
+import { isEqual } from 'lodash'
+
 import type { ApiResponse, ApiRequestQuery } from '#open-fetch'
 
 import type { AsyncDataRequestStatus } from '#app';
@@ -10,18 +12,25 @@ type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
 
 type AllItemsStore = PaginatedSource<Item> & {
   items: Array<Item>,
-  query: ItemQuery,
+  setQuery: (query: ItemQuery) => void,
 };
-
-const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export const useAllItemsStore: () => AllItemsStore = defineStore('allItems', () => {
 
   const { $api } = useNuxtApp()
 
-  const query = reactive<ItemQuery>({
-    n: 4,
-  });
+  var query: ItemQuery = {
+    n: 16,
+  };
+
+  function setQuery(newQuery: ItemQuery) {
+
+    if (isEqual(query, newQuery))
+      return;
+
+    query = newQuery;
+    reset();
+  }
 
   const data = ref(Array<Item>());
   const items = computed(() => data.value);
@@ -35,7 +44,6 @@ export const useAllItemsStore: () => AllItemsStore = defineStore('allItems', () 
   function reset() {
     data.value = [];
     nextQuery = {};
-    //status.value = "idle";
     end.value = false;
   }
 
@@ -86,7 +94,7 @@ export const useAllItemsStore: () => AllItemsStore = defineStore('allItems', () 
     end,
     error,
     status,
-    query,
+    setQuery,
   };
 
 });

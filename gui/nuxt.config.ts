@@ -1,3 +1,6 @@
+import Components from 'unplugin-vue-components/vite'
+import RadixVueResolver from 'radix-vue/resolver'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
@@ -34,10 +37,20 @@ export default defineNuxtConfig({
           additionalData: '@use "~/assets/styles/_colors.scss" as *; @use "~/assets/styles/_mixings.scss" as *; @use "~/assets/styles/_fonts.scss" as *;'
         }
       }
-    }
+    },
+
+    plugins: [
+      Components({
+        dts: true,
+        resolvers: [
+          RadixVueResolver()
+        ],
+      }),
+    ],
+
   },
 
-  modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper'],
+  modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper', 'radix-vue/nuxt'],
   openFetch: {
     clients: {
       api: {
@@ -54,4 +67,5 @@ export default defineNuxtConfig({
       },
     }
   },
+
 });

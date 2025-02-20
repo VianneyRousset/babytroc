@@ -11,6 +11,11 @@
   /* no underline */
 }
 
+@mixin reset-button {
+  background: none;
+  border: none;
+}
+
 @mixin flex-row {
   display: flex;
   flex-direction: row;

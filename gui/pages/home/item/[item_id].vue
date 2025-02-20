@@ -171,10 +171,10 @@ const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0
           <UserCard :user="owner" target="home-user-user_id" />
         </ClientOnly>
 
-        <Button type="bezel" v-if="item.owner_id !== meStore.me?.id" :loading="requestItemLoading" :disabled="requested"
-          @click="requestItem">
+        <BigButton type="bezel" v-if="item.owner_id !== meStore.me?.id" :loading="requestItemLoading"
+          :disabled="requested" @click="requestItem">
           {{ requested ? "Demande envoyée" : "Demander" }}
-        </Button>
+        </BigButton>
 
       </div>
     </div>

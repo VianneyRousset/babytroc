@@ -54,19 +54,19 @@ svg {
   height: auto;
 
   .region {
-    fill: $neutral-100;
+    fill: white;
   }
 
   .region.active {
-    fill: $primary-200;
+    fill: $primary-400;
   }
 
   .wireframe {
     fill: none;
-    stroke: $neutral-400;
+    stroke: $neutral-300;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-width: 1;
+    stroke-width: 0.8;
   }
 }
 </style>

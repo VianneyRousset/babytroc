@@ -14,7 +14,7 @@ const router = useRouter();
 const routeStack = useRouteStack();
 
 async function onClick(event: Event, itemId: number) {
-  routeStack.amend(router.resolve({ path: route.path, hash: `#item${itemId}` }).fullPath);
+  routeStack.amend(router.resolve({ ...route, hash: `#item${itemId}` }).fullPath);
 }
 
 function getTargetRoute(itemId: number) {

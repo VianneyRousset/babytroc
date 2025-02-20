@@ -1,7 +1,10 @@
 <script setup lang="ts">
 
-import { Filter, ArrowLeft, X } from 'lucide-vue-next';
+import { Filter, ArrowLeft, RotateCcw } from 'lucide-vue-next';
 import { vInfiniteScroll } from '@vueuse/components'
+import type { ApiRequestQuery } from '#open-fetch'
+
+type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
 
 const itemsStore = useAllItemsStore();
 
@@ -11,12 +14,68 @@ const { height: filtersHeaderHeight } = useElementSize(useTemplateRef("filters-h
 
 const filtersDrawerOpen = ref(false);
 
-const searchInput = ref("");
+const route = useRoute();
+const router = useRouter();
+
+const searchInput = ref(Array.isArray(route.query.q) ? route.query.q.join(" ") : "");
+const stateAvailable = ref(route.query.av !== "n");
+const stateUnavailable = ref(route.query.av === "n" || route.query.av === "a");
+
+const targetedAge = ref(typeof route.query.mo === "string" ? parseMonthRange(route.query.mo) : [0, null]);
+const regions = reactive([1, 2, 3]);
+
 
 function go() {
-  console.log("go");
-  itemsStore.query.q = searchInput.value.split(" ").filter((word => word.length > 0));
-  itemsStore.reset();
+  const query: ItemQuery = {}
+
+  // text search
+  const q = searchInput.value.split(" ").filter((word => word.length > 0));
+  if (q.length > 0)
+    query.q = q;
+
+  // targeted age
+  if ((targetedAge.value[0] ?? 0) > 0 || targetedAge.value[1] !== null)
+    query.mo = formatMonthRange(targetedAge.value);
+
+  // availability
+  if (stateUnavailable.value)
+    query.av = stateAvailable.value ? "a" : "n";
+
+  // update page query params
+  router.push({ query: query });
+}
+
+// update store query parameters on route query change
+watch(() => route.query, (routeQuery) => {
+  const query: ItemQuery = {
+    n: 16,
+  }
+
+  // q
+  if (typeof routeQuery.q === "string") {
+    query.q = [routeQuery.q];
+  } else if (Array.isArray(routeQuery.q)) {
+    query.q = routeQuery.q as string[];
+  }
+
+  // mo
+  if (typeof routeQuery.mo === 'string')
+    query.mo = routeQuery.mo;
+
+  // av
+  if (typeof routeQuery.av === 'string' && ["y", "n", "a"].includes(routeQuery.av))
+    query.av = routeQuery.av as ("y" | "n" | "a");
+
+  itemsStore.setQuery(query);
+},
+  { immediate: true }
+);
+
+function resetFilters() {
+  stateAvailable.value = true;
+  stateUnavailable.value = false;
+  targetedAge.value = [0, null];
+  regions.splice(0);
 }
 
 </script>
@@ -27,7 +86,7 @@ function go() {
     <!-- Header bar -->
     <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
       <SearchInput v-model="searchInput" @submit="go()" />
-      <Toggle v-model="filtersDrawerOpen">
+      <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle">
         <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </Toggle>
     </AppHeaderBar>
@@ -37,26 +96,30 @@ function go() {
 
       <!-- Filters header bar -->
       <AppHeaderBar ref="filters-header">
-        <Toggle v-model="filtersDrawerOpen">
+        <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle" @click="go()">
           <ArrowLeft :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
         </Toggle>
         <h1>Filtres</h1>
-        <X :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <RotateCcw @click="resetFilters()" style="cursor: pointer" :size="32" :strokeWidth="2"
+          :absoluteStrokeWidth="true" />
       </AppHeaderBar>
 
       <!-- Filters main -->
       <div class="app-content filters">
         <div class="page">
-          <h2>Age</h2>
-          <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
 
           <h2>Disponibilité</h2>
-          <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-          <label for="vehicle1"> I have a bike</label><br>
-          <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-          <label for="vehicle1"> I have a bike</label><br>
+          <div class="checkbox-group">
+            <Checkbox v-model="stateAvailable">Disponible</Checkbox>
+            <Checkbox v-model="stateUnavailable">Non-disponible</Checkbox>
+          </div>
+
+          <h2>Age</h2>
+          <AgeRangeInput v-model="targetedAge" />
 
           <h2>Régions</h2>
+          <RegionsMap style="width: 100%; height: auto;" :actives="regions" />
+
         </div>
       </div>
     </Drawer>
