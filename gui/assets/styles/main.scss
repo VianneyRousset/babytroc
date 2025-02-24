@@ -45,7 +45,8 @@ input {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
   box-sizing: border-box;
-  height: 100vh;
+  height: 100dvh;
+  overflow-y: scroll;
 }
 
 .page {

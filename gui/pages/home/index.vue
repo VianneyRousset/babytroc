@@ -17,12 +17,26 @@ const filtersDrawerOpen = ref(false);
 const route = useRoute();
 const router = useRouter();
 
-const searchInput = ref(Array.isArray(route.query.q) ? route.query.q.join(" ") : "");
+const searchInput = ref(getQueryParamAsArray(route.query, "q").join(" "));
 const stateAvailable = ref(route.query.av !== "n");
 const stateUnavailable = ref(route.query.av === "n" || route.query.av === "a");
 
 const targetedAge = ref(typeof route.query.mo === "string" ? parseMonthRange(route.query.mo) : [0, null]);
-const regions = reactive([1, 2, 3]);
+const regions = reactive(new Set(getQueryParamAsArray(route.query, "reg").map(Number)));
+
+const isFilterActive = computed(() => {
+
+  if (typeof route.query.mo === 'string')
+    return true;
+
+  if (typeof route.query.av === 'string' && ["y", "n", "a"].includes(route.query.av))
+    return true;
+
+  if (route.query.reg)
+    return true;
+
+  return false;
+});
 
 
 function go() {
@@ -41,6 +55,10 @@ function go() {
   if (stateUnavailable.value)
     query.av = stateAvailable.value ? "a" : "n";
 
+  // regions
+  if (regions.size > 0)
+    query.reg = Array.from(regions);
+
   // update page query params
   router.push({ query: query });
 }
@@ -52,11 +70,8 @@ watch(() => route.query, (routeQuery) => {
   }
 
   // q
-  if (typeof routeQuery.q === "string") {
-    query.q = [routeQuery.q];
-  } else if (Array.isArray(routeQuery.q)) {
-    query.q = routeQuery.q as string[];
-  }
+  if (routeQuery.q)
+    query.q = getQueryParamAsArray(routeQuery, "q");
 
   // mo
   if (typeof routeQuery.mo === 'string')
@@ -65,6 +80,10 @@ watch(() => route.query, (routeQuery) => {
   // av
   if (typeof routeQuery.av === 'string' && ["y", "n", "a"].includes(routeQuery.av))
     query.av = routeQuery.av as ("y" | "n" | "a");
+
+  // reg
+  if (routeQuery.reg)
+    query.reg = getQueryParamAsArray(routeQuery, "reg").map(Number);
 
   itemsStore.setQuery(query);
 },
@@ -75,7 +94,7 @@ function resetFilters() {
   stateAvailable.value = true;
   stateUnavailable.value = false;
   targetedAge.value = [0, null];
-  regions.splice(0);
+  regions.clear();
 }
 
 </script>
@@ -87,7 +106,8 @@ function resetFilters() {
     <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
       <SearchInput v-model="searchInput" @submit="go()" />
       <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle">
-        <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" class="filterIcon"
+          :class="{ active: isFilterActive }" />
       </Toggle>
     </AppHeaderBar>
 
@@ -105,22 +125,21 @@ function resetFilters() {
       </AppHeaderBar>
 
       <!-- Filters main -->
-      <div class="app-content filters">
-        <div class="page">
+      <div class="app-content filters page">
 
-          <h2>Disponibilité</h2>
-          <div class="checkbox-group">
-            <Checkbox v-model="stateAvailable">Disponible</Checkbox>
-            <Checkbox v-model="stateUnavailable">Non-disponible</Checkbox>
-          </div>
-
-          <h2>Age</h2>
-          <AgeRangeInput v-model="targetedAge" />
-
-          <h2>Régions</h2>
-          <RegionsMap style="width: 100%; height: auto;" :actives="regions" />
-
+        <h2>Disponibilité</h2>
+        <div class="checkbox-group">
+          <Checkbox v-model="stateAvailable">Disponible</Checkbox>
+          <Checkbox v-model="stateUnavailable">Non-disponible</Checkbox>
         </div>
+
+        <h2>Age</h2>
+        <AgeRangeInput v-model="targetedAge" />
+
+        <h2>Régions</h2>
+        <RegionsMap v-model="regions" style="width: 100%; height: auto; margin: 2rem 0;" />
+        <RegionsCheckboxes v-model="regions" />
+
       </div>
     </Drawer>
 
@@ -139,5 +158,11 @@ main {
 
 .filters.app-content {
   --header-height: v-bind(filtersHeaderHeight + "px");
+}
+
+.filterIcon.active {
+  stroke: $primary-400;
+  filter: drop-shadow(0px 0px 2px $primary-200);
+
 }
 </style>

@@ -103,7 +103,7 @@ async function requestItem() {
 
 }
 
-const regionsIds = computed(() => item.value?.regions.map((reg) => reg.id) ?? []);
+const regions = computed(() => new Set(item.value?.regions.map((reg) => reg.id) ?? []));
 
 
 function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
@@ -162,7 +162,7 @@ const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0
                 <li v-for="region in item.regions">{{ region.name }}</li>
               </ul>
             </div>
-            <RegionsMap style="width: 100%; height: auto;" :actives="item?.regions.map((reg) => reg.id) ?? []" />
+            <RegionsMap style="width: 100%; height: auto;" :modelValue="regions" />
           </Fold>
 
         </div>
@@ -212,7 +212,7 @@ const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0
 
   padding: calc(64px + 1rem) 1rem;
   box-sizing: border-box;
-  height: 100vh;
+  height: 100dvh;
   overflow-y: scroll;
   color: $neutral-700;
 
