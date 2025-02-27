@@ -9,6 +9,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     CheckboxIndicator: typeof import('radix-vue')['CheckboxIndicator']
     CheckboxRoot: typeof import('radix-vue')['CheckboxRoot']
+    CollapsibleContent: typeof import('radix-vue')['CollapsibleContent']
+    CollapsibleRoot: typeof import('radix-vue')['CollapsibleRoot']
+    CollapsibleTrigger: typeof import('radix-vue')['CollapsibleTrigger']
     DropdownMenuArrow: typeof import('radix-vue')['DropdownMenuArrow']
     DropdownMenuCheckboxItem: typeof import('radix-vue')['DropdownMenuCheckboxItem']
     DropdownMenuContent: typeof import('radix-vue')['DropdownMenuContent']

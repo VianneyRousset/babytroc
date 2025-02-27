@@ -1,50 +1,41 @@
 <script setup lang="ts">
-
 import { ChevronRight } from 'lucide-vue-next';
 
-const props = defineProps<{
-  title: string,
-}>();
-
-const open = ref(false);
-
-const content = useTemplateRef("content");
-
-const { width, height } = useElementSize(content)
-
-const maxHeight = computed(() => {
-
-  if (open.value)
-    return `${height.value + 20}px`
-
-  return '0px';
-});
-
+const open = defineModel<boolean>();
 </script>
 
 <template>
-  <div class="fold" :class="{ 'open': open }">
-    <div class="header" @click="open = !open">
-      <ChevronRight style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-      <h2>{{ props.title }}</h2>
-    </div>
-    <div class="container">
-      <div class="content" ref="content">
+  <CollapsibleRoot v-model:open="open" class="Fold">
+
+    <!-- Header -->
+    <CollapsibleTrigger class="header">
+      <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+      <h2>
+        <slot name="title" />
+      </h2>
+    </CollapsibleTrigger>
+
+    <!-- Content -->
+    <CollapsibleContent class="content">
+      <div>
         <slot />
       </div>
-    </div>
+    </CollapsibleContent>
 
-  </div>
+  </CollapsibleRoot>
 </template>
 
 <style scoped lang="scss">
-.fold {
+.Fold {
 
+  @include flex-column;
   border-top: 1px solid $neutral-200;
 
   .header {
 
+    @include reset-button;
     @include flex-row;
+    width: 100%;
 
     cursor: pointer;
 
@@ -58,24 +49,51 @@ const maxHeight = computed(() => {
       margin: 0.8rem 0;
     }
 
+    &[data-state="open"] {
+      svg {
+        transform: rotate(90deg);
+      }
+    }
+
   }
 
-  .container {
-    padding: 0 0.8rem;
+  .content {
     transition: max-height 0.2s ease-out;
     overflow: hidden;
-    max-height: v-bind('maxHeight');
 
-    .content {
-      margin-bottom: 20px;
+    &>div {
+      padding: 1rem 0.8rem;
+      padding-bottom: 2rem;
     }
   }
 
-  &.open {
-    svg {
-      transform: rotate(90deg);
-    }
+  .content[data-state="open"] {
+    animation: slideDown 300ms ease-out;
   }
 
+  .content[data-state="closed"] {
+    animation: slideUp 300ms ease-out;
+  }
+
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+
+  to {
+    height: 0;
+  }
 }
 </style>

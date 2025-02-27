@@ -19,7 +19,19 @@ const { data: item, refresh: refreshItem } = await useApi('/v1/items/{item_id}',
   key: `item/${itemId}`
 });
 
-const { name, isOwnedByUser, images, regions, regionsIds, ownerId, owner } = useItem(item);
+const {
+  name,
+  isOwnedByUser,
+  images,
+  description,
+  targetedAgeMonths,
+  available,
+  likesCount,
+  regions,
+  regionsIds,
+  ownerId,
+  owner,
+} = useItem(item);
 const { isLikedByUser, likeStatus, toggleLike } = useItemLike(itemId, refreshItem);
 const { isSavedByUser, saveStatus, toggleSave } = useItemSave(itemId);
 const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(itemId);
@@ -64,25 +76,27 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
         <div v-if="item !== null" class="vbox">
 
           <!-- Gallery -->
-          <Gallery :images="item?.images_names ?? []" />
+          <Gallery :images="images ?? []" />
 
           <!-- Availability and likes count -->
           <div class="hbox">
-            <Availability :available="item?.available ?? false" :loading="true" />
-            <Counter symbol="heart" size="normal" :count="item?.likes_count ?? 0" :active="isLikedByUser"
+            <Availability :available="available" :loading="true" />
+            <Counter symbol="heart" size="normal" :count="likesCount" :active="isLikedByUser"
               :loading="likeStatus === 'pending'" @click="toggleLike()" />
           </div>
 
           <!-- Description -->
-          <Fold title="Description">
-            <p>{{ item.description }}</p>
+          <Fold>
+            <template v-slot:title>Description</template>
+            {{ description }}
           </Fold>
 
           <!-- Details (age and regions) -->
-          <Fold title="Détails">
+          <Fold>
+            <template v-slot:title>Détails</template>
             <div class="minitable">
               <div class="label">Âge</div>
-              <div>{{ formatTargetedAge(...item.targeted_age_months) }}</div>
+              <div>{{ targetedAgeMonths !== null ? formatTargetedAge(...targetedAgeMonths) : "..." }}</div>
               <div class="label">Régions</div>
               <ul>
                 <li v-for="region in regions">{{ region.name }}</li>

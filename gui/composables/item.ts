@@ -17,17 +17,22 @@ const useItem = (item: Ref<Item | null>) => {
   const ownerId: Ref<number | null> = computed(() => item.value?.owner_id ?? null)
 
   const name: Ref<string | null> = computed(() => item.value?.name ?? null);
-  const isOwnedByUser: Ref<boolean | null> = computed(() => meStore.me?.id === ownerId.value);
-  const images: Ref<Array<string> | null> = computed(() => item.value?.images_names?.map((name: string) => `/api/v1/images/${name}`) ?? null);
+  const description: Ref<string | null> = computed(() => item.value?.description ?? null);
+  const available: Ref<boolean | null> = computed(() => item.value?.available ?? null);
+  const likesCount: Ref<number | null> = computed(() => item.value?.likes_count ?? null);
+  const targetedAgeMonths: Ref<[number | null, number | null] | null> = computed(() => item.value?.targeted_age_months ?? null);
+
+  const images: Ref<Array<string> | null> = computed(() => item.value?.images_names ?? null);
   const regions: Ref<Array<Region> | null> = computed(() => item.value?.regions ?? null);
   const regionsIds: Ref<Set<number>> = computed(() => new Set(item.value?.regions.map((reg) => reg.id) ?? []));
 
+  const isOwnedByUser: Ref<boolean | null> = computed(() => meStore.me?.id === ownerId.value);
 
   const usersStore = useUsersStore();
 
   const pendingOwner = ref(false);
 
-  const owner = computedAsync(
+  const owner: Ref<User | null> = computedAsync(
     async () => ownerId.value !== null ? (await usersStore.get(ownerId.value)).value : null,
     null,
     {
@@ -37,6 +42,10 @@ const useItem = (item: Ref<Item | null>) => {
 
   return {
     name,
+    description,
+    available,
+    likesCount,
+    targetedAgeMonths,
     isOwnedByUser,
     ownerId,
     images,

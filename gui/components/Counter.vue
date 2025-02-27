@@ -5,7 +5,7 @@ import { Heart, Star } from 'lucide-vue-next';
 const props = defineProps<{
   symbol: "heart" | "star",
   size?: "normal" | "small" | "tiny",
-  count?: number,
+  count?: number | null,
   active?: boolean,
   loading?: boolean,
 }>();

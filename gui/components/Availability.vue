@@ -3,23 +3,31 @@
 import { Check, Clock } from 'lucide-vue-next';
 
 const props = defineProps<{
-  available: boolean,
-  loading: boolean,
+  available: boolean | null,
 }>();
+
+const { available } = toRefs(props);
 
 </script>
 
 <template>
 
-  <div v-if="props.available === true" class="availability available">
+  <div v-if="available === true" class="availability available">
     <Check :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
     <p>Disponible</p>
   </div>
 
-  <div v-else-if="props.available === false" class="availability unavailable === false">
+  <div v-else-if="available === false" class="availability unavailable">
     <Clock :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
     <p>Non-disponible</p>
   </div>
+
+  <div v-else-if="available === null" class="availability null">
+    <Clock :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+    <p>...</p>
+  </div>
+
+
 
 
 </template>
@@ -38,6 +46,10 @@ const props = defineProps<{
 
   &.unavailable {
     color: $red-800;
+  }
+
+  &.null {
+    color: $neutral-200;
   }
 
   p {

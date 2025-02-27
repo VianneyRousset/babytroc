@@ -45,8 +45,6 @@ const open = ref(false);
   @include flex-column;
   align-items: stretch;
 
-  overflow: hidden;
-
   position: relative;
   z-index: 15;
 
@@ -76,10 +74,14 @@ const open = ref(false);
 
     &.red {
       color: $red-700;
+
+      &:hover {
+        color: $red-800;
+      }
     }
 
     &:hover {
-      background: $neutral-50;
+      color: $neutral-700;
     }
   }
 
