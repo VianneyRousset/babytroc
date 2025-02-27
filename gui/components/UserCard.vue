@@ -10,8 +10,12 @@ const props = defineProps<{
   target: string,
 }>();
 
+const { user, target } = toRefs(props);
+
+const { name, avatarSeed, items, likesCount, starsCount, itemsCount } = useUser(user);
+
 const router = useRouter();
-const targetRoute = computed(() => router.resolve({ name: props.target, params: { user_id: props.user?.id ?? 0 } }))
+const targetRoute = computed(() => user.value !== null ? router.resolve({ name: unref(target), params: { user_id: props.user?.id ?? 0 } }) : null);
 
 </script>
 
@@ -19,13 +23,13 @@ const targetRoute = computed(() => router.resolve({ name: props.target, params: 
 
   <div class="container">
 
-    <NuxtLink :to="targetRoute">
-      <div class="card" :title="props.user?.name ?? '...'">
-        <Avatar :seed="props.user?.avatar_seed" />
-        <span class="name">{{ props.user?.name ?? "..." }}</span>
+    <NuxtLink :to="targetRoute ?? undefined">
+      <div class="card" :title="name ?? undefined">
+        <Avatar :seed="avatarSeed" />
+        <span class="name">{{ name ?? "..." }}</span>
         <div class="counters">
-          <Counter symbol="star" size="tiny" :count="props.user?.stars_count" />
-          <Counter symbol="heart" size="tiny" :count="props.user?.likes_count" />
+          <Counter symbol="star" size="tiny" :count="starsCount" />
+          <Counter symbol="heart" size="tiny" :count="likesCount" />
         </div>
         <ChevronRight class="chevron" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </div>

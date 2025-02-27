@@ -12,7 +12,7 @@ function loadMore() {
   <div>
     <ul>
       <li v-for="chat in store.chats">
-        <ImageAndAvatar :image="chat.item.first_image_name" :avatar="chat.borrower.avatar_seed" />
+        <!--<ImageAndAvatar :image="chat.item.first_image_name" :avatar="chat.borrower.avatar_seed" />-->
       </li>
     </ul>
 

@@ -37,13 +37,13 @@ if (props.scroll) {
 </script>
 
 <template>
-  <div :class="{ hidden: y > props.scrollOffset && scrollingDown }">
+  <div class="AppHeaderBar" :class="{ hidden: y > props.scrollOffset && scrollingDown }">
     <slot />
   </div>
 </template>
 
 <style scoped lang="scss">
-div {
+.AppHeaderBar {
 
   @include flex-row;
   @include bar-shadow;

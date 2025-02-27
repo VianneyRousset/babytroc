@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
-import { computedAsync } from '@vueuse/core'
 
 // get item ID from route
 const route = useRoute();
@@ -44,7 +43,7 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
     <!-- Header bar -->
     <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
       <AppBack />
-      <h1 :title="name ?? undefined">{{ name }}</h1>
+      <h1 :title="name ?? undefined">{{ name ?? "..." }}</h1>
 
       <!-- Dropdown menu -->
       <DropdownMenu>
@@ -58,7 +57,6 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
           <BookmarkX style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
           <div>Oublier</div>
         </DropdownMenuItem>
-
 
         <DropdownMenuItem class="DropdownMenuItem red">
           <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />

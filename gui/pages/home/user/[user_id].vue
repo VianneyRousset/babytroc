@@ -1,65 +1,88 @@
 <script setup lang="ts">
 
-import { ArrowLeft, Ellipsis, Heart } from 'lucide-vue-next';
+import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
 import { computedAsync } from '@vueuse/core'
-import type { ApiResponse } from '#open-fetch';
 
-type User = ApiResponse<'get_user_v1_users__user_id__get'>;
+const itemsStore = useAllItemsStore();
 
-const { $api } = useNuxtApp();
-
+// get user ID from route
 const route = useRoute();
+const userId = Number(route.params["user_id"]);
 
-const userId = computed(() => Number(route.params["user_id"]));
+// get main header bar height to offset content
+const main = useTemplateRef<HTMLElement>("main");
+const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
-const routeStack = useRouteStack();
-
+// get user data from store
 const usersStore = useUsersStore();
+const pendingUser = ref(false);
+const user = computedAsync(
+  async () => (await usersStore.get(userId)).value,
+  null,
+  {
+    evaluating: pendingUser,
+  },
+);
 
-const user = computedAsync(async () => (await usersStore.get(userId.value)).value);
-
-const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0]);
+const { name, avatarSeed, items, itemsSource, likesCount, starsCount, itemsCount } = useUser(user);
 
 </script>
 
 <template>
   <div>
 
-    <AppHeaderBar class="header-bar">
+    <!-- Header bar -->
+    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+
 
       <div>
-        <AppBack :fallback="fallback" />
-        <h1 :title="user?.name ?? '...'">{{ user?.name ?? '...' }}</h1>
-        <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <AppBack />
+        <h1 :title="name ?? undefined">{{ name ?? "..." }}</h1>
+
+        <!-- Dropdown menu -->
+        <DropdownMenu>
+
+          <DropdownMenuItem class="DropdownMenuItem red">
+            <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+            <div>Signaler</div>
+          </DropdownMenuItem>
+
+        </DropdownMenu>
+
       </div>
 
       <div>
-        <Avatar :seed="user?.avatar_seed" />
+        <Avatar :seed="avatarSeed" />
         <div class="counter">
-          <div>{{ user?.stars_count ?? '...' }}</div>
+          <div>{{ starsCount ?? '...' }}</div>
           <div>Étoiles</div>
         </div>
         <div class="counter">
-          <div>{{ user?.likes_count ?? '...' }}</div>
+          <div>{{ likesCount ?? '...' }}</div>
           <div>Likes</div>
         </div>
         <div class="counter">
-          <div>{{ user?.items.length ?? '...' }}</div>
+          <div>{{ itemsCount ?? '...' }}</div>
           <div>Objects</div>
         </div>
       </div>
 
     </AppHeaderBar>
 
-    <div class="main">
+    <!-- Main content -->
+    <main>
+      <ItemCardsList ref="main" :src="itemsSource" target="home-item-item_id" class="app-content page" />
+    </main>
 
-      <!-- list of items -->
-    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.header-bar {
+main {
+  --header-height: v-bind(mainHeaderHeight + "px");
+}
+
+:deep(.AppHeaderBar) {
 
   @include flex-column;
   align-items: stretch;
@@ -70,6 +93,7 @@ const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0
   &>div:first-child {
     @include flex-row;
 
+    height: 64px;
     gap: 16px;
     padding: 0 1rem;
 

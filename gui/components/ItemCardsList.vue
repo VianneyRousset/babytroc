@@ -2,10 +2,10 @@
 
 import type { ApiResponse } from '#open-fetch';
 
-type Item = ApiResponse<'list_items_v1_items_get'>[number];
+type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
 
 const props = defineProps<{
-  src: PaginatedSource<Item>,
+  src: PaginatedSource<ItemPreview>,
   target: string,
 }>();
 

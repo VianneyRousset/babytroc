@@ -5,7 +5,7 @@ import { createAvatar } from '@dicebear/core';
 import { thumbs } from '@dicebear/collection';
 
 const props = withDefaults(defineProps<{
-  seed?: string,
+  seed: string | null,
   size?: number,
 }>(), {
   size: 64,

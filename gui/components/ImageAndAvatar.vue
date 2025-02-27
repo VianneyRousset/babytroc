@@ -23,7 +23,7 @@ const imageStyle = computed(() => ({
 <template>
   <div class="box">
     <div class="image" :style="imageStyle">
-      <Avatar :item="props.avatar" :size="36" />
+      <!-- <Avatar :item="props.avatar" :size="36" />-->
     </div>
   </div>
 </template>
