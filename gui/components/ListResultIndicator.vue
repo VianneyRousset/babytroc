@@ -13,25 +13,6 @@ const props = withDefaults(defineProps<{
   loading: true,
 });
 
-/*
-useInfiniteScroll(
-  useTemplateRef("container"),
-  () => {
-
-    if (props.loading || props.end) {
-      console.log("loadMore -> nope");
-      return;
-    }
-
-    console.log("loadMore -> yep");
-    emit("more");
-  },
-  {
-    distance: props.distance,
-  }
-)
-*/
-
 </script>
 
 <template>

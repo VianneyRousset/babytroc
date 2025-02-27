@@ -1,252 +1,118 @@
 <script setup lang="ts">
 
-import { Ellipsis, Heart } from 'lucide-vue-next';
+import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
 import { computedAsync } from '@vueuse/core'
 
-const { $api } = useNuxtApp()
-
+// get item ID from route
 const route = useRoute();
+const itemId = Number(route.params["item_id"]);
 
-const itemId = computed(() => Number(route.params["item_id"]));
+// get main header bar height to offset content
+const main = useTemplateRef<HTMLElement>("main");
+const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
+// get item data
 const { data: item, refresh: refreshItem } = await useApi('/v1/items/{item_id}', {
   path: {
     item_id: itemId,
   },
-  key: `item/${itemId.value}`
+  key: `item/${itemId}`
 });
 
-
-const images = computed(() => {
-
-  if (item.value === null)
-    return [];
-
-  return item.value.images_names.map((name: string) => `/api/v1/images/${name}`);
-
-});
-
-const meStore = useMeStore();
-
-const likedItemsStore = useLikedItemsStore();
-const liked = likedItemsStore.has(itemId) as ComputedRef<boolean>;
-const likeLoading = ref(false);
-
-async function toggleLike() {
-
-  try {
-
-    likeLoading.value = true;
-
-    if (liked.value === true) {
-      await likedItemsStore.remove(itemId.value);
-    } else {
-      await likedItemsStore.add(itemId.value);
-    }
-
-  } catch (error) {
-    console.error(error);
-
-    const { $toast } = useNuxtApp();
-
-    $toast.error("Échec de la modification du like.");
-
-  } finally {
-    await refreshItem();
-    likeLoading.value = false
-  }
-}
-
-const usersStore = useUsersStore();
-
-const owner = computedAsync(async () => {
-
-  if (item.value === null)
-    return null;
-
-  return await usersStore.get(item.value.owner.id);
-
-});
-
-const loanRequestsStore = useLoanRequestsStore();
-const requested = loanRequestsStore.hasItem(itemId) as ComputedRef<boolean>;
-const requestItemLoading = ref(false);
-
-function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function requestItem() {
-
-  // do not trigger request if already requested
-  if (loanRequestsStore.hasItem(itemId.value))
-    return;
-
-  try {
-
-    requestItemLoading.value = true;
-
-    await loanRequestsStore.requestItem(itemId.value);
-
-  } catch (error) {
-    console.error(error);
-
-    const { $toast } = useNuxtApp();
-
-    $toast.error("Échec de la demande d'emprunt.");
-
-  } finally {
-    requestItemLoading.value = false
-  }
-
-  await refreshItem();
-
-}
-
-const regions = computed(() => new Set(item.value?.regions.map((reg) => reg.id) ?? []));
-
-
-function formatedTargetedAge(ageMin: number | null, ageMax: number | null) {
-
-  if (ageMin !== null && ageMin > 0) {
-
-    if (ageMax === null)
-      return `À partie de ${ageMin} mois`;
-
-    return `De ${ageMin} à ${ageMax} mois`
-  }
-
-  if (ageMax !== null)
-    return `Jusqu'à ${ageMax} mois`
-
-  return "Pour tous âges"
-}
-
-const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0]);
+const { name, isOwnedByUser, images, regions, regionsIds, ownerId, owner } = useItem(item);
+const { isLikedByUser, likeStatus, toggleLike } = useItemLike(itemId, refreshItem);
+const { isSavedByUser, saveStatus, toggleSave } = useItemSave(itemId);
+const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(itemId);
 
 </script>
 
 <template>
   <div>
 
-    <AppHeaderBar class="header-bar">
-      <AppBack :fallback="fallback" />
-      <h1 :title="item?.name">{{ item?.name }}</h1>
-      <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+    <!-- Header bar -->
+    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+      <AppBack />
+      <h1 :title="name ?? undefined">{{ name }}</h1>
+
+      <!-- Dropdown menu -->
+      <DropdownMenu>
+
+        <DropdownMenuItem v-if="!isSavedByUser" class="DropdownMenuItem" @click="toggleSave()">
+          <Bookmark style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+          <div>Enregistrer</div>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem v-else class="DropdownMenuItem" @click="toggleSave()">
+          <BookmarkX style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+          <div>Oublier</div>
+        </DropdownMenuItem>
+
+
+        <DropdownMenuItem class="DropdownMenuItem red">
+          <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+          <div>Signaler</div>
+        </DropdownMenuItem>
+
+      </DropdownMenu>
+
     </AppHeaderBar>
 
-    <div class="main">
+    <!-- Main content -->
+    <main ref="main">
+      <div class="app-content page">
 
-      <Gallery :images="item?.images_names ?? []" />
+        <div v-if="item !== null" class="vbox">
 
-      <div v-if="item !== null" class="info">
+          <!-- Gallery -->
+          <Gallery :images="item?.images_names ?? []" />
 
-        <div>
-
-          <div class="status">
+          <!-- Availability and likes count -->
+          <div class="hbox">
             <Availability :available="item?.available ?? false" :loading="true" />
-            <Counter symbol="heart" size="normal" :count="item?.likes_count ?? 0" :active="liked" :loading="likeLoading"
-              @click="toggleLike" />
+            <Counter symbol="heart" size="normal" :count="item?.likes_count ?? 0" :active="isLikedByUser"
+              :loading="likeStatus === 'pending'" @click="toggleLike()" />
           </div>
 
+          <!-- Description -->
           <Fold title="Description">
             <p>{{ item.description }}</p>
           </Fold>
 
+          <!-- Details (age and regions) -->
           <Fold title="Détails">
-            <div class="table">
+            <div class="minitable">
               <div class="label">Âge</div>
-              <div>{{ formatedTargetedAge(...item.targeted_age_months) }}</div>
+              <div>{{ formatTargetedAge(...item.targeted_age_months) }}</div>
               <div class="label">Régions</div>
               <ul>
-                <li v-for="region in item.regions">{{ region.name }}</li>
+                <li v-for="region in regions">{{ region.name }}</li>
               </ul>
             </div>
-            <RegionsMap style="width: 100%; height: auto;" :modelValue="regions" />
+            <RegionsMap :modelValue="regionsIds" />
           </Fold>
 
         </div>
 
+        <!-- Owner -->
         <ClientOnly>
           <UserCard :user="owner" target="home-user-user_id" />
         </ClientOnly>
 
-        <BigButton type="bezel" v-if="item.owner_id !== meStore.me?.id" :loading="requestItemLoading"
-          :disabled="requested" @click="requestItem">
-          {{ requested ? "Demande envoyée" : "Demander" }}
+        <!-- Request button -->
+        <BigButton type="bezel" v-if="!isOwnedByUser" :loading="requestStatus === 'pending'"
+          :disabled="isRequestedByUser" @click="requestItem">
+          {{ isRequestedByUser ? "Demande envoyée" : "Demander" }}
         </BigButton>
 
       </div>
-    </div>
+
+    </main>
 
   </div>
 </template>
 
 <style scoped lang="scss">
-.header-bar {
-
-  @include flex-row;
-
-  gap: 16px;
-  height: 64px;
-
-  a {
-    @include flex-row;
-  }
-
-  svg {
-    stroke: $neutral-700;
-  }
-
-  h1 {
-    @include ellipsis-overflow;
-    flex-grow: 1;
-
-    font-weight: 500;
-    font-size: 1.6rem;
-  }
-
-}
-
-.main {
-
-  padding: calc(64px + 1rem) 1rem;
-  box-sizing: border-box;
-  height: 100dvh;
-  overflow-y: scroll;
-  color: $neutral-700;
-
-  .info {
-    @include flex-column;
-    gap: 1rem;
-    align-items: stretch;
-
-    .status {
-      @include flex-row;
-      justify-content: space-between;
-    }
-
-    p {
-      margin: 0;
-    }
-
-    .table {
-      display: grid;
-      gap: 1rem;
-      grid-template-columns: 1fr 3fr;
-      margin-bottom: 2rem;
-
-      .label {
-        color: $neutral-400;
-      }
-
-      ul {
-        @include reset-list;
-        @include flex-column;
-        gap: 0.5rem;
-        align-items: flex-start;
-      }
-    }
-  }
+main {
+  --header-height: v-bind(mainHeaderHeight + "px");
 }
 </style>

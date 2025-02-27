@@ -20,19 +20,15 @@ export const useLoanRequestsStore = defineStore('loanRequests', () => {
     refresh();
   }
 
-  const hasItem = (itemId: number | Ref<number>) => {
-
-    if (isRef(itemId))
-      return computed(() => loanRequests.value?.map(req => req.item.id).includes(itemId.value) ?? false);
-
-    return loanRequests.value?.map(req => req.item.id).includes(itemId) ?? false;
-  };
-
+  function hasItem(itemId: number | Ref<number>): Ref<boolean> {
+    return computed(() => unref(loanRequests)?.map(req => req.item.id).includes(unref(itemId)) ?? false);
+  }
 
   return {
     loanRequests,
     requestItem,
     hasItem,
+    refresh,
   }
 
 });

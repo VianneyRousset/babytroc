@@ -49,7 +49,7 @@ export const useChatsStore = defineStore('chats', () => {
       status.value = "success";
 
     } catch (err) {
-      console.log(err);
+      console.error(err);
       error.value = err as FetchError;
       status.value = "error";
     }

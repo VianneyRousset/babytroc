@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { Filter, ArrowLeft, RotateCcw } from 'lucide-vue-next';
+import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next';
 import { vInfiniteScroll } from '@vueuse/components'
 import type { ApiRequestQuery } from '#open-fetch'
 
@@ -38,6 +38,22 @@ const isFilterActive = computed(() => {
   return false;
 });
 
+const areFilterInputsChanged = computed(() => {
+
+  if (!stateAvailable.value)
+    return true;
+
+  if (stateUnavailable.value)
+    return true;
+
+  if (targetedAge.value[0] !== 0 || targetedAge.value[1] !== null)
+    return true;
+
+  if (regions.size > 0)
+    return true;
+
+  return false;
+});
 
 function go() {
   const query: ItemQuery = {}
@@ -90,7 +106,7 @@ watch(() => route.query, (routeQuery) => {
   { immediate: true }
 );
 
-function resetFilters() {
+function resetFilterInputs() {
   stateAvailable.value = true;
   stateUnavailable.value = false;
   targetedAge.value = [0, null];
@@ -120,8 +136,9 @@ function resetFilters() {
           <ArrowLeft :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
         </Toggle>
         <h1>Filtres</h1>
-        <RotateCcw @click="resetFilters()" style="cursor: pointer" :size="32" :strokeWidth="2"
-          :absoluteStrokeWidth="true" />
+        <IconButton :disabled="!areFilterInputsChanged" @click="resetFilterInputs()">
+          <Repeat :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        </IconButton>
       </AppHeaderBar>
 
       <!-- Filters main -->
@@ -137,7 +154,7 @@ function resetFilters() {
         <AgeRangeInput v-model="targetedAge" />
 
         <h2>Régions</h2>
-        <RegionsMap v-model="regions" style="width: 100%; height: auto; margin: 2rem 0;" />
+        <RegionsMap v-model="regions" />
         <RegionsCheckboxes v-model="regions" />
 
       </div>

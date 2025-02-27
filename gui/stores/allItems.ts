@@ -78,7 +78,7 @@ export const useAllItemsStore: () => AllItemsStore = defineStore('allItems', () 
       status.value = "success";
 
     } catch (err) {
-      console.log(err);
+      console.error(err);
       error.value = err as FetchError;
       end.value = true;
       status.value = "error";

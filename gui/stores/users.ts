@@ -9,25 +9,22 @@ export const useUsersStore = defineStore('users', () => {
 
   const users = reactive({} as { [key: number]: User });
 
-  const has = (userId: number | Ref<number>) => {
-
-    if (isRef(userId))
-      return computed(() => users[userId.value] !== undefined);
-
-    return users[userId] !== undefined;
+  function has(userId: number): Ref<boolean> {
+    return computed(() => users[userId] !== undefined);
   };
 
-  async function get(userId: number | Ref<number>) {
+  async function get(userId: number): Promise<Ref<User>> {
+
 
     // fetch user if not in cache
-    if (!has(userId))
-      await add(isRef(userId) ? userId.value : userId);
+    if (!has(userId).value)
+      await fetch(userId);
 
     // get from cache
-    return isRef(userId) ? users[userId.value] : users[userId];
+    return toRef(users, userId);
   };
 
-  async function add(userId: number) {
+  async function fetch(userId: number): Promise<void> {
     users[userId] = await $api('/v1/users/{user_id}', {
       path: {
         user_id: userId,
@@ -38,7 +35,7 @@ export const useUsersStore = defineStore('users', () => {
   return {
     has,
     get,
-    add,
+    fetch,
   }
 
 });

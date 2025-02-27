@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 
+
 export const useMeStore = defineStore('me', () => {
 
   const { data: me, refresh } = useApi('/v1/me', {

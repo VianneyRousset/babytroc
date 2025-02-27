@@ -1,1 +1,3612 @@
-{"openapi":"3.1.0","info":{"title":"FastAPI","version":"0.1.0"},"servers":[{"url":"/api"}],"paths":{"/":{"get":{"summary":"Root","operationId":"root__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/v1/items":{"get":{"summary":"List Items","description":"List items.","operationId":"list_items_v1_items_get","parameters":[{"name":"q","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"null"}],"title":"Words used for fuzzy search","description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.","examples":[["chair"],["dog","cat"]]},"description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."},{"name":"mo","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"^\\d*-\\d*$"},{"type":"null"}],"title":"Targeted age months","description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.","examples":["3-12","8-"]},"description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."},{"name":"av","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/ItemQueryAvailability"},{"type":"null"}],"title":"Availability","default":"y"}},{"name":"reg","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"title":"Regions","description":"An item is returned if it is available in any of these regions IDs.","examples":[[4],[2,4,7,8]]},"description":"An item is returned if it is available in any of these regions IDs."},{"name":"n","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":128,"exclusiveMinimum":0},{"type":"null"}],"title":"Limit returned items count","description":"Limit the number of items returned.","examples":[[42]],"default":64},"description":"Limit the number of items returned."},{"name":"cid","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","exclusiveMinimum":0},{"type":"null"}],"title":"Page cursor for item ID"}},{"name":"cwm","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":0},{"type":"null"}],"title":"Page cursor for words match"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ItemPreviewRead"},"title":"Response List Items V1 Items Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/items/{item_id}":{"get":{"summary":"Get Item","description":"Get item.","operationId":"get_item_v1_items__item_id__get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/items/{item_id}/report":{"post":{"summary":"Report Item","description":"Report the specified item.","operationId":"report_item_v1_items__item_id__report_post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReportCreate","title":"Report creation fields."}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/items/{item_id}/request":{"post":{"summary":"Create Loan Request","description":"Add a loan request of the item.","operationId":"create_loan_request_v1_items__item_id__request_post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item"}}],"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoanRequestRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"delete":{"summary":"Cancel Loan Request","description":"Add a loan request of the item.","operationId":"cancel_loan_request_v1_items__item_id__request_delete","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoanRequestRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me":{"get":{"summary":"Get Client User","description":"Get client user.","operationId":"get_client_user_v1_me_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRead"}}}}}},"post":{"summary":"Update Client User","description":"Update client user.","operationId":"update_client_user_v1_me_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserUpdate","title":"User fields to update."}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"delete":{"summary":"Delete Client User","description":"Delete client user.","operationId":"delete_client_user_v1_me_delete","responses":{"204":{"description":"Successful Response"}}}},"/v1/me/liked/{item_id}":{"post":{"summary":"Add Item To Client Liked Items","description":"Add the specified item to client liked items.","operationId":"add_item_to_client_liked_items_v1_me_liked__item_id__post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"Get Client Liked Item By Id","description":"Get item liked by client.","operationId":"get_client_liked_item_by_id_v1_me_liked__item_id__get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"delete":{"summary":"Remove Item From Client Liked Items","description":"Remove the specified item from client liked items.","operationId":"remove_item_from_client_liked_items_v1_me_liked__item_id__delete","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/liked":{"get":{"summary":"List Items Liked By Client","description":"List items like by client.","operationId":"list_items_liked_by_client_v1_me_liked_get","parameters":[{"name":"q","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"null"}],"title":"Words used for fuzzy search","description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.","examples":[["chair"],["dog","cat"]]},"description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."},{"name":"mo","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"^\\d*-\\d*$"},{"type":"null"}],"title":"Targeted age months","description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.","examples":["3-12","8-"]},"description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."},{"name":"av","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/ItemQueryAvailability"},{"type":"null"}],"title":"Availability","default":"y"}},{"name":"reg","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"title":"Regions","description":"An item is returned if it is available in any of these regions IDs.","examples":[[4],[2,4,7,8]]},"description":"An item is returned if it is available in any of these regions IDs."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ItemPreviewRead"},"title":"Response List Items Liked By Client V1 Me Liked Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/loans":{"get":{"summary":"List Client Loans","description":"List loans where the client is the owner.","operationId":"list_client_loans_v1_me_loans_get","parameters":[{"name":"item","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","minimum":0},{"type":"null"}],"title":"Loaned item","description":"Only return loan with this item ID."},"description":"Only return loan with this item ID."},{"name":"active","in":"query","required":false,"schema":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Active","description":"Only return active loans."},"description":"Only return active loans."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/LoanRead"},"title":"Response List Client Loans V1 Me Loans Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/saved/{item_id}":{"post":{"summary":"Add Item To Client Saved Items","description":"Add item to client saved items.","operationId":"add_item_to_client_saved_items_v1_me_saved__item_id__post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"Get Client Saved Item By Id","description":"Get item saved by client.","operationId":"get_client_saved_item_by_id_v1_me_saved__item_id__get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"delete":{"summary":"Remove Item From Client Saved Items","description":"Remove the specified item from client saved items.","operationId":"remove_item_from_client_saved_items_v1_me_saved__item_id__delete","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/saved":{"get":{"summary":"List Items Saved By Client","description":"List items saved by client.","operationId":"list_items_saved_by_client_v1_me_saved_get","parameters":[{"name":"q","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"null"}],"title":"Words used for fuzzy search","description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.","examples":[["chair"],["dog","cat"]]},"description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."},{"name":"mo","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"^\\d*-\\d*$"},{"type":"null"}],"title":"Targeted age months","description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.","examples":["3-12","8-"]},"description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."},{"name":"av","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/ItemQueryAvailability"},{"type":"null"}],"title":"Availability","default":"y"}},{"name":"reg","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"title":"Regions","description":"An item is returned if it is available in any of these regions IDs.","examples":[[4],[2,4,7,8]]},"description":"An item is returned if it is available in any of these regions IDs."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ItemPreviewRead"},"title":"Response List Items Saved By Client V1 Me Saved Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items":{"post":{"summary":"Create Client Item","description":"Create an item owned by the client.","operationId":"create_client_item_v1_me_items_post","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemCreate","title":"Fields for the item creation."}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemPreviewRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"List Items Owned By Client","description":"List items owned by the client.","operationId":"list_items_owned_by_client_v1_me_items_get","parameters":[{"name":"q","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"null"}],"title":"Words used for fuzzy search","description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.","examples":[["chair"],["dog","cat"]]},"description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."},{"name":"mo","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"^\\d*-\\d*$"},{"type":"null"}],"title":"Targeted age months","description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.","examples":["3-12","8-"]},"description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."},{"name":"av","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/ItemQueryAvailability"},{"type":"null"}],"title":"Availability","default":"y"}},{"name":"reg","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"title":"Regions","description":"An item is returned if it is available in any of these regions IDs.","examples":[[4],[2,4,7,8]]},"description":"An item is returned if it is available in any of these regions IDs."},{"name":"n","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":128,"exclusiveMinimum":0},{"type":"null"}],"title":"Limit returned items count","description":"Limit the number of items returned.","examples":[[42]],"default":64},"description":"Limit the number of items returned."},{"name":"cid","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","exclusiveMinimum":0},{"type":"null"}],"title":"Page cursor for item ID"}},{"name":"cwm","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":0},{"type":"null"}],"title":"Page cursor for words match"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ItemPreviewRead"},"title":"Response List Items Owned By Client V1 Me Items Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items/{item_id}":{"delete":{"summary":"Delete Client Item","description":"Delete the specified item owned by the client.","operationId":"delete_client_item_v1_me_items__item_id__delete","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"Get Client Item By Id","description":"Get client's item by id.","operationId":"get_client_item_by_id_v1_me_items__item_id__get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"post":{"summary":"Update Client Item","description":"Update client's item.","operationId":"update_client_item_v1_me_items__item_id__post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemUpdate","title":"Item fields to update."}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemPrivateRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items/{item_id}/requests":{"get":{"summary":"List Client Item Loan Requests","description":"List loan requests of the item owned by the client.","operationId":"list_client_item_loan_requests_v1_me_items__item_id__requests_get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}},{"name":"state","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/LoanRequestState"},{"type":"null"}],"title":"State of the loan request","description":"Only return loan requests in the given state.","default":1},"description":"Only return loan requests in the given state."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/LoanRequestRead"},"title":"Response List Client Item Loan Requests V1 Me Items  Item Id  Requests Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items/{item_id}/requests/{loan_request_id}":{"get":{"summary":"Get Client Item Loan Request","description":"Get client's item loan request by id.","operationId":"get_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__get","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}},{"name":"loan_request_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the loan request."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoanRequestRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items/{item_id}/requests/{loan_request_id}/accept":{"post":{"summary":"Accept Client Item Loan Request","description":"Accept client's item loan request.","operationId":"accept_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__accept_post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}},{"name":"loan_request_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the loan request."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoanRequestRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/items/{item_id}/requests/{loan_request_id}/reject":{"post":{"summary":"Reject Client Item Loan Request","description":"Reject client's item loan request.","operationId":"reject_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__reject_post","parameters":[{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item."}},{"name":"loan_request_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the loan request."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoanRequestRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats/{chat_id}/messages":{"post":{"summary":"Send Message To Chat","description":"Send message to chat.","operationId":"send_message_to_chat_v1_me_chats__chat_id__messages_post","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatMessageCreate"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatMessageRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"List Client Chat Messages","description":"List messages in the chat.","operationId":"list_client_chat_messages_v1_me_chats__chat_id__messages_get","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}},{"name":"seen","in":"query","required":false,"schema":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Seen","description":"Only select messages that have been seen.","examples":[true,false]},"description":"Only select messages that have been seen."},{"name":"n","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":128,"exclusiveMinimum":0},{"type":"null"}],"title":"Limit returned messages count","description":"Limit the number of messages returned.","examples":[[42]],"default":64},"description":"Limit the number of messages returned."},{"name":"cid","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","minimum":0},{"type":"null"}],"title":"Page cursor for chat message ID"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ChatMessageRead"},"title":"Response List Client Chat Messages V1 Me Chats  Chat Id  Messages Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats":{"get":{"summary":"List Client Chats","description":"List all chats where the client is a member.","operationId":"list_client_chats_v1_me_chats_get","parameters":[{"name":"item","in":"query","required":false,"schema":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Item","description":"Only select chats about the item with this ID.","examples":[42]},"description":"Only select chats about the item with this ID."},{"name":"borrower","in":"query","required":false,"schema":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Borrower","description":"Only select chats with the borrower with this ID.","examples":[42]},"description":"Only select chats with the borrower with this ID."},{"name":"owner","in":"query","required":false,"schema":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Owner","description":"Only select chats with the owner with this ID.","examples":[42]},"description":"Only select chats with the owner with this ID."},{"name":"n","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":128,"exclusiveMinimum":0},{"type":"null"}],"title":"Limit returned chats count","description":"Limit the number of chats returned.","examples":[[42]],"default":64},"description":"Limit the number of chats returned."},{"name":"clm","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","minimum":0},{"type":"null"}],"title":"Page cursor for last message ID"}},{"name":"cid","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"\\d+-\\d+"},{"type":"null"}],"title":"Page cursor for item ID"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ChatRead"},"title":"Response List Client Chats V1 Me Chats Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats/{chat_id}":{"get":{"summary":"Get Client Chat","description":"Get client chat info by chat id.","operationId":"get_client_chat_v1_me_chats__chat_id__get","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats/{chat_id}/messages/{message_id}":{"get":{"summary":"Get Client Chat Message By Id","description":"Get client's chat message by id.","operationId":"get_client_chat_message_by_id_v1_me_chats__chat_id__messages__message_id__get","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}},{"name":"message_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the chat message."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatMessageRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats/{chat_id}/report":{"post":{"summary":"Report Client Chat","description":"Report client's chat by id.","operationId":"report_client_chat_v1_me_chats__chat_id__report_post","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReportCreate","title":"Report fields."}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/chats/{chat_id}/messages/{message_id}/see":{"post":{"summary":"Mark Client Chat Message As Seen","description":"Mark client's chat message as seen.","operationId":"mark_client_chat_message_as_seen_v1_me_chats__chat_id__messages__message_id__see_post","parameters":[{"name":"chat_id","in":"path","required":true,"schema":{"type":"string","pattern":"\\d+-\\d+","title":"The ID of the chat."}},{"name":"message_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the chat message."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChatMessageRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/borrowings":{"get":{"summary":"List Client Borrowings","description":"List loans where the client is the borrower.","operationId":"list_client_borrowings_v1_me_borrowings_get","parameters":[{"name":"item","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","minimum":0},{"type":"null"}],"title":"Loaned item","description":"Only return loan with this item ID."},"description":"Only return loan with this item ID."},{"name":"active","in":"query","required":false,"schema":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Active","description":"Only return active loans."},"description":"Only return active loans."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/LoanRead"},"title":"Response List Client Borrowings V1 Me Borrowings Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/me/borrowings/requests":{"get":{"summary":"List Client Borrowing Loan Requests","description":"List pending loan requests made by the client.","operationId":"list_client_borrowing_loan_requests_v1_me_borrowings_requests_get","parameters":[{"name":"state","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/LoanRequestState"},{"type":"null"}],"title":"State of the loan request","description":"Only return loan requests in the given state.","default":1},"description":"Only return loan requests in the given state."}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/LoanRequestRead"},"title":"Response List Client Borrowing Loan Requests V1 Me Borrowings Requests Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/users/{user_id}/items":{"get":{"summary":"List Items Owned By User","description":"List items owned by user.","operationId":"list_items_owned_by_user_v1_users__user_id__items_get","parameters":[{"name":"user_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the user."}},{"name":"q","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"null"}],"title":"Words used for fuzzy search","description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.","examples":[["chair"],["dog","cat"]]},"description":"An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."},{"name":"mo","in":"query","required":false,"schema":{"anyOf":[{"type":"string","pattern":"^\\d*-\\d*$"},{"type":"null"}],"title":"Targeted age months","description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.","examples":["3-12","8-"]},"description":"An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."},{"name":"av","in":"query","required":false,"schema":{"anyOf":[{"$ref":"#/components/schemas/ItemQueryAvailability"},{"type":"null"}],"title":"Availability","default":"y"}},{"name":"reg","in":"query","required":false,"schema":{"anyOf":[{"type":"array","items":{"type":"integer"}},{"type":"null"}],"title":"Regions","description":"An item is returned if it is available in any of these regions IDs.","examples":[[4],[2,4,7,8]]},"description":"An item is returned if it is available in any of these regions IDs."},{"name":"n","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":128,"exclusiveMinimum":0},{"type":"null"}],"title":"Limit returned items count","description":"Limit the number of items returned.","examples":[[42]],"default":64},"description":"Limit the number of items returned."},{"name":"cid","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","exclusiveMinimum":0},{"type":"null"}],"title":"Page cursor for item ID"}},{"name":"cwm","in":"query","required":false,"schema":{"anyOf":[{"type":"integer","maximum":0},{"type":"null"}],"title":"Page cursor for words match"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/ItemPreviewRead"},"title":"Response List Items Owned By User V1 Users  User Id  Items Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/users/{user_id}/items/{item_id}":{"get":{"summary":"Get Client Item By Id","description":"Get user's item by id.","operationId":"get_client_item_by_id_v1_users__user_id__items__item_id__get","parameters":[{"name":"user_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the user."}},{"name":"item_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the item"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/users/{user_id}":{"get":{"summary":"Get User","description":"Get user.","operationId":"get_user_v1_users__user_id__get","parameters":[{"name":"user_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the user."}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/users/{user_id}/report":{"post":{"summary":"Report User","description":"Report user.","operationId":"report_user_v1_users__user_id__report_post","parameters":[{"name":"user_id","in":"path","required":true,"schema":{"type":"integer","minimum":0,"title":"The ID of the user."}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReportCreate","title":"Report fields."}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/utils/regions":{"get":{"summary":"List Regions","description":"List regions.","operationId":"list_regions_v1_utils_regions_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"items":{"$ref":"#/components/schemas/RegionRead"},"type":"array","title":"Response List Regions V1 Utils Regions Get"}}}}}}},"/v1/images":{"post":{"summary":"Upload Image","description":"Upload item image.","operationId":"upload_image_v1_images_post","requestBody":{"content":{"multipart/form-data":{"schema":{"$ref":"#/components/schemas/Body_upload_image_v1_images_post"}}},"required":true},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ItemImageRead"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/v1/images/{image_name}":{"get":{"summary":"Get Item Image","description":"Get item image.","operationId":"get_item_image_v1_images__image_name__get","parameters":[{"name":"image_name","in":"path","required":true,"schema":{"type":"string","title":"Image Name"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"Body_upload_image_v1_images_post":{"properties":{"file":{"type":"string","format":"binary","title":"File"}},"type":"object","required":["file"],"title":"Body_upload_image_v1_images_post"},"ChatId":{"properties":{"item_id":{"type":"integer","title":"Item Id"},"borrower_id":{"type":"integer","title":"Borrower Id"}},"type":"object","required":["item_id","borrower_id"],"title":"ChatId"},"ChatMessageCreate":{"properties":{"payload":{"type":"string","title":"Payload"}},"additionalProperties":false,"type":"object","required":["payload"],"title":"ChatMessageCreate"},"ChatMessageRead":{"properties":{"id":{"type":"integer","title":"Id"},"chat_id":{"$ref":"#/components/schemas/ChatId"},"message_type":{"$ref":"#/components/schemas/ChatMessageType"},"sender_id":{"anyOf":[{"type":"integer"},{"type":"null"}],"title":"Sender Id"},"creation_date":{"type":"string","format":"date-time","title":"Creation Date"},"seen":{"type":"boolean","title":"Seen"},"payload":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Payload"}},"type":"object","required":["id","chat_id","message_type","sender_id","creation_date","seen","payload"],"title":"ChatMessageRead"},"ChatMessageType":{"type":"integer","enum":[1,2,3,4,5,6,7,9,9],"title":"ChatMessageType"},"ChatRead":{"properties":{"id":{"$ref":"#/components/schemas/ChatId"},"borrower":{"$ref":"#/components/schemas/UserPreviewRead"},"item":{"$ref":"#/components/schemas/ItemPreviewRead"},"last_message_id":{"type":"integer","title":"Last Message Id"}},"type":"object","required":["id","borrower","item","last_message_id"],"title":"ChatRead"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"ItemCreate":{"properties":{"name":{"type":"string","maxLength":30,"minLength":5,"title":"Name"},"description":{"type":"string","maxLength":600,"minLength":20,"title":"Description"},"images":{"items":{"type":"string"},"type":"array","minItems":1,"title":"Images"},"targeted_age_months":{"prefixItems":[{"anyOf":[{"type":"integer"},{"type":"null"}]},{"anyOf":[{"type":"integer"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2,"title":"Targeted Age Months"},"regions":{"items":{"type":"integer"},"type":"array","title":"Regions"},"blocked":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Blocked","default":false}},"additionalProperties":false,"type":"object","required":["name","description","images","targeted_age_months","regions"],"title":"ItemCreate"},"ItemImageRead":{"properties":{"name":{"type":"string","title":"Name"},"order":{"type":"integer","title":"Order"},"owner_id":{"type":"integer","title":"Owner Id"},"creation_date":{"type":"string","format":"date-time","title":"Creation Date"}},"type":"object","required":["name","order","owner_id","creation_date"],"title":"ItemImageRead"},"ItemPreviewRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"},"targeted_age_months":{"prefixItems":[{"anyOf":[{"type":"integer"},{"type":"null"}]},{"anyOf":[{"type":"integer"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2,"title":"Targeted Age Months"},"first_image_name":{"type":"string","title":"First Image Name"},"available":{"type":"boolean","title":"Available"},"owner_id":{"type":"integer","title":"Owner Id"}},"type":"object","required":["id","name","targeted_age_months","first_image_name","available","owner_id"],"title":"ItemPreviewRead"},"ItemPrivateRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"},"description":{"type":"string","title":"Description"},"targeted_age_months":{"prefixItems":[{"anyOf":[{"type":"integer"},{"type":"null"}]},{"anyOf":[{"type":"integer"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2,"title":"Targeted Age Months"},"images_names":{"items":{"type":"string"},"type":"array","title":"Images Names"},"available":{"type":"boolean","title":"Available"},"owner_id":{"type":"integer","title":"Owner Id"},"owner":{"$ref":"#/components/schemas/UserPreviewRead"},"regions":{"items":{"$ref":"#/components/schemas/RegionRead"},"type":"array","title":"Regions"},"likes_count":{"type":"integer","title":"Likes Count"},"blocked":{"type":"boolean","title":"Blocked"},"loans":{"items":{"$ref":"#/components/schemas/LoanRead"},"type":"array","title":"Loans"}},"type":"object","required":["id","name","description","targeted_age_months","images_names","available","owner_id","owner","regions","likes_count","blocked","loans"],"title":"ItemPrivateRead"},"ItemQueryAvailability":{"type":"string","enum":["y","n","a"],"title":"ItemQueryAvailability"},"ItemRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"},"description":{"type":"string","title":"Description"},"targeted_age_months":{"prefixItems":[{"anyOf":[{"type":"integer"},{"type":"null"}]},{"anyOf":[{"type":"integer"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2,"title":"Targeted Age Months"},"images_names":{"items":{"type":"string"},"type":"array","title":"Images Names"},"available":{"type":"boolean","title":"Available"},"owner_id":{"type":"integer","title":"Owner Id"},"owner":{"$ref":"#/components/schemas/UserPreviewRead"},"regions":{"items":{"$ref":"#/components/schemas/RegionRead"},"type":"array","title":"Regions"},"likes_count":{"type":"integer","title":"Likes Count"}},"type":"object","required":["id","name","description","targeted_age_months","images_names","available","owner_id","owner","regions","likes_count"],"title":"ItemRead"},"ItemUpdate":{"properties":{"name":{"anyOf":[{"type":"string","maxLength":30,"minLength":5},{"type":"null"}],"title":"Name"},"description":{"anyOf":[{"type":"string","maxLength":600,"minLength":20},{"type":"null"}],"title":"Description"},"images":{"anyOf":[{"items":{"type":"string"},"type":"array"},{"type":"null"}],"title":"Images"},"targeted_age_months":{"anyOf":[{"prefixItems":[{"anyOf":[{"type":"integer"},{"type":"null"}]},{"anyOf":[{"type":"integer"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2},{"type":"null"}],"title":"Targeted Age Months"},"regions":{"anyOf":[{"items":{"type":"integer"},"type":"array"},{"type":"null"}],"title":"Regions"},"blocked":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Blocked"}},"additionalProperties":false,"type":"object","title":"ItemUpdate"},"LoanRead":{"properties":{"id":{"type":"integer","title":"Id"},"item":{"$ref":"#/components/schemas/ItemPreviewRead"},"borrower":{"$ref":"#/components/schemas/UserPreviewRead"},"during":{"prefixItems":[{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}]},{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}]}],"type":"array","maxItems":2,"minItems":2,"title":"During"},"active":{"type":"boolean","title":"Active"}},"type":"object","required":["id","item","borrower","during","active"],"title":"LoanRead"},"LoanRequestRead":{"properties":{"id":{"type":"integer","title":"Id"},"item":{"$ref":"#/components/schemas/ItemPreviewRead"},"borrower":{"$ref":"#/components/schemas/UserPreviewRead"},"state":{"$ref":"#/components/schemas/LoanRequestState"},"creation_chat_message":{"$ref":"#/components/schemas/ChatMessageRead"}},"type":"object","required":["id","item","borrower","state","creation_chat_message"],"title":"LoanRequestRead"},"LoanRequestState":{"type":"integer","enum":[1,2,3,4,5],"title":"LoanRequestState"},"RegionRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"}},"type":"object","required":["id","name"],"title":"RegionRead"},"ReportCreate":{"properties":{"message":{"type":"string","title":"Message"},"context":{"type":"string","title":"Context"}},"additionalProperties":false,"type":"object","required":["message","context"],"title":"ReportCreate"},"UserPreviewRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"},"avatar_seed":{"type":"string","title":"Avatar Seed"}},"type":"object","required":["id","name","avatar_seed"],"title":"UserPreviewRead"},"UserRead":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"},"avatar_seed":{"type":"string","title":"Avatar Seed"},"stars_count":{"type":"integer","title":"Stars Count"},"likes_count":{"type":"integer","title":"Likes Count"},"items":{"items":{"$ref":"#/components/schemas/ItemPreviewRead"},"type":"array","title":"Items"}},"type":"object","required":["id","name","avatar_seed","stars_count","likes_count","items"],"title":"UserRead"},"UserUpdate":{"properties":{"name":{"anyOf":[{"type":"string","maxLength":30,"minLength":3},{"type":"null"}],"title":"Name"},"avatar_seed":{"anyOf":[{"type":"string","maxLength":10,"minLength":5},{"type":"null"}],"title":"Avatar Seed"}},"additionalProperties":false,"type":"object","title":"UserUpdate"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/items": {
+      "get": {
+        "summary": "List Items",
+        "description": "List items.",
+        "operationId": "list_items_v1_items_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Words used for fuzzy search",
+              "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+              "examples": [
+                [
+                  "chair"
+                ],
+                [
+                  "dog",
+                  "cat"
+                ]
+              ]
+            },
+            "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+          },
+          {
+            "name": "mo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d*-\\d*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Targeted age months",
+              "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+              "examples": [
+                "3-12",
+                "8-"
+              ]
+            },
+            "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+          },
+          {
+            "name": "av",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemQueryAvailability"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability",
+              "default": "y"
+            }
+          },
+          {
+            "name": "reg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Regions",
+              "description": "An item is returned if it is available in any of these regions IDs.",
+              "examples": [
+                [
+                  4
+                ],
+                [
+                  2,
+                  4,
+                  7,
+                  8
+                ]
+              ]
+            },
+            "description": "An item is returned if it is available in any of these regions IDs."
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 128,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit returned items count",
+              "description": "Limit the number of items returned.",
+              "examples": [
+                [
+                  42
+                ]
+              ],
+              "default": 64
+            },
+            "description": "Limit the number of items returned."
+          },
+          {
+            "name": "cid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for item ID"
+            }
+          },
+          {
+            "name": "cwm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for words match"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemPreviewRead"
+                  },
+                  "title": "Response List Items V1 Items Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/items/{item_id}": {
+      "get": {
+        "summary": "Get Item",
+        "description": "Get item.",
+        "operationId": "get_item_v1_items__item_id__get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/items/{item_id}/report": {
+      "post": {
+        "summary": "Report Item",
+        "description": "Report the specified item.",
+        "operationId": "report_item_v1_items__item_id__report_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreate",
+                "title": "Report creation fields."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/items/{item_id}/request": {
+      "post": {
+        "summary": "Create Loan Request",
+        "description": "Add a loan request of the item.",
+        "operationId": "create_loan_request_v1_items__item_id__request_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel Loan Request",
+        "description": "Add a loan request of the item.",
+        "operationId": "cancel_loan_request_v1_items__item_id__request_delete",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "summary": "Get Client User",
+        "description": "Get client user.",
+        "operationId": "get_client_user_v1_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update Client User",
+        "description": "Update client user.",
+        "operationId": "update_client_user_v1_me_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate",
+                "title": "User fields to update."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Client User",
+        "description": "Delete client user.",
+        "operationId": "delete_client_user_v1_me_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/v1/me/liked/{item_id}": {
+      "post": {
+        "summary": "Add Item To Client Liked Items",
+        "description": "Add the specified item to client liked items.",
+        "operationId": "add_item_to_client_liked_items_v1_me_liked__item_id__post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Client Liked Item By Id",
+        "description": "Get item liked by client.",
+        "operationId": "get_client_liked_item_by_id_v1_me_liked__item_id__get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove Item From Client Liked Items",
+        "description": "Remove the specified item from client liked items.",
+        "operationId": "remove_item_from_client_liked_items_v1_me_liked__item_id__delete",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/liked": {
+      "get": {
+        "summary": "List Items Liked By Client",
+        "description": "List items like by client.",
+        "operationId": "list_items_liked_by_client_v1_me_liked_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Words used for fuzzy search",
+              "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+              "examples": [
+                [
+                  "chair"
+                ],
+                [
+                  "dog",
+                  "cat"
+                ]
+              ]
+            },
+            "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+          },
+          {
+            "name": "mo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d*-\\d*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Targeted age months",
+              "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+              "examples": [
+                "3-12",
+                "8-"
+              ]
+            },
+            "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+          },
+          {
+            "name": "av",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemQueryAvailability"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability",
+              "default": "y"
+            }
+          },
+          {
+            "name": "reg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Regions",
+              "description": "An item is returned if it is available in any of these regions IDs.",
+              "examples": [
+                [
+                  4
+                ],
+                [
+                  2,
+                  4,
+                  7,
+                  8
+                ]
+              ]
+            },
+            "description": "An item is returned if it is available in any of these regions IDs."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemPreviewRead"
+                  },
+                  "title": "Response List Items Liked By Client V1 Me Liked Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/loans": {
+      "get": {
+        "summary": "List Client Loans",
+        "description": "List loans where the client is the owner.",
+        "operationId": "list_client_loans_v1_me_loans_get",
+        "parameters": [
+          {
+            "name": "item",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Loaned item",
+              "description": "Only return loan with this item ID."
+            },
+            "description": "Only return loan with this item ID."
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Active",
+              "description": "Only return active loans."
+            },
+            "description": "Only return active loans."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanRead"
+                  },
+                  "title": "Response List Client Loans V1 Me Loans Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/saved/{item_id}": {
+      "post": {
+        "summary": "Add Item To Client Saved Items",
+        "description": "Add item to client saved items.",
+        "operationId": "add_item_to_client_saved_items_v1_me_saved__item_id__post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Client Saved Item By Id",
+        "description": "Get item saved by client.",
+        "operationId": "get_client_saved_item_by_id_v1_me_saved__item_id__get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove Item From Client Saved Items",
+        "description": "Remove the specified item from client saved items.",
+        "operationId": "remove_item_from_client_saved_items_v1_me_saved__item_id__delete",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/saved": {
+      "get": {
+        "summary": "List Items Saved By Client",
+        "description": "List items saved by client.",
+        "operationId": "list_items_saved_by_client_v1_me_saved_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Words used for fuzzy search",
+              "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+              "examples": [
+                [
+                  "chair"
+                ],
+                [
+                  "dog",
+                  "cat"
+                ]
+              ]
+            },
+            "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+          },
+          {
+            "name": "mo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d*-\\d*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Targeted age months",
+              "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+              "examples": [
+                "3-12",
+                "8-"
+              ]
+            },
+            "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+          },
+          {
+            "name": "av",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemQueryAvailability"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability",
+              "default": "y"
+            }
+          },
+          {
+            "name": "reg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Regions",
+              "description": "An item is returned if it is available in any of these regions IDs.",
+              "examples": [
+                [
+                  4
+                ],
+                [
+                  2,
+                  4,
+                  7,
+                  8
+                ]
+              ]
+            },
+            "description": "An item is returned if it is available in any of these regions IDs."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemPreviewRead"
+                  },
+                  "title": "Response List Items Saved By Client V1 Me Saved Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items": {
+      "post": {
+        "summary": "Create Client Item",
+        "description": "Create an item owned by the client.",
+        "operationId": "create_client_item_v1_me_items_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemCreate",
+                "title": "Fields for the item creation."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPreviewRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Items Owned By Client",
+        "description": "List items owned by the client.",
+        "operationId": "list_items_owned_by_client_v1_me_items_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Words used for fuzzy search",
+              "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+              "examples": [
+                [
+                  "chair"
+                ],
+                [
+                  "dog",
+                  "cat"
+                ]
+              ]
+            },
+            "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+          },
+          {
+            "name": "mo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d*-\\d*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Targeted age months",
+              "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+              "examples": [
+                "3-12",
+                "8-"
+              ]
+            },
+            "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+          },
+          {
+            "name": "av",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemQueryAvailability"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability",
+              "default": "y"
+            }
+          },
+          {
+            "name": "reg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Regions",
+              "description": "An item is returned if it is available in any of these regions IDs.",
+              "examples": [
+                [
+                  4
+                ],
+                [
+                  2,
+                  4,
+                  7,
+                  8
+                ]
+              ]
+            },
+            "description": "An item is returned if it is available in any of these regions IDs."
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 128,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit returned items count",
+              "description": "Limit the number of items returned.",
+              "examples": [
+                [
+                  42
+                ]
+              ],
+              "default": 64
+            },
+            "description": "Limit the number of items returned."
+          },
+          {
+            "name": "cid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for item ID"
+            }
+          },
+          {
+            "name": "cwm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for words match"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemPreviewRead"
+                  },
+                  "title": "Response List Items Owned By Client V1 Me Items Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items/{item_id}": {
+      "delete": {
+        "summary": "Delete Client Item",
+        "description": "Delete the specified item owned by the client.",
+        "operationId": "delete_client_item_v1_me_items__item_id__delete",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Client Item By Id",
+        "description": "Get client's item by id.",
+        "operationId": "get_client_item_by_id_v1_me_items__item_id__get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update Client Item",
+        "description": "Update client's item.",
+        "operationId": "update_client_item_v1_me_items__item_id__post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemUpdate",
+                "title": "Item fields to update."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemPrivateRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items/{item_id}/requests": {
+      "get": {
+        "summary": "List Client Item Loan Requests",
+        "description": "List loan requests of the item owned by the client.",
+        "operationId": "list_client_item_loan_requests_v1_me_items__item_id__requests_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/LoanRequestState"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State of the loan request",
+              "description": "Only return loan requests in the given state.",
+              "default": 1
+            },
+            "description": "Only return loan requests in the given state."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanRequestRead"
+                  },
+                  "title": "Response List Client Item Loan Requests V1 Me Items  Item Id  Requests Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items/{item_id}/requests/{loan_request_id}": {
+      "get": {
+        "summary": "Get Client Item Loan Request",
+        "description": "Get client's item loan request by id.",
+        "operationId": "get_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          },
+          {
+            "name": "loan_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the loan request."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items/{item_id}/requests/{loan_request_id}/accept": {
+      "post": {
+        "summary": "Accept Client Item Loan Request",
+        "description": "Accept client's item loan request.",
+        "operationId": "accept_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__accept_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          },
+          {
+            "name": "loan_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the loan request."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/items/{item_id}/requests/{loan_request_id}/reject": {
+      "post": {
+        "summary": "Reject Client Item Loan Request",
+        "description": "Reject client's item loan request.",
+        "operationId": "reject_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__reject_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item."
+            }
+          },
+          {
+            "name": "loan_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the loan request."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats/{chat_id}/messages": {
+      "post": {
+        "summary": "Send Message To Chat",
+        "description": "Send message to chat.",
+        "operationId": "send_message_to_chat_v1_me_chats__chat_id__messages_post",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatMessageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatMessageRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Client Chat Messages",
+        "description": "List messages in the chat.",
+        "operationId": "list_client_chat_messages_v1_me_chats__chat_id__messages_get",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          },
+          {
+            "name": "seen",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seen",
+              "description": "Only select messages that have been seen.",
+              "examples": [
+                true,
+                false
+              ]
+            },
+            "description": "Only select messages that have been seen."
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 128,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit returned messages count",
+              "description": "Limit the number of messages returned.",
+              "examples": [
+                [
+                  42
+                ]
+              ],
+              "default": 64
+            },
+            "description": "Limit the number of messages returned."
+          },
+          {
+            "name": "cid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for chat message ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatMessageRead"
+                  },
+                  "title": "Response List Client Chat Messages V1 Me Chats  Chat Id  Messages Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats": {
+      "get": {
+        "summary": "List Client Chats",
+        "description": "List all chats where the client is a member.",
+        "operationId": "list_client_chats_v1_me_chats_get",
+        "parameters": [
+          {
+            "name": "item",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Item",
+              "description": "Only select chats about the item with this ID.",
+              "examples": [
+                42
+              ]
+            },
+            "description": "Only select chats about the item with this ID."
+          },
+          {
+            "name": "borrower",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Borrower",
+              "description": "Only select chats with the borrower with this ID.",
+              "examples": [
+                42
+              ]
+            },
+            "description": "Only select chats with the borrower with this ID."
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Owner",
+              "description": "Only select chats with the owner with this ID.",
+              "examples": [
+                42
+              ]
+            },
+            "description": "Only select chats with the owner with this ID."
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 128,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit returned chats count",
+              "description": "Limit the number of chats returned.",
+              "examples": [
+                [
+                  42
+                ]
+              ],
+              "default": 64
+            },
+            "description": "Limit the number of chats returned."
+          },
+          {
+            "name": "clm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for last message ID"
+            }
+          },
+          {
+            "name": "cid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "\\d+-\\d+"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for item ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatRead"
+                  },
+                  "title": "Response List Client Chats V1 Me Chats Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats/{chat_id}": {
+      "get": {
+        "summary": "Get Client Chat",
+        "description": "Get client chat info by chat id.",
+        "operationId": "get_client_chat_v1_me_chats__chat_id__get",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats/{chat_id}/messages/{message_id}": {
+      "get": {
+        "summary": "Get Client Chat Message By Id",
+        "description": "Get client's chat message by id.",
+        "operationId": "get_client_chat_message_by_id_v1_me_chats__chat_id__messages__message_id__get",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the chat message."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatMessageRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats/{chat_id}/report": {
+      "post": {
+        "summary": "Report Client Chat",
+        "description": "Report client's chat by id.",
+        "operationId": "report_client_chat_v1_me_chats__chat_id__report_post",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreate",
+                "title": "Report fields."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chats/{chat_id}/messages/{message_id}/see": {
+      "post": {
+        "summary": "Mark Client Chat Message As Seen",
+        "description": "Mark client's chat message as seen.",
+        "operationId": "mark_client_chat_message_as_seen_v1_me_chats__chat_id__messages__message_id__see_post",
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "\\d+-\\d+",
+              "title": "The ID of the chat."
+            }
+          },
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the chat message."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatMessageRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/borrowings": {
+      "get": {
+        "summary": "List Client Borrowings",
+        "description": "List loans where the client is the borrower.",
+        "operationId": "list_client_borrowings_v1_me_borrowings_get",
+        "parameters": [
+          {
+            "name": "item",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Loaned item",
+              "description": "Only return loan with this item ID."
+            },
+            "description": "Only return loan with this item ID."
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Active",
+              "description": "Only return active loans."
+            },
+            "description": "Only return active loans."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanRead"
+                  },
+                  "title": "Response List Client Borrowings V1 Me Borrowings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/borrowings/requests": {
+      "get": {
+        "summary": "List Client Borrowing Loan Requests",
+        "description": "List pending loan requests made by the client.",
+        "operationId": "list_client_borrowing_loan_requests_v1_me_borrowings_requests_get",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/LoanRequestState"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State of the loan request",
+              "description": "Only return loan requests in the given state.",
+              "default": 1
+            },
+            "description": "Only return loan requests in the given state."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LoanRequestRead"
+                  },
+                  "title": "Response List Client Borrowing Loan Requests V1 Me Borrowings Requests Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{user_id}/items": {
+      "get": {
+        "summary": "List Items Owned By User",
+        "description": "List items owned by user.",
+        "operationId": "list_items_owned_by_user_v1_users__user_id__items_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the user."
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Words used for fuzzy search",
+              "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+              "examples": [
+                [
+                  "chair"
+                ],
+                [
+                  "dog",
+                  "cat"
+                ]
+              ]
+            },
+            "description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+          },
+          {
+            "name": "mo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d*-\\d*$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Targeted age months",
+              "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+              "examples": [
+                "3-12",
+                "8-"
+              ]
+            },
+            "description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+          },
+          {
+            "name": "av",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ItemQueryAvailability"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability",
+              "default": "y"
+            }
+          },
+          {
+            "name": "reg",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Regions",
+              "description": "An item is returned if it is available in any of these regions IDs.",
+              "examples": [
+                [
+                  4
+                ],
+                [
+                  2,
+                  4,
+                  7,
+                  8
+                ]
+              ]
+            },
+            "description": "An item is returned if it is available in any of these regions IDs."
+          },
+          {
+            "name": "n",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 128,
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit returned items count",
+              "description": "Limit the number of items returned.",
+              "examples": [
+                [
+                  42
+                ]
+              ],
+              "default": 64
+            },
+            "description": "Limit the number of items returned."
+          },
+          {
+            "name": "cid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for item ID"
+            }
+          },
+          {
+            "name": "cwm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page cursor for words match"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ItemPreviewRead"
+                  },
+                  "title": "Response List Items Owned By User V1 Users  User Id  Items Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{user_id}/items/{item_id}": {
+      "get": {
+        "summary": "Get Client Item By Id",
+        "description": "Get user's item by id.",
+        "operationId": "get_client_item_by_id_v1_users__user_id__items__item_id__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the user."
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the item"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{user_id}": {
+      "get": {
+        "summary": "Get User",
+        "description": "Get user.",
+        "operationId": "get_user_v1_users__user_id__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the user."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{user_id}/report": {
+      "post": {
+        "summary": "Report User",
+        "description": "Report user.",
+        "operationId": "report_user_v1_users__user_id__report_post",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the user."
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportCreate",
+                "title": "Report fields."
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/utils/regions": {
+      "get": {
+        "summary": "List Regions",
+        "description": "List regions.",
+        "operationId": "list_regions_v1_utils_regions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RegionRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Regions V1 Utils Regions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/images": {
+      "post": {
+        "summary": "Upload Image",
+        "description": "Upload item image.",
+        "operationId": "upload_image_v1_images_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_image_v1_images_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemImageRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/images/{image_name}": {
+      "get": {
+        "summary": "Get Item Image",
+        "description": "Get item image.",
+        "operationId": "get_item_image_v1_images__image_name__get",
+        "parameters": [
+          {
+            "name": "image_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Image Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_upload_image_v1_images_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_image_v1_images_post"
+      },
+      "ChatId": {
+        "properties": {
+          "item_id": {
+            "type": "integer",
+            "title": "Item Id"
+          },
+          "borrower_id": {
+            "type": "integer",
+            "title": "Borrower Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_id",
+          "borrower_id"
+        ],
+        "title": "ChatId"
+      },
+      "ChatMessageCreate": {
+        "properties": {
+          "payload": {
+            "type": "string",
+            "title": "Payload"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "payload"
+        ],
+        "title": "ChatMessageCreate"
+      },
+      "ChatMessageRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "chat_id": {
+            "$ref": "#/components/schemas/ChatId"
+          },
+          "message_type": {
+            "$ref": "#/components/schemas/ChatMessageType"
+          },
+          "sender_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sender Id"
+          },
+          "creation_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation Date"
+          },
+          "seen": {
+            "type": "boolean",
+            "title": "Seen"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "chat_id",
+          "message_type",
+          "sender_id",
+          "creation_date",
+          "seen",
+          "payload"
+        ],
+        "title": "ChatMessageRead"
+      },
+      "ChatMessageType": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          9
+        ],
+        "title": "ChatMessageType"
+      },
+      "ChatRead": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ChatId"
+          },
+          "borrower": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemPreviewRead"
+          },
+          "last_message_id": {
+            "type": "integer",
+            "title": "Last Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "borrower",
+          "item",
+          "last_message_id"
+        ],
+        "title": "ChatRead"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ItemCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 5,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 600,
+            "minLength": 20,
+            "title": "Description"
+          },
+          "images": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Images"
+          },
+          "targeted_age_months": {
+            "prefixItems": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Targeted Age Months"
+          },
+          "regions": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "blocked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "images",
+          "targeted_age_months",
+          "regions"
+        ],
+        "title": "ItemCreate"
+      },
+      "ItemImageRead": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order"
+          },
+          "owner_id": {
+            "type": "integer",
+            "title": "Owner Id"
+          },
+          "creation_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creation Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "order",
+          "owner_id",
+          "creation_date"
+        ],
+        "title": "ItemImageRead"
+      },
+      "ItemPreviewRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "targeted_age_months": {
+            "prefixItems": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Targeted Age Months"
+          },
+          "first_image_name": {
+            "type": "string",
+            "title": "First Image Name"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "owner_id": {
+            "type": "integer",
+            "title": "Owner Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "targeted_age_months",
+          "first_image_name",
+          "available",
+          "owner_id"
+        ],
+        "title": "ItemPreviewRead"
+      },
+      "ItemPrivateRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "targeted_age_months": {
+            "prefixItems": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Targeted Age Months"
+          },
+          "images_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images Names"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "owner_id": {
+            "type": "integer",
+            "title": "Owner Id"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
+          "regions": {
+            "items": {
+              "$ref": "#/components/schemas/RegionRead"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count"
+          },
+          "blocked": {
+            "type": "boolean",
+            "title": "Blocked"
+          },
+          "loans": {
+            "items": {
+              "$ref": "#/components/schemas/LoanRead"
+            },
+            "type": "array",
+            "title": "Loans"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "targeted_age_months",
+          "images_names",
+          "available",
+          "owner_id",
+          "owner",
+          "regions",
+          "likes_count",
+          "blocked",
+          "loans"
+        ],
+        "title": "ItemPrivateRead"
+      },
+      "ItemQueryAvailability": {
+        "type": "string",
+        "enum": [
+          "y",
+          "n",
+          "a"
+        ],
+        "title": "ItemQueryAvailability"
+      },
+      "ItemRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "targeted_age_months": {
+            "prefixItems": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Targeted Age Months"
+          },
+          "images_names": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Images Names"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "owner_id": {
+            "type": "integer",
+            "title": "Owner Id"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
+          "regions": {
+            "items": {
+              "$ref": "#/components/schemas/RegionRead"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "targeted_age_months",
+          "images_names",
+          "available",
+          "owner_id",
+          "owner",
+          "regions",
+          "likes_count"
+        ],
+        "title": "ItemRead"
+      },
+      "ItemUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30,
+                "minLength": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 600,
+                "minLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "images": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Images"
+          },
+          "targeted_age_months": {
+            "anyOf": [
+              {
+                "prefixItems": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                ],
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targeted Age Months"
+          },
+          "regions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regions"
+          },
+          "blocked": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ItemUpdate"
+      },
+      "LoanRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemPreviewRead"
+          },
+          "borrower": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
+          "during": {
+            "prefixItems": [
+              {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "During"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "item",
+          "borrower",
+          "during",
+          "active"
+        ],
+        "title": "LoanRead"
+      },
+      "LoanRequestRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "item": {
+            "$ref": "#/components/schemas/ItemPreviewRead"
+          },
+          "borrower": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
+          "state": {
+            "$ref": "#/components/schemas/LoanRequestState"
+          },
+          "creation_chat_message": {
+            "$ref": "#/components/schemas/ChatMessageRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "item",
+          "borrower",
+          "state",
+          "creation_chat_message"
+        ],
+        "title": "LoanRequestRead"
+      },
+      "LoanRequestState": {
+        "type": "integer",
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "title": "LoanRequestState"
+      },
+      "RegionRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "RegionRead"
+      },
+      "ReportCreate": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "context": {
+            "type": "string",
+            "title": "Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message",
+          "context"
+        ],
+        "title": "ReportCreate"
+      },
+      "UserPreviewRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "avatar_seed": {
+            "type": "string",
+            "title": "Avatar Seed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "avatar_seed"
+        ],
+        "title": "UserPreviewRead"
+      },
+      "UserRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "avatar_seed": {
+            "type": "string",
+            "title": "Avatar Seed"
+          },
+          "stars_count": {
+            "type": "integer",
+            "title": "Stars Count"
+          },
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemPreviewRead"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "avatar_seed",
+          "stars_count",
+          "likes_count",
+          "items"
+        ],
+        "title": "UserRead"
+      },
+      "UserUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "avatar_seed": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10,
+                "minLength": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Seed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "UserUpdate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

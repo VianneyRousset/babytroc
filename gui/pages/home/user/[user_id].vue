@@ -2,6 +2,9 @@
 
 import { ArrowLeft, Ellipsis, Heart } from 'lucide-vue-next';
 import { computedAsync } from '@vueuse/core'
+import type { ApiResponse } from '#open-fetch';
+
+type User = ApiResponse<'get_user_v1_users__user_id__get'>;
 
 const { $api } = useNuxtApp();
 
@@ -13,7 +16,7 @@ const routeStack = useRouteStack();
 
 const usersStore = useUsersStore();
 
-const user = computedAsync(async () => await usersStore.get(userId.value));
+const user = computedAsync(async () => (await usersStore.get(userId.value)).value);
 
 const fallback = computed(() => "/" + route.fullPath.split("/").filter(e => e)[0]);
 

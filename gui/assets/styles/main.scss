@@ -50,7 +50,10 @@ input {
 }
 
 .page {
+  @include flex-column;
+  align-items: stretch;
   padding: var(--page-padding);
+  gap: 1rem;
 
   h2 {
     color: $neutral-600;
@@ -62,12 +65,40 @@ input {
       margin-top: 0;
     }
   }
+
+  .vbox {
+    @include flex-column;
+    align-items: stretch;
+  }
+
+  .hbox {
+    @include flex-row;
+    justify-content: space-between;
+  }
+
+  .minitable {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr 3fr;
+    margin-bottom: 2rem;
+
+    .label {
+      color: $neutral-400;
+    }
+
+    ul {
+      @include reset-list;
+      @include flex-column;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+  }
 }
 
 .app-content.page {
   padding: var(--page-padding);
   padding-top: calc(var(--page-padding) + var(--header-height));
-  padding-bottom: calc(var(--page-padding) + var(--footer-height));
+  padding-bottom: calc(var(--page-padding) + var(--footer-height) + 1rem);
 }
 
 .checkbox-group {
@@ -81,6 +112,11 @@ input {
   @include flex-row-center;
   padding: 0px;
   cursor: pointer;
+}
+
+.DropdownMenuTrigger {
+  @include reset-button;
+  background: red;
 }
 
 .SliderRoot {

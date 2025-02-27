@@ -6,34 +6,9 @@ import { ChevronRight } from 'lucide-vue-next';
 type User = ApiResponse<'get_user_v1_users__user_id__get'>;
 
 const props = defineProps<{
-  user?: User | null,
-  loading?: boolean,
+  user: User | null,
   target: string,
 }>();
-
-const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>);
-const loader = ref(false);
-
-watch(toRef(props, "loading"), (loading) => {
-
-  if (loading) {
-
-    if (loadingTimeout.value)
-      clearTimeout(loadingTimeout.value);
-
-    loadingTimeout.value = setTimeout(() => {
-      loader.value = true
-    }, 1000);
-
-  } else {
-
-    if (loadingTimeout.value)
-      clearTimeout(loadingTimeout.value);
-
-    loader.value = false;
-  }
-
-});
 
 const router = useRouter();
 const targetRoute = computed(() => router.resolve({ name: props.target, params: { user_id: props.user?.id ?? 0 } }))
@@ -43,9 +18,6 @@ const targetRoute = computed(() => router.resolve({ name: props.target, params: 
 <template>
 
   <div class="container">
-    <div v-if="props.loading" class="loading">
-      <Loader :small="true" />
-    </div>
 
     <NuxtLink :to="targetRoute">
       <div class="card" :title="props.user?.name ?? '...'">
@@ -70,15 +42,6 @@ a {
 .container {
 
   position: relative;
-
-  .loading {
-    @include flex-row-center;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
 
   .card {
     @include flex-row;

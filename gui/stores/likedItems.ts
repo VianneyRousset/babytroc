@@ -29,13 +29,9 @@ export const useLikedItemsStore = defineStore('likedItems', () => {
     refresh();
   }
 
-  const has = (itemId: number | Ref<number>) => {
-
-    if (isRef(itemId))
-      return computed(() => items.value?.map(item => item.id).includes(itemId.value) ?? false);
-
-    return items.value?.map(item => item.id).includes(itemId) ?? false;
-  };
+  function has(itemId: number): Ref<boolean> {
+    return computed(() => items.value?.map(item => item.id).includes(itemId) ?? false) as any;
+  }
 
 
   return {

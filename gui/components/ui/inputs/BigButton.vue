@@ -1,17 +1,18 @@
 <script setup lang="ts">
 
 const props = defineProps<{
-  type: string,
-  loading?: Boolean,
-  disabled?: Boolean,
+  type: "flat" | "outline" | "bezel",
+  loading?: boolean,
+  disabled?: boolean,
 }>();
+const { type, loading, disabled } = toRefs(props);
 
 const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>);
 const loader = ref(false);
 
-watch(toRef(props, "loading"), (loading) => {
+watch(loading, (v) => {
 
-  if (loading) {
+  if (v) {
 
     if (loadingTimeout.value)
       clearTimeout(loadingTimeout.value);
@@ -30,7 +31,6 @@ watch(toRef(props, "loading"), (loading) => {
 
 });
 
-
 </script>
 
 <template>
@@ -40,7 +40,7 @@ watch(toRef(props, "loading"), (loading) => {
       <Loader :small="true" />
     </div>
     <div
-      :class="{ flat: props.type == 'flat', outline: props.type == 'outline', bezel: props.type == 'bezel', small: props.loading, disabled: props.disabled === true }"
+      :class="{ flat: type == 'flat', outline: type == 'outline', bezel: type == 'bezel', small: loading, disabled: disabled === true }"
       class="button">
       <slot />
     </div>
