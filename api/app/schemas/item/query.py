@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import field_validator
-from sqlalchemy import BooleanClauseList, Integer, Select, func, not_, and_, or_
+from sqlalchemy import BooleanClauseList, Integer, Select, and_, func, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
 from app.enums import ItemQueryAvailability
@@ -61,14 +61,14 @@ class ItemQueryFilter(QueryFilterBase):
         # if available is provided, filter by availability
         if self.availability is not None:
             match self.availability:
-                case ItemQueryAvailability.ok:
+                case ItemQueryAvailability.yes:
                     stmt = stmt.where(
                         and_(
                             not_(Item.blocked),
                             Item.active_loans_count == 0,
                         )
                     )
-                case ItemQueryAvailability.nok:
+                case ItemQueryAvailability.no:
                     stmt = stmt.where(
                         or_(
                             Item.blocked,

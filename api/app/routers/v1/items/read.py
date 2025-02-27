@@ -34,6 +34,7 @@ def list_items(
             words=query.q,
             targeted_age_months=query.parsed_mo,
             regions=query.reg,
+            availability=query.av,
         ),
         page_options=QueryPageOptions(
             limit=query.n,

@@ -28,6 +28,6 @@ class LoanRequestState(enum.Enum):
 
 
 class ItemQueryAvailability(enum.Enum):
-    ok = 1
-    nok = 2
-    all = 3
+    yes = "y"
+    no = "n"
+    all = "a"

@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import Field, field_validator
 
+from app.enums import ItemQueryAvailability
 from app.schemas.base import ApiQueryBase
 
 
@@ -37,6 +38,12 @@ class ItemApiQueryBase(ApiQueryBase):
         ],
         default=None,
         pattern=r"^\d*-\d*$",
+    )
+
+    # availability
+    av: Optional[ItemQueryAvailability] = Field(
+        title="Availability",
+        default=ItemQueryAvailability.yes,
     )
 
     @field_validator("mo")
