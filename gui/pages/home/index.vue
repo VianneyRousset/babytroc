@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next';
-import { vInfiniteScroll } from '@vueuse/components'
 import type { ApiRequestQuery } from '#open-fetch'
 
 type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;

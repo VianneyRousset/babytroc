@@ -10,12 +10,12 @@ import type { FetchError } from 'ofetch';
 type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
 type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
 
-type AllItemsStore = PaginatedSource<ItemPreview> & {
+type AllItemsStore = () => PaginatedSource<ItemPreview> & {
   items: Array<ItemPreview>,
   setQuery: (query: ItemQuery) => void,
 };
 
-export const useAllItemsStore: () => AllItemsStore = defineStore('allItems', () => {
+export const useAllItemsStore: AllItemsStore = defineStore('allItems', () => {
 
   const { $api } = useNuxtApp()
 

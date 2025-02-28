@@ -10,6 +10,9 @@ const itemId = Number(route.params["item_id"]);
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
+// current tab
+const { currentTab } = useTab();
+
 // get item data
 const { data: item, refresh: refreshItem } = await useApi('/v1/items/{item_id}', {
   path: {
@@ -107,7 +110,7 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
 
         <!-- Owner -->
         <ClientOnly>
-          <UserCard :user="owner" target="home-user-user_id" />
+          <UserCard :user="owner" :target="`${currentTab}-user-user_id`" />
         </ClientOnly>
 
         <!-- Request button -->

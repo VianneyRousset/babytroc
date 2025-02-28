@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia'
+import type { ApiResponse } from '#open-fetch'
 
-export const useSavedItemsStore = defineStore('savedItems', () => {
+type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
+
+type AllItemsStore = () => PaginatedSource<ItemPreview> & {
+  add: (itemId: number) => Promise<void>,
+  remove: (itemId: number) => Promise<void>,
+  has: (itemId: number) => Ref<boolean>,
+};
+
+export const useSavedItemsStore: AllItemsStore = defineStore('savedItems', () => {
 
   const { $api } = useNuxtApp()
 
@@ -8,6 +17,7 @@ export const useSavedItemsStore = defineStore('savedItems', () => {
     key: "/me/saved", // provided to avoid missmatch with ssr (bug with openfetch?)
     watch: false,
   });
+
 
   async function add(itemId: number) {
     await $api('/v1/me/saved/{item_id}', {
@@ -35,6 +45,10 @@ export const useSavedItemsStore = defineStore('savedItems', () => {
 
   return {
     items,
+    data: computed(() => items.value ?? []),
+    more: async () => { },
+    reset: () => { },
+    end: true,
     add,
     remove,
     has,

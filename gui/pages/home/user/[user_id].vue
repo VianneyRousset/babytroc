@@ -13,6 +13,9 @@ const userId = Number(route.params["user_id"]);
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
+// current tab
+const { currentTab } = useTab();
+
 // get user data from store
 const usersStore = useUsersStore();
 const pendingUser = ref(false);
@@ -71,7 +74,7 @@ const { name, avatarSeed, items, itemsSource, likesCount, starsCount, itemsCount
 
     <!-- Main content -->
     <main>
-      <ItemCardsList ref="main" :src="itemsSource" target="home-item-item_id" class="app-content page" />
+      <ItemCardsList ref="main" :src="itemsSource" :target="`${currentTab}-item-item_id`" class="app-content page" />
     </main>
 
   </div>
