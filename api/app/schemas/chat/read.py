@@ -14,6 +14,7 @@ from .base import ChatBase, ChatId
 class ChatRead(ChatBase, ReadBase):
     id: ChatId
     borrower: UserPreviewRead
+    owner: UserPreviewRead
     item: ItemPreviewRead
     last_message_id: int
 
