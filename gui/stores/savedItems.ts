@@ -1,7 +1,4 @@
 import { defineStore } from 'pinia'
-import type { ApiResponse } from '#open-fetch'
-
-type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
 
 type AllItemsStore = () => PaginatedSource<ItemPreview> & {
   add: (itemId: number) => Promise<void>,

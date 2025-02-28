@@ -26,7 +26,7 @@ const {
   isOwnedByUser,
   images,
   description,
-  targetedAgeMonths,
+  formatedTargetedAgeMonths,
   available,
   likesCount,
   regions,
@@ -97,7 +97,7 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
             <template v-slot:title>Détails</template>
             <div class="minitable">
               <div class="label">Âge</div>
-              <div>{{ targetedAgeMonths !== null ? formatTargetedAge(...targetedAgeMonths) : "..." }}</div>
+              <div>{{ formatedTargetedAgeMonths ?? "..." }}</div>
               <div class="label">Régions</div>
               <ul>
                 <li v-for="region in regions">{{ region.name }}</li>

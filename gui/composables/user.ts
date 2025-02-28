@@ -1,9 +1,4 @@
-import type { ApiResponse } from '#open-fetch'
-
-type User = ApiResponse<"get_user_v1_users__user_id__get">;
-type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
-
-const useUser = (user: Ref<User | null>) => {
+function useUser(user: Ref<User | null>) {
 
   const name: Ref<string | null> = computed(() => user.value?.name ?? null);
   const avatarSeed: Ref<string | null> = computed(() => user.value?.avatar_seed ?? null);
@@ -26,4 +21,17 @@ const useUser = (user: Ref<User | null>) => {
   }
 };
 
-export { useUser, };
+function useUserPreview(user: Ref<UserPreview | null>) {
+
+  const name: Ref<string | null> = computed(() => user.value?.name ?? null);
+  const avatarSeed: Ref<string | null> = computed(() => user.value?.avatar_seed ?? null);
+
+  return {
+    name,
+    avatarSeed,
+  }
+
+};
+
+
+export { useUser, useUserPreview };

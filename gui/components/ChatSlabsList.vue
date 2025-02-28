@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 const props = defineProps<{
-  src: PaginatedSource<ItemPreview>,
+  src: PaginatedSource<Chat>,
   target: string,
 }>();
 
@@ -9,12 +9,8 @@ const route = useRoute();
 const router = useRouter();
 const routeStack = useRouteStack();
 
-async function onClick(event: Event, itemId: number) {
-  routeStack.amend(router.resolve({ ...route, hash: `#item${itemId}` }).fullPath);
-}
-
-function getTargetRoute(itemId: number) {
-  return router.resolve({ name: props.target, params: { item_id: itemId } });
+function getTargetRoute(chatId: string) {
+  return router.resolve({ name: props.target, params: { chat_id: chatId } });
 }
 
 const { reset } = useInfiniteScroll(
@@ -40,16 +36,15 @@ watch(() => props.src.data, (newData) => {
 
 <template>
 
-  <div ref="list" class="list">
+  <div ref="list" class="ChatSlabsList">
 
-    <NuxtLink v-for="item in props.src.data" :to="getTargetRoute(item.id)"
-      @click.native="event => onClick(event, item.id)" :key="item.id">
-      <ItemCard :item="item" :id="`item${item.id}`" />
+    <NuxtLink v-for="chat in props.src.data" :to="getTargetRoute('42-1')">
+      <ChatSlab :chat="chat" :key="`${chat.id}`" />
     </NuxtLink>
 
     <ListResultIndicator :end="props.src.end" :loading="src.status === 'pending'"
       :empty="src.status !== 'idle' && props.src.data.length === 0" :error="src.status === 'error'" class="container">
-      <template v-slot:empty>Aucun résultat</template>
+      <template v-slot:empty>Aucun message</template>
       <template v-slot:error>Une erreur est survenue.</template>
     </ListResultIndicator>
 
@@ -58,15 +53,19 @@ watch(() => props.src.data, (newData) => {
 </template>
 
 <style scoped lang="scss">
-.list {
+.ChatSlabsList {
   @include flex-column;
   flex-grow: 1;
   overflow-y: scroll;
   align-items: stretch;
-  gap: var(--page-padding);
-}
 
-a {
-  text-decoration: none;
+  a {
+    @include reset-link;
+    text-decoration: none;
+  }
+
+  .ChatSlab {
+    border-bottom: 1px solid $neutral-200;
+  }
 }
 </style>

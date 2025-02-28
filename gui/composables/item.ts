@@ -1,16 +1,6 @@
 import type { AsyncDataRequestStatus } from '#app';
 
-import type { ApiResponse } from '#open-fetch'
-
-type Item = ApiResponse<'get_item_v1_items__item_id__get'>;
-type User = ApiResponse<"get_user_v1_users__user_id__get">;
-type Region = Item["regions"][0];
-
-function timeout(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const useItem = (item: Ref<Item | null>) => {
+function useItem(item: Ref<Item | null>) {
 
   const meStore = useMeStore();
 
@@ -21,6 +11,7 @@ const useItem = (item: Ref<Item | null>) => {
   const available: Ref<boolean | null> = computed(() => item.value?.available ?? null);
   const likesCount: Ref<number | null> = computed(() => item.value?.likes_count ?? null);
   const targetedAgeMonths: Ref<[number | null, number | null] | null> = computed(() => item.value?.targeted_age_months ?? null);
+  const formatedTargetedAgeMonths: Ref<string | null> = computed(() => targetedAgeMonths.value !== null ? formatTargetedAge(targetedAgeMonths.value[0], targetedAgeMonths.value[1]) : null);
 
   const images: Ref<Array<string> | null> = computed(() => item.value?.images_names ?? null);
   const regions: Ref<Array<Region> | null> = computed(() => item.value?.regions ?? null);
@@ -46,6 +37,7 @@ const useItem = (item: Ref<Item | null>) => {
     available,
     likesCount,
     targetedAgeMonths,
+    formatedTargetedAgeMonths,
     isOwnedByUser,
     ownerId,
     images,
@@ -55,6 +47,23 @@ const useItem = (item: Ref<Item | null>) => {
     pendingOwner,
   }
 };
+
+function useItemPreview(item: Ref<ItemPreview | null>) {
+
+  const firstImageName = computed(() => item.value?.first_image_name ?? null);
+  const firstImagePath = computed(() => item.value !== null ? `/api/v1/images/${firstImageName.value}` : null);
+  const targetedAgeMonths: Ref<[number | null, number | null] | null> = computed(() => item.value?.targeted_age_months ?? null);
+  const formatedTargetedAgeMonths: Ref<string | null> = computed(() => targetedAgeMonths.value !== null ? formatTargetedAge(targetedAgeMonths.value[0], targetedAgeMonths.value[1]) : null);
+
+  return {
+    name: computed(() => item.value?.name ?? null),
+    firstImageName,
+    firstImagePath,
+    targetedAgeMonths,
+    formatedTargetedAgeMonths,
+  }
+
+}
 
 
 function useItemLoanRequest(itemId: number) {
@@ -179,6 +188,7 @@ function useItemSave(itemId: number) {
 
 export {
   useItem,
+  useItemPreview,
   useItemLoanRequest,
   useItemLike,
   useItemSave,

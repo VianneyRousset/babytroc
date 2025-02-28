@@ -1,9 +1,6 @@
 <script setup lang="ts">
 
-import type { ApiResponse } from '#open-fetch';
 import { ChevronRight } from 'lucide-vue-next';
-
-type User = ApiResponse<'get_user_v1_users__user_id__get'>;
 
 const props = defineProps<{
   user: User | null,

@@ -1,35 +1,59 @@
 import { defineStore } from 'pinia'
 import { parseLinkHeader } from '@web3-storage/parse-link-header'
-import type { Links } from '@web3-storage/parse-link-header'
-import type { ApiResponse, ApiRequestQuery } from '#open-fetch'
+import { isEqual } from 'lodash'
+
 import type { AsyncDataRequestStatus } from '#app';
 import type { FetchError } from 'ofetch';
 
-type Chat = ApiResponse<'list_client_chats_v1_me_chats_get'>[number];
-type ChatQuery = ApiRequestQuery<'list_client_chats_v1_me_chats_get'>;
 
-export const useChatsStore = defineStore('chats', () => {
+type ChatsStore = () => PaginatedSource<Chat> & {
+  setQuery: (query: ChatQuery) => void,
+};
+
+
+export const useChatsStore: ChatsStore = defineStore('chats', () => {
 
   const { $api } = useNuxtApp()
 
-  const data = ref(Array<Chat>());
-  const error = ref<FetchError | null>(null);
-  const status = ref<AsyncDataRequestStatus>("idle");
-  const done = ref<boolean>(false);
+  var query: ChatQuery = {
+    n: 16,
+  };
 
-  var defaultQuery: ChatQuery = {
-    n: 2,
+  function setQuery(newQuery: ChatQuery) {
+
+    if (isEqual(query, newQuery))
+      return;
+
+    query = newQuery;
+    reset();
   }
 
-  var nextQuery: ChatQuery = {}
+  const data = ref(Array<Chat>());
+
+  const end = ref<boolean>(false);
+  const error = ref<FetchError | null>(null);
+  const status = ref<AsyncDataRequestStatus>("idle");
+
+  var nextQuery: ChatQuery = {};
+
+  function reset() {
+    data.value = [];
+    nextQuery = {};
+    end.value = false;
+  }
 
   async function more() {
+
+    if (status.value === "pending")
+      return;
+
+    status.value = "pending";
 
     try {
       const newData = await $api('/v1/me/chats', {
 
         query: {
-          ...defaultQuery,
+          ...query,
           ...nextQuery,
         },
 
@@ -44,25 +68,27 @@ export const useChatsStore = defineStore('chats', () => {
         },
       });
 
-      done.value = (newData.length == 0);
+      end.value = (newData.length == 0);
       data.value = data.value.concat(newData);
       status.value = "success";
 
     } catch (err) {
       console.error(err);
       error.value = err as FetchError;
+      end.value = true;
       status.value = "error";
     }
 
   }
 
-  const chats = computed(() => {
-    return data.value.toSorted((a: Chat, b: Chat) => b.last_message_id - a.last_message_id);
-  })
-
   return {
-    chats,
+    data,
     more,
-  }
+    reset,
+    end,
+    error,
+    status,
+    setQuery,
+  };
 
 });

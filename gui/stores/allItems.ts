@@ -2,13 +2,8 @@ import { defineStore } from 'pinia'
 import { parseLinkHeader } from '@web3-storage/parse-link-header'
 import { isEqual } from 'lodash'
 
-import type { ApiResponse, ApiRequestQuery } from '#open-fetch'
-
 import type { AsyncDataRequestStatus } from '#app';
 import type { FetchError } from 'ofetch';
-
-type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
-type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
 
 type AllItemsStore = () => PaginatedSource<ItemPreview> & {
   items: Array<ItemPreview>,

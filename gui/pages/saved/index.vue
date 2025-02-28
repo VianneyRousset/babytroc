@@ -3,12 +3,9 @@
 import { Bookmark } from 'lucide-vue-next';
 
 const savedItemsStore = useSavedItemsStore();
-const routeStack = useRouteStack();
 
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
-
-const { currentTab } = useTab();
 
 </script>
 

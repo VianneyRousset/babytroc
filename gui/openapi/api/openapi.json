@@ -2838,6 +2838,9 @@
           "borrower": {
             "$ref": "#/components/schemas/UserPreviewRead"
           },
+          "owner": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
           "item": {
             "$ref": "#/components/schemas/ItemPreviewRead"
           },
@@ -2850,6 +2853,7 @@
         "required": [
           "id",
           "borrower",
+          "owner",
           "item",
           "last_message_id"
         ],

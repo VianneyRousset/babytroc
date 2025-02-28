@@ -1,7 +1,4 @@
 import { defineStore } from 'pinia'
-import type { ApiResponse } from '#open-fetch';
-
-type User = ApiResponse<"get_user_v1_users__user_id__get">;
 
 export const useUsersStore = defineStore('users', () => {
 

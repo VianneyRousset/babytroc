@@ -28,7 +28,7 @@ const sizePx = computed(() => `${unref(size)}px`);
 
 <template>
   <div class="Avatar">
-    <img v-if="seed !== undefined" :src="avatar">
+    <img v-if="seed" :src="avatar">
   </div>
 </template>
 

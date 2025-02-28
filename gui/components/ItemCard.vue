@@ -3,13 +3,12 @@
 // TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
-import type { ApiResponse } from '#open-fetch';
-
-type Item = ApiResponse<'list_items_v1_items_get'>[number];
-
 const props = defineProps<{
-  item: Item
+  item: ItemPreview,
 }>();
+const { item } = toRefs(props);
+
+const { name, formatedTargetedAgeMonths } = useItemPreview(item);
 
 const backgroundImage = computed(() => {
 
@@ -33,9 +32,9 @@ const backgroundImage = computed(() => {
     </div>
 
     <div class="info">
-      <div class="age">{{ formatTargetedAge(props.item.targeted_age_months[0], props.item.targeted_age_months[1]) }}
+      <div class="age">{{ formatedTargetedAgeMonths }}
       </div>
-      <div class="name">{{ props.item.name }}</div>
+      <div class="name">{{ name }}</div>
     </div>
   </div>
 

@@ -1,23 +1,32 @@
 <script setup lang="ts">
 
-const store = useChatsStore();
+import { MessageSquare } from 'lucide-vue-next';
 
-function loadMore() {
-  store.more();
-}
+const chatsStore = useChatsStore();
+
+const main = useTemplateRef<HTMLElement>("main");
+const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
 </script>
 
 <template>
-  <div>
-    <ul>
-      <li v-for="chat in store.chats">
-        <!--<ImageAndAvatar :image="chat.item.first_image_name" :avatar="chat.borrower.avatar_seed" />-->
-      </li>
-    </ul>
 
-    <button @click="loadMore">More</button>
-  </div>
+  <!-- Header bar -->
+  <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+    <MessageSquare :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+    <h1>Messages</h1>
+  </AppHeaderBar>
+
+  <!-- Main content -->
+  <main>
+    <ChatSlabsList :src="chatsStore" target="home" ref="main" class="app-content" />
+  </main>
+
 </template>
 
-<style lang="scss" scoped></style>
+
+<style scoped lang="scss">
+.app-content {
+  --header-height: v-bind(mainHeaderHeight + "px");
+}
+</style>

@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AspectRatio: typeof import('radix-vue')['AspectRatio']
     CheckboxIndicator: typeof import('radix-vue')['CheckboxIndicator']
     CheckboxRoot: typeof import('radix-vue')['CheckboxRoot']
     CollapsibleContent: typeof import('radix-vue')['CollapsibleContent']
