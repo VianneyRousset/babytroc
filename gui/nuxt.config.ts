@@ -51,13 +51,20 @@ export default defineNuxtConfig({
   },
 
   modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper', 'radix-vue/nuxt'],
+
   openFetch: {
     clients: {
       api: {
         baseURL: '/api'
       }
+    },
+    openAPITS: {
+      enum: true,
+      immutable: true,
+      arrayLength: true,
     }
   },
+
   runtimeConfig: {
     public: {
       openFetch: {
