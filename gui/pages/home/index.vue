@@ -1,9 +1,8 @@
 <script setup lang="ts">
 
 import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next';
-import type { ApiRequestQuery } from '#open-fetch'
 
-type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
+import { ItemQueryAvailability } from '#build/types/open-fetch/schemas/api';
 
 const itemsStore = useAllItemsStore();
 
@@ -17,8 +16,8 @@ const route = useRoute();
 const router = useRouter();
 
 const searchInput = ref(getQueryParamAsArray(route.query, "q").join(" "));
-const stateAvailable = ref(route.query.av !== "n");
-const stateUnavailable = ref(route.query.av === "n" || route.query.av === "a");
+const stateAvailable = ref(route.query.av !== ItemQueryAvailability.no);
+const stateUnavailable = ref(route.query.av === ItemQueryAvailability.no || route.query.av === ItemQueryAvailability.all);
 
 const targetedAge = ref(typeof route.query.mo === "string" ? parseMonthRange(route.query.mo) : [0, null]);
 const regions = reactive(new Set(getQueryParamAsArray(route.query, "reg").map(Number)));
@@ -28,7 +27,7 @@ const isFilterActive = computed(() => {
   if (typeof route.query.mo === 'string')
     return true;
 
-  if (typeof route.query.av === 'string' && ["y", "n", "a"].includes(route.query.av))
+  if (typeof route.query.av === 'string' && Object.values(ItemQueryAvailability).includes(route.query.av as ItemQueryAvailability))
     return true;
 
   if (route.query.reg)
@@ -68,7 +67,7 @@ function go() {
 
   // availability
   if (stateUnavailable.value)
-    query.av = stateAvailable.value ? "a" : "n";
+    query.av = (stateAvailable.value ? ItemQueryAvailability.all : ItemQueryAvailability.no) as ItemQueryAvailability;
 
   // regions
   if (regions.size > 0)
@@ -93,8 +92,8 @@ watch(() => route.query, (routeQuery) => {
     query.mo = routeQuery.mo;
 
   // av
-  if (typeof routeQuery.av === 'string' && ["y", "n", "a"].includes(routeQuery.av))
-    query.av = routeQuery.av as ("y" | "n" | "a");
+  if (typeof routeQuery.av === 'string' && Object.values(ItemQueryAvailability).includes(routeQuery.av as ItemQueryAvailability))
+    query.av = routeQuery.av as ItemQueryAvailability;
 
   // reg
   if (routeQuery.reg)

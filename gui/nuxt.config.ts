@@ -60,8 +60,6 @@ export default defineNuxtConfig({
     },
     openAPITS: {
       enum: true,
-      immutable: true,
-      arrayLength: true,
     }
   },
 

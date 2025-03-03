@@ -2816,6 +2816,7 @@
         "title": "ChatMessageRead"
       },
       "ChatMessageType": {
+        "type": "integer",
         "enum": [
           1,
           2,
@@ -2827,6 +2828,7 @@
           8,
           9
         ],
+        "title": "ChatMessageType",
         "x-enum-varnames": [
           "text",
           "loan_request_created",
@@ -2837,9 +2839,7 @@
           "loan_ended",
           "item_not_available",
           "item_available"
-        ],
-        "type": "integer",
-        "title": "ChatMessageType"
+        ]
       },
       "ChatRead": {
         "properties": {
@@ -3162,7 +3162,12 @@
           "n",
           "a"
         ],
-        "title": "ItemQueryAvailability"
+        "title": "ItemQueryAvailability",
+        "x-enum-varnames": [
+          "yes",
+          "no",
+          "all"
+        ]
       },
       "ItemRead": {
         "properties": {
@@ -3453,7 +3458,14 @@
           4,
           5
         ],
-        "title": "LoanRequestState"
+        "title": "LoanRequestState",
+        "x-enum-varnames": [
+          "pending",
+          "canceled",
+          "accepted",
+          "rejected",
+          "executed"
+        ]
       },
       "RegionRead": {
         "properties": {

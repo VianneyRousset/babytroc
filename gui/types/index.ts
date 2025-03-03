@@ -2,8 +2,6 @@ import type { AsyncDataRequestStatus } from '#app';
 import type { FetchError } from 'ofetch';
 import type { ApiResponse, ApiRequestQuery } from '#open-fetch'
 
-export { };
-
 declare global {
 
   // chat
