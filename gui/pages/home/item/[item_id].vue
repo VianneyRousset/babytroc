@@ -4,7 +4,7 @@ import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
 
 // get item ID from route
 const route = useRoute();
-const itemId = Number(route.params["item_id"]);
+const itemId = Number.parseInt(route.params["item_id"] as string); // TODO avoid this hack
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");

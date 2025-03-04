@@ -7,7 +7,7 @@ const itemsStore = useAllItemsStore();
 
 // get user ID from route
 const route = useRoute();
-const userId = Number(route.params["user_id"]);
+const userId = Number.parseInt(route.params["user_id"] as string); // TODO avoid this hack
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");

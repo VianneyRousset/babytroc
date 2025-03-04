@@ -7,6 +7,8 @@ declare global {
   // chat
   type Chat = ApiResponse<'list_client_chats_v1_me_chats_get'>[number];
   type ChatQuery = ApiRequestQuery<'list_client_chats_v1_me_chats_get'>;
+  type ChatMessage = ApiResponse<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>[number];
+  type ChatMessageQuery = ApiRequestQuery<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>;
 
   // user
   type User = ApiResponse<"get_user_v1_users__user_id__get">;

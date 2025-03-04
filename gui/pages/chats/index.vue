@@ -2,8 +2,13 @@
 
 import { MessageSquare } from 'lucide-vue-next';
 
+// current tab
+const { currentTab } = useTab();
+
+// list of chats
 const chatsStore = useChatsStore();
 
+// get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
@@ -19,7 +24,7 @@ const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"
 
   <!-- Main content -->
   <main>
-    <ChatSlabsList :src="chatsStore" target="home" ref="main" class="app-content" />
+    <ChatSlabsList :src="chatsStore" :target="`${currentTab}-chat_id`" ref="main" class="app-content" />
   </main>
 
 </template>

@@ -172,7 +172,7 @@ const props = defineProps<{
 
 @keyframes spinner-small-fade9234 {
   0% {
-    background-color: #69717d;
+    background-color: var(--loader-color);
   }
 
   100% {

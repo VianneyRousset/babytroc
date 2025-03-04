@@ -3,9 +3,9 @@
 import { Square } from 'lucide-vue-next';
 
 const props = withDefaults(defineProps<{
-  disabled: boolean,
+  disabled?: boolean,
 }>(), {
-  disabled: true,
+  disabled: false,
 });
 
 </script>

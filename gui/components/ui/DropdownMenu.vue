@@ -63,6 +63,7 @@ const open = ref(false);
     justify-content: flex-start;
     cursor: pointer;
     color: $neutral-600;
+    text-decoration: none;
 
     padding: 1rem 1.2rem;
 
