@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import field_serializer
-
 from app.enums import ChatMessageType
 from app.schemas.base import ReadBase
 from app.schemas.item.preview import ItemPreviewRead
@@ -18,10 +16,6 @@ class ChatRead(ChatBase, ReadBase):
     item: ItemPreviewRead
     last_message_id: int
 
-    @field_serializer("id")
-    def serialize_id(self, chat_id: ChatId, _info):
-        return str(chat_id)
-
 
 class ChatMessageRead(ChatBase, ReadBase):
     id: int
@@ -31,7 +25,3 @@ class ChatMessageRead(ChatBase, ReadBase):
     creation_date: datetime
     seen: bool
     payload: Optional[str]
-
-    @field_serializer("chat_id")
-    def serialize_dt(self, chat_id: ChatId, _info):
-        return str(chat_id)
