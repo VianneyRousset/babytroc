@@ -54,6 +54,8 @@ function submit() {
   emit("submit", model.value ?? "");
 }
 
+const disabled = computed(() => model.value?.trim().length == 0 || loading.value);
+
 </script>
 
 <template>
@@ -61,7 +63,7 @@ function submit() {
   <div class="ChatMessageInput">
     <textarea ref="textarea" v-model="input" placeholder="Répondre" tabindex="1" @keydown.enter="enterDown"
       @keyup.enter="enterUp" @keyup.escape="blur();" />
-    <IconButton @click="submit" class="IconButton" :disabled="true">
+    <IconButton @click="submit" class="IconButton" :disabled="disabled">
       <Loader v-if="loading" :small="true" />
       <Send v-else :size="20" :strokeWidth="1.5" :absoluteStrokeWidth="true" />
     </IconButton>

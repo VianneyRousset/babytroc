@@ -2728,22 +2728,7 @@
         "title": "Body_upload_image_v1_images_post"
       },
       "ChatId": {
-        "properties": {
-          "item_id": {
-            "type": "integer",
-            "title": "Item Id"
-          },
-          "borrower_id": {
-            "type": "integer",
-            "title": "Borrower Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "item_id",
-          "borrower_id"
-        ],
-        "title": "ChatId"
+        "type": "string"
       },
       "ChatMessageCreate": {
         "properties": {

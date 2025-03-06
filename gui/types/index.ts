@@ -10,6 +10,20 @@ declare global {
   type ChatMessage = ApiResponse<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>[number];
   type ChatMessageQuery = ApiRequestQuery<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>;
 
+  type ChatMessageOrigin = "me" | "interlocutor" | "system";
+
+  type ChatMessageChunk = {
+    origin: ChatMessageOrigin,
+    messages: Array<ChatMessage>;
+    key: string,
+  }
+
+  type ChatMessageDateGroup = {
+    date: string,
+    formattedDate: string,
+    chunks: Array<ChatMessageChunk>,
+  };
+
   // user
   type User = ApiResponse<"get_user_v1_users__user_id__get">;
   type UserPreview = Chat["borrower" | "owner"];

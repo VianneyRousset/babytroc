@@ -38,7 +38,7 @@ watch(() => props.src.data, (newData) => {
 
   <div ref="list" class="ChatSlabsList">
 
-    <NuxtLink v-for="chat in props.src.data" :to="getTargetRoute('42-1')">
+    <NuxtLink v-for="chat in props.src.data" :to="getTargetRoute(chat.id)">
       <ChatSlab :chat="chat" :key="`${chat.id}`" />
     </NuxtLink>
 
