@@ -77,7 +77,7 @@ a {
       bottom: 0.5rem;
       right: 1.0rem;
 
-      ::v-deep div {
+      :deep(div) {
         color: $neutral-300;
       }
     }

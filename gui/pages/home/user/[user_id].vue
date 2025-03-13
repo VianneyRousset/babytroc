@@ -3,8 +3,6 @@
 import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
 import { computedAsync } from '@vueuse/core'
 
-const itemsStore = useAllItemsStore();
-
 // get user ID from route
 const route = useRoute();
 const userId = Number.parseInt(route.params["user_id"] as string); // TODO avoid this hack

@@ -1,5 +1,6 @@
 import { ChatMessageType } from '#build/types/open-fetch/schemas/api';
 import { DateTime } from "luxon";
+import { groupBy } from 'lodash'
 
 function getChatMessageOrigin(message: ChatMessage, meId: number): ChatMessageOrigin {
 
@@ -131,7 +132,7 @@ function useChatMessageList(messages: Ref<Array<ChatMessage>>) {
   function groupByMessageDateGroups(messages: Array<ChatMessage>, meId: number): Array<ChatMessageDateGroup> {
 
     // group message by creation date
-    const groups = Object.groupBy(messages, ({ creation_date }) => DateTime.fromISO(creation_date).toISODate() ?? "") as Record<string, Array<ChatMessage>>;
+    const groups = groupBy(messages, ({ creation_date }: { creation_date: string }) => DateTime.fromISO(creation_date).toISODate() ?? "") as Record<string, Array<ChatMessage>>;
 
     // sort groups by min message id and convert into chunks
     return Object.entries(groups)

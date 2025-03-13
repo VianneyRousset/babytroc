@@ -4,7 +4,7 @@ import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next';
 
 import { ItemQueryAvailability } from '#build/types/open-fetch/schemas/api';
 
-const itemsStore = useAllItemsStore();
+const itemsStore = useItemsListStore();
 
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));

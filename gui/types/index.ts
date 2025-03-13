@@ -36,7 +36,7 @@ declare global {
   // region
   type Region = Item["regions"][0];
 
-  type PaginatedSource<T> = {
+  interface PaginatedSource<T> {
     data: Array<T>,
     more: () => Promise<void>,
     reset: () => void,

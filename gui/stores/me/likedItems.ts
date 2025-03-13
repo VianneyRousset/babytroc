@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 
-type AllItemsStore = () => PaginatedSource<ItemPreview> & {
+type LikesItemsListStore = () => PaginatedSource<ItemPreview> & {
   add: (itemId: number) => Promise<void>,
   remove: (itemId: number) => Promise<void>,
   has: (itemId: number) => Ref<boolean>,
 };
 
-export const useLikedItemsStore: AllItemsStore = defineStore('likedItems', () => {
+export const useLikedItemsStore: LikesItemsListStore = defineStore('likedItems', () => {
 
   const { $api } = useNuxtApp()
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { OctagonAlert } from 'lucide-vue-next';
+import { ContentLoader } from "vue-content-loader"
 
 const props = withDefaults(defineProps<{
   end: boolean,

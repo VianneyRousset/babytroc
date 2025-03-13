@@ -14,12 +14,19 @@ const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"
 const { currentTab } = useTab();
 
 // get item data
-const { data: item, refresh: refreshItem } = await useApi('/v1/items/{item_id}', {
+const { data: cachedItem } = useNuxtData(`item-${itemId}`);
+const { data: item, refresh: refreshItem, status } = await useLazyApi('/v1/items/{item_id}', {
   path: {
     item_id: itemId,
   },
-  key: `item/${itemId}`
+  key: `item-${itemId}`,
+  server: false,
+  cache: "default",
+  default: () => unref(cachedItem),
 });
+
+// true if loader should be shown
+const loader = computed(() => item.value === null && status.value !== "success");
 
 const {
   name,
@@ -74,10 +81,10 @@ const { isRequestedByUser, requestStatus, requestItem } = useItemLoanRequest(ite
     <main ref="main">
       <div class="app-content page">
 
-        <div v-if="item !== null" class="vbox">
+        <div class="vbox">
 
           <!-- Gallery -->
-          <Gallery :images="images ?? []" />
+          <Gallery :images="images ?? []" :loading="loader" />
 
           <!-- Availability and likes count -->
           <div class="hbox">
