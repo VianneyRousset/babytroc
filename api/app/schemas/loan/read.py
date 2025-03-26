@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import Range
 
 from app.enums import LoanRequestState
 from app.schemas.base import ReadBase
-from app.schemas.chat.read import ChatMessageRead
+from app.schemas.chat.base import ChatId
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.user.preview import UserPreviewRead
 
@@ -17,14 +17,15 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
     id: int
     item: ItemPreviewRead
     borrower: UserPreviewRead
+    chat_id: ChatId
     state: LoanRequestState
-    creation_chat_message: ChatMessageRead
 
 
 class LoanRead(LoanBase, ReadBase):
     id: int
     item: ItemPreviewRead
     borrower: UserPreviewRead
+    chat_id: ChatId
     during: tuple[datetime | None, datetime | None]
     active: bool
 

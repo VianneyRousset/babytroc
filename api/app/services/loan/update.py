@@ -11,7 +11,7 @@ from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.services.chat import (
     send_message_loan_ended,
     send_message_loan_request_accepted,
-    send_message_loan_request_canceled,
+    send_message_loan_request_cancelled,
     send_message_loan_request_rejected,
 )
 
@@ -46,7 +46,7 @@ def cancel_loan_request(
     query_filter: Optional[LoanRequestQueryFilter] = None,
     force: bool = False,
 ) -> LoanRequestRead:
-    """Set loan request state to `canceled`.
+    """Set loan request state to `cancelled`.
 
     Loan request state must be `pending` if `force` is `False`.
     """
@@ -59,12 +59,13 @@ def cancel_loan_request(
     )
 
     # create chat message
-    send_message_loan_request_canceled(
+    send_message_loan_request_cancelled(
         db=db,
         chat_id=ChatId(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
+        loan_request_id=loan_request.id,
     )
 
     # check loan request state
@@ -78,7 +79,7 @@ def cancel_loan_request(
     loan_request = database.loan.update_loan_request(
         db=db,
         loan_request=loan_request,
-        attributes={"state": LoanRequestState.canceled},
+        attributes={"state": LoanRequestState.cancelled},
     )
 
     return LoanRequestRead.model_validate(loan_request)
@@ -109,6 +110,7 @@ def accept_loan_request(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
+        loan_request_id=loan_request.id,
     )
 
     # check loan request state
@@ -153,6 +155,7 @@ def reject_loan_request(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
+        loan_request_id=loan_request.id,
     )
 
     # check loan request state
@@ -200,6 +203,7 @@ def end_loan(
             item_id=loan.item_id,
             borrower_id=loan.borrower_id,
         ),
+        loan_id=loan.id,
     )
 
     # set loan.during upper bound to now()

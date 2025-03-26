@@ -82,7 +82,9 @@ def create_message(
     chat: Chat,
     message_type: ChatMessageType,
     sender_id: int,
-    payload: Optional[str] = None,
+    text: Optional[str] = None,
+    loan_request_id: Optional[int] = None,
+    loan_id: Optional[int] = None,
     seen: bool = False,
 ) -> ChatMessage:
     """Create and insert a chat message into `chat`."""
@@ -95,7 +97,9 @@ def create_message(
     message = ChatMessage(
         message_type=message_type,
         sender=sender,
-        payload=payload,
+        text=text,
+        loan_request_id=loan_request_id,
+        loan_id=loan_id,
         seen=seen,
     )
 

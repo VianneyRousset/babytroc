@@ -24,4 +24,8 @@ class ChatMessageRead(ChatBase, ReadBase):
     sender_id: Optional[int]
     creation_date: datetime
     seen: bool
-    payload: Optional[str]
+    text: Optional[str]
+    loan_request_id: Optional[int]
+    loan_id: Optional[int]
+    item_id: int
+    borrower_id: int

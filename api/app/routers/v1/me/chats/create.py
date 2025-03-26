@@ -35,5 +35,5 @@ def send_message_to_chat(
         db=db,
         chat_id=ChatId.from_str(chat_id),
         sender_id=client_user_id,
-        payload=chat_message_create.payload,
+        text=chat_message_create.text,
     )

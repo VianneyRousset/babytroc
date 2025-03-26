@@ -54,13 +54,10 @@ def list_items(
     page_options = page_options or QueryPageOptions()
 
     active_selections = cast(
-        dict[
-            str,
-            type[Item]
-            | ColumnElement[int]
-            | BinaryExpression[int]
-            | InstrumentedAttribute,
-        ],
+        "dict[str,type[Item]"
+        "| ColumnElement[int]"
+        "| BinaryExpression[int]"
+        "| InstrumentedAttribute,]",
         {"item": Item},
     )
     active_selections = {"item": Item}
@@ -88,11 +85,11 @@ def list_items(
         columns={
             "item_id": Item.id,
             "words_match": cast(
-                ColumnElement[int] | BinaryExpression[int],
+                "ColumnElement[int] | BinaryExpression[int]",
                 active_selections.get("words_match"),
             ),
-            "like_id": cast(InstrumentedAttribute, active_selections.get("like_id")),
-            "save_id": cast(InstrumentedAttribute, active_selections.get("save_id")),
+            "like_id": cast("InstrumentedAttribute", active_selections.get("like_id")),
+            "save_id": cast("InstrumentedAttribute", active_selections.get("save_id")),
         },
     )
 

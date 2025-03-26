@@ -22,20 +22,20 @@ def create_loan_request(
 ) -> LoanRequestRead:
     """Create a loan request."""
 
+    loan_request = database.loan.create_loan_request(
+        db=db,
+        borrower_id=borrower_id,
+        item_id=item_id,
+    )
+
     # create messages
-    message = send_message_loan_request_created(
+    send_message_loan_request_created(
         db=db,
         chat_id=ChatId(
             item_id=item_id,
             borrower_id=borrower_id,
         ),
-    )
-
-    loan_request = database.loan.create_loan_request(
-        db=db,
-        borrower_id=borrower_id,
-        item_id=item_id,
-        creation_message_id=message.id,
+        loan_request_id=loan_request.id,
     )
 
     return LoanRequestRead.model_validate(loan_request)
@@ -65,15 +65,6 @@ def execute_loan_request(
         query_filter=query_filter,
     )
 
-    # create messages
-    message = send_message_loan_started(
-        db=db,
-        chat_id=ChatId(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-    )
-
     # check loan request state
     if not force and loan_request.state != LoanRequestState.accepted:
         raise LoanRequestStateError(
@@ -86,7 +77,6 @@ def execute_loan_request(
         db=db,
         item_id=loan_request.item_id,
         borrower_id=loan_request.borrower_id,
-        creation_message_id=message.id,
     )
 
     database.loan.update_loan_request(
@@ -96,6 +86,16 @@ def execute_loan_request(
             "state": LoanRequestState.executed,
             "loan": loan,
         },
+    )
+
+    # create messages
+    send_message_loan_started(
+        db=db,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
+        loan_id=loan.id,
     )
 
     return LoanRead.model_validate(loan)

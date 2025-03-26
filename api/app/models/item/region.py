@@ -40,7 +40,7 @@ class Region(Base):
 
 
 class ItemRegion(Base):
-    """Maps items and regions."""
+    """Items and regions association table"""
 
     __tablename__ = "item_region"
 

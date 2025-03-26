@@ -22,7 +22,7 @@ class EnumWithMetadata(enum.Enum):
 class ChatMessageType(int, EnumWithMetadata):
     text = 1
     loan_request_created = 2
-    loan_request_canceled = 3
+    loan_request_cancelled = 3
     loan_request_accepted = 4
     loan_request_rejected = 5
     loan_started = 6
@@ -39,7 +39,7 @@ class ReportType(int, EnumWithMetadata):
 
 class LoanRequestState(int, EnumWithMetadata):
     pending = 1
-    canceled = 2
+    cancelled = 2
     accepted = 3
     rejected = 4
     executed = 5

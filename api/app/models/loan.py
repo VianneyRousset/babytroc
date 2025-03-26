@@ -21,9 +21,9 @@ from sqlalchemy.orm import (
 )
 
 from app.enums import LoanRequestState
+from app.schemas.chat.base import ChatId
 
 from .base import Base, CreationDate, IntegerIdentifier
-from .chat import ChatMessage
 
 if TYPE_CHECKING:
     from .item import Item
@@ -79,8 +79,12 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    creation_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
-    creation_chat_message: Mapped[ChatMessage] = relationship(ChatMessage)
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
+        )
 
     __table_args__ = (
         ExcludeConstraint(
@@ -148,18 +152,12 @@ class Loan(IntegerIdentifier, Base):
         single_parent=True,
     )
 
-    # chat messages linked to this loan
-    creation_message_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            ChatMessage.id,
-            ondelete="CASCADE",
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
         )
-    )
-    creation_chat_message: Mapped[ChatMessage] = relationship(
-        ChatMessage,
-        foreign_keys=[creation_message_id],
-        single_parent=True,
-    )
 
     @hybrid_property
     def active(self) -> bool:
