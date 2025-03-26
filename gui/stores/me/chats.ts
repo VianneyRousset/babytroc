@@ -169,7 +169,7 @@ function createChatMessagesStore(chatId: string): ChatMessagesStore {
           chat_id: chatId,
         },
         body: {
-          payload: msg,
+          text: msg,
         }
       });
 

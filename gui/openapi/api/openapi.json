@@ -2732,15 +2732,15 @@
       },
       "ChatMessageCreate": {
         "properties": {
-          "payload": {
+          "text": {
             "type": "string",
-            "title": "Payload"
+            "title": "Text"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "payload"
+          "text"
         ],
         "title": "ChatMessageCreate"
       },
@@ -2776,7 +2776,7 @@
             "type": "boolean",
             "title": "Seen"
           },
-          "payload": {
+          "text": {
             "anyOf": [
               {
                 "type": "string"
@@ -2785,7 +2785,37 @@
                 "type": "null"
               }
             ],
-            "title": "Payload"
+            "title": "Text"
+          },
+          "loan_request_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Request Id"
+          },
+          "loan_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Id"
+          },
+          "item_id": {
+            "type": "integer",
+            "title": "Item Id"
+          },
+          "borrower_id": {
+            "type": "integer",
+            "title": "Borrower Id"
           }
         },
         "type": "object",
@@ -2796,7 +2826,11 @@
           "sender_id",
           "creation_date",
           "seen",
-          "payload"
+          "text",
+          "loan_request_id",
+          "loan_id",
+          "item_id",
+          "borrower_id"
         ],
         "title": "ChatMessageRead"
       },
@@ -2817,7 +2851,7 @@
         "x-enum-varnames": [
           "text",
           "loan_request_created",
-          "loan_request_canceled",
+          "loan_request_cancelled",
           "loan_request_accepted",
           "loan_request_rejected",
           "loan_started",
@@ -3360,6 +3394,9 @@
           "borrower": {
             "$ref": "#/components/schemas/UserPreviewRead"
           },
+          "chat_id": {
+            "$ref": "#/components/schemas/ChatId"
+          },
           "during": {
             "prefixItems": [
               {
@@ -3400,6 +3437,7 @@
           "id",
           "item",
           "borrower",
+          "chat_id",
           "during",
           "active"
         ],
@@ -3417,11 +3455,11 @@
           "borrower": {
             "$ref": "#/components/schemas/UserPreviewRead"
           },
+          "chat_id": {
+            "$ref": "#/components/schemas/ChatId"
+          },
           "state": {
             "$ref": "#/components/schemas/LoanRequestState"
-          },
-          "creation_chat_message": {
-            "$ref": "#/components/schemas/ChatMessageRead"
           }
         },
         "type": "object",
@@ -3429,8 +3467,8 @@
           "id",
           "item",
           "borrower",
-          "state",
-          "creation_chat_message"
+          "chat_id",
+          "state"
         ],
         "title": "LoanRequestRead"
       },
@@ -3446,7 +3484,7 @@
         "title": "LoanRequestState",
         "x-enum-varnames": [
           "pending",
-          "canceled",
+          "cancelled",
           "accepted",
           "rejected",
           "executed"

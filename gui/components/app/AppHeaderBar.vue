@@ -6,38 +6,50 @@ const props = withDefaults(defineProps<{
   // if true, the bar is hidden when scrolling down
   // if an HTML element is given, the bar is hidden when the element is scolled down
   // default to false
-  scroll?: boolean | HTMLElement,
+  scroll?: HTMLElement | boolean,
 
   // min scroll y value to hide the bar
   // default to 0
   scrollOffset?: number,
 
 }>(), {
-  scroll: false,
   scrollOffset: 0,
 });
 
-// true scrolling down
+const { scroll, scrollOffset } = toRefs(props);
+
+// true if scrolling down
 const scrollingDown = ref(false);
 
 // scroll y position
 var y = ref(0);
 
+let unwatch: undefined | (() => void) = undefined;
+
 // if a scrolling element is given, watch its scroll
 // otherwise watch window scroll
-if (props.scroll) {
+watch(scroll, (_scroll) => {
 
-  y = (props.scroll === true) ? useWindowScroll().y : useScroll(props.scroll).y;
+  // unsubscribe previous watch
+  if (unwatch) {
+    unwatch();
+    unwatch = undefined;
+  }
 
-  watch(y, (newY: number, oldY: number) => {
+  if (_scroll === false)
+    return;
+
+  y = (_scroll === true) ? useWindowScroll().y : useScroll(_scroll).y;
+
+  unwatch = watch(y, (newY: number, oldY: number) => {
     scrollingDown.value = (newY > oldY);
   });
-}
+}, { immediate: true });
 
 </script>
 
 <template>
-  <div class="AppHeaderBar" :class="{ hidden: y > props.scrollOffset && scrollingDown }">
+  <div class="AppHeaderBar" :class="{ hidden: y > scrollOffset && scrollingDown }">
     <slot />
   </div>
 </template>

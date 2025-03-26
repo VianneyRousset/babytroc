@@ -2,33 +2,30 @@
 
 import { ChevronRight } from 'lucide-vue-next';
 
-// TODO move types into /types/index.ts
-
 const props = defineProps<{
   chat: Chat,
+  me: User,
 }>();
 
 // chat
-const { chat } = toRefs(props);
-const { interlocutor, item } = useChat(chat);
+const { chat, me } = toRefs(props);
 
 // interlocutor
-const { name: interlocutorName, avatarSeed: interlocutorAvatar } = useUserPreview(interlocutor);
+const { interlocutor } = useChatRoles(chat, me);
 
-// item
-const { name: itemName, firstImagePath: itemImagePath } = useItemPreview(item);
-
+// item image
+const { firstImagePath: itemImage } = useItemFirstImage(computed(() => unref(chat).item));
 
 </script>
 
 <template>
   <div class="ChatSlab">
 
-    <ImageAndAvatar :image="itemImagePath" :avatar="interlocutorAvatar" />
+    <ImageAndAvatar :image="itemImage" :avatar="interlocutor.avatar_seed" />
 
     <div class="name">
-      <div>{{ interlocutorName ?? "..." }}</div>
-      <div>{{ itemName ?? "..." }}</div>
+      <div>{{ interlocutor.name }}</div>
+      <div>{{ chat.item.name }}</div>
     </div>
 
     <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />

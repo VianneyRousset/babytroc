@@ -15,15 +15,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 </script>
 
 <template>
-  <div class="overlay" :class="{ open: model }" @click.self="model = false">
+  <div v-show="model" class="overlay" :class="{ open: model }" @click.self="model = false">
     <slot />
   </div>
 </template>
 
 <style scoped lang="scss">
 .overlay {
-
-  display: none;
 
   position: absolute;
   overflow: auto;
@@ -37,10 +35,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
   width: 100vw;
 
   background: rgba(0, 0, 0, 0.5);
-
-  &.open {
-    display: block;
-  }
 
 }
 </style>

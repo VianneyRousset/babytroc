@@ -7,9 +7,7 @@ const open = ref(false);
 </script>
 
 <template>
-
-  <div>
-
+  <div class="DropdownMenu">
     <DropdownMenuRoot v-model:open="open">
 
       <!-- Trigger button -->
@@ -24,16 +22,13 @@ const open = ref(false);
           <!-- Menu content-->
           <DropdownMenuContent class="DropdownMenuContent" :side-offset="-10" align="start">
             <slot />
-
             <DropdownMenuArrow class="DropdownMenuArrow" :width="28" :height="14" />
           </DropdownMenuContent>
         </DropdownMenuPortal>
+
       </Overlay>
-
     </DropdownMenuRoot>
-
   </div>
-
 </template>
 
 <style scoped lang="scss">
@@ -46,7 +41,7 @@ const open = ref(false);
   align-items: stretch;
 
   position: relative;
-  z-index: 15;
+  z-index: 150;
 
   min-width: 260px;
   background: white;
@@ -55,7 +50,8 @@ const open = ref(false);
 
   filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
 
-  &>.DropdownMenuItem {
+  &>div:not(a),
+  &>a>div {
     @include flex-row;
     gap: 0.8rem;
     font-size: 1.5rem;
@@ -85,6 +81,7 @@ const open = ref(false);
       color: $neutral-700;
     }
   }
+
 
 }
 

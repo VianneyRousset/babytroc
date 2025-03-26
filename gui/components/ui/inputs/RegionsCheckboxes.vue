@@ -22,7 +22,7 @@ const { data: regions, status } = useApi('/v1/utils/regions', {
 
     <div v-if="status === 'success'" class="checkbox-group">
       <Checkbox v-for="region in regions" :modelValue="model?.has(region.id)"
-        @update:modelValue="(v) => onChange(region.id, v)">{{ region.name }}</Checkbox>
+        @update:modelValue="(v) => v !== undefined && onChange(region.id, v)">{{ region.name }}</Checkbox>
     </div>
 
   </div>

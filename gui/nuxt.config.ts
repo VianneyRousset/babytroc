@@ -19,11 +19,22 @@ export default defineNuxtConfig({
 
   // use typescript type checking
   typescript: {
-    typeCheck: true
+    strict: true,
+    typeCheck: true,
   },
 
   // inject SCSS code (colors definition)
   css: [`assets/styles/main.scss`],
+
+  // import pinia-colada queries and mutations
+  imports: {
+    dirs: [
+      'queries',
+      'queries/**',
+      'mutations',
+      'mutations/**',
+    ],
+  },
 
   // do not name components based on path
   components: [
@@ -53,7 +64,7 @@ export default defineNuxtConfig({
 
   },
 
-  modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper', 'radix-vue/nuxt'],
+  modules: ['nuxt-open-fetch', '@pinia/nuxt', '@vueuse/nuxt', 'nuxt-swiper', 'radix-vue/nuxt', '@pinia/colada-nuxt'],
 
   runtimeConfig: {
     public: {

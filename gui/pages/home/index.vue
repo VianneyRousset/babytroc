@@ -14,95 +14,34 @@ const filtersDrawerOpen = ref(false);
 
 const route = useRoute();
 const router = useRouter();
+const routeStack = useRouteStack();
 
-const searchInput = ref(getQueryParamAsArray(route.query, "q").join(" "));
-const stateAvailable = ref(route.query.av !== ItemQueryAvailability.no);
-const stateUnavailable = ref(route.query.av === ItemQueryAvailability.no || route.query.av === ItemQueryAvailability.all);
+// query items
+const { query, data: itemsPages, status: itemsStatus, asyncStatus: itemsAsyncStatus, loadMore } = useItemsListQuery();
 
-const targetedAge = ref(typeof route.query.mo === "string" ? parseMonthRange(route.query.mo) : [0, null]);
-const regions = reactive(new Set(getQueryParamAsArray(route.query, "reg").map(Number.parseInt)));
+const {
+  searchInput,
+  stateAvailable,
+  stateUnavailable,
+  targetedAge,
+  regions,
+  isFilterActive,
+  areFilterInputsChanged,
+  filter,
+} = useItemFilters();
 
-const isFilterActive = computed(() => {
-
-  if (typeof route.query.mo === 'string')
-    return true;
-
-  if (typeof route.query.av === 'string' && Object.values(ItemQueryAvailability).includes(route.query.av as ItemQueryAvailability))
-    return true;
-
-  if (route.query.reg)
-    return true;
-
-  return false;
-});
-
-const areFilterInputsChanged = computed(() => {
-
-  if (!stateAvailable.value)
-    return true;
-
-  if (stateUnavailable.value)
-    return true;
-
-  if (targetedAge.value[0] !== 0 || targetedAge.value[1] !== null)
-    return true;
-
-  if (regions.size > 0)
-    return true;
-
-  return false;
-});
-
-function go() {
-  const query: ItemQuery = {}
-
-  // text search
-  const q = searchInput.value.split(" ").filter((word => word.length > 0));
-  if (q.length > 0)
-    query.q = q;
-
-  // targeted age
-  if ((targetedAge.value[0] ?? 0) > 0 || targetedAge.value[1] !== null)
-    query.mo = formatMonthRange(targetedAge.value);
-
-  // availability
-  if (stateUnavailable.value)
-    query.av = (stateAvailable.value ? ItemQueryAvailability.all : ItemQueryAvailability.no) as ItemQueryAvailability;
-
-  // regions
-  if (regions.size > 0)
-    query.reg = Array.from(regions);
-
-  // update page query params
-  router.push({ query: query });
-}
 
 // update store query parameters on route query change
 watch(() => route.query, (routeQuery) => {
-  const query: ItemQuery = {
-    n: 16,
-  }
-
-  // q
-  if (routeQuery.q)
-    query.q = getQueryParamAsArray(routeQuery, "q");
-
-  // mo
-  if (typeof routeQuery.mo === 'string')
-    query.mo = routeQuery.mo;
-
-  // av
-  if (typeof routeQuery.av === 'string' && Object.values(ItemQueryAvailability).includes(routeQuery.av as ItemQueryAvailability))
-    query.av = routeQuery.av as ItemQueryAvailability;
-
-  // reg
-  if (routeQuery.reg)
-    query.reg = getQueryParamAsArray(routeQuery, "reg").map(Number.parseInt);
-
-  itemsStore.setQuery(query);
-},
-  { immediate: true }
-);
+  query.value = {
+    q: routeQuery.q ? getQueryParamAsArray(routeQuery, "q") : undefined,
+    mo: typeof routeQuery.mo === 'string' ? routeQuery.mo : undefined,
+    av: (typeof routeQuery.av === 'string' && Object.values(ItemQueryAvailability).includes(routeQuery.av as ItemQueryAvailability)) ? routeQuery.av as ItemQueryAvailability : undefined,
+    reg: routeQuery.reg ? getQueryParamAsArray(routeQuery, "reg").map(Number.parseInt) : undefined,
+  };
+}, {
+  immediate: true,
+});
 
 function resetFilterInputs() {
   stateAvailable.value = true;
@@ -111,14 +50,27 @@ function resetFilterInputs() {
   regions.clear();
 }
 
+const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
+const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
+
+function openItem(itemId: number) {
+  routeStack.amend(router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath);
+  return navigateTo(`/home/item/${itemId}`);
+}
+
+const { reset } = useInfiniteScroll(main, async () => { await loadMore() }, {
+  canLoadMore: () => !unref(itemsPages).end,
+  distance: 1800,
+});
+
 </script>
 
 <template>
   <div>
 
     <!-- Header bar -->
-    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
-      <SearchInput v-model="searchInput" @submit="go()" />
+    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+      <SearchInput v-model="searchInput" @submit="filter()" />
       <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle">
         <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" class="filterIcon"
           :class="{ active: isFilterActive }" />
@@ -130,7 +82,7 @@ function resetFilterInputs() {
 
       <!-- Filters header bar -->
       <AppHeaderBar ref="filters-header">
-        <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle" @click="go()">
+        <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle" @click="filter()">
           <ArrowLeft :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
         </Toggle>
         <h1>Filtres</h1>
@@ -160,7 +112,13 @@ function resetFilterInputs() {
 
     <!-- Main content -->
     <main>
-      <ItemCardsList :src="itemsStore" target="home-item-item_id" ref="main" class="app-content page" />
+      <List v-if="likedItems && savedItems" ref="main" class="app-content page">
+        <ItemCard v-for="item in itemsPages.data ?? []" @click="openItem(item.id)" :key="`item-${item.id}`"
+          :id="`item-${item.id}`" :item="item" :likedItems="likedItems" :savedItems="savedItems" />
+        <ListError v-if="itemsStatus === 'error'">Une erreur est survenue.</ListError>
+        <ListLoader v-if="itemsAsyncStatus === 'loading'" />
+        <ListEmpty v-else-if="itemsPages.data.length === 0">Aucun résultat</ListEmpty>
+      </List>
     </main>
 
   </div>
@@ -169,6 +127,7 @@ function resetFilterInputs() {
 <style scoped lang="scss">
 main {
   --header-height: v-bind(mainHeaderHeight + "px");
+  overflow-y: scroll;
 }
 
 .filters.app-content {

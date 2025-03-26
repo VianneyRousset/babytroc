@@ -127,19 +127,6 @@ function usePaginatedFetch<
     // update status
     status.value = "pending";
 
-    // setup timeout
-    const timeoutLength = toValue(options.timeout)
-    let timeoutId: NodeJS.Timeout
-    if (timeoutLength) {
-      timeoutId = setTimeout(
-        () => controller!.abort(new DOMException(
-          'Request aborted due to timeout.',
-          'TimeoutError',
-        )),
-        timeoutLength)
-      controller.signal.onabort = () => clearTimeout(timeoutId)
-    }
-
     // fetch new data
     await $paginatedApi(
       url,

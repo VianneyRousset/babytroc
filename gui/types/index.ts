@@ -1,37 +1,13 @@
 import type { AsyncDataRequestStatus } from '#app';
 import type { FetchError } from 'ofetch';
-import type { ApiResponse, ApiRequestQuery } from '#open-fetch'
+
+
+export type { Chat, ChatQuery, ChatMessage, ChatMessageQuery, ChatMessageOrigin, ChatMessageChunk, ChatMessageDateGroup } from "./chat";
+export type { Item } from './item';
+export type { LoanRequest } from './loan';
+export type { User, UserPreview } from './user';
 
 declare global {
-
-  // chat
-  type Chat = ApiResponse<'list_client_chats_v1_me_chats_get'>[number];
-  type ChatQuery = ApiRequestQuery<'list_client_chats_v1_me_chats_get'>;
-  type ChatMessage = ApiResponse<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>[number];
-  type ChatMessageQuery = ApiRequestQuery<'list_client_chat_messages_v1_me_chats__chat_id__messages_get'>;
-
-  type ChatMessageOrigin = "me" | "interlocutor" | "system";
-
-  type ChatMessageChunk = {
-    origin: ChatMessageOrigin,
-    messages: Array<ChatMessage>;
-    key: string,
-  }
-
-  type ChatMessageDateGroup = {
-    date: string,
-    formattedDate: string,
-    chunks: Array<ChatMessageChunk>,
-  };
-
-  // user
-  type User = ApiResponse<"get_user_v1_users__user_id__get">;
-  type UserPreview = Chat["borrower" | "owner"];
-
-  // item
-  type Item = ApiResponse<'get_item_v1_items__item_id__get'>;
-  type ItemPreview = ApiResponse<'list_items_v1_items_get'>[number];
-  type ItemQuery = ApiRequestQuery<'list_items_v1_items_get'>;
 
   // region
   type Region = Item["regions"][0];

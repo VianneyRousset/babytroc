@@ -5,6 +5,8 @@ import { computedAsync } from '@vueuse/core'
 
 // get user ID from route
 const route = useRoute();
+const router = useRouter();
+const routeStack = useRouteStack();
 const userId = Number.parseInt(route.params["user_id"] as string); // TODO avoid this hack
 
 // get main header bar height to offset content
@@ -12,20 +14,18 @@ const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
 // current tab
-const { currentTab } = useTab();
+const { currentTabRoot } = useTab();
 
-// get user data from store
-const usersStore = useUsersStore();
-const pendingUser = ref(false);
-const user = computedAsync(
-  async () => (await usersStore.get(userId)).value,
-  null,
-  {
-    evaluating: pendingUser,
-  },
-);
+// get user data
+const { data: user } = useUserQuery(userId);
 
-const { name, avatarSeed, items, itemsSource, likesCount, starsCount, itemsCount } = useUser(user);
+const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
+const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
+
+function openItem(itemId: number) {
+  routeStack.amend(router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath);
+  return navigateTo(`${currentTabRoot}/item/${itemId}`);
+}
 
 </script>
 
@@ -35,35 +35,31 @@ const { name, avatarSeed, items, itemsSource, likesCount, starsCount, itemsCount
     <!-- Header bar -->
     <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
 
-
       <div>
         <AppBack />
-        <h1 :title="name ?? undefined">{{ name ?? "..." }}</h1>
+        <h1 :title="user?.name">{{ user?.name }}</h1>
 
         <!-- Dropdown menu -->
         <DropdownMenu>
-
-          <DropdownMenuItem class="DropdownMenuItem red">
+          <DropdownMenuItem class="red">
             <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
             <div>Signaler</div>
           </DropdownMenuItem>
-
         </DropdownMenu>
-
       </div>
 
-      <div>
-        <Avatar :seed="avatarSeed" />
+      <div v-if="user">
+        <Avatar :seed="user.avatar_seed" />
         <div class="counter">
-          <div>{{ starsCount ?? '...' }}</div>
+          <div>{{ user.stars_count }}</div>
           <div>Étoiles</div>
         </div>
         <div class="counter">
-          <div>{{ likesCount ?? '...' }}</div>
+          <div>{{ user.likes_count }}</div>
           <div>Likes</div>
         </div>
         <div class="counter">
-          <div>{{ itemsCount ?? '...' }}</div>
+          <div>{{ user.items.length }}</div>
           <div>Objects</div>
         </div>
       </div>
@@ -72,7 +68,11 @@ const { name, avatarSeed, items, itemsSource, likesCount, starsCount, itemsCount
 
     <!-- Main content -->
     <main>
-      <ItemCardsList ref="main" :src="itemsSource" :target="`${currentTab}-item-item_id`" class="app-content page" />
+      <List v-if="user && likedItems && savedItems" ref="main" class="app-content page">
+        <ItemCard v-for="item in user.items" @click="openItem(item.id)" :key="`item-${item.id}`" :id="`item-${item.id}`"
+          :item="item" :likedItems="likedItems" :savedItems="savedItems" />
+        <ListEmpty v-if="user.items.length === 0">{{ user?.name }} n'a pas encore d'objet.</ListEmpty>
+      </List>
     </main>
 
   </div>

@@ -21,7 +21,7 @@ const imageStyle = computed(() => ({
 
     <div class="image">
       <AspectRatio :ratio="1">
-        <img v-if="image" class="h-full w-full object-cover" :src="image">
+        <img v-if="image" :src="image">
       </AspectRatio>
     </div>
 

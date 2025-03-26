@@ -1,41 +1,33 @@
 <script setup lang="ts">
 
-import { ChatMessageType } from '#build/types/open-fetch/schemas/api';
+import { MessageCircleQuestion, CircleDashed, PartyPopper, Heart, CircleStop, Clock, Check } from 'lucide-vue-next';
+import VSwitch from '@lmiller1990/v-switch'
 
 const props = defineProps<{
-  message: ChatMessage,
+  me: User,
+  msg: ChatMessage,
 }>();
 
 // chat
-const { message } = toRefs(props);
-const { origin, messageType, text, formattedHour } = useChatMessage(message);
+const { me, msg } = toRefs(props);
 
-const classes = computed(() => ({
-  "me": origin.value === 'me',
-  "interlocutor": origin.value === 'interlocutor',
-  "system": origin.value === 'system',
-}));
+const slots = useSlots();
 
-// item
+const { origin } = useChatMessageOrigin(msg, me);
 
+const { formattedHour } = useChatMessageTime(msg);
 
 </script>
 
 <template>
-  <div class="ChatMessage" :class="classes">
-
+  <div class="ChatMessage" :origin="origin">
     <div class="bubble">
-      <div>{{ text }}</div>
-
-      <div v-if="messageType === ChatMessageType.loan_request_created">
-        x
+      <slot />
+      <div class="hour">
+        {{ formattedHour }}
       </div>
-      <div class="hour">{{ formattedHour }}</div>
     </div>
-
   </div>
-
-
 </template>
 
 <style scoped lang="scss">
@@ -45,25 +37,50 @@ const classes = computed(() => ({
   --message-small-border-radius: 0.5rem;
 
   @include flex-column;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.8rem;
   padding-bottom: calc(0.25rem + 2px);
 
   .bubble {
+    @include flex-column;
+    align-items: stretch;
+    gap: 1rem;
+
     line-height: 1.25;
     max-width: 75%;
-    padding: 0.5rem .875rem;
+    padding: 0.8rem 1rem;
     position: relative;
     word-wrap: break-word;
     padding-bottom: 1.2rem;
+
+    /* text */
+    :deep(.text) {
+      @include flex-row;
+      gap: 0.5rem;
+
+      svg {
+        flex-shrink: 0;
+      }
+
+    }
+
+    :deep(.buttons) {
+      @include flex-row;
+      gap: 1rem;
+
+      &>* {
+        flex: 1;
+      }
+    }
+
   }
 
   /* system messages */
-  &.system {
+  &[origin="system"] {
 
     .bubble {
-      border: 1px solid $neutral-300;
+      border: 1px solid $neutral-400;
       align-self: center;
-      color: $neutral-300;
+      color: $neutral-400;
       border-radius: 0.5rem;
 
       .hour {
@@ -73,7 +90,8 @@ const classes = computed(() => ({
   }
 
   /* user messages */
-  &:not(.system) {
+  &[origin="me"],
+  &[origin="interlocutor"] {
 
     .bubble {
       border-radius: var(--message-large-border-radius);
@@ -94,7 +112,7 @@ const classes = computed(() => ({
     }
 
     /* me */
-    &.me {
+    &[origin="me"] {
 
       .bubble {
         align-self: flex-end;
@@ -125,12 +143,10 @@ const classes = computed(() => ({
           }
         }
       }
-
-
     }
 
     /* interlocutor */
-    &.interlocutor {
+    &[origin="interlocutor"] {
 
       .bubble {
         align-self: flex-start;

@@ -1,15 +1,16 @@
 <script setup lang="ts">
-
 import { ArrowLeft } from 'lucide-vue-next';
 
 const props = defineProps<{
   fallback?: string,
 }>();
 
+const { fallback } = toRefs(props);
+
 const routeStack = useRouteStack();
 
 const { currentTabRoot } = useTab();
-const targetRoute = computed(() => routeStack.previous.value ?? props.fallback ?? currentTabRoot.value);
+const targetRoute = computed(() => routeStack.previous.value ?? unref(fallback) ?? currentTabRoot);
 
 async function onclick() {
   routeStack.markBackward();

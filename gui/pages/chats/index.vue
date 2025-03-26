@@ -5,8 +5,8 @@ import { MessageSquare } from 'lucide-vue-next';
 // current tab
 const { currentTab } = useTab();
 
-// list of chats
-const chatsStore = useChatsStore();
+const { data: chatsPages, status: chatsStatus } = useChatsListQuery();
+const { data: me } = useMeQuery();
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
@@ -24,7 +24,14 @@ const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"
 
   <!-- Main content -->
   <main>
-    <ChatSlabsList :src="chatsStore" :target="`${currentTab}-chat_id`" ref="main" class="app-content" />
+    <List v-if="chatsPages.data && me" ref="main" class="app-content">
+      <NuxtLink v-for="chat in chatsPages.data" :to="`/chats/${chat.id}`" :id="`chat-${chat.id}`"
+        :key="`chat-${chat.id}`" class="reset-link">
+        <ChatSlab :chat="chat" :me="me" :key="`${chat.id}`" />
+        <!-- TODO add empty -->
+      </NuxtLink>
+      <ListEmpty v-if="chatsPages.data && chatsPages.data.length === 0">Vous n'avez pas encore de message.</ListEmpty>
+    </List>
   </main>
 
 </template>
@@ -33,5 +40,17 @@ const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"
 <style scoped lang="scss">
 .app-content {
   --header-height: v-bind(mainHeaderHeight + "px");
+}
+
+.app-content {
+  @include flex-column;
+  gap: 0;
+  flex-grow: 1;
+  overflow-y: scroll;
+  align-items: stretch;
+
+  .ChatSlab {
+    border-bottom: 1px solid $neutral-200;
+  }
 }
 </style>

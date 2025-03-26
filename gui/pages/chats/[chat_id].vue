@@ -13,61 +13,48 @@ const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"
 // current tab
 const { currentTab } = useTab();
 
-// get chat data
-const { data: chat, refresh: refreshItem } = await useApi('/v1/me/chats/{chat_id}', {
-  path: {
-    chat_id: chatId,
-  },
-  key: `chats/${chatId}`
-});
-const { interlocutor, item } = useChat(chat);
+// query data
+const { data: chat } = useChatQuery(chatId);
+const { data: me } = useMeQuery();
 
 // interlocutor
-const { name: interlocutorName, avatarSeed: interlocutorAvatar } = useUserPreview(interlocutor);
+const interlocutor = computed(() => {
+  const _chat = unref(chat);
+  const _me = unref(me);
 
-// chat messages
-const useChatMessagesStore = createChatMessagesStore(chatId);
-const chatMessagesStore = useChatMessagesStore();
+  if (_chat && _me) {
+    const { interlocutor: _interlocutor } = useChatRoles(_chat, _me);
+    return unref(_interlocutor);
+  }
 
-// chat input
-const chatMessageInput = ref("");
-
-// send message
-async function submitMessage(msg: string) {
-  await chatMessagesStore.send(msg);
-  chatMessageInput.value = "";
-}
-
+  return null;
+});
 </script>
 
 <template>
   <div>
 
     <!-- Header bar -->
-    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
       <AppBack />
-      <h1 :title="interlocutorName ?? undefined">{{ interlocutorName ?? "..." }}</h1>
+      <h1 v-if="interlocutor" :title="interlocutor.name">{{ interlocutor.name }}</h1>
 
       <!-- Dropdown menu -->
-      <DropdownMenu>
-
-        <DropdownMenuItem class="DropdownMenuItem" asChild>
-          <NuxtLink v-if="item" :to="{ name: 'chats-item-item_id', params: { item_id: item.id } }">
+      <DropdownMenu v-if="chat">
+        <NuxtLink :to="{ name: 'chats-item-item_id', params: { item_id: chat.item.id } }" class="reset-link">
+          <DropdownMenuItem>
             <Box :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
             <div>Voir l'objet</div>
-          </NuxtLink>
-        </DropdownMenuItem>
-
+          </DropdownMenuItem>
+        </NuxtLink>
       </DropdownMenu>
 
     </AppHeaderBar>
 
     <!-- Main content -->
     <main>
-      <ChatMessagesList :src="chatMessagesStore" ref="main" class="app-content" />
+      <ChatPresentation v-if="chat && me" ref="main" :chat="chat" :me="me" class="main app-content" />
     </main>
-
-    <ChatMessageInput v-model="chatMessageInput" @submit="submitMessage" />
 
   </div>
 </template>
@@ -75,12 +62,5 @@ async function submitMessage(msg: string) {
 <style scoped lang="scss">
 main {
   --header-height: v-bind(mainHeaderHeight + "px");
-}
-
-.ChatMessageInput {
-  position: absolute;
-  bottom: 80px;
-  left: 0;
-  right: 0;
 }
 </style>

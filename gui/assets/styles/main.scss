@@ -43,6 +43,10 @@ input {
   }
 }
 
+.reset-link {
+  @include reset-link;
+}
+
 .app-content {
   padding-top: var(--header-height);
   padding-bottom: var(--footer-height);
@@ -114,11 +118,6 @@ input {
   @include flex-row-center;
   padding: 0px;
   cursor: pointer;
-}
-
-.DropdownMenuTrigger {
-  @include reset-button;
-  background: red;
 }
 
 .SliderRoot {
