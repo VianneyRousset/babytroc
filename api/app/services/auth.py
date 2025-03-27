@@ -2,4 +2,4 @@ from fastapi import Request
 
 
 def check_auth(request: Request):
-    return 2
+    return 1
