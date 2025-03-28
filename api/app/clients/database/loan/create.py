@@ -64,25 +64,14 @@ def create_loan(
 ) -> Loan:
     """Create and insert a loan."""
 
+    borrower = get_user(db=db, user_id=borrower_id)
+    item = get_item(db=db, item_id=item_id)
+
     loan = Loan()
-
-    loan.borrower = get_user(db=db, user_id=borrower_id)
-    loan.item = get_item(db=db, item_id=item_id)
-
-    return insert_loan(
-        db=db,
-        loan=loan,
-    )
-
-
-def insert_loan(
-    db: Session,
-    *,
-    loan: Loan,
-) -> Loan:
-    """Insert `loan` into the loans of the item with `item_id`."""
-
     db.add(loan)
+
+    loan.borrower = borrower
+    loan.item = item
 
     db.flush()
     db.refresh(loan)

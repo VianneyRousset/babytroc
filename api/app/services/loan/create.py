@@ -50,7 +50,7 @@ def execute_loan_request(
 ) -> LoanRead:
     """Create a loan from an accepted loan request.
 
-    Loan request state must be `pending` if `force` is `False`.
+    Loan request state must be `accepted` if `force` is `False`.
 
     The loan request state is changed to `executed`.
 
