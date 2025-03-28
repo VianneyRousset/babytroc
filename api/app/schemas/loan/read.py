@@ -29,7 +29,7 @@ class LoanRead(LoanBase, ReadBase):
     during: tuple[datetime | None, datetime | None]
     active: bool
 
-    @field_validator("during")
+    @field_validator("during", mode="before")
     def validate_during(
         cls,  # noqa: N805
         v: Union[tuple[datetime | None, datetime | None], Range],
