@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Query, Request, Response, status
+from fastapi import Path, Query, Request, Response, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,14 @@ from app.schemas.loan.read import LoanRead
 from app.schemas.query import QueryPageOptions
 
 from .me import router
+
+loan_id_annotation = Annotated[
+    int,
+    Path(
+        title="The ID of the loan.",
+        ge=0,
+    ),
+]
 
 # READ
 
@@ -43,3 +51,44 @@ def list_client_loans(
     response.headers["X-Total-Count"] = str(result.total_count)
 
     return result.data
+
+
+@router.get("/loans/{loan_id}", status_code=status.HTTP_200_OK)
+def get_client_loan(
+    request: Request,
+    loan_id: loan_id_annotation,
+    db: Annotated[Session, Depends(get_db_session)],
+) -> LoanRead:
+    """Get loan where the client is the owner."""
+
+    client_user_id = services.auth.check_auth(request)
+
+    return services.loan.get_loan(
+        db=db,
+        loan_id=loan_id,
+        query_filter=LoanQueryFilter(
+            owner_id=client_user_id,
+        ),
+    )
+
+
+# UPDATE
+
+
+@router.post("/loans/{loan_id}/end", status_code=status.HTTP_200_OK)
+def end_client_loan(
+    request: Request,
+    loan_id: loan_id_annotation,
+    db: Annotated[Session, Depends(get_db_session)],
+) -> LoanRead:
+    """Put an end to the loan where the client is the owner."""
+
+    client_user_id = services.auth.check_auth(request)
+
+    return services.loan.end_loan(
+        db=db,
+        loan_id=loan_id,
+        query_filter=LoanQueryFilter(
+            owner_id=client_user_id,
+        ),
+    )
