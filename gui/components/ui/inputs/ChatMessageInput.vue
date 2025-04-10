@@ -46,7 +46,6 @@ function enterUp(event: KeyboardEvent) {
     return;
 
   event.preventDefault();
-  blur();
   submit();
 }
 

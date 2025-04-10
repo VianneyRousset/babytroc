@@ -7,7 +7,6 @@ const route = useRoute();
 const chatId = String(route.params.chat_id);
 
 // get main header bar height to offset content
-const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
 // current tab
@@ -35,7 +34,7 @@ const interlocutor = computed(() => {
   <div>
 
     <!-- Header bar -->
-    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+    <AppHeaderBar ref="main-header" :scrollOffset="32">
       <AppBack />
       <h1 v-if="interlocutor" :title="interlocutor.name">{{ interlocutor.name }}</h1>
 

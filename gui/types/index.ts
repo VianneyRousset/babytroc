@@ -4,7 +4,7 @@ import type { FetchError } from 'ofetch';
 
 export type { Chat, ChatQuery, ChatMessage, ChatMessageQuery, ChatMessageOrigin, ChatMessageChunk, ChatMessageDateGroup } from "./chat";
 export type { Item } from './item';
-export type { LoanRequest } from './loan';
+export type { Loan, LoanRequest } from './loan';
 export type { User, UserPreview } from './user';
 
 declare global {

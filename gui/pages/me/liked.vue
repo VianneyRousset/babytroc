@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import { Bookmark } from 'lucide-vue-next';
-
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
 
@@ -24,14 +22,14 @@ function openItem(itemId: number) {
 
     <!-- Header bar -->
     <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
-      <Bookmark :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-      <h1>Objets sauvegardés</h1>
+      <AppBack />
+      <h1>Objets aimés</h1>
     </AppHeaderBar>
 
     <!-- Main content -->
     <main>
       <List v-if="likedItems && savedItems" ref="main" class="app-content page">
-        <ItemCard v-for="item in savedItems ?? []" @click="openItem(item.id)" :key="`item-${item.id}`"
+        <ItemCard v-for="item in likedItems ?? []" @click="openItem(item.id)" :key="`item-${item.id}`"
           :id="`item-${item.id}`" :item="item" :likedItems="likedItems!" :savedItems="savedItems!" />
         <ListError v-if="savedItemsStatus === 'error'">Une erreur est survenue.</ListError>
         <ListLoader v-if="savedItemsStatus === 'pending'" />

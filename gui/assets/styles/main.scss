@@ -18,6 +18,14 @@ h5 {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
 
+h2 {
+  color: $neutral-800;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding-left: 1rem;
+}
+
+
 input {
   border: 1px solid $neutral-200;
   border-radius: 8px;

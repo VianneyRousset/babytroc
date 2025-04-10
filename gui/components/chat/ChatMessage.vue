@@ -1,14 +1,9 @@
 <script setup lang="ts">
-
-import { MessageCircleQuestion, CircleDashed, PartyPopper, Heart, CircleStop, Clock, Check } from 'lucide-vue-next';
-import VSwitch from '@lmiller1990/v-switch'
-
 const props = defineProps<{
   me: User,
   msg: ChatMessage,
 }>();
 
-// chat
 const { me, msg } = toRefs(props);
 
 const slots = useSlots();
@@ -22,7 +17,12 @@ const { formattedHour } = useChatMessageTime(msg);
 <template>
   <div class="ChatMessage" :origin="origin">
     <div class="bubble">
-      <slot />
+      <div class="text">
+        <slot />
+      </div>
+      <div v-if="slots.buttons" class="buttons">
+        <slot name="buttons" />
+      </div>
       <div class="hour">
         {{ formattedHour }}
       </div>
@@ -46,7 +46,7 @@ const { formattedHour } = useChatMessageTime(msg);
     gap: 1rem;
 
     line-height: 1.25;
-    max-width: 75%;
+    max-width: 85%;
     padding: 0.8rem 1rem;
     position: relative;
     word-wrap: break-word;
@@ -55,7 +55,7 @@ const { formattedHour } = useChatMessageTime(msg);
     /* text */
     :deep(.text) {
       @include flex-row;
-      gap: 0.5rem;
+      gap: 0.7rem;
 
       svg {
         flex-shrink: 0;

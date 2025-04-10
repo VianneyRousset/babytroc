@@ -787,6 +787,88 @@
         }
       }
     },
+    "/v1/me/loans/{loan_id}": {
+      "get": {
+        "summary": "Get Client Loan",
+        "description": "Get loan where the client is the owner.",
+        "operationId": "get_client_loan_v1_me_loans__loan_id__get",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the loan."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/loans/{loan_id}/end": {
+      "post": {
+        "summary": "End Client Loan",
+        "description": "Put an end to the loan where the client is the owner.",
+        "operationId": "end_client_loan_v1_me_loans__loan_id__end_post",
+        "parameters": [
+          {
+            "name": "loan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "title": "The ID of the loan."
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/me/saved/{item_id}": {
       "post": {
         "summary": "Add Item To Client Saved Items",
@@ -2261,6 +2343,86 @@
         }
       }
     },
+    "/v1/me/borrowings/requests/{loan_request_id}": {
+      "get": {
+        "summary": "Get Client Borrowing Loan Request",
+        "description": "Get loan request made by the client.",
+        "operationId": "get_client_borrowing_loan_request_v1_me_borrowings_requests__loan_request_id__get",
+        "parameters": [
+          {
+            "name": "loan_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Loan Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRequestRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/borrowings/requests/{loan_request_id}/execute": {
+      "post": {
+        "summary": "Execute Loan Request",
+        "description": "Create a loan from an accepted loan request.",
+        "operationId": "execute_loan_request_v1_me_borrowings_requests__loan_request_id__execute_post",
+        "parameters": [
+          {
+            "name": "loan_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Loan Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/users/{user_id}/items": {
       "get": {
         "summary": "List Items Owned By User",
@@ -3391,6 +3553,9 @@
           "item": {
             "$ref": "#/components/schemas/ItemPreviewRead"
           },
+          "owner": {
+            "$ref": "#/components/schemas/UserPreviewRead"
+          },
           "borrower": {
             "$ref": "#/components/schemas/UserPreviewRead"
           },
@@ -3436,6 +3601,7 @@
         "required": [
           "id",
           "item",
+          "owner",
           "borrower",
           "chat_id",
           "during",

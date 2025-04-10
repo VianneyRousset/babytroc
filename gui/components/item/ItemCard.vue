@@ -37,9 +37,9 @@ const backgroundImage = computed(() => {
     <div class="ItemCard" :style="{ backgroundImage: backgroundImage }">
 
       <div class="status">
-        <Heart v-if="isLikedByUser" class="liked" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        <Bookmark v-if="isSavedByUser" class="saved" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        <Clock v-if="!item.available" class="not-available" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Heart v-if="isLikedByUser" class="liked" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Bookmark v-if="isSavedByUser" class="saved" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Clock v-if="!item.available" class="not-available" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </div>
 
       <div class="info">
@@ -84,13 +84,13 @@ const backgroundImage = computed(() => {
     }
 
     .not-available {
-      color: $neutral-200;
+      color: $neutral-100;
     }
 
     .liked,
     .saved {
-      color: $primary-300;
-      fill: $primary-300;
+      color: $neutral-100;
+      fill: $neutral-100;
     }
 
   }

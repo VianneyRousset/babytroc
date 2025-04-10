@@ -58,22 +58,6 @@ export function useGroupChatMessages(
 }
 
 
-function formatRelativeDate(dt: DateTime) {
-
-  const now = DateTime.local();
-
-  if (dt.hasSame(now, "day"))
-    return "Aujourd'hui";
-
-  if (dt.hasSame(now.minus({ days: 1 }), "day"))
-    return "Hier";
-
-  if (dt.hasSame(now, "year"))
-    return dt.toLocaleString({ month: "long", day: "numeric" });
-
-  return dt.toFormat("DDD");
-}
-
 
 function createMessageDateGroup(date: string, messages: Array<ChatMessage>, user: User): ChatMessageDateGroup {
   return {

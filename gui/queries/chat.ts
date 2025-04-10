@@ -121,8 +121,6 @@ export const useChatMessagesListQuery = (chatId: MaybeRefOrGetter<string>) => {
 
       merge: (pages, newPage) => {
 
-        console.log("Merge", toValue(chatId), newPage);
-
         if (newPage.data.length === 0) {
           return {
             ...pages,

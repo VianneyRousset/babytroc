@@ -1,7 +1,8 @@
-import type { ApiResponse } from '#open-fetch'
+import type { components } from '#build/types/open-fetch/schemas/api';
 
 declare global {
-  type LoanRequest = ApiResponse<'list_client_borrowing_loan_requests_v1_me_borrowings_requests_get'>[number];
+  type Loan = components["schemas"]["LoanRead"];
+  type LoanRequest = components["schemas"]["LoanRequestRead"];
 }
 
-export type { LoanRequest };
+export type { Loan, LoanRequest };

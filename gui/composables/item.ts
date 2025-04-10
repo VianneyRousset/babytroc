@@ -73,7 +73,7 @@ export const useItemFilters = () => {
   const stateAvailable = ref(route.query.av !== ItemQueryAvailability.no);
   const stateUnavailable = ref(route.query.av === ItemQueryAvailability.no || route.query.av === ItemQueryAvailability.all);
 
-  const targetedAge = ref(typeof route.query.mo === "string" ? parseMonthRange(route.query.mo) : [0, null]);
+  const targetedAge = ref(typeof route.query.mo === "string" ? string2range(route.query.mo) : [0, null]);
   const regions = reactive(new Set(getQueryParamAsArray(route.query, "reg").map(Number.parseInt)));
 
   const isFilterActive = computed(() => {
@@ -116,7 +116,7 @@ export const useItemFilters = () => {
 
     const query: ItemQuery = {
       q: q.length > 0 ? q : undefined,
-      mo: ((mo[0] ?? 0) > 0 || mo[1] !== null) ? formatMonthRange(mo) : undefined,
+      mo: ((mo[0] ?? 0) > 0 || mo[1] !== null) ? range2string(mo) : undefined,
       av: _unavailable ? (_available ? ItemQueryAvailability.all : ItemQueryAvailability.no) : undefined,
       reg: regions.size > 0 ? Array.from(regions) : undefined,
     }

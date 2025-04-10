@@ -13,7 +13,7 @@ const { state: item, asyncStatus: itemAsyncStatus } = useItemQuery(itemId);
 const { state: me } = useMeQuery();
 const { state: savedItems } = useSavedItemsQuery();
 const { state: likedItems, asyncStatus: likedAsyncStatus } = useLikedItemsQuery();
-const { state: loanRequests } = useLoanRequestsQuery();
+const { state: loanRequests } = useBorrowingsLoanRequestsListQuery();
 
 </script>
 

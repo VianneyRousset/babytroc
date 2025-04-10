@@ -14,9 +14,11 @@ export const useSendMessageMutation = defineMutation(() => {
       },
     }),
     onSettled: (_data, _error, { chatId }) => {
-      queryCache.invalidateQueries({ key: ['me-borrowings-requests'] });
-      queryCache.invalidateQueries({ key: ['chats'] });
-      queryCache.invalidateQueries({ key: ['chat', chatId, "messages"] });
+      queryCache.invalidateQueries({
+        key: ["me", "borrowings", "requests"]
+      });
+      queryCache.invalidateQueries({ key: ["chats"] });
+      queryCache.invalidateQueries({ key: ["chat", chatId, "messages"] });
     },
   });
 });
