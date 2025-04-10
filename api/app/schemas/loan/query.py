@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import Select, func, not_
+from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
 from app.models.item import Item
@@ -66,6 +66,6 @@ class LoanQueryFilter(QueryFilterBase):
             if self.active:
                 stmt = stmt.where(func.upper_inf(Loan.during))
             else:
-                stmt = stmt.where(not_(func.lower_inf(Loan.during)))
+                stmt = stmt.where(func.upper(Loan.during).is_not(None))
 
         return stmt

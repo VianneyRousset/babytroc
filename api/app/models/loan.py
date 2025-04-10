@@ -5,7 +5,6 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Integer,
-    UniqueConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import (
@@ -153,6 +152,10 @@ class Loan(IntegerIdentifier, Base):
     )
 
     @hybrid_property
+    def owner(self) -> "User":
+        return self.item.owner
+
+    @hybrid_property
     def chat_id(self) -> ChatId:
         return ChatId(
             item_id=self.item_id,
@@ -164,7 +167,6 @@ class Loan(IntegerIdentifier, Base):
         return self.during.upper is None
 
     __table_args__ = (
-        UniqueConstraint(borrower_id),
         ExcludeConstraint(
             (item_id, "="),
             (during, "&&"),

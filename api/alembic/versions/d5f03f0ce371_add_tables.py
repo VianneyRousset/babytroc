@@ -393,7 +393,6 @@ def create_loan_table():
         sa.ForeignKeyConstraint(["borrower_id"], ["user.id"], ondelete="SET NULL"),
         sa.ForeignKeyConstraint(["item_id"], ["item.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("borrower_id"),
     )
     op.create_index(op.f("ix_loan_during"), "loan", ["during"], unique=False)
     op.create_index(op.f("ix_loan_id"), "loan", ["id"], unique=False)

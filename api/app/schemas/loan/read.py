@@ -24,6 +24,7 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
 class LoanRead(LoanBase, ReadBase):
     id: int
     item: ItemPreviewRead
+    owner: UserPreviewRead
     borrower: UserPreviewRead
     chat_id: ChatId
     during: tuple[datetime | None, datetime | None]
