@@ -1,0 +1,1271 @@
+diff --git a/node_modules/@pinia/colada/dist/index.d.ts b/node_modules/@pinia/colada/dist/index.d.ts
+index 7012bc0..5a62151 100644
+--- a/node_modules/@pinia/colada/dist/index.d.ts
++++ b/node_modules/@pinia/colada/dist/index.d.ts
+@@ -37,28 +37,28 @@ type DataStateStatus = 'pending' | 'error' | 'success';
+  * Internal base type for data state.
+  */
+ interface _DataState_Base<TResult, TError> {
+-    /**
+-     * The last successfully resolved data.
+-     */
+-    data: TResult;
+-    /**
+-     * The last rejected error.
+-     */
+-    error: TError;
+-    /**
+-     * The status of the data.
+-     * @see {@link DataStateStatus}
+-     */
+-    status: DataStateStatus;
++  /**
++   * The last successfully resolved data.
++   */
++  data: TResult;
++  /**
++   * The last rejected error.
++   */
++  error: TError;
++  /**
++   * The status of the data.
++   * @see {@link DataStateStatus}
++   */
++  status: DataStateStatus;
+ }
+ interface DataState_Success<TResult> extends _DataState_Base<TResult, null> {
+-    status: 'success';
++  status: 'success';
+ }
+ interface DataState_Error<TResult, TError, TDataInitial> extends _DataState_Base<TResult | TDataInitial, TError> {
+-    status: 'error';
++  status: 'error';
+ }
+ interface DataState_Pending<TDataInitial> extends _DataState_Base<TDataInitial, null> {
+-    status: 'pending';
++  status: 'pending';
+ }
+ /**
+  * Possible states for data based on its status.
+@@ -80,53 +80,57 @@ type RefetchOnControl = boolean | 'always';
+  * Options for queries that can be globally overridden.
+  */
+ interface UseQueryOptionsGlobal {
+-    /**
+-     * Whether the query should be enabled or not. If `false`, the query will not be executed until `refetch()` or
+-     * `refresh()` is called. If it becomes `true`, the query will be refreshed.
+-     */
+-    enabled?: MaybeRefOrGetter<boolean>;
+-    /**
+-     * Time in ms after which the data is considered stale and will be refreshed on next read.
+-     * @default 5000 (5 seconds)
+-     */
+-    staleTime?: number;
+-    /**
+-     * Time in ms after which, once the data is no longer being used, it will be garbage collected to free resources. Set to `false` to disable garbage collection.
+-     * @default 300_000 (5 minutes)
+-     */
+-    gcTime?: number | false;
+-    /**
+-     * Whether to refetch the query when the component is mounted.
+-     * @default true
+-     */
+-    refetchOnMount?: MaybeRefOrGetter<RefetchOnControl>;
+-    /**
+-     * Whether to refetch the query when the window regains focus.
+-     * @default true
+-     */
+-    refetchOnWindowFocus?: MaybeRefOrGetter<RefetchOnControl>;
+-    /**
+-     * Whether to refetch the query when the network reconnects.
+-     * @default true
+-     */
+-    refetchOnReconnect?: MaybeRefOrGetter<RefetchOnControl>;
+-    /**
+-     * A placeholder data that is initially shown while the query is loading for the first time. This will also show the
+-     * `status` as `success` until the query finishes loading (no matter the outcome of the query). Note: unlike with
+-     * `initialData`, the placeholder does not change the cache state.
+-     */
+-    placeholderData?: (previousData: unknown) => any;
++  /**
++   * Whether the query should be enabled or not. If `false`, the query will not be executed until `refetch()` or
++   * `refresh()` is called. If it becomes `true`, the query will be refreshed.
++   */
++  enabled?: MaybeRefOrGetter<boolean>;
++  /**
++   * Time in ms after which the data is considered stale and will be refreshed on next read.
++   * @default 5000 (5 seconds)
++   */
++  staleTime?: number;
++  /**
++   * Time in ms after which, once the data is no longer being used, it will be garbage collected to free resources. Set to `false` to disable garbage collection.
++   * @default 300_000 (5 minutes)
++   */
++  gcTime?: number | false;
++  /**
++   * Whether to refetch the query when the component is mounted.
++   * @default true
++   */
++  refetchOnMount?: MaybeRefOrGetter<RefetchOnControl>;
++  /**
++   * Whether to refetch the query when the window regains focus.
++   * @default true
++   */
++  refetchOnWindowFocus?: MaybeRefOrGetter<RefetchOnControl>;
++  /**
++   * Whether to refetch the query when the network reconnects.
++   * @default true
++   */
++  refetchOnReconnect?: MaybeRefOrGetter<RefetchOnControl>;
++  /**
++   * A placeholder data that is initially shown while the query is loading for the first time. This will also show the
++   * `status` as `success` until the query finishes loading (no matter the outcome of the query). Note: unlike with
++   * `initialData`, the placeholder does not change the cache state.
++   */
++  placeholderData?: (previousData: unknown) => any;
+ }
+ /**
+  * Context object passed to the `query` function of `useQuery()`.
+  * @see {@link UseQueryOptions}
+  */
+-interface UseQueryFnContext {
+-    /**
+-     * `AbortSignal` instance attached to the query call. If the call becomes outdated (e.g. due to a new call with the
+-     * same key), the signal will be aborted.
+-     */
+-    signal: AbortSignal;
++interface UseQueryFnContext<TResult> {
++  /**
++   * `AbortSignal` instance attached to the query call. If the call becomes outdated (e.g. due to a new call with the
++   * same key), the signal will be aborted.
++   */
++  signal: AbortSignal;
++
++  data: TResult;
++
++  reset: boolean;
+ }
+ /**
+  * Options for `useQuery()`. Can be extended by plugins.
+@@ -144,50 +148,50 @@ interface UseQueryFnContext {
+  * ```
+  */
+ interface UseQueryOptions<TResult = unknown, TError = ErrorDefault, TDataInitial extends TResult | undefined = TResult | undefined> extends Pick<UseQueryOptionsGlobal, 'gcTime' | 'enabled' | 'refetchOnMount' | 'refetchOnReconnect' | 'refetchOnWindowFocus' | 'staleTime'> {
+-    /**
+-     * The key used to identify the query. Array of primitives **without** reactive values or a reactive array or getter.
+-     * It should be treaded as an array of dependencies of your queries, e.g. if you use the `route.params.id` property,
+-     * it should also be part of the key:
+-     *
+-     * ```ts
+-     * import { useRoute } from 'vue-router'
+-     * import { useQuery } from '@pinia/colada'
+-     *
+-     * const route = useRoute()
+-     * const { data } = useQuery({
+-     *   // pass a getter function (or computed, ref, etc.) to ensure reactivity
+-     *   key: () => ['user', route.params.id],
+-     *   query: () => fetchUser(route.params.id),
+-     * })
+-     * ```
+-     */
+-    key: MaybeRefOrGetter<EntryKey>;
+-    /**
+-     * The function that will be called to fetch the data. It **must** be async.
+-     */
+-    query: (context: UseQueryFnContext) => Promise<TResult>;
+-    /**
+-     * The data which is initially set to the query while the query is loading for the first time.
+-     * Note: unlike with `placeholderData`, setting the initial data changes the state of the query (it will be set to `success`).
+-     */
+-    initialData?: () => TDataInitial;
+-    /**
+-     * A placeholder data that is initially shown while the query is loading for the first time. This will also show the
+-     * `status` as `success` until the query finishes loading (no matter the outcome of the query). Note: unlike with
+-     * `initialData`, the placeholder does not change the cache state.
+-     */
+-    placeholderData?: NoInfer<TDataInitial> | NoInfer<TResult> | (<T extends TResult>(previousData: T | undefined) => NoInfer<TDataInitial> | NoInfer<TResult> | undefined);
++  /**
++   * The key used to identify the query. Array of primitives **without** reactive values or a reactive array or getter.
++   * It should be treaded as an array of dependencies of your queries, e.g. if you use the `route.params.id` property,
++   * it should also be part of the key:
++   *
++   * ```ts
++   * import { useRoute } from 'vue-router'
++   * import { useQuery } from '@pinia/colada'
++   *
++   * const route = useRoute()
++   * const { data } = useQuery({
++   *   // pass a getter function (or computed, ref, etc.) to ensure reactivity
++   *   key: () => ['user', route.params.id],
++   *   query: () => fetchUser(route.params.id),
++   * })
++   * ```
++   */
++  key: MaybeRefOrGetter<EntryKey>;
++  /**
++   * The function that will be called to fetch the data. It **must** be async.
++   */
++  query: (context: UseQueryFnContext<TResult>) => Promise<TResult>;
++  /**
++   * The data which is initially set to the query while the query is loading for the first time.
++   * Note: unlike with `placeholderData`, setting the initial data changes the state of the query (it will be set to `success`).
++   */
++  initialData?: () => TDataInitial;
++  /**
++   * A placeholder data that is initially shown while the query is loading for the first time. This will also show the
++   * `status` as `success` until the query finishes loading (no matter the outcome of the query). Note: unlike with
++   * `initialData`, the placeholder does not change the cache state.
++   */
++  placeholderData?: NoInfer<TDataInitial> | NoInfer<TResult> | (<T extends TResult>(previousData: T | undefined) => NoInfer<TDataInitial> | NoInfer<TResult> | undefined);
+ }
+ /**
+  * Default options for `useQuery()`. Modifying this object will affect all the queries that don't override these
+  */
+ declare const USE_QUERY_DEFAULTS: {
+-    staleTime: number;
+-    gcTime: NonNullable<UseQueryOptions["gcTime"]>;
+-    refetchOnWindowFocus: NonNullable<UseQueryOptions["refetchOnWindowFocus"]>;
+-    refetchOnReconnect: NonNullable<UseQueryOptions["refetchOnReconnect"]>;
+-    refetchOnMount: NonNullable<UseQueryOptions["refetchOnMount"]>;
+-    enabled: MaybeRefOrGetter<boolean>;
++  staleTime: number;
++  gcTime: NonNullable<UseQueryOptions["gcTime"]>;
++  refetchOnWindowFocus: NonNullable<UseQueryOptions["refetchOnWindowFocus"]>;
++  refetchOnReconnect: NonNullable<UseQueryOptions["refetchOnReconnect"]>;
++  refetchOnMount: NonNullable<UseQueryOptions["refetchOnMount"]>;
++  enabled: MaybeRefOrGetter<boolean>;
+ };
+ type UseQueryOptionsWithDefaults<TResult = unknown, TError = ErrorDefault, TDataInitial extends TResult | undefined = undefined> = UseQueryOptions<TResult, TError, TDataInitial> & typeof USE_QUERY_DEFAULTS;
+ 
+@@ -200,66 +204,66 @@ type EntryNodeKey = string | number;
+  * @internal
+  */
+ declare class TreeMapNode<T = unknown> {
+-    value: T | undefined;
+-    children?: Map<EntryNodeKey, TreeMapNode<T>>;
+-    constructor();
+-    constructor(keys: EntryNodeKey[], value: T | undefined);
+-    /**
+-     * Sets the value while building the tree
+-     *
+-     * @param keys - key as an array
+-     * @param value - value to set
+-     */
+-    set(keys: EntryNodeKey[], value?: T): void;
+-    /**
+-     * Finds the node at the given path of keys.
+-     *
+-     * @param keys - path of keys
+-     */
+-    find(keys: EntryNodeKey[]): TreeMapNode<T> | undefined;
+-    /**
+-     * Gets the value at the given path of keys.
+-     *
+-     * @param keys - path of keys
+-     */
+-    get(keys: EntryNodeKey[]): T | undefined;
+-    /**
+-     * Delete the node at the given path of keys and all its children.
+-     *
+-     * @param keys - path of keys
+-     */
+-    delete(keys: EntryNodeKey[]): void;
+-    /**
+-     * Iterates over the node values if not null or undefined and all its children. Goes in depth first order. Allows a `for (const of node)` loop.
+-     */
+-    [Symbol.iterator](): IterableIterator<T>;
++  value: T | undefined;
++  children?: Map<EntryNodeKey, TreeMapNode<T>>;
++  constructor();
++  constructor(keys: EntryNodeKey[], value: T | undefined);
++  /**
++   * Sets the value while building the tree
++   *
++   * @param keys - key as an array
++   * @param value - value to set
++   */
++  set(keys: EntryNodeKey[], value?: T): void;
++  /**
++   * Finds the node at the given path of keys.
++   *
++   * @param keys - path of keys
++   */
++  find(keys: EntryNodeKey[]): TreeMapNode<T> | undefined;
++  /**
++   * Gets the value at the given path of keys.
++   *
++   * @param keys - path of keys
++   */
++  get(keys: EntryNodeKey[]): T | undefined;
++  /**
++   * Delete the node at the given path of keys and all its children.
++   *
++   * @param keys - path of keys
++   */
++  delete(keys: EntryNodeKey[]): void;
++  /**
++   * Iterates over the node values if not null or undefined and all its children. Goes in depth first order. Allows a `for (const of node)` loop.
++   */
++  [Symbol.iterator](): IterableIterator<T>;
+ }
+ /**
+  * Raw data of a query entry. Can be serialized from the server and used to hydrate the store.
+  * @internal
+  */
+ type _UseQueryEntryNodeValueSerialized<TResult = unknown, TError = unknown> = [
+-    /**
+-     * The data returned by the query.
+-     */
+-    data: TResult | undefined,
+-    /**
+-     * The error thrown by the query.
+-     */
+-    error: TError | null,
+-    /**
+-     * When was this data fetched the last time in ms
+-     */
+-    when?: number
++  /**
++   * The data returned by the query.
++   */
++  data: TResult | undefined,
++  /**
++   * The error thrown by the query.
++   */
++  error: TError | null,
++  /**
++   * When was this data fetched the last time in ms
++   */
++  when?: number
+ ];
+ /**
+  * Serialized version of a query entry node.
+  * @internal
+  */
+ type UseQueryEntryNodeSerialized = [
+-    key: EntryNodeKey,
+-    value: undefined | _UseQueryEntryNodeValueSerialized,
+-    children?: UseQueryEntryNodeSerialized[]
++  key: EntryNodeKey,
++  value: undefined | _UseQueryEntryNodeValueSerialized,
++  children?: UseQueryEntryNodeSerialized[]
+ ];
+ 
+ /**
+@@ -278,7 +282,7 @@ type _JSONPrimitive = string | number | boolean | null | undefined;
+  * @internal
+  */
+ interface _ObjectFlat {
+-    [key: string]: _JSONPrimitive | Array<_JSONPrimitive>;
++  [key: string]: _JSONPrimitive | Array<_JSONPrimitive>;
+ }
+ /**
+  * Creates a {@link QueryCache}'s `caches` key from an entry's {@link UseQueryOptions#key}.
+@@ -296,7 +300,7 @@ interface _EmptyObject {
+  * @internal
+  */
+ type _RemoveMaybeRef<T> = {
+-    [K in keyof T]: T[K] extends MaybeRefOrGetter<infer U> ? MaybeRefOrGetter<U> extends T[K] ? U : T[K] : T[K];
++  [K in keyof T]: T[K] extends MaybeRefOrGetter<infer U> ? MaybeRefOrGetter<U> extends T[K] ? U : T[K] : T[K];
+ };
+ 
+ /**
+@@ -340,48 +344,48 @@ interface UseMutationGlobalContext {
+  * Options to create a mutation.
+  */
+ interface UseMutationOptions<TResult = unknown, TVars = void, TError = ErrorDefault, TContext extends Record<any, any> = _EmptyObject> {
+-    /**
+-     * The key of the mutation. If the mutation is successful, it will invalidate the mutation with the same key and refetch it
+-     */
+-    mutation: (vars: TVars, context: _ReduceContext<NoInfer<TContext>>) => Promise<TResult>;
+-    /**
+-     * Optional key to identify the mutation globally and access it through other
+-     * helpers like `useMutationState()`. If you don't need to reference the
+-     * mutation elsewhere, you should ignore this option.
+-     */
+-    key?: _MutationKey<NoInfer<TVars>>;
+-    /**
+-     * Runs before the mutation is executed. **It should be placed before `mutation()` for `context` to be inferred**. It
+-     * can return a value that will be passed to `mutation`, `onSuccess`, `onError` and `onSettled`. If it returns a
+-     * promise, it will be awaited before running `mutation`.
+-     *
+-     * @example
+-     * ```ts
+-     * useMutation({
+-     * // must appear before `mutation` for `{ foo: string }` to be inferred
+-     * // within `mutation`
+-     *   onMutate() {
+-     *     return { foo: 'bar' }
+-     *   },
+-     *   mutation: (id: number, { foo }) => {
+-     *     console.log(foo) // bar
+-     *     return fetch(`/api/todos/${id}`)
+-     *   },
+-     *   onSuccess(context) {
+-     *     console.log(context.foo) // bar
+-     *   },
+-     * })
+-     * ```
+-     */
+-    onMutate?: (
++  /**
++   * The key of the mutation. If the mutation is successful, it will invalidate the mutation with the same key and refetch it
++   */
++  mutation: (vars: TVars, context: _ReduceContext<NoInfer<TContext>>) => Promise<TResult>;
++  /**
++   * Optional key to identify the mutation globally and access it through other
++   * helpers like `useMutationState()`. If you don't need to reference the
++   * mutation elsewhere, you should ignore this option.
++   */
++  key?: _MutationKey<NoInfer<TVars>>;
++  /**
++   * Runs before the mutation is executed. **It should be placed before `mutation()` for `context` to be inferred**. It
++   * can return a value that will be passed to `mutation`, `onSuccess`, `onError` and `onSettled`. If it returns a
++   * promise, it will be awaited before running `mutation`.
++   *
++   * @example
++   * ```ts
++   * useMutation({
++   * // must appear before `mutation` for `{ foo: string }` to be inferred
++   * // within `mutation`
++   *   onMutate() {
++   *     return { foo: 'bar' }
++   *   },
++   *   mutation: (id: number, { foo }) => {
++   *     console.log(foo) // bar
++   *     return fetch(`/api/todos/${id}`)
++   *   },
++   *   onSuccess(context) {
++   *     console.log(context.foo) // bar
++   *   },
++   * })
++   * ```
++   */
++  onMutate?: (
+     /**
+      * The variables passed to the mutation.
+      */
+     vars: NoInfer<TVars>, context: UseMutationGlobalContext) => _Awaitable<TContext | undefined | void | null>;
+-    /**
+-     * Runs if the mutation is successful.
+-     */
+-    onSuccess?: (
++  /**
++   * Runs if the mutation is successful.
++   */
++  onSuccess?: (
+     /**
+      * The result of the mutation.
+      */
+@@ -394,10 +398,10 @@ interface UseMutationOptions<TResult = unknown, TVars = void, TError = ErrorDefa
+      * The merged context from `onMutate` and the global context.
+      */
+     context: UseMutationGlobalContext & _ReduceContext<NoInfer<TContext>>) => unknown;
+-    /**
+-     * Runs if the mutation encounters an error.
+-     */
+-    onError?: (
++  /**
++   * Runs if the mutation encounters an error.
++   */
++  onError?: (
+     /**
+      * The error thrown by the mutation.
+      */
+@@ -411,11 +415,11 @@ interface UseMutationOptions<TResult = unknown, TVars = void, TError = ErrorDefa
+      * if `onMutate` throws.
+      */
+     context: // undefined if global onMutate throws, makes type narrowing easier for the user
+-    (Partial<Record<keyof UseMutationGlobalContext, never>> & Partial<Record<keyof _ReduceContext<NoInfer<TContext>>, never>>) | (UseMutationGlobalContext & _ReduceContext<NoInfer<TContext>>)) => unknown;
+-    /**
+-     * Runs after the mutation is settled, regardless of the result.
+-     */
+-    onSettled?: (
++      (Partial<Record<keyof UseMutationGlobalContext, never>> & Partial<Record<keyof _ReduceContext<NoInfer<TContext>>, never>>) | (UseMutationGlobalContext & _ReduceContext<NoInfer<TContext>>)) => unknown;
++  /**
++   * Runs after the mutation is settled, regardless of the result.
++   */
++  onSettled?: (
+     /**
+      * The result of the mutation. `undefined` if the mutation failed.
+      */
+@@ -433,55 +437,55 @@ interface UseMutationOptions<TResult = unknown, TVars = void, TError = ErrorDefa
+      * if `onMutate` throws.
+      */
+     context: // undefined if global onMutate throws, makes type narrowing easier for the user
+-    (Partial<Record<keyof UseMutationGlobalContext, never>> & Partial<Record<keyof _ReduceContext<NoInfer<TContext>>, never>>) | (UseMutationGlobalContext & _ReduceContext<NoInfer<TContext>>)) => unknown;
++      (Partial<Record<keyof UseMutationGlobalContext, never>> & Partial<Record<keyof _ReduceContext<NoInfer<TContext>>, never>>) | (UseMutationGlobalContext & _ReduceContext<NoInfer<TContext>>)) => unknown;
+ }
+ interface UseMutationReturn<TResult, TVars, TError> {
+-    key?: EntryKey | ((vars: NoInfer<TVars>) => EntryKey);
+-    /**
+-     * The combined state of the mutation. Contains its data, error, and status. It enables type narrowing based on the {@link UseMutationReturn.status}.
+-     */
+-    state: ComputedRef<DataState<TResult, TError>>;
+-    /**
+-     * The status of the mutation.
+-     * @see {@link DataStateStatus}
+-     */
+-    status: ShallowRef<DataStateStatus>;
+-    /**
+-     * Status of the mutation. Becomes `'loading'` while the mutation is being fetched, is `'idle'` otherwise.
+-     */
+-    asyncStatus: ShallowRef<AsyncStatus>;
+-    /**
+-     * The result of the mutation. `undefined` if the mutation has not been called yet.
+-     */
+-    data: ShallowRef<TResult | undefined>;
+-    /**
+-     * The error of the mutation. `null` if the mutation has not been called yet or if it was successful.
+-     */
+-    error: ShallowRef<TError | null>;
+-    /**
+-     * Whether the mutation is currently executing.
+-     */
+-    isLoading: ComputedRef<boolean>;
+-    /**
+-     * The variables passed to the mutation. They are initially `undefined` and change every time the mutation is called.
+-     */
+-    variables: ShallowRef<TVars | undefined>;
+-    /**
+-     * Calls the mutation and returns a promise with the result.
+-     *
+-     * @param vars - parameters to pass to the mutation
+-     */
+-    mutateAsync: unknown | void extends TVars ? () => Promise<TResult> : (vars: TVars) => Promise<TResult>;
+-    /**
+-     * Calls the mutation without returning a promise to avoid unhandled promise rejections.
+-     *
+-     * @param args - parameters to pass to the mutation
+-     */
+-    mutate: (...args: unknown | void extends TVars ? [] : [vars: TVars]) => void;
+-    /**
+-     * Resets the state of the mutation to its initial state.
+-     */
+-    reset: () => void;
++  key?: EntryKey | ((vars: NoInfer<TVars>) => EntryKey);
++  /**
++   * The combined state of the mutation. Contains its data, error, and status. It enables type narrowing based on the {@link UseMutationReturn.status}.
++   */
++  state: ComputedRef<DataState<TResult, TError>>;
++  /**
++   * The status of the mutation.
++   * @see {@link DataStateStatus}
++   */
++  status: ShallowRef<DataStateStatus>;
++  /**
++   * Status of the mutation. Becomes `'loading'` while the mutation is being fetched, is `'idle'` otherwise.
++   */
++  asyncStatus: ShallowRef<AsyncStatus>;
++  /**
++   * The result of the mutation. `undefined` if the mutation has not been called yet.
++   */
++  data: ShallowRef<TResult | undefined>;
++  /**
++   * The error of the mutation. `null` if the mutation has not been called yet or if it was successful.
++   */
++  error: ShallowRef<TError | null>;
++  /**
++   * Whether the mutation is currently executing.
++   */
++  isLoading: ComputedRef<boolean>;
++  /**
++   * The variables passed to the mutation. They are initially `undefined` and change every time the mutation is called.
++   */
++  variables: ShallowRef<TVars | undefined>;
++  /**
++   * Calls the mutation and returns a promise with the result.
++   *
++   * @param vars - parameters to pass to the mutation
++   */
++  mutateAsync: unknown | void extends TVars ? () => Promise<TResult> : (vars: TVars) => Promise<TResult>;
++  /**
++   * Calls the mutation without returning a promise to avoid unhandled promise rejections.
++   *
++   * @param args - parameters to pass to the mutation
++   */
++  mutate: (...args: unknown | void extends TVars ? [] : [vars: TVars]) => void;
++  /**
++   * Resets the state of the mutation to its initial state.
++   */
++  reset: () => void;
+ }
+ /**
+  * Setups a mutation.
+@@ -553,119 +557,119 @@ interface UseQueryEntryExtensions<TResult, TError, TDataInitial extends TResult
+  * A query entry in the cache.
+  */
+ interface UseQueryEntry<TResult = unknown, TError = unknown, TDataInitial extends TResult | undefined = TResult | undefined> {
+-    /**
+-     * The state of the query. Contains the data, error and status.
+-     */
+-    state: ShallowRef<DataState<TResult, TError, TDataInitial>>;
+-    /**
+-     * A placeholder `data` that is initially shown while the query is loading for the first time. This will also show the
+-     * `status` as `success` until the query finishes loading (no matter the outcome).
+-     */
+-    placeholderData: TDataInitial | TResult | null | undefined;
+-    /**
+-     * The status of the query.
+-     */
+-    asyncStatus: ShallowRef<AsyncStatus>;
+-    /**
+-     * When was this data set in the entry for the last time in ms. It can also
+-     * be 0 if the entry has been invalidated.
++  /**
++   * The state of the query. Contains the data, error and status.
++   */
++  state: ShallowRef<DataState<TResult, TError, TDataInitial>>;
++  /**
++   * A placeholder `data` that is initially shown while the query is loading for the first time. This will also show the
++   * `status` as `success` until the query finishes loading (no matter the outcome).
++   */
++  placeholderData: TDataInitial | TResult | null | undefined;
++  /**
++   * The status of the query.
++   */
++  asyncStatus: ShallowRef<AsyncStatus>;
++  /**
++   * When was this data set in the entry for the last time in ms. It can also
++   * be 0 if the entry has been invalidated.
++   */
++  when: number;
++  /**
++   * The serialized key associated with this query entry.
++   */
++  key: EntryNodeKey[];
++  /**
++   * Components and effects scopes that use this query entry.
++   */
++  deps: Set<EffectScope | ComponentInternalInstance>;
++  /**
++   * Timeout id that scheduled a garbage collection. It is set here to clear it when the entry is used by a different component
++   */
++  gcTimeout: ReturnType<typeof setTimeout> | undefined;
++  /**
++   * The current pending request.
++   */
++  pending: null | {
++    /**
++     * The abort controller used to cancel the request and which `signal` is passed to the query function.
++     */
++    abortController: AbortController;
++    /**
++     * The promise created by `queryCache.fetch` that is currently pending.
++     */
++    refreshCall: Promise<DataState<TResult, TError, TDataInitial>>;
++    /**
++     * When was this `pending` object created.
+      */
+     when: number;
+-    /**
+-     * The serialized key associated with this query entry.
+-     */
+-    key: EntryNodeKey[];
+-    /**
+-     * Components and effects scopes that use this query entry.
+-     */
+-    deps: Set<EffectScope | ComponentInternalInstance>;
+-    /**
+-     * Timeout id that scheduled a garbage collection. It is set here to clear it when the entry is used by a different component
+-     */
+-    gcTimeout: ReturnType<typeof setTimeout> | undefined;
+-    /**
+-     * The current pending request.
+-     */
+-    pending: null | {
+-        /**
+-         * The abort controller used to cancel the request and which `signal` is passed to the query function.
+-         */
+-        abortController: AbortController;
+-        /**
+-         * The promise created by `queryCache.fetch` that is currently pending.
+-         */
+-        refreshCall: Promise<DataState<TResult, TError, TDataInitial>>;
+-        /**
+-         * When was this `pending` object created.
+-         */
+-        when: number;
+-    };
+-    /**
+-     * Options used to create the query. They can be `null` during hydration but are needed for fetching. This is why
+-     * `store.ensure()` sets this property. Note these options might be shared by multiple query entries when the key is
+-     * dynamic.
+-     */
+-    options: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null;
+-    /**
+-     * Whether the data is stale or not, requires `options.staleTime` to be set.
+-     */
+-    readonly stale: boolean;
+-    /**
+-     * Whether the query is currently being used by a Component or EffectScope (e.g. a store).
+-     */
+-    readonly active: boolean;
+-    /**
+-     * Extensions to the query entry added by plugins.
+-     */
+-    ext: UseQueryEntryExtensions<TResult, TError, TDataInitial>;
+-    /**
+-     * Component `__hmrId` to track wrong usage of `useQuery` and warn the user.
+-     * @internal
+-     */
+-    __hmr?: {
+-        id?: string;
+-        deps?: Set<EffectScope | ComponentInternalInstance>;
+-        skip?: boolean;
+-    };
++  };
++  /**
++   * Options used to create the query. They can be `null` during hydration but are needed for fetching. This is why
++   * `store.ensure()` sets this property. Note these options might be shared by multiple query entries when the key is
++   * dynamic.
++   */
++  options: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null;
++  /**
++   * Whether the data is stale or not, requires `options.staleTime` to be set.
++   */
++  readonly stale: boolean;
++  /**
++   * Whether the query is currently being used by a Component or EffectScope (e.g. a store).
++   */
++  readonly active: boolean;
++  /**
++   * Extensions to the query entry added by plugins.
++   */
++  ext: UseQueryEntryExtensions<TResult, TError, TDataInitial>;
++  /**
++   * Component `__hmrId` to track wrong usage of `useQuery` and warn the user.
++   * @internal
++   */
++  __hmr?: {
++    id?: string;
++    deps?: Set<EffectScope | ComponentInternalInstance>;
++    skip?: boolean;
++  };
+ }
+ /**
+  * Filter to get entries from the cache.
+  */
+ interface UseQueryEntryFilter {
+-    /**
+-     * A key to filter the entries.
+-     */
+-    key?: EntryKey;
+-    /**
+-     * If true, it will only match the exact key, not the children.
+-     *
+-     * @example
+-     * ```ts
+-     * { key: ['a'], exact: true }
+-     *  // will match ['a'] but not ['a', 'b'], while
+-     * { key: ['a'] }
+-     * // will match both
+-     * ```
+-     */
+-    exact?: boolean;
+-    /**
+-     * If `true` or `false`, it will only return entries that match the stale status. If set to `null` or `undefined`, it matches both.
+-     * Requires `entry.options` to be set.
+-     */
+-    stale?: boolean | null;
+-    /**
+-     * If `true` or `false`, it will only return entries that match the active status. If set to `null` or `undefined`, it matches both.
+-     */
+-    active?: boolean | null;
+-    /**
+-     * If it has a non _nullish_ value, it only returns the entries with the given status.
+-     */
+-    status?: DataStateStatus | null;
+-    /**
+-     * Pass a predicate to filter the entries. This will be executed for each entry matching the other filters.
+-     * @param entry - entry to filter
+-     */
+-    predicate?: (entry: UseQueryEntry) => boolean;
++  /**
++   * A key to filter the entries.
++   */
++  key?: EntryKey;
++  /**
++   * If true, it will only match the exact key, not the children.
++   *
++   * @example
++   * ```ts
++   * { key: ['a'], exact: true }
++   *  // will match ['a'] but not ['a', 'b'], while
++   * { key: ['a'] }
++   * // will match both
++   * ```
++   */
++  exact?: boolean;
++  /**
++   * If `true` or `false`, it will only return entries that match the stale status. If set to `null` or `undefined`, it matches both.
++   * Requires `entry.options` to be set.
++   */
++  stale?: boolean | null;
++  /**
++   * If `true` or `false`, it will only return entries that match the active status. If set to `null` or `undefined`, it matches both.
++   */
++  active?: boolean | null;
++  /**
++   * If it has a non _nullish_ value, it only returns the entries with the given status.
++   */
++  status?: DataStateStatus | null;
++  /**
++   * Pass a predicate to filter the entries. This will be executed for each entry matching the other filters.
++   * @param entry - entry to filter
++   */
++  predicate?: (entry: UseQueryEntry) => boolean;
+ }
+ /**
+  * A query entry that is defined with {@link defineQuery}.
+@@ -677,77 +681,77 @@ type DefineQueryEntry = [entries: UseQueryEntry[], returnValue: unknown];
+  * component, within another composable, or in injectable contexts like stores and navigation guards.
+  */
+ declare const useQueryCache: pinia.StoreDefinition<"_pc_query", Pick<{
+-    caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
+-    ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
+-    /**
+-     * Scope to track effects and components that use the query cache.
+-     * @internal
+-     */
+-    _s: vue.Raw<EffectScope>;
+-    setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
+-    getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
+-    invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
+-    cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
+-    invalidate: (entry: UseQueryEntry) => void;
+-    fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
+-    track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
+-    untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
+-    cancel: (entry: UseQueryEntry, reason?: unknown) => void;
+-    create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    remove: (entry: UseQueryEntry) => void;
+-    setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
+-    getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
++  caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
++  ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
++  /**
++   * Scope to track effects and components that use the query cache.
++   * @internal
++   */
++  _s: vue.Raw<EffectScope>;
++  setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
++  getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
++  invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
++  cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
++  invalidate: (entry: UseQueryEntry) => void;
++  fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
++  extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
++  track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
++  untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
++  cancel: (entry: UseQueryEntry, reason?: unknown) => void;
++  create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
++  remove: (entry: UseQueryEntry) => void;
++  setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
++  getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
+ }, "caches" | "_s">, Pick<{
+-    caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
+-    ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
+-    /**
+-     * Scope to track effects and components that use the query cache.
+-     * @internal
+-     */
+-    _s: vue.Raw<EffectScope>;
+-    setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
+-    getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
+-    invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
+-    cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
+-    invalidate: (entry: UseQueryEntry) => void;
+-    fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
+-    track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
+-    untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
+-    cancel: (entry: UseQueryEntry, reason?: unknown) => void;
+-    create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    remove: (entry: UseQueryEntry) => void;
+-    setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
+-    getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
++  caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
++  ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
++  /**
++   * Scope to track effects and components that use the query cache.
++   * @internal
++   */
++  _s: vue.Raw<EffectScope>;
++  setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
++  getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
++  invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
++  cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
++  invalidate: (entry: UseQueryEntry) => void;
++  fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
++  extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
++  track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
++  untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
++  cancel: (entry: UseQueryEntry, reason?: unknown) => void;
++  create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
++  remove: (entry: UseQueryEntry) => void;
++  setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
++  getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
+ }, never>, Pick<{
+-    caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
+-    ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
+-    /**
+-     * Scope to track effects and components that use the query cache.
+-     * @internal
+-     */
+-    _s: vue.Raw<EffectScope>;
+-    setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
+-    getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
+-    invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
+-    cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
+-    invalidate: (entry: UseQueryEntry) => void;
+-    fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
+-    track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
+-    untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
+-    cancel: (entry: UseQueryEntry, reason?: unknown) => void;
+-    create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
+-    remove: (entry: UseQueryEntry) => void;
+-    setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
+-    getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
++  caches: vue.Ref<TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>, TreeMapNode<UseQueryEntry<unknown, unknown, unknown>>>;
++  ensureDefinedQuery: <T>(fn: () => T) => DefineQueryEntry;
++  /**
++   * Scope to track effects and components that use the query cache.
++   * @internal
++   */
++  _s: vue.Raw<EffectScope>;
++  setQueryData: <TResult = unknown>(key: EntryKey, data: TResult | ((oldData: TResult | undefined) => TResult)) => void;
++  getQueryData: <TResult = unknown>(key: EntryKey) => TResult | undefined;
++  invalidateQueries: (filters?: UseQueryEntryFilter) => Promise<unknown>;
++  cancelQueries: (filters?: UseQueryEntryFilter, reason?: unknown) => void;
++  invalidate: (entry: UseQueryEntry) => void;
++  fetch: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  refresh: <TResult, TError, TDataInitial extends TResult | undefined>(entry: UseQueryEntry<TResult, TError, TDataInitial>) => Promise<DataState<TResult, TError, TDataInitial>>;
++  ensure: <TResult = unknown, TError = Error, TDataInitial extends TResult | undefined = undefined>(opts: UseQueryOptions<TResult, TError, TDataInitial>, previousEntry?: UseQueryEntry<TResult, TError, TDataInitial>) => UseQueryEntry<TResult, TError, TDataInitial>;
++  extend: <TResult = unknown, TError = Error>(_entry: UseQueryEntry<TResult, TError>) => void;
++  track: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | null | undefined) => void;
++  untrack: (entry: UseQueryEntry, effect: EffectScope | ComponentInternalInstance | undefined | null) => void;
++  cancel: (entry: UseQueryEntry, reason?: unknown) => void;
++  create: <TResult, TError, TDataInitial extends TResult | undefined>(key: EntryNodeKey[], options?: UseQueryOptionsWithDefaults<TResult, TError, TDataInitial> | null, initialData?: TDataInitial, error?: TError | null, when?: number) => UseQueryEntry<TResult, TError, TDataInitial>;
++  remove: (entry: UseQueryEntry) => void;
++  setEntryState: <TResult, TError>(entry: UseQueryEntry<TResult, TError>, state: DataState<NoInfer<TResult>, NoInfer<TError>>) => void;
++  getEntries: (filters?: UseQueryEntryFilter) => UseQueryEntry[];
+ }, "ensureDefinedQuery" | "setQueryData" | "getQueryData" | "invalidateQueries" | "cancelQueries" | "invalidate" | "fetch" | "refresh" | "ensure" | "extend" | "track" | "untrack" | "cancel" | "create" | "remove" | "setEntryState" | "getEntries">>;
+ /**
+  * The cache of the queries. It's the store returned by {@link useQueryCache}.
+@@ -775,57 +779,57 @@ declare function serializeQueryCache(queryCache: QueryCache): UseQueryEntryNodeS
+  * Return type of `useQuery()`.
+  */
+ interface UseQueryReturn<TResult = unknown, TError = ErrorDefault, TDataInitial extends TResult | undefined = undefined> extends UseQueryEntryExtensions<TResult, TError, TDataInitial> {
+-    /**
+-     * The state of the query. Contains its data, error, and status.
+-     */
+-    state: ComputedRef<DataState<TResult, TError, TDataInitial>>;
+-    /**
+-     * Status of the query. Becomes `'loading'` while the query is being fetched, is `'idle'` otherwise.
+-     */
+-    asyncStatus: ComputedRef<AsyncStatus>;
+-    /**
+-     * The last successful data resolved by the query. Alias for `state.value.data`.
+-     *
+-     * @see {@link state}
+-     */
+-    data: ShallowRef<TResult | TDataInitial>;
+-    /**
+-     * The error rejected by the query. Alias for `state.value.error`.
+-     *
+-     * @see {@link state}
+-     */
+-    error: ShallowRef<TError | null>;
+-    /**
+-     * The status of the query. Alias for `state.value.status`.
+-     *
+-     * @see {@link state}
+-     * @see {@link DataStateStatus}
+-     */
+-    status: ShallowRef<DataStateStatus>;
+-    /**
+-     * Returns whether the request is still pending its first call. Alias for `status.value === 'pending'`
+-     */
+-    isPending: ComputedRef<boolean>;
+-    /**
+-     * Returns whether the `data` is the `placeholderData`.
+-     */
+-    isPlaceholderData: ComputedRef<boolean>;
+-    /**
+-     * Returns whether the request is currently fetching data. Alias for `asyncStatus.value === 'loading'`
+-     */
+-    isLoading: ShallowRef<boolean>;
+-    /**
+-     * Ensures the current data is fresh. If the data is stale, refetch, if not return as is.
+-     * @param throwOnError - whether to throw an error if the refresh fails. Defaults to `false`
+-     * @returns a promise that resolves when the refresh is done
+-     */
+-    refresh: (throwOnError?: boolean) => Promise<DataState<TResult, TError, TDataInitial>>;
+-    /**
+-     * Ignores fresh data and triggers a new fetch
+-     * @param throwOnError - whether to throw an error if the fetch fails. Defaults to `false`
+-     * @returns a promise that resolves when the fetch is done
+-     */
+-    refetch: (throwOnError?: boolean) => Promise<DataState<TResult, TError, TDataInitial>>;
++  /**
++   * The state of the query. Contains its data, error, and status.
++   */
++  state: ComputedRef<DataState<TResult, TError, TDataInitial>>;
++  /**
++   * Status of the query. Becomes `'loading'` while the query is being fetched, is `'idle'` otherwise.
++   */
++  asyncStatus: ComputedRef<AsyncStatus>;
++  /**
++   * The last successful data resolved by the query. Alias for `state.value.data`.
++   *
++   * @see {@link state}
++   */
++  data: ShallowRef<TResult | TDataInitial>;
++  /**
++   * The error rejected by the query. Alias for `state.value.error`.
++   *
++   * @see {@link state}
++   */
++  error: ShallowRef<TError | null>;
++  /**
++   * The status of the query. Alias for `state.value.status`.
++   *
++   * @see {@link state}
++   * @see {@link DataStateStatus}
++   */
++  status: ShallowRef<DataStateStatus>;
++  /**
++   * Returns whether the request is still pending its first call. Alias for `status.value === 'pending'`
++   */
++  isPending: ComputedRef<boolean>;
++  /**
++   * Returns whether the `data` is the `placeholderData`.
++   */
++  isPlaceholderData: ComputedRef<boolean>;
++  /**
++   * Returns whether the request is currently fetching data. Alias for `asyncStatus.value === 'loading'`
++   */
++  isLoading: ShallowRef<boolean>;
++  /**
++   * Ensures the current data is fresh. If the data is stale, refetch, if not return as is.
++   * @param throwOnError - whether to throw an error if the refresh fails. Defaults to `false`
++   * @returns a promise that resolves when the refresh is done
++   */
++  refresh: (throwOnError?: boolean) => Promise<DataState<TResult, TError, TDataInitial>>;
++  /**
++   * Ignores fresh data and triggers a new fetch
++   * @param throwOnError - whether to throw an error if the fetch fails. Defaults to `false`
++   * @returns a promise that resolves when the fetch is done
++   */
++  refetch: (throwOnError?: boolean) => Promise<DataState<TResult, TError, TDataInitial>>;
+ }
+ /**
+  * Ensures and return a shared query state based on the `key` option.
+@@ -880,43 +884,43 @@ declare function defineQuery<T>(setup: () => T): () => T;
+  * Context passed to a Pinia Colada plugin.
+  */
+ interface PiniaColadaPluginContext {
+-    /**
+-     * The query cache used by the application.
+-     */
+-    queryCache: QueryCache;
+-    /**
+-     * The Pinia instance used by the application.
+-     */
+-    pinia: Pinia;
+-    /**
+-     * An effect scope to collect effects. It should be used if you use any reactivity API like `ref()`, `watch()`, `computed()`, etc.
+-     * @see https://vuejs.org/api/reactivity-advanced.html#effectscope
+-     */
+-    scope: EffectScope;
++  /**
++   * The query cache used by the application.
++   */
++  queryCache: QueryCache;
++  /**
++   * The Pinia instance used by the application.
++   */
++  pinia: Pinia;
++  /**
++   * An effect scope to collect effects. It should be used if you use any reactivity API like `ref()`, `watch()`, `computed()`, etc.
++   * @see https://vuejs.org/api/reactivity-advanced.html#effectscope
++   */
++  scope: EffectScope;
+ }
+ /**
+  * A Pinia Colada plugin.
+  */
+ interface PiniaColadaPlugin {
+-    (context: PiniaColadaPluginContext): void;
++  (context: PiniaColadaPluginContext): void;
+ }
+ 
+ /**
+  * Options for the Pinia Colada plugin.
+  */
+ interface PiniaColadaOptions {
+-    /**
+-     * Pinia instance to use. This is only needed if installing before the Pinia plugin.
+-     */
+-    pinia?: Pinia;
+-    /**
+-     * Pinia Colada plugins to install.
+-     */
+-    plugins?: PiniaColadaPlugin[];
+-    /**
+-     * Global options for queries. These will apply to all `useQuery()`, `defineQuery()`, etc.
+-     */
+-    queryOptions?: UseQueryOptionsGlobal;
++  /**
++   * Pinia instance to use. This is only needed if installing before the Pinia plugin.
++   */
++  pinia?: Pinia;
++  /**
++   * Pinia Colada plugins to install.
++   */
++  plugins?: PiniaColadaPlugin[];
++  /**
++   * Global options for queries. These will apply to all `useQuery()`, `defineQuery()`, etc.
++   */
++  queryOptions?: UseQueryOptionsGlobal;
+ }
+ /**
+  * Plugin that installs the Query and Mutation plugins alongside some extra plugins.
+@@ -932,26 +936,26 @@ declare const PiniaColada: Plugin<PiniaColadaOptions>;
+  * Options for {@link PiniaColadaQueryHooksPlugin}.
+  */
+ interface PiniaColadaQueryHooksPluginOptions {
+-    /**
+-     * Global handler for when a query is successful.
+-     *
+-     * @param data - data returned by the query
+-     */
+-    onSuccess?: <TResult = unknown>(data: TResult, entry: UseQueryEntry<TResult, unknown>) => unknown;
+-    /**
+-     * Global handler for when a query is settled (either successfully or with an error). Will await for the `onSuccess`
+-     * or `onError` handlers to resolve if they return a promise.
+-     *
+-     * @param data - data returned by the query if any
+-     * @param error - error thrown if any
+-     */
+-    onSettled?: <TResult = unknown, TError = unknown>(data: TResult | undefined, error: TError | null, entry: UseQueryEntry<TResult, TError>) => unknown;
+-    /**
+-     * Global error handler for all queries.
+-     *
+-     * @param error - error thrown
+-     */
+-    onError?: <TError = unknown>(error: TError, entry: UseQueryEntry<unknown, TError>) => unknown;
++  /**
++   * Global handler for when a query is successful.
++   *
++   * @param data - data returned by the query
++   */
++  onSuccess?: <TResult = unknown>(data: TResult, entry: UseQueryEntry<TResult, unknown>) => unknown;
++  /**
++   * Global handler for when a query is settled (either successfully or with an error). Will await for the `onSuccess`
++   * or `onError` handlers to resolve if they return a promise.
++   *
++   * @param data - data returned by the query if any
++   * @param error - error thrown if any
++   */
++  onSettled?: <TResult = unknown, TError = unknown>(data: TResult | undefined, error: TError | null, entry: UseQueryEntry<TResult, TError>) => unknown;
++  /**
++   * Global error handler for all queries.
++   *
++   * @param error - error thrown
++   */
++  onError?: <TError = unknown>(error: TError, entry: UseQueryEntry<unknown, TError>) => unknown;
+ }
+ /**
+  * Allows to add global hooks to all queries:
+@@ -985,12 +989,12 @@ declare function PiniaColadaQueryHooksPlugin(options: PiniaColadaQueryHooksPlugi
+  * @experimental See https://github.com/posva/pinia-colada/issues/178
+  */
+ interface UseInfiniteQueryOptions<TResult, TError, TDataInitial extends TResult | undefined = TResult | undefined, TPages = unknown> extends Omit<UseQueryOptions<TResult, TError, TDataInitial>, 'query' | 'initialData' | 'placeholderData'> {
+-    /**
+-     * The function that will be called to fetch the data. It **must** be async.
+-     */
+-    query: (pages: NoInfer<TPages>, context: UseQueryFnContext) => Promise<TResult>;
+-    initialPage: TPages | (() => TPages);
+-    merge: (result: NoInfer<TPages>, current: NoInfer<TResult>) => NoInfer<TPages>;
++  /**
++   * The function that will be called to fetch the data. It **must** be async.
++   */
++  query: (pages: NoInfer<TPages>, context: UseQueryFnContext) => Promise<TResult>;
++  initialPage: TPages | (() => TPages);
++  merge: (result: NoInfer<TPages>, current: NoInfer<TResult>) => NoInfer<TPages>;
+ }
+ /**
+  * Store and merge paginated data into a single cache entry. Allows to handle
+@@ -1002,15 +1006,15 @@ interface UseInfiniteQueryOptions<TResult, TError, TDataInitial extends TResult
+  * @experimental See https://github.com/posva/pinia-colada/issues/178
+  */
+ declare function useInfiniteQuery<TResult, TError = ErrorDefault, TPage = unknown>(options: UseInfiniteQueryOptions<TResult, TError, TResult | undefined, TPage>): {
+-    loadMore: () => Promise<DataState<TPage, TError, TPage>>;
+-    state: vue.ComputedRef<DataState<TPage, TError, TPage>>;
+-    asyncStatus: vue.ComputedRef<AsyncStatus>;
+-    data: vue.ShallowRef<TPage>;
+-    error: vue.ShallowRef<TError>;
+-    status: vue.ShallowRef<DataStateStatus>;
+-    isPending: vue.ComputedRef<boolean>;
+-    isPlaceholderData: vue.ComputedRef<boolean>;
+-    isLoading: vue.ShallowRef<boolean>;
++  loadMore: () => Promise<DataState<TPage, TError, TPage>>;
++  state: vue.ComputedRef<DataState<TPage, TError, TPage>>;
++  asyncStatus: vue.ComputedRef<AsyncStatus>;
++  data: vue.ShallowRef<TPage>;
++  error: vue.ShallowRef<TError>;
++  status: vue.ShallowRef<DataStateStatus>;
++  isPending: vue.ComputedRef<boolean>;
++  isPlaceholderData: vue.ComputedRef<boolean>;
++  isLoading: vue.ShallowRef<boolean>;
+ };
+ 
+ export { type AsyncStatus, type DataState, type DataStateStatus, type DataState_Error, type DataState_Pending, type DataState_Success, type EntryKey, type EntryNodeKey, PiniaColada, type PiniaColadaOptions, type PiniaColadaPlugin, type PiniaColadaPluginContext, PiniaColadaQueryHooksPlugin, type PiniaColadaQueryHooksPluginOptions, type QueryCache, type RefetchOnControl, TreeMapNode, type TypesConfig, type UseInfiniteQueryOptions, type UseMutationOptions, type UseMutationReturn, type UseQueryEntry, type UseQueryEntryExtensions, type UseQueryEntryFilter, type UseQueryOptions, type UseQueryOptionsGlobal, type UseQueryOptionsWithDefaults, type UseQueryReturn, type _Awaitable, type _DataState_Base, type _EmptyObject, type _MaybeArray, type _ReduceContext, defineMutation, defineQuery, hydrateQueryCache, serializeQueryCache, serializeTreeMap, toCacheKey, useInfiniteQuery, useMutation, useQuery, useQueryCache };
+diff --git a/node_modules/@pinia/colada/dist/index.js b/node_modules/@pinia/colada/dist/index.js
+index ef37ca9..ef14893 100644
+--- a/node_modules/@pinia/colada/dist/index.js
++++ b/node_modules/@pinia/colada/dist/index.js
+@@ -593,7 +593,7 @@ See https://vuejs.org/guide/reusability/composables.html#usage-restrictions`
+       const pendingCall = entry.pending = {
+         abortController,
+         // wrapping with async allows us to catch synchronous errors too
+-        refreshCall: (async () => entry.options.query({ signal }))().then((data) => {
++        refreshCall: (async () => entry.options.query({ data: toValue2(entry.state).data, signal, reset: entry.when === 0 }))().then((data) => {
+           if (pendingCall === entry.pending) {
+             setEntryState(entry, {
+               data,
+@@ -1146,16 +1146,16 @@ function PiniaColadaQueryHooksPlugin(options) {
+ // src/infinite-query.ts
+ import { toValue as toValue3 } from "vue";
+ function useInfiniteQuery(options) {
+-  let pages = toValue3(options.initialPage);
+   const { refetch, refresh, ...query } = useQuery({
+     ...options,
+-    initialData: () => pages,
++    initialData: () => toValue3(options.initialPage),
+     // since we hijack the query function and augment the data, we cannot refetch the data
+     // like usual
+     staleTime: Infinity,
+     async query(context) {
+-      const data = await options.query(pages, context);
+-      return pages = options.merge(pages, data);
++      const currentData = context.reset ? toValue3(options.initialPage) : context.data;
++      const data = await options.query(currentData, context);
++      return options.merge(currentData, data);
+     }
+   });
+   return {
