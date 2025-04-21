@@ -6,7 +6,6 @@ Create Date: 2025-01-03 13:43:15.133442
 """
 
 from collections.abc import Sequence
-from typing import Union
 
 from sqlalchemy import text
 
@@ -14,9 +13,9 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "22a533ebcf12"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
