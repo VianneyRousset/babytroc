@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import Field, field_validator
 
@@ -29,7 +29,7 @@ class ItemCreate(ItemBase, CreateBase):
     ]
     targeted_age_months: tuple[int | None, int | None]
     regions: list[int]
-    blocked: Optional[bool] = False
+    blocked: bool | None = False
 
     @field_validator("targeted_age_months")
     def validate_targeted_age_months(cls, v):  # noqa: N805

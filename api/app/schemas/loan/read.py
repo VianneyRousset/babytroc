@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Union
 
 from pydantic import field_validator
 from sqlalchemy.dialects.postgresql import Range
@@ -33,7 +32,7 @@ class LoanRead(LoanBase, ReadBase):
     @field_validator("during", mode="before")
     def validate_during(
         cls,  # noqa: N805
-        v: Union[tuple[datetime | None, datetime | None], Range],
+        v: tuple[datetime | None, datetime | None] | Range,
     ) -> tuple[datetime | None, datetime | None]:
         if isinstance(v, tuple):
             return v

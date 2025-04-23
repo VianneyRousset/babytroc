@@ -26,8 +26,6 @@ def list_items(
 ) -> list[ItemPreviewRead]:
     """List items."""
 
-    services.auth.check_auth(request)
-
     result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
@@ -63,13 +61,10 @@ def list_items(
 
 @router.get("/{item_id}", status_code=status.HTTP_200_OK)
 def get_item(
-    request: Request,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item."""
-
-    services.auth.check_auth(request)
 
     return services.item.get_item(
         db=db,

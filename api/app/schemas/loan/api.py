@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import Field
 
@@ -8,7 +7,7 @@ from app.schemas.base import ApiQueryBase
 
 class LoanRequestApiQuery(ApiQueryBase):
     # state
-    state: Optional[LoanRequestState] = Field(
+    state: LoanRequestState | None = Field(
         title="State of the loan request",
         description="Only return loan requests in the given state.",
         default=LoanRequestState.pending,
@@ -17,7 +16,7 @@ class LoanRequestApiQuery(ApiQueryBase):
 
 class LoanApiQuery(ApiQueryBase):
     # item_id
-    item: Optional[int] = Field(
+    item: int | None = Field(
         title="Loaned item",
         description="Only return loan with this item ID.",
         ge=0,
@@ -25,7 +24,7 @@ class LoanApiQuery(ApiQueryBase):
     )
 
     # active
-    active: Optional[bool] = Field(
+    active: bool | None = Field(
         title="Active",
         description="Only return active loans.",
         default=None,

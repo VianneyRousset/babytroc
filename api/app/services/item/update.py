@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -15,7 +14,7 @@ def update_item(
     *,
     item_id: int,
     item_update: ItemUpdate,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ) -> ItemPrivateRead:
     """Update item with `item_id`."""
 

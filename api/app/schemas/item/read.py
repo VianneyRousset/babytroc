@@ -1,4 +1,3 @@
-from typing import Union
 
 from pydantic import field_validator
 from sqlalchemy.dialects.postgresql import Range
@@ -26,7 +25,7 @@ class ItemRead(ItemBase, ReadBase):
     @field_validator("targeted_age_months", mode="before")
     def validate_targeted_age_months(
         cls,  # noqa: N805
-        v: Union[tuple[int | None, int | None], Range],
+        v: tuple[int | None, int | None] | Range,
     ) -> tuple[int | None, int | None]:
         if isinstance(v, tuple):
             return v

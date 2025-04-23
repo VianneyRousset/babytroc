@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import Select
 
@@ -11,10 +10,10 @@ from app.schemas.chat.base import ChatId
 class ChatQueryFilter(QueryFilterBase):
     """Filter of the chat query."""
 
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    member_id: Optional[int] = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    member_id: int | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
@@ -46,15 +45,15 @@ class ChatQueryFilter(QueryFilterBase):
 class ChatMessageQueryFilter(QueryFilterBase):
     """Filter of the chat message query."""
 
-    chat_id: Optional[ChatId] = None
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    sender_id: Optional[int] = None
-    sender_id_not: Optional[int] = None
-    member_id: Optional[int] = None
+    chat_id: ChatId | None = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    sender_id: int | None = None
+    sender_id_not: int | None = None
+    member_id: int | None = None
 
-    seen: Optional[bool] = None
+    seen: bool | None = None
 
     def apply(self, stmt: Select) -> Select:  # noqa: C901
         """Apply filtering."""

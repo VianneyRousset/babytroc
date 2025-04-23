@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import cast
 
 from sqlalchemy import (
     BinaryExpression,
@@ -20,7 +20,7 @@ def get_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ) -> Item:
     """Get item with `item_id` from database."""
 
@@ -42,8 +42,8 @@ def get_item(
 def list_items(
     db: Session,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ItemQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Item]:
     """List items matchings criteria in the database."""
 

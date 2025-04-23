@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import Path, Query, Request, Response, status
+from fastapi import Path, Query, Response, status
 from fastapi.params import Depends
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.api import LoanApiQuery
 from app.schemas.loan.query import LoanQueryFilter
 from app.schemas.loan.read import LoanRead
@@ -26,19 +27,17 @@ loan_id_annotation = Annotated[
 
 @router.get("/loans", status_code=status.HTTP_200_OK)
 def list_client_loans(
-    request: Request,
+    client_id: client_id_annotation,
     response: Response,
     query: Annotated[LoanApiQuery, Query()],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> list[LoanRead]:
     """List loans where the client is the owner."""
 
-    client_user_id = services.auth.check_auth(request)
-
     result = services.loan.list_loans(
         db=db,
         query_filter=LoanQueryFilter(
-            owner_id=client_user_id,
+            owner_id=client_id,
             item_id=query.item,
             active=query.active,
         ),
@@ -55,19 +54,17 @@ def list_client_loans(
 
 @router.get("/loans/{loan_id}", status_code=status.HTTP_200_OK)
 def get_client_loan(
-    request: Request,
+    client_id: client_id_annotation,
     loan_id: loan_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRead:
     """Get loan where the client is the owner."""
 
-    client_user_id = services.auth.check_auth(request)
-
     return services.loan.get_loan(
         db=db,
         loan_id=loan_id,
         query_filter=LoanQueryFilter(
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )
 
@@ -77,18 +74,16 @@ def get_client_loan(
 
 @router.post("/loans/{loan_id}/end", status_code=status.HTTP_200_OK)
 def end_client_loan(
-    request: Request,
+    client_id: client_id_annotation,
     loan_id: loan_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRead:
     """Put an end to the loan where the client is the owner."""
 
-    client_user_id = services.auth.check_auth(request)
-
     return services.loan.end_loan(
         db=db,
         loan_id=loan_id,
         query_filter=LoanQueryFilter(
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )

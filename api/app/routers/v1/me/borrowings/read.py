@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.api import LoanApiQuery
 from app.schemas.loan.query import LoanQueryFilter
 from app.schemas.loan.read import LoanRead
@@ -18,6 +19,7 @@ from .router import router
 
 @router.get("", status_code=status.HTTP_200_OK)
 def list_client_borrowings(
+    client_id: client_id_annotation,
     request: Request,
     response: Response,
     query: Annotated[LoanApiQuery, Query()],
@@ -25,12 +27,10 @@ def list_client_borrowings(
 ) -> list[LoanRead]:
     """List loans where the client is the borrower."""
 
-    client_user_id = services.auth.check_auth(request)
-
     result = services.loan.list_loans(
         db=db,
         query_filter=LoanQueryFilter(
-            borrower_id=client_user_id,
+            borrower_id=client_id,
             item_id=query.item,
             active=query.active,
         ),

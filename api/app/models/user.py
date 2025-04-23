@@ -46,7 +46,7 @@ class User(CreationDate, Base):
     name: Mapped[str] = mapped_column(
         String,
     )
-    password: Mapped[str] = mapped_column(
+    password_hash: Mapped[str] = mapped_column(
         String,
     )
     avatar_seed: Mapped[str] = mapped_column(

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.schemas.user.create import UserCreate
 from app.schemas.user.read import UserRead
+from app.services.auth import hash_password
 
 
 def create_user(
@@ -11,14 +12,12 @@ def create_user(
 ) -> UserRead:
     """Create a user."""
 
-    # TODO password hash
-
     # insert new user in database
     user = database.user.create_user(
         db=db,
         email=user_create.email,
         name=user_create.name,
-        password_hash=user_create.password,
+        password_hash=hash_password(user_create.password),
         avatar_seed=user_create.avatar_seed,
     )
 

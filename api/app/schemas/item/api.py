@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import Field, field_validator
 
@@ -8,7 +7,7 @@ from app.schemas.base import ApiQueryBase
 
 class ItemApiQueryBase(ApiQueryBase):
     # words
-    q: Optional[list[str]] = Field(
+    q: list[str] | None = Field(
         title="Words used for fuzzy search",
         description=(
             "An item is returned if any word in this list fuzzy-matches a word in the "
@@ -24,7 +23,7 @@ class ItemApiQueryBase(ApiQueryBase):
     )
 
     # targeted_age_months
-    mo: Optional[str] = Field(
+    mo: str | None = Field(
         alias="mo",
         title="Targeted age months",
         description=(
@@ -41,7 +40,7 @@ class ItemApiQueryBase(ApiQueryBase):
     )
 
     # availability
-    av: Optional[ItemQueryAvailability] = Field(
+    av: ItemQueryAvailability | None = Field(
         title="Availability",
         default=ItemQueryAvailability.yes,
     )
@@ -76,11 +75,11 @@ class ItemApiQueryBase(ApiQueryBase):
         return (lower, upper)
 
     @property
-    def parsed_mo(self) -> Optional[tuple[int | None, int | None]]:
+    def parsed_mo(self) -> tuple[int | None, int | None] | None:
         return self.parse_mo(self.mo)
 
     # regions
-    reg: Optional[list[int]] = Field(
+    reg: list[int] | None = Field(
         title="Regions",
         description=(
             "An item is returned if it is available in any of these regions IDs."
@@ -95,7 +94,7 @@ class ItemApiQueryBase(ApiQueryBase):
 
 class ItemApiQuery(ItemApiQueryBase):
     # limit
-    n: Optional[int] = Field(
+    n: int | None = Field(
         title="Limit returned items count",
         description="Limit the number of items returned.",
         examples=[
@@ -107,14 +106,14 @@ class ItemApiQuery(ItemApiQueryBase):
     )
 
     # cursor item_id
-    cid: Optional[int] = Field(
+    cid: int | None = Field(
         title="Page cursor for item ID",
         gt=0,
         default=None,
     )
 
     # cursor words_match
-    cwm: Optional[int] = Field(
+    cwm: int | None = Field(
         title="Page cursor for words match",
         le=0,
         default=None,

@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -238,9 +237,9 @@ def send_message(
     chat_id: ChatId,
     message_type: ChatMessageType,
     sender_id: int,
-    text: Optional[str] = None,
-    loan_request_id: Optional[int] = None,
-    loan_id: Optional[int] = None,
+    text: str | None = None,
+    loan_request_id: int | None = None,
+    loan_id: int | None = None,
 ) -> ChatMessageRead:
     # ensure chat does exist
     chat = database.chat.ensure_chat(

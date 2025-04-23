@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import field_validator
 from sqlalchemy import BooleanClauseList, Integer, Select, and_, func, not_, or_
@@ -12,13 +11,13 @@ from app.schemas.base import QueryFilterBase
 class ItemQueryFilter(QueryFilterBase):
     """Filters of the items query."""
 
-    words: Optional[list[str]] = None
-    targeted_age_months: Optional[tuple[int | None, int | None]] = None
-    regions: Optional[list[int]] = None
-    availability: Optional[ItemQueryAvailability] = None
-    owner_id: Optional[int] = None
-    liked_by_user_id: Optional[int] = None
-    saved_by_user_id: Optional[int] = None
+    words: list[str] | None = None
+    targeted_age_months: tuple[int | None, int | None] | None = None
+    regions: list[int] | None = None
+    availability: ItemQueryAvailability | None = None
+    owner_id: int | None = None
+    liked_by_user_id: int | None = None
+    saved_by_user_id: int | None = None
 
     @field_validator("targeted_age_months")
     def validate_targeted_age_months(cls, v):  # noqa: N805

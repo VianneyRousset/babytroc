@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 from app.schemas.image.read import ItemImageRead
 
 from .router import router
@@ -14,6 +15,7 @@ from .router import router
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_image(
+    client_id: client_id_annotation,
     request: Request,
     response: Response,
     file: UploadFile,
@@ -21,11 +23,9 @@ async def upload_image(
 ) -> ItemImageRead:
     """Upload item image."""
 
-    client_user_id = services.auth.check_auth(request)
-
     return services.image.upload_image(
         config=request.app.state.config,
         db=db,
         fp=file.file,
-        owner_id=client_user_id,
+        owner_id=client_id,
     )

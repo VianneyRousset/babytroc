@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import Select, func
 
@@ -11,10 +10,10 @@ from app.schemas.base import QueryFilterBase
 class LoanRequestQueryFilter(QueryFilterBase):
     """Filter of the loan requests query."""
 
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    state: Optional[LoanRequestState] = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    state: LoanRequestState | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
@@ -41,10 +40,10 @@ class LoanRequestQueryFilter(QueryFilterBase):
 class LoanQueryFilter(QueryFilterBase):
     """Filter of the loans query."""
 
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    active: Optional[bool] = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    active: bool | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""

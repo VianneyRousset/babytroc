@@ -6,6 +6,8 @@ def test_can_read_regions_list(
     regions: list[int],
     regions_data: list[dict],
 ):
+    """Check that regions list can be retrieved."""
+
     # list regions
     resp = client.get("/v1/utils/regions")
     print(resp.text)

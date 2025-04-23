@@ -2,8 +2,9 @@ import os
 import random
 import string
 import warnings
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from pathlib import Path
+from typing import TypedDict
 
 import pytest
 import sqlalchemy
@@ -16,10 +17,25 @@ from alembic import command
 from alembic.config import Config as AlembicConfig
 from app import services
 from app.app import create_app
-from app.config import Config, ImgPushConfig
+from app.config import Config, DatabaseConfig
 from app.schemas.item.create import ItemCreate
 from app.schemas.region.create import RegionCreate
 from app.schemas.user.create import UserCreate
+
+
+class UserData(TypedDict):
+    name: str
+    email: str
+    password: str
+
+
+class ItemData(TypedDict):
+    owner_id: int
+    name: str
+    description: str
+    targeted_age_months: list[int | None]
+    regions: list[int]
+    images: list[str]
 
 
 def random_string(length: int):
@@ -55,18 +71,64 @@ def database() -> Generator[sqlalchemy.URL]:
     drop_database(postgres_url)
 
 
+def login_as_user(
+    client: TestClient,
+    user: int,
+    users_data: list[UserData],
+) -> None:
+    client.post(
+        "/v1/auth/login",
+        data={
+            "grant_type": "password",
+            "username": users_data[user]["email"],
+            "password": users_data[user]["password"],
+        },
+    ).raise_for_status()
+
+
 @pytest.fixture
-def client(database: sqlalchemy.URL) -> TestClient:
-    config = Config(
-        postgres_url=database,
-        imgpush=ImgPushConfig.from_env(),
+def client(
+    database: sqlalchemy.URL,
+) -> TestClient:
+    config = Config.from_env(database=DatabaseConfig.from_env(url=database))
+    client = TestClient(create_app(config))
+    return client
+
+
+@pytest.fixture
+def client0(
+    database: sqlalchemy.URL,
+    users: list[int],
+    users_data: list[UserData],
+) -> TestClient:
+    config = Config.from_env(database=DatabaseConfig.from_env(url=database))
+    client = TestClient(create_app(config))
+    login_as_user(
+        client=client,
+        user=0,
+        users_data=users_data,
     )
-
-    return TestClient(create_app(config))
+    return client
 
 
 @pytest.fixture
-def users_data() -> list[dict]:
+def client1(
+    database: sqlalchemy.URL,
+    users: list[int],
+    users_data: list[UserData],
+) -> TestClient:
+    config = Config.from_env(database=DatabaseConfig.from_env(url=database))
+    client = TestClient(create_app(config))
+    login_as_user(
+        client=client,
+        user=1,
+        users_data=users_data,
+    )
+    return client
+
+
+@pytest.fixture
+def users_data() -> list[UserData]:
     return [
         {
             "name": "alice",
@@ -142,8 +204,17 @@ def image_data() -> str:
 
 
 @pytest.fixture
-def image(client: TestClient, users: list[int], image_data: str) -> str:
-    resp = client.post("/v1/images", files={"file": image_data})
+def image0(client0: TestClient, users: list[int], image_data: str) -> str:
+    resp = client0.post("/v1/images", files={"file": image_data})
+    resp.raise_for_status()
+    added = resp.json()
+
+    return added["name"]
+
+
+@pytest.fixture
+def image1(client1: TestClient, users: list[int], image_data: str) -> str:
+    resp = client1.post("/v1/images", files={"file": image_data})
     resp.raise_for_status()
     added = resp.json()
 
@@ -152,10 +223,11 @@ def image(client: TestClient, users: list[int], image_data: str) -> str:
 
 @pytest.fixture
 def items_data(
-    image: str,
+    image0: str,
+    image1: str,
     regions: list[int],
     users: list[int],
-) -> list[dict]:
+) -> list[ItemData]:
     return [
         {
             "owner_id": users[0],
@@ -163,7 +235,7 @@ def items_data(
             "description": "dwell into a flowerbed",
             "targeted_age_months": [4, 10],
             "regions": [regions[0]],
-            "images": [image],
+            "images": [image0],
         },
         {
             "owner_id": users[1],
@@ -171,7 +243,7 @@ def items_data(
             "description": "Breathe, breathe in the air. Don't be afraid to care",
             "targeted_age_months": [16, None],
             "regions": [regions[0], regions[1]],
-            "images": [image],
+            "images": [image1],
         },
     ]
 

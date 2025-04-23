@@ -27,8 +27,6 @@ def list_items_owned_by_user(
 ) -> list[ItemPreviewRead]:
     """List items owned by user."""
 
-    services.auth.check_auth(request)
-
     result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
@@ -70,8 +68,6 @@ def get_client_item_by_id(
     db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get user's item by id."""
-
-    services.auth.check_auth(request)
 
     return services.item.get_item(
         db=db,

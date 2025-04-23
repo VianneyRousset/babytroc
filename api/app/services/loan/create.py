@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -45,8 +44,8 @@ def execute_loan_request(
     db: Session,
     *,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
-    force: Optional[bool] = False,
+    query_filter: LoanRequestQueryFilter | None = None,
+    force: bool | None = False,
 ) -> LoanRead:
     """Create a loan from an accepted loan request.
 

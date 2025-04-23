@@ -2,15 +2,17 @@ from fastapi.testclient import TestClient
 
 
 def test_created_image_can_be_read(
-    client: TestClient,
+    client0: TestClient,
     users: list[int],
     image_data: str,
 ):
+    """Upload image from client 0 and retrieve it from public client."""
+
     # upload image
-    resp = client.post("/v1/images", files={"file": image_data})
+    resp = client0.post("/v1/images", files={"file": image_data})
     resp.raise_for_status()
     name = resp.json()["name"]
 
     # request item
-    resp = client.get(f"/v1/images/{name}")
+    resp = client0.get(f"/v1/images/{name}")
     resp.raise_for_status()

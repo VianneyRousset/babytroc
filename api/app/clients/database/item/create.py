@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
@@ -18,7 +17,7 @@ def create_item(
     owner_id: int,
     images: list[str],
     regions: list[int],
-    blocked: Optional[bool] = False,
+    blocked: bool | None = False,
 ) -> Item:
     """Create and insert item into database."""
 

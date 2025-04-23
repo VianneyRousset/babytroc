@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -12,9 +10,9 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 
 def get_loan_request(
     db: Session,
-    loan_request_id: Optional[int] = None,
+    loan_request_id: int | None = None,
     *,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
 ) -> LoanRequest:
     """Get loan request with ID `loan_request_id`."""
 
@@ -41,8 +39,8 @@ def get_loan_request(
 def list_loan_requests(
     db: Session,
     *,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[LoanRequest]:
     """List loan requests matching criteria."""
 
@@ -80,7 +78,7 @@ def get_loan(
     db: Session,
     loan_id: int,
     *,
-    query_filter: Optional[LoanQueryFilter] = None,
+    query_filter: LoanQueryFilter | None = None,
 ) -> Loan:
     """Get loan with ID `loan_id`."""
 
@@ -102,8 +100,8 @@ def get_loan(
 def list_loans(
     db: Session,
     *,
-    query_filter: Optional[LoanQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: LoanQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Loan]:
     """List items matching criteria."""
 

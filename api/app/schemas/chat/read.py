@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from app.enums import ChatMessageType
 from app.schemas.base import ReadBase
@@ -21,11 +20,11 @@ class ChatMessageRead(ChatBase, ReadBase):
     id: int
     chat_id: ChatId
     message_type: ChatMessageType
-    sender_id: Optional[int]
+    sender_id: int | None
     creation_date: datetime
     seen: bool
-    text: Optional[str]
-    loan_request_id: Optional[int]
-    loan_id: Optional[int]
+    text: str | None
+    loan_request_id: int | None
+    loan_id: int | None
     item_id: int
     borrower_id: int

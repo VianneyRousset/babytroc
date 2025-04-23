@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional
+from typing import Any, Generic
 
 from pydantic import Field, field_validator
 from sqlalchemy import Select, tuple_
@@ -10,7 +10,7 @@ from .base import QueryPageBase, ResultType
 class QueryPageOptions(QueryPageBase):
     """Options on the queried page."""
 
-    limit: Optional[int] = Field(gt=0, default=None)
+    limit: int | None = Field(gt=0, default=None)
     order: list[str] = Field(default=[])
     cursor: dict[str, Any] = Field(default={})
     desc: bool = Field(default=False)

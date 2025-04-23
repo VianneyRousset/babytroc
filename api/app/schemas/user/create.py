@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import Field
 
@@ -19,7 +19,7 @@ class UserCreate(UserBase, CreateBase):
     email: str
     password: str
     avatar_seed: Annotated[
-        Optional[str],
+        str | None,
         Field(
             min_length=AVATAR_SEED_LENGTH.start,
             max_length=AVATAR_SEED_LENGTH.stop,

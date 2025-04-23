@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -11,7 +10,7 @@ def mark_message_as_seen(
     db: Session,
     message_id: int,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
 ) -> ChatMessageRead:
     """Mark message with `message_id` as seen."""
 

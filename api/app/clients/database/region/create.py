@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -9,7 +8,7 @@ def create_region(
     db: Session,
     *,
     name: str,
-    region_id: Optional[int] = None,
+    region_id: int | None = None,
 ) -> Region:
     """Create and insert region into database."""
 

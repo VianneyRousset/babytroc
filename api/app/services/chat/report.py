@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +9,7 @@ def report_chat(
     db: Session,
     chat_id: int,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
+    query_filter: ChatQueryFilter | None = None,
     reported_by_user_id: int,
     report_create: ReportCreate,
 ):

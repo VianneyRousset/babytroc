@@ -1,7 +1,12 @@
 from fastapi.testclient import TestClient
 
 
-def test_get_user(client: TestClient, users: list[int], users_data: list[dict]):
+def test_get_user(
+    client: TestClient,
+    users: list[int],
+    users_data: list[dict],
+):
+    """Check that user info can be retrieved."""
     user_id = users[0]
     user_data = users_data[0]
 

@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -43,7 +42,7 @@ def cancel_pending_loan_request(
 def cancel_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
     """Set loan request state to `cancelled`.
@@ -88,7 +87,7 @@ def cancel_loan_request(
 def accept_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
@@ -133,7 +132,7 @@ def accept_loan_request(
 def reject_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
     """Set loan request state to `rejected`.
@@ -178,7 +177,7 @@ def reject_loan_request(
 def end_loan(
     db: Session,
     loan_id: int,
-    query_filter: Optional[LoanQueryFilter] = None,
+    query_filter: LoanQueryFilter | None = None,
 ):
     """Set loan end date to now.
 

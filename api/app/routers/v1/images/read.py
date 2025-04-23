@@ -14,8 +14,6 @@ def get_item_image(
 ) -> Response:
     """Get item image."""
 
-    services.auth.check_auth(request)
-
     image = services.image.get_image_data(request.app.state.config, image_name)
 
     return Response(

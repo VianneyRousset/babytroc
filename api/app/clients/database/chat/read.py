@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -15,7 +14,7 @@ def get_chat(
     db: Session,
     chat_id: ChatId,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
+    query_filter: ChatQueryFilter | None = None,
 ) -> Chat:
     """Get chat with `chat_id`."""
 
@@ -41,8 +40,8 @@ def get_chat(
 def list_chats(
     db: Session,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Chat]:
     """List chats matching criteria."""
 
@@ -82,7 +81,7 @@ def get_message(
     db: Session,
     message_id: int,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
 ) -> ChatMessage:
     """Get message with `message_id`."""
 
@@ -104,8 +103,8 @@ def get_message(
 def list_messages(
     db: Session,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatMessage]:
     """List chat messages matching criteria."""
 
