@@ -1,4 +1,3 @@
-
 from pydantic import Field, field_validator
 
 from app.enums import ItemQueryAvailability
@@ -46,36 +45,34 @@ class ItemApiQueryBase(ApiQueryBase):
     )
 
     @field_validator("mo")
-    def validate_mo(cls, mo):  # noqa: N805
-        mo_range = cls.parse_mo(mo)
+    def validate_mo(cls, mo: str):  # noqa: N805
+        lower, upper = cls.parse_mo(mo)
 
-        if len(mo_range) != 2:
-            msg = "mo must have 2 values"
-            raise ValueError(msg)
-
-        if (
-            mo_range[0] is not None
-            and mo_range[1] is not None
-            and mo_range[0] > mo_range[1]
-        ):
+        if lower is not None and upper is not None and lower > upper:
             msg = "mo values must be in order"
             raise ValueError(msg)
 
         return mo
 
     @staticmethod
-    def parse_mo(mo):
-        if mo is None:
-            return None
+    def parse_mo(mo: str) -> tuple[int | None, int | None]:
+        try:
+            lower_str, upper_str = mo.split("-")
 
-        lower, upper = mo.split("-")
-        lower = int(lower) if lower else None
-        upper = int(upper) if upper else None
+        except ValueError as error:
+            msg = "mo must have 2 values"
+            raise ValueError(msg) from error
 
-        return (lower, upper)
+        lower = int(lower_str) if lower_str else None
+        upper = int(upper_str) if upper_str else None
+
+        return lower, upper
 
     @property
     def parsed_mo(self) -> tuple[int | None, int | None] | None:
+        if self.mo is None:
+            return None
+
         return self.parse_mo(self.mo)
 
     # regions
