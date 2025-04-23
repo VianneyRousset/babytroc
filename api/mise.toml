@@ -40,11 +40,6 @@ description = "Lint - mypy pass"
 depends = ["deps", "deps-dev"]
 run = "mypy app/"
 
-[tasks."lint:pyright"]
-description = "Lint - pyright pass"
-depends = ["deps", "deps-dev"]
-run = "pyright app/"
-
 [tasks.lint]
 description = "Lint the code"
 depends = ["lint:*"]

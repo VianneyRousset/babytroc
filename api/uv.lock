@@ -392,8 +392,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
-    { name = "pylyzer" },
-    { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "sqlalchemy-utils" },
@@ -418,8 +416,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy", specifier = ">=1.15.0" },
-    { name = "pylyzer", specifier = ">=0.0.82" },
-    { name = "pyright", specifier = ">=1.1.399" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "ruff", specifier = ">=0.11.6" },
     { name = "sqlalchemy-utils", specifier = ">=0.41.2" },
@@ -548,15 +544,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/98/a4/1ab47638b92648243faf97a5aeb6ea83059cc3624972ab6b8d2316078d3f/mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782", size = 4433 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/e2/5d3f6ada4297caebe1a2add3b126fe800c96f56dbe5d1988a2cbe0b267aa/mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d", size = 4695 },
-]
-
-[[package]]
-name = "nodeenv"
-version = "1.9.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/43/16/fc88b08840de0e0a72a2f9d8c6bae36be573e475a6326ae854bcc549fc45/nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f", size = 47437 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/1d/1b658dbd2b9fa9c4c9f32accbfc0205d532c8c6194dc0f2a4c0428e7128a/nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9", size = 22314 },
 ]
 
 [[package]]
@@ -789,32 +776,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e7/46/bd74733ff231675599650d3e47f361794b22ef3e3770998dda30d3b63726/pyjwt-2.10.1.tar.gz", hash = "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953", size = 87785 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl", hash = "sha256:dcdd193e30abefd5debf142f9adfcdd2b58004e644f25406ffaebd50bd98dacb", size = 22997 },
-]
-
-[[package]]
-name = "pylyzer"
-version = "0.0.82"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/cb/684ea79840ea01fb4916d361732fd42ee169cf6a05ddcb79715fa35c0ff9/pylyzer-0.0.82-py3-none-macosx_11_0_arm64.whl", hash = "sha256:fc2088c87de1d6e8813d356a7f7e42768976b8dc1416fd7fdf088630e757e7e5", size = 11931534 },
-    { url = "https://files.pythonhosted.org/packages/ae/9e/2c1730bc3ba7725134cb260719952e06d740c885e36280b1c2d2f5924117/pylyzer-0.0.82-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2e311b7cf132ebfe3d143e0c19efab9cf1b0628f921601e9794ab15073516fb6", size = 14800900 },
-    { url = "https://files.pythonhosted.org/packages/56/97/fbf47c8fd44e1988e3e072d58803ef2f139bcc61842842bfe5d34cc2cccd/pylyzer-0.0.82-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d409ec99edcfbdc38fb12cfb0f22ed4586775e5acff4df269dad1c1029c362f3", size = 13472644 },
-    { url = "https://files.pythonhosted.org/packages/17/f6/e9ee045c0f16a445a73567edeb1093429b276f3783f0e9b92dce70a8b787/pylyzer-0.0.82-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:1f0e6d81a291a2b8fa3b85403e4b8b704406e52c8b59025a5f84b885dc9e7f03", size = 13546580 },
-    { url = "https://files.pythonhosted.org/packages/ce/e6/c9bc99c3cbe643ceeefca9034a776a7901b2b9c1d739d14d4b9df3e5ea65/pylyzer-0.0.82-py3-none-win32.whl", hash = "sha256:919ba92368dd6c43236029c68ec4ab33e21ea62b8bda94c9c4c0f2569c61cf57", size = 13054837 },
-    { url = "https://files.pythonhosted.org/packages/10/c3/ab9da76ca458939c1da5fe2186b085c357b64f3526ee7f3f5f2670c11da3/pylyzer-0.0.82-py3-none-win_amd64.whl", hash = "sha256:80b87c4e24724ef6d94e16e4d7fbe0922b366a77c8f2e88ad64e8d4cf4c70e83", size = 15472118 },
-]
-
-[[package]]
-name = "pyright"
-version = "1.1.399"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nodeenv" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/db/9d/d91d5f6d26b2db95476fefc772e2b9a16d54c6bd0ea6bb5c1b6d635ab8b4/pyright-1.1.399.tar.gz", hash = "sha256:439035d707a36c3d1b443aec980bc37053fbda88158eded24b8eedcf1c7b7a1b", size = 3856954 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/b5/380380c9e7a534cb1783c70c3e8ac6d1193c599650a55838d0557586796e/pyright-1.1.399-py3-none-any.whl", hash = "sha256:55f9a875ddf23c9698f24208c764465ffdfd38be6265f7faf9a176e1dc549f3b", size = 5592584 },
 ]
 
 [[package]]
