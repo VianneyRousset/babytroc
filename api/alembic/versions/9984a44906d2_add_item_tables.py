@@ -22,6 +22,7 @@ depends_on: str | Sequence[str] | None = None
 def upgrade() -> None:
     create_item_table()
     create_item_image_table()
+    create_item_image_association_table()
     create_item_like_table()
     create_item_save_table()
     create_item_region_table()
@@ -31,6 +32,7 @@ def downgrade() -> None:
     drop_item_region_table()
     drop_item_save_table()
     drop_item_like_table()
+    drop_item_image_association_table()
     drop_item_image_table()
     drop_item_table()
 
@@ -123,6 +125,11 @@ def create_item_image_table():
     op.create_index(op.f("ix_item_image_name"), "item_image", ["name"], unique=True)
 
 
+def drop_item_image_table():
+    op.drop_index(op.f("ix_item_image_name"), table_name="item_image")
+    op.drop_table("item_image")
+
+
 def create_item_image_association_table():
     op.create_table(
         "item_image_association",
@@ -136,9 +143,8 @@ def create_item_image_association_table():
     )
 
 
-def drop_item_image_table():
-    op.drop_index(op.f("ix_item_image_name"), table_name="item_image")
-    op.drop_table("item_image")
+def drop_item_image_association_table():
+    op.drop_table("item_image_association")
 
 
 def create_item_like_table():
