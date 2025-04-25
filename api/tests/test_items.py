@@ -1,165 +1,257 @@
+import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
+from tests.fixtures.items import ItemData
+from app.schemas.user.read import UserRead
+from app.schemas.item.read import ItemRead
 
 
-def test_created_item_can_be_read(
-    client: TestClient,
-    client0: TestClient,
-    users: list[int],
-    items_data: list[dict],
-):
-    item_data = items_data[0]
+@pytest.mark.usefixtures("items")
+class TestItemsCreateUpdateDelete:
+    """Test items create, update and delete endpoints."""
 
-    # create item
-    resp = client0.post(
-        "/v1/me/items",
-        json={k: v for k, v in item_data.items() if k != "owner_id"},
-    )
-    print(resp.text)
-    resp.raise_for_status()
-    added = resp.json()
-    item_id = added["id"]
+    def test_created_item_is_public(
+        self,
+        client: TestClient,
+        alice: UserRead,
+        alice_client: TestClient,
+        alice_new_item_data: ItemData,
+    ):
+        """Check created item is then accessible in various lists."""
 
-    # get item by id from global list
-    resp = client.get(f"/v1/items/{item_id}")
-    print(resp.text)
-    resp.raise_for_status()
-    read = resp.json()
+        # create item
+        resp = alice_client.post(
+            "/v1/me/items",
+            json=alice_new_item_data,
+        )
+        print(resp.text)
+        resp.raise_for_status()
+        added = resp.json()
+        item_id = added["id"]
 
-    assert read["name"] == item_data["name"]
-    assert read["description"] == item_data["description"]
-    assert read["targeted_age_months"] == item_data["targeted_age_months"]
-    assert read["owner_id"] == item_data["owner_id"]
+        # get item by id from global list
+        resp = client.get(f"/v1/items/{item_id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
 
-    # get item by id from client list
-    resp = client0.get(f"/v1/me/items/{item_id}")
-    print(resp.text)
-    resp.raise_for_status()
-    read = resp.json()
+        assert read["name"] == alice_new_item_data["name"]
+        assert read["description"] == alice_new_item_data["description"]
+        assert (
+            tuple(read["targeted_age_months"])
+            == alice_new_item_data["targeted_age_months"]
+        )
+        assert read["owner_id"] == alice.id
 
-    assert read["name"] == item_data["name"]
-    assert read["description"] == item_data["description"]
-    assert read["targeted_age_months"] == item_data["targeted_age_months"]
-    assert read["owner_id"] == item_data["owner_id"]
+        # get item in alice's list of items
+        resp = client.get(f"/v1/users/{alice.id}/items/{item_id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
+
+        assert read["name"] == alice_new_item_data["name"]
+        assert read["description"] == alice_new_item_data["description"]
+        assert (
+            tuple(read["targeted_age_months"])
+            == alice_new_item_data["targeted_age_months"]
+        )
+        assert read["owner_id"] == alice.id
+
+        # get item by id from client list
+        resp = alice_client.get(f"/v1/me/items/{item_id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
+
+        assert read["name"] == alice_new_item_data["name"]
+        assert read["description"] == alice_new_item_data["description"]
+        assert (
+            tuple(read["targeted_age_months"])
+            == alice_new_item_data["targeted_age_months"]
+        )
+        assert read["owner_id"] == alice.id
+
+    def test_item_can_be_updated(
+        self,
+        client: TestClient,
+        alice_client: TestClient,
+        alice_new_item: ItemRead,
+    ):
+        """Check that an item can be updated."""
+
+        # update item name
+        resp = alice_client.post(
+            f"/v1/me/items/{alice_new_item.id}",
+            json={"name": "forest"},
+        )
+        print(resp.text)
+        resp.raise_for_status()
+
+        # get item by id from global list
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
+
+        assert read["name"] == "forest"
+        assert read["description"] == alice_new_item.description
+        assert tuple(read["targeted_age_months"]) == alice_new_item.targeted_age_months
+        assert read["owner_id"] == alice_new_item.owner_id
+
+    def test_item_cannot_be_updated(
+        self,
+        client: TestClient,
+        bob_client: TestClient,
+        alice_new_item: ItemRead,
+    ):
+        """Check that neither Bob nor an unlogged client can update Alice's item."""
+
+        # bob trying to update item name
+        resp = bob_client.post(
+            f"/v1/me/items/{alice_new_item.id}",
+            json={"name": "forest"},
+        )
+        print(resp.text)
+
+        # unlogged client trying to update item name
+        resp = client.post(
+            f"/v1/me/items/{alice_new_item.id}",
+            json={"name": "forest"},
+        )
+        print(resp.text)
+
+        # get item by id from global list
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
+
+        # check data hasn't change
+        assert read["name"] == alice_new_item.name
+        assert read["description"] == alice_new_item.description
+        assert tuple(read["targeted_age_months"]) == alice_new_item.targeted_age_months
+        assert read["owner_id"] == alice_new_item.owner_id
+
+    def test_created_item_can_be_deleted(
+        self,
+        client: TestClient,
+        alice_client: TestClient,
+        alice_new_item: ItemRead,
+    ):
+        """Create an item and delete it."""
+
+        # check item exists
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+
+        # delete item by id
+        resp = alice_client.delete(f"/v1/me/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+
+        # check item does not exists
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_created_item_cannot_be_deleted(
+        self,
+        client: TestClient,
+        alice_client: TestClient,
+        bob_client: TestClient,
+        alice_new_item: ItemRead,
+    ):
+        """Check that neither Bob nor an unlogged client can delete an unowned item."""
+
+        # check item exists
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+
+        # bob trying to delete item
+        resp = bob_client.delete(f"/v1/me/items/{alice_new_item.id}")
+        print(resp.text)
+
+        # unlogged client trying to delete item
+        resp = client.delete(f"/v1/me/items/{alice_new_item.id}")
+        print(resp.text)
+
+        # get item by id from global list
+        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        read = resp.json()
+
+        # check data hasn't change
+        assert read["name"] == alice_new_item.name
+        assert read["description"] == alice_new_item.description
+        assert tuple(read["targeted_age_months"]) == alice_new_item.targeted_age_months
+        assert read["owner_id"] == alice_new_item.owner_id
 
 
-def test_created_item_can_be_updated(
-    client: TestClient,
-    client0: TestClient,
-    users: list[int],
-    items_data: list[dict],
-    items: list[int],
-):
-    item_data = items_data[0]
-    item_id = items[0]
+class TestItemsFiltering:
+    """Test items read filtering endpoints."""
 
-    # update item name
-    resp = client0.post(
-        f"/v1/me/items/{item_id}",
-        json={"name": "forest"},
-    )
-    print(resp.text)
-    resp.raise_for_status()
+    @pytest.mark.parametrize("lower", [None, 0, 5, 10, 15, 20])
+    @pytest.mark.parametrize("upper", [None, 0, 5, 10, 15, 20])
+    def test_list_item_filter_targeted_age_month(
+        self,
+        client: TestClient,
+        items: list[ItemRead],
+        lower: int | None,
+        upper: int | None,
+    ):
+        """Filter items list by targeted age months (mo)."""
 
-    # get item by id from global list
-    resp = client.get(f"/v1/items/{item_id}")
-    print(resp.text)
-    resp.raise_for_status()
-    read = resp.json()
+        lower = None
+        upper = 5
 
-    assert read["name"] == "forest"
-    assert read["description"] == item_data["description"]
-    assert read["targeted_age_months"] == item_data["targeted_age_months"]
-    assert read["owner_id"] == item_data["owner_id"]
+        expected_items = {
+            item.id
+            for item in items
+            if self.intersect(item.targeted_age_months, (lower, upper))
+        }
 
+        # get client items list
+        resp = client.get(
+            url="/v1/items",
+            params={
+                "mo": self.format_range((lower, upper)),
+            },
+        )
+        resp.raise_for_status()
 
-def test_created_item_can_be_deleted(
-    client: TestClient,
-    client0: TestClient,
-    users: list[int],
-    items: list[int],
-):
-    item_id = items[0]
+        assert {item["id"] for item in resp.json()} == expected_items
 
-    # check item exists
-    resp = client.get(f"/v1/items/{item_id}")
-    print(resp.text)
-    resp.raise_for_status()
+    @staticmethod
+    def format_range(r: tuple[int | None, int | None]) -> str:
+        """Format range into string."""
 
-    # delete item by id
-    resp = client0.delete(f"/v1/me/items/{item_id}")
-    print(resp.text)
-    resp.raise_for_status()
+        lower, upper = r
 
-    # check item does not exists
-    resp = client.get(f"/v1/items/{item_id}")
-    print(resp.text)
-    assert resp.status_code == status.HTTP_404_NOT_FOUND
+        lower_str = "" if lower is None else f"{lower:d}"
+        upper_str = "" if upper is None else f"{upper:d}"
 
+        return f"{lower_str}-{upper_str}"
 
-def test_created_item_shows_up_in_global_list(
-    client: TestClient,
-    client0: TestClient,
-    users: list[int],
-    items_data: list[dict],
-):
-    item_data = items_data[0]
+    @staticmethod
+    def intersect(
+        a: tuple[int | None, int | None],
+        b: tuple[int | None, int | None],
+    ) -> bool:
+        """Returns True if range a and b intersect."""
 
-    # create item
-    resp = client0.post(
-        "/v1/me/items",
-        json={k: v for k, v in item_data.items() if k != "owner_id"},
-    )
-    print(resp.text)
-    resp.raise_for_status()
+        a_lower, a_upper = a
+        b_lower, b_upper = b
 
-    # get global items list
-    resp = client.get("/v1/items")
-    print(resp.text)
-    resp.raise_for_status()
-    items = resp.json()
+        a_lower = -1000 if a_lower is None else a_lower
+        b_lower = -1000 if b_lower is None else b_lower
 
-    assert items[0]["name"] == item_data["name"]
-    assert items[0]["owner_id"] == item_data["owner_id"]
+        a_upper = 1000 if a_upper is None else a_upper
+        b_upper = 1000 if b_upper is None else b_upper
 
+        res = a_lower <= b_upper and a_upper >= b_lower
 
-def test_created_item_shows_up_in_client_list(
-    client0: TestClient,
-    users: list[int],
-    items_data: list[dict],
-):
-    item_data = items_data[0]
-
-    # create item
-    resp = client0.post(
-        "/v1/me/items",
-        json={k: v for k, v in item_data.items() if k != "owner_id"},
-    )
-    print(resp.text)
-    resp.raise_for_status()
-
-    # get client items list
-    resp = client0.get("/v1/me/items")
-    print(resp.text)
-    resp.raise_for_status()
-    items = resp.json()
-
-    assert items[0]["name"] == item_data["name"]
-    assert items[0]["owner_id"] == item_data["owner_id"]
-
-
-def test_list_item_filter_targeted_age_month(
-    client: TestClient,
-    items: list[int],
-):
-    # get client items list
-    resp = client.get(
-        url="/v1/items",
-        params={
-            "mo": "8-12",
-        },
-    )
-    resp.raise_for_status()
-    items = resp.json()
-
-    assert len(items) == 1
+        print(a, b, "->", res)
+        return res

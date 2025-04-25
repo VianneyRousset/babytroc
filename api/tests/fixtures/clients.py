@@ -1,9 +1,8 @@
 import pytest
-import sqlalchemy
 from fastapi.testclient import TestClient
 
 from app.app import create_app
-from app.config import Config, DatabaseConfig
+from app.config import Config
 from app.schemas.user.read import UserRead
 
 from .users import UserData
@@ -11,22 +10,22 @@ from .users import UserData
 
 @pytest.fixture
 def client(
-    database: sqlalchemy.URL,
+    app_config: Config,
 ) -> TestClient:
     """HTTP client to the app."""
-    return create_client(database)
+    return create_client(app_config)
 
 
 @pytest.fixture
 def alice_client(
-    database: sqlalchemy.URL,
+    app_config: Config,
     alice: UserRead,
     alice_user_data: UserData,
 ) -> TestClient:
     """HTTP client to the app with Alice's credentials."""
 
     return login_as_user(
-        client=create_client(database),
+        client=create_client(app_config),
         username=alice_user_data["email"],
         password=alice_user_data["password"],
     )
@@ -34,27 +33,26 @@ def alice_client(
 
 @pytest.fixture
 def bob_client(
-    database: sqlalchemy.URL,
+    app_config: Config,
     bob: UserRead,
     bob_user_data: UserData,
 ) -> TestClient:
     """HTTP client to the app with Bob's credentials."""
 
     return login_as_user(
-        client=create_client(database),
+        client=create_client(app_config),
         username=bob_user_data["email"],
         password=bob_user_data["password"],
     )
 
 
+# TODO share app ?
 def create_client(
-    database: sqlalchemy.URL,
+    app_config: Config,
 ) -> TestClient:
     """Return a new http test client to the app."""
 
-    config = Config.from_env(database=DatabaseConfig.from_env(url=database))
-    client = TestClient(create_app(config))
-    return client
+    return TestClient(create_app(app_config))
 
 
 def login_as_user(

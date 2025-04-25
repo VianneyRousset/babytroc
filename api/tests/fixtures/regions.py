@@ -15,7 +15,7 @@ class RegionData(TypedDict):
     name: str
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def regions_data() -> list[RegionData]:
     """Regions data."""
     return [
@@ -30,7 +30,7 @@ def regions_data() -> list[RegionData]:
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def regions(
     database: sqlalchemy.URL,
     regions_data: list[RegionData],

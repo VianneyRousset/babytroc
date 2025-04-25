@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 from tests.fixtures.users import UserData
 
 
-@pytest.mark.usefixtures("database", "alice")
+@pytest.mark.usefixtures("alice")
 class TestAuth:
     """Test auth endpoints."""
 

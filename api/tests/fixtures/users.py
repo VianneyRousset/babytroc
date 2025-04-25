@@ -16,7 +16,7 @@ class UserData(TypedDict):
     password: str
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def alice_user_data() -> UserData:
     """Alice user data."""
 
@@ -27,7 +27,7 @@ def alice_user_data() -> UserData:
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def bob_user_data() -> UserData:
     """Bob user data."""
 
@@ -38,7 +38,7 @@ def bob_user_data() -> UserData:
     }
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def alice(
     database: sqlalchemy.URL,
     alice_user_data: UserData,
@@ -50,7 +50,7 @@ def alice(
         return services.user.create_user(session, UserCreate(**alice_user_data))
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def bob(
     database: sqlalchemy.URL,
     bob_user_data: UserData,

@@ -20,7 +20,7 @@ def random_string(length: int):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def database() -> Generator[sqlalchemy.URL]:
     """Create a temporary database with alembic migrations applied."""
 
