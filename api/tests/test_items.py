@@ -1,9 +1,10 @@
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from tests.fixtures.items import ItemData
-from app.schemas.user.read import UserRead
+
 from app.schemas.item.read import ItemRead
+from app.schemas.user.read import UserRead
+from tests.fixtures.items import ItemData
 
 
 @pytest.mark.usefixtures("items")
