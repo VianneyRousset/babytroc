@@ -1,10 +1,13 @@
 from fastapi.testclient import TestClient
 
+from app.schemas.region.read import RegionRead
+from tests.fixtures.regions import RegionData
+
 
 def test_can_read_regions_list(
     client: TestClient,
-    regions: list[int],
-    regions_data: list[dict],
+    regions: list[RegionRead],
+    regions_data: list[RegionData],
 ):
     """Check that regions list can be retrieved."""
 
@@ -12,9 +15,12 @@ def test_can_read_regions_list(
     resp = client.get("/v1/utils/regions")
     print(resp.text)
     resp.raise_for_status()
-    regions_list = resp.json()
+
+    expected_regions = {reg["id"]: reg for reg in regions_data}
+    received_regions = {reg["id"]: reg for reg in resp.json()}
 
     # check data
-    for i, region_data in enumerate(regions_data):
-        assert regions_list[i]["id"] == region_data["id"]
-        assert regions_list[i]["name"] == region_data["name"]
+    assert set(expected_regions) == set(received_regions)
+    for i in expected_regions:
+        assert received_regions[i]["id"] == expected_regions[i]["id"]
+        assert received_regions[i]["name"] == expected_regions[i]["name"]
