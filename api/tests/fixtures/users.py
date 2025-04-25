@@ -1,0 +1,62 @@
+from typing import TypedDict
+
+import pytest
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+from app import services
+from app.schemas.user.create import UserCreate
+from app.schemas.user.read import UserRead
+
+
+class UserData(TypedDict):
+    name: str
+    email: str
+    password: str
+
+
+@pytest.fixture
+def alice_user_data() -> UserData:
+    """Alice user data."""
+
+    return {
+        "name": "alice",
+        "email": "alice@ekindbaby.ch",
+        "password": "password-alice",
+    }
+
+
+@pytest.fixture
+def bob_user_data() -> UserData:
+    """Bob user data."""
+
+    return {
+        "name": "bob",
+        "email": "bob@ekindbaby.ch",
+        "password": "password-bob",
+    }
+
+
+@pytest.fixture
+def alice(
+    database: sqlalchemy.URL,
+    alice_user_data: UserData,
+) -> UserRead:
+    """Ensures Alice exists."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.user.create_user(session, UserCreate(**alice_user_data))
+
+
+@pytest.fixture
+def bob(
+    database: sqlalchemy.URL,
+    bob_user_data: UserData,
+) -> UserRead:
+    """Ensures Bob exists."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.user.create_user(session, UserCreate(**bob_user_data))
