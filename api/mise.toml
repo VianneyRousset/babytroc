@@ -43,7 +43,6 @@ run = "mypy app/"
 [tasks.lint]
 description = "Lint the code"
 depends = ["lint:*"]
-run = "ruff check app/"
 
 [tasks.test]
 description = "Test the code"
