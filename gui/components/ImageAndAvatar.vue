@@ -1,19 +1,16 @@
 <script setup lang="ts">
-
 // TODO query reduced image size
 
 const props = defineProps<{
-  image: string | null,
-  avatar: string | null,
+	image: string | null;
+	avatar: string | null;
 }>();
 
 const { image, avatar } = toRefs(props);
 
 const imageStyle = computed(() => ({
-  backgroundImage: `url('/api/v1/images/${props.image}')`,
+	backgroundImage: `url('/api/v1/images/${props.image}')`,
 }));
-
-
 </script>
 
 <template>

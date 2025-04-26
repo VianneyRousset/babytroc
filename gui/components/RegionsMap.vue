@@ -1,15 +1,13 @@
 <script setup lang="ts">
-
 const model = defineModel<Set<number>>();
 
 function toggle(regionId: number) {
-  if (model.value?.has(regionId)) {
-    model.value?.delete(regionId);
-  } else {
-    model.value?.add(regionId);
-  }
+	if (model.value?.has(regionId)) {
+		model.value?.delete(regionId);
+	} else {
+		model.value?.add(regionId);
+	}
 }
-
 </script>
 
 <template>

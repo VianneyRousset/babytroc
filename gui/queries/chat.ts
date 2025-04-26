@@ -1,141 +1,137 @@
-import { useInfiniteQuery, useQuery } from '@pinia/colada'
-import { parseLinkHeader } from '@web3-storage/parse-link-header'
-
+import { useInfiniteQuery, useQuery } from "@pinia/colada";
+import { parseLinkHeader } from "@web3-storage/parse-link-header";
 
 export function useChatQuery(chatId: string) {
+	const { $api } = useNuxtApp();
 
-  const { $api } = useNuxtApp();
-
-  return useQuery({
-    key: () => ["chat", chatId],
-    query: () => $api("/v1/me/chats/{chat_id}", {
-      path: {
-        chat_id: chatId,
-      }
-    }),
-  });
+	return useQuery({
+		key: () => ["chat", chatId],
+		query: () =>
+			$api("/v1/me/chats/{chat_id}", {
+				path: {
+					chat_id: chatId,
+				},
+			}),
+	});
 }
 
 export const useChatsListQuery = defineQuery(() => {
+	const { $api } = useNuxtApp();
 
-  const { $api } = useNuxtApp();
+	return useInfiniteQuery({
+		key: ["chats"],
 
-  return useInfiniteQuery({
-    key: ["chats"],
+		initialPage: {
+			data: Array<Chat>(),
+			cursor: {} as ChatQuery,
+			end: false,
+		},
 
-    initialPage: {
-      data: Array<Chat>(),
-      cursor: {} as ChatQuery,
-      end: false,
-    },
+		query: async (pages) => {
+			let newCursor: ChatQuery = {};
 
-    query: async (pages) => {
+			const newData = await $api("/v1/me/chats", {
+				query: pages.cursor,
 
-      let newCursor: ChatQuery = {};
+				onResponse: async ({
+					response: { ok, headers },
+				}: { response: { ok: boolean; headers: Headers } }) => {
+					if (!ok) return;
 
-      const newData = await $api("/v1/me/chats", {
-        query: pages.cursor,
+					const linkHeader = parseLinkHeader(headers.get("link"));
 
-        onResponse: async ({ response: { ok, headers } }: { response: { ok: boolean, headers: Headers } }) => {
-          if (!ok) return;
+					if (linkHeader === null)
+						return console.error("Null linkHeader when fetching first items.");
 
-          const linkHeader = parseLinkHeader(headers.get("link"));
+					const { rel, url, ...query } = linkHeader.next;
+					newCursor = query;
+				},
+			});
 
-          if (linkHeader === null)
-            return console.error("Null linkHeader when fetching first items.");
+			return {
+				data: newData,
+				cursor: newCursor,
+			};
+		},
 
-          const { rel, url, ...query } = linkHeader.next;
-          newCursor = query;
-        },
+		merge: (pages, newPage) => {
+			if (newPage.data.length === 0) {
+				return {
+					...pages,
+					end: true,
+				};
+			}
 
-      });
-
-      return {
-        data: newData,
-        cursor: newCursor,
-      }
-    },
-
-    merge: (pages, newPage) => {
-
-      if (newPage.data.length === 0) {
-        return {
-          ...pages,
-          end: true,
-        }
-      }
-
-      return {
-        data: [...pages.data, ...newPage.data],
-        cursor: newPage.cursor,
-        end: false,
-      };
-    },
-  });
+			return {
+				data: [...pages.data, ...newPage.data],
+				cursor: newPage.cursor,
+				end: false,
+			};
+		},
+	});
 });
 
-
 export const useChatMessagesListQuery = (chatId: MaybeRefOrGetter<string>) => {
-  const definition = defineQuery(() => {
+	const definition = defineQuery(() => {
+		const { $api } = useNuxtApp();
 
-    const { $api } = useNuxtApp();
+		return useInfiniteQuery({
+			key: ["chat", toValue(chatId), "messages"],
 
-    return useInfiniteQuery({
-      key: ["chat", toValue(chatId), "messages"],
+			initialPage: {
+				data: Array<ChatMessage>(),
+				cursor: {} as ChatMessageQuery,
+				end: false,
+			},
 
-      initialPage: {
-        data: Array<ChatMessage>(),
-        cursor: {} as ChatMessageQuery,
-        end: false,
-      },
+			query: async (pages) => {
+				let newCursor: ChatMessageQuery = {};
 
-      query: async (pages) => {
+				const newData = await $api("/v1/me/chats/{chat_id}/messages", {
+					path: {
+						chat_id: toValue(chatId),
+					},
+					query: pages.cursor,
 
-        let newCursor: ChatMessageQuery = {};
+					onResponse: async ({
+						response: { ok, headers },
+					}: { response: { ok: boolean; headers: Headers } }) => {
+						if (!ok) return;
 
-        const newData = await $api("/v1/me/chats/{chat_id}/messages", {
-          path: {
-            chat_id: toValue(chatId),
-          },
-          query: pages.cursor,
+						const linkHeader = parseLinkHeader(headers.get("link"));
 
-          onResponse: async ({ response: { ok, headers } }: { response: { ok: boolean, headers: Headers } }) => {
-            if (!ok) return;
+						if (linkHeader === null)
+							return console.error(
+								"Null linkHeader when fetching first items.",
+							);
 
-            const linkHeader = parseLinkHeader(headers.get("link"));
+						const { rel, url, ...query } = linkHeader.next;
+						newCursor = query;
+					},
+				});
 
-            if (linkHeader === null)
-              return console.error("Null linkHeader when fetching first items.");
+				return {
+					data: newData,
+					cursor: newCursor,
+				};
+			},
 
-            const { rel, url, ...query } = linkHeader.next;
-            newCursor = query;
-          },
+			merge: (pages, newPage) => {
+				if (newPage.data.length === 0) {
+					return {
+						...pages,
+						end: true,
+					};
+				}
 
-        });
+				return {
+					data: [...pages.data, ...newPage.data],
+					cursor: newPage.cursor,
+					end: false,
+				};
+			},
+		});
+	});
 
-        return {
-          data: newData,
-          cursor: newCursor,
-        }
-      },
-
-      merge: (pages, newPage) => {
-
-        if (newPage.data.length === 0) {
-          return {
-            ...pages,
-            end: true,
-          }
-        }
-
-        return {
-          data: [...pages.data, ...newPage.data],
-          cursor: newPage.cursor,
-          end: false,
-        };
-      },
-    });
-  });
-
-  return definition();
+	return definition();
 };

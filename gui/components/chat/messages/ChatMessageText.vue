@@ -1,10 +1,17 @@
 <script setup lang="ts">
-
-import { MessageCircleQuestion, CircleDashed, PartyPopper, Heart, CircleStop, Clock, Check } from 'lucide-vue-next';
+import {
+	MessageCircleQuestion,
+	CircleDashed,
+	PartyPopper,
+	Heart,
+	CircleStop,
+	Clock,
+	Check,
+} from "lucide-vue-next";
 
 const props = defineProps<{
-  me: User,
-  msg: ChatMessage,
+	me: User;
+	msg: ChatMessage;
 }>();
 
 // chat

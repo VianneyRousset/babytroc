@@ -10,6 +10,14 @@ node = "22"
 description = "Install dependencies"
 run = "npm install"
 
+[tasks.lint]
+description = "Lint the code"
+run = "npx biome lint"
+
+[tasks.format]
+description = "Lint the code"
+run = "npx biome format --write"
+
 [tasks.dev]
 description = "Run gui in development mode"
 depends = ["deps"]

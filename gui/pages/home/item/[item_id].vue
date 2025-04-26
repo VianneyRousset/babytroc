@@ -1,20 +1,21 @@
 <script setup lang="ts">
-
 // get item ID from route
 const route = useRoute();
 const itemId = Number.parseInt(route.params["item_id"] as string); // TODO avoid this hack
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 
 // query item, me, saved items and liked items
 const { state: item, asyncStatus: itemAsyncStatus } = useItemQuery(itemId);
 const { state: me } = useMeQuery();
 const { state: savedItems } = useSavedItemsQuery();
-const { state: likedItems, asyncStatus: likedAsyncStatus } = useLikedItemsQuery();
+const { state: likedItems, asyncStatus: likedAsyncStatus } =
+	useLikedItemsQuery();
 const { state: loanRequests } = useBorrowingsLoanRequestsListQuery();
-
 </script>
 
 <template>

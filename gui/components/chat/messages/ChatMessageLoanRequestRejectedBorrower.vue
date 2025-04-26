@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api';
-import { CircleOff } from 'lucide-vue-next';
+import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
+import { CircleOff } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
-  loanRequestId: number,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
+	loanRequestId: number;
 }>();
 
 // chat
 const { me, chat, msg, loanRequestId } = toRefs(props);
-
 </script>
 
 <template>

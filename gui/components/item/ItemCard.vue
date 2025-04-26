@@ -1,14 +1,13 @@
 <script setup lang="ts">
-
-import { Heart, Bookmark, Clock } from 'lucide-vue-next';
+import { Heart, Bookmark, Clock } from "lucide-vue-next";
 
 // TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
 const props = defineProps<{
-  item: ItemPreview,
-  likedItems: Array<Item | ItemPreview>,
-  savedItems: Array<Item | ItemPreview>,
+	item: ItemPreview;
+	likedItems: Array<Item | ItemPreview>;
+	savedItems: Array<Item | ItemPreview>;
 }>();
 const { item, likedItems, savedItems } = toRefs(props);
 
@@ -18,18 +17,14 @@ const { isLikedByUser } = useItemLike(item, likedItems);
 const { isSavedByUser } = useItemSave(item, savedItems);
 
 const backgroundImage = computed(() => {
+	const backgrounds = [];
+	const params = "";
 
-  const backgrounds = []
-  const params = "";
+	backgrounds.push("linear-gradient(transparent 0 40%, #202020 100%)");
+	backgrounds.push(`url('${unref(firstImagePath)}${params}')`);
 
-  backgrounds.push("linear-gradient(transparent 0 40%, #202020 100%)");
-  backgrounds.push(`url('${unref(firstImagePath)}${params}')`);
-
-  return backgrounds.join(", ");
-
+	return backgrounds.join(", ");
 });
-
-
 </script>
 
 <template>

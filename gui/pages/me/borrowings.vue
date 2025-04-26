@@ -1,7 +1,8 @@
 <script setup lang="ts">
-
 const main = useTemplateRef<HTMLElement>("main");
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 
 const { data: loans } = useBorrowingsListQuery();
 
@@ -10,10 +11,11 @@ const router = useRouter();
 const routeStack = useRouteStack();
 
 function openItem(itemId: number) {
-  routeStack.amend(router.resolve({ ...route, hash: `#item${itemId}` }).fullPath);
-  return navigateTo(`/home/item/${itemId}`);
+	routeStack.amend(
+		router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
+	);
+	return navigateTo(`/home/item/${itemId}`);
 }
-
 </script>
 
 <template>

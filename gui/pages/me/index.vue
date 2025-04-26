@@ -1,8 +1,22 @@
 <script setup lang="ts">
-import { ChevronRight, UserRound, Heart, Package, Gift, UserPen, LockKeyhole, Info, MessageCircleQuestion, Scale, AtSign } from 'lucide-vue-next';
+import {
+	ChevronRight,
+	UserRound,
+	Heart,
+	Package,
+	Gift,
+	UserPen,
+	LockKeyhole,
+	Info,
+	MessageCircleQuestion,
+	Scale,
+	AtSign,
+} from "lucide-vue-next";
 
 // get main header bar height to offset content
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 </script>
 
 <template>

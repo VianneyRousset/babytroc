@@ -1,35 +1,33 @@
 <script setup lang="ts">
-
 const props = defineProps<{
-  images: string[],
+	images: string[];
 }>();
 
 const { images } = toRefs(props);
 
-const containerRef = ref(null)
+const containerRef = ref(null);
 const swiper = useSwiper(containerRef, {
-  effect: 'creative',
-  spaceBetween: 10,
-  grabCursor: true,
-  rewind: true,
-})
+	effect: "creative",
+	spaceBetween: 10,
+	grabCursor: true,
+	rewind: true,
+});
 
 function onKeyDown(event: KeyboardEvent) {
-  switch (event.key) {
-    case 'ArrowLeft':
-      swiper.prev();
-      break;
-    case 'ArrowRight':
-      swiper.next();
-      break;
-  }
+	switch (event.key) {
+		case "ArrowLeft":
+			swiper.prev();
+			break;
+		case "ArrowRight":
+			swiper.next();
+			break;
+	}
 
-  event.preventDefault();
+	event.preventDefault();
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyDown));
-onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
-
+onMounted(() => window.addEventListener("keydown", onKeyDown));
+onUnmounted(() => window.removeEventListener("keydown", onKeyDown));
 </script>
 
 <template>

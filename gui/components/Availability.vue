@@ -1,13 +1,11 @@
 <script setup lang="ts">
-
-import { Check, Clock } from 'lucide-vue-next';
+import { Check, Clock } from "lucide-vue-next";
 
 const props = defineProps<{
-  available: boolean,
+	available: boolean;
 }>();
 
 const { available } = toRefs(props);
-
 </script>
 
 <template>

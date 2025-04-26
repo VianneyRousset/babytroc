@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import VSwitch from '@lmiller1990/v-switch';
-import { ChatMessageType } from '#build/types/open-fetch/schemas/api';
+import VSwitch from "@lmiller1990/v-switch";
+import { ChatMessageType } from "#build/types/open-fetch/schemas/api";
 
 const props = defineProps<{
-  me: User,
-  chat: Chat,
-  messages: Array<ChatMessage>,
+	me: User;
+	chat: Chat;
+	messages: Array<ChatMessage>;
 }>();
 
 const { me, chat, messages } = toRefs(props);
@@ -14,7 +14,6 @@ const { me, chat, messages } = toRefs(props);
 const { dateGroups } = useGroupChatMessages(messages, me);
 
 const { isUserBorrowing } = useChatRoles(chat, me);
-
 </script>
 
 <template>

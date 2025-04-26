@@ -1,13 +1,14 @@
 <script setup lang="ts">
-
-import { Box } from 'lucide-vue-next';
+import { Box } from "lucide-vue-next";
 
 // get chat ID from route
 const route = useRoute();
 const chatId = String(route.params.chat_id);
 
 // get main header bar height to offset content
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 
 // current tab
 const { currentTab } = useTab();
@@ -18,15 +19,15 @@ const { data: me } = useMeQuery();
 
 // interlocutor
 const interlocutor = computed(() => {
-  const _chat = unref(chat);
-  const _me = unref(me);
+	const _chat = unref(chat);
+	const _me = unref(me);
 
-  if (_chat && _me) {
-    const { interlocutor: _interlocutor } = useChatRoles(_chat, _me);
-    return unref(_interlocutor);
-  }
+	if (_chat && _me) {
+		const { interlocutor: _interlocutor } = useChatRoles(_chat, _me);
+		return unref(_interlocutor);
+	}
 
-  return null;
+	return null;
 });
 </script>
 

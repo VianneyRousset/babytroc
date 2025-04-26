@@ -1,91 +1,86 @@
-import { useInfiniteQuery, useQuery } from '@pinia/colada'
-import { parseLinkHeader } from '@web3-storage/parse-link-header'
-
+import { useInfiniteQuery, useQuery } from "@pinia/colada";
+import { parseLinkHeader } from "@web3-storage/parse-link-header";
 
 export function useItemQuery(itemId: MaybeRefOrGetter<number>) {
+	const { $api } = useNuxtApp();
 
-  const { $api } = useNuxtApp();
-
-  return useQuery({
-    key: () => ["item", toValue(itemId)],
-    query: () => $api("/v1/items/{item_id}", {
-      path: {
-        item_id: toValue(itemId),
-      }
-    }),
-  });
+	return useQuery({
+		key: () => ["item", toValue(itemId)],
+		query: () =>
+			$api("/v1/items/{item_id}", {
+				path: {
+					item_id: toValue(itemId),
+				},
+			}),
+	});
 }
 
 export const useItemsListQuery = defineQuery(() => {
+	const { $api } = useNuxtApp();
 
-  const { $api } = useNuxtApp();
+	const defaultQueryParams: ItemQuery = {
+		n: 32,
+	};
+	const queryParams = ref<ItemQuery>({});
 
-  const defaultQueryParams: ItemQuery = {
-    n: 32,
-  };
-  const queryParams = ref<ItemQuery>({});
+	const { ...query } = useInfiniteQuery({
+		key: () => ["items", unref(queryParams)],
 
-  const { ...query } = useInfiniteQuery({
-    key: () => ["items", unref(queryParams)],
+		initialPage: {
+			data: Array<ItemPreview>(),
+			cursor: {} as ItemQuery,
+			end: false,
+		},
 
-    initialPage: {
-      data: Array<ItemPreview>(),
-      cursor: {} as ItemQuery,
-      end: false,
-    },
+		query: async (pages) => {
+			let newCursor: ItemQuery = {};
 
-    query: async (pages) => {
+			const newData = await $api("/v1/items", {
+				query: {
+					...defaultQueryParams,
+					...unref(queryParams),
+					...pages.cursor,
+				},
 
-      let newCursor: ItemQuery = {};
+				onResponse: async ({
+					response: { ok, headers },
+				}: { response: { ok: boolean; headers: Headers } }) => {
+					if (!ok) return;
 
-      const newData = await $api("/v1/items", {
-        query: {
-          ...defaultQueryParams,
-          ...unref(queryParams),
-          ...pages.cursor,
-        },
+					const linkHeader = parseLinkHeader(headers.get("link"));
 
-        onResponse: async ({ response: { ok, headers } }: { response: { ok: boolean, headers: Headers } }) => {
-          if (!ok) return;
+					if (linkHeader === null)
+						return console.error("Null linkHeader when fetching first items.");
 
-          const linkHeader = parseLinkHeader(headers.get("link"));
+					const { rel, url, ...query } = linkHeader.next;
+					newCursor = query;
+				},
+			});
 
-          if (linkHeader === null)
-            return console.error("Null linkHeader when fetching first items.");
+			return {
+				data: newData,
+				cursor: newCursor,
+			};
+		},
 
-          const { rel, url, ...query } = linkHeader.next;
-          newCursor = query;
-        },
+		merge: (pages, newPage) => {
+			if (newPage.data.length === 0) {
+				return {
+					...pages,
+					end: true,
+				};
+			}
 
-      });
+			return {
+				data: [...pages.data, ...newPage.data],
+				cursor: newPage.cursor,
+				end: false,
+			};
+		},
+	});
 
-      return {
-        data: newData,
-        cursor: newCursor,
-      }
-    },
-
-    merge: (pages, newPage) => {
-
-      if (newPage.data.length === 0) {
-        return {
-          ...pages,
-          end: true,
-        }
-      }
-
-      return {
-        data: [...pages.data, ...newPage.data],
-        cursor: newPage.cursor,
-        end: false,
-      };
-    },
-  });
-
-  return {
-    ...query,
-    query: queryParams,
-  };
+	return {
+		...query,
+		query: queryParams,
+	};
 });
-
-

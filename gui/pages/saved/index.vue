@@ -1,9 +1,10 @@
 <script setup lang="ts">
-
-import { Bookmark } from 'lucide-vue-next';
+import { Bookmark } from "lucide-vue-next";
 
 const main = useTemplateRef<HTMLElement>("main");
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 
 const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
 const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
@@ -13,10 +14,11 @@ const router = useRouter();
 const routeStack = useRouteStack();
 
 function openItem(itemId: number) {
-  routeStack.amend(router.resolve({ ...route, hash: `#item${itemId}` }).fullPath);
-  return navigateTo(`/home/item/${itemId}`);
+	routeStack.amend(
+		router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
+	);
+	return navigateTo(`/home/item/${itemId}`);
 }
-
 </script>
 
 <template>

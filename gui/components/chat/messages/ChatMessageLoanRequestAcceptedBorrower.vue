@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api';
-import { PartyPopper, Import } from 'lucide-vue-next';
+import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
+import { PartyPopper, Import } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
-  loanRequestId: number,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
+	loanRequestId: number;
 }>();
 
 // chat
@@ -16,16 +16,18 @@ const { me, chat, msg, loanRequestId } = toRefs(props);
 const { data: loanRequest } = useBorrowingsLoanRequestQuery(loanRequestId);
 
 // mutations
-const { mutateAsync: executeLoanRequest, asyncStatus: executeLoanRequestAsyncStatus } = useExecuteLoanRequestMutation();
+const {
+	mutateAsync: executeLoanRequest,
+	asyncStatus: executeLoanRequestAsyncStatus,
+} = useExecuteLoanRequestMutation();
 
 // popup
 const showPopup = ref(false);
 
 async function execute() {
-  await executeLoanRequest({ loanRequestId: unref(loanRequestId) });
-  showPopup.value = false;
+	await executeLoanRequest({ loanRequestId: unref(loanRequestId) });
+	showPopup.value = false;
 }
-
 </script>
 
 <template>

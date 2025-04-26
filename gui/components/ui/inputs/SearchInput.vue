@@ -1,28 +1,25 @@
 <script setup lang="ts">
-
-import { Search, X } from 'lucide-vue-next';
+import { Search, X } from "lucide-vue-next";
 
 const model = defineModel<string>();
 
 const emit = defineEmits<{
-  (e: "submit", value: string): void
-}>()
+	(e: "submit", value: string): void;
+}>();
 
 const input = ref<HTMLElement | null>(null);
 
 function blur() {
-  if (input.value)
-    input.value.blur();
+	if (input.value) input.value.blur();
 }
 
 function clear() {
-  model.value = "";
+	model.value = "";
 }
 
 function submit() {
-  emit("submit", model.value ?? "");
+	emit("submit", model.value ?? "");
 }
-
 </script>
 
 <template>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ChevronRight, Heart, Star } from 'lucide-vue-next';
+import { ChevronRight, Heart, Star } from "lucide-vue-next";
 
 const props = defineProps<{
-  user: User,
+	user: User;
 }>();
 
 const { user } = toRefs(props);

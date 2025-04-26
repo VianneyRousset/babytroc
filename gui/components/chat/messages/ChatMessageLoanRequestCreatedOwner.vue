@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api';
-import { MessageCircleQuestion, CircleOff, Check } from 'lucide-vue-next';
+import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
+import { MessageCircleQuestion, CircleOff, Check } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
-  loanRequestId: number,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
+	loanRequestId: number;
 }>();
 
 // chat
@@ -14,28 +14,39 @@ const { me, chat, msg, loanRequestId } = toRefs(props);
 
 // get loan request
 const { data: loanRequest } = useItemLoanRequestQuery({
-  itemId: () => unref(chat).item.id,
-  loanRequestId,
+	itemId: () => unref(chat).item.id,
+	loanRequestId,
 });
 
 // muations
-const { mutateAsync: rejectLoanRequest, asyncStatus: rejectLoanRequestAsyncStatus } = useRejectLoanRequestMutation();
-const { mutateAsync: acceptLoanRequest, asyncStatus: acceptLoanRequestAsyncStatus } = useAcceptLoanRequestMutation();
+const {
+	mutateAsync: rejectLoanRequest,
+	asyncStatus: rejectLoanRequestAsyncStatus,
+} = useRejectLoanRequestMutation();
+const {
+	mutateAsync: acceptLoanRequest,
+	asyncStatus: acceptLoanRequestAsyncStatus,
+} = useAcceptLoanRequestMutation();
 
 // popup
 const showAcceptPopup = ref(false);
 const showRejectPopup = ref(false);
 
 async function reject() {
-  await rejectLoanRequest({ itemId: unref(chat).item.id, loanRequestId: unref(loanRequestId) });
-  showRejectPopup.value = false;
+	await rejectLoanRequest({
+		itemId: unref(chat).item.id,
+		loanRequestId: unref(loanRequestId),
+	});
+	showRejectPopup.value = false;
 }
 
 async function accept() {
-  await acceptLoanRequest({ itemId: unref(chat).item.id, loanRequestId: unref(loanRequestId) });
-  showAcceptPopup.value = false;
+	await acceptLoanRequest({
+		itemId: unref(chat).item.id,
+		loanRequestId: unref(loanRequestId),
+	});
+	showAcceptPopup.value = false;
 }
-
 </script>
 
 <template>

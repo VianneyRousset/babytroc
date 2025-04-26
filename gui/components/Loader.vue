@@ -1,9 +1,7 @@
 <script setup lang="ts">
-
 const props = defineProps<{
-  small?: boolean,
+	small?: boolean;
 }>();
-
 </script>
 
 <template>

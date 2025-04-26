@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
-import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
-import { computedAsync } from '@vueuse/core'
+import { Bookmark, BookmarkX, ShieldAlert } from "lucide-vue-next";
+import { computedAsync } from "@vueuse/core";
 
 // get user ID from route
 const route = useRoute();
@@ -11,7 +10,9 @@ const userId = Number.parseInt(route.params["user_id"] as string); // TODO avoid
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 
 // current tab
 const { currentTabRoot } = useTab();
@@ -23,10 +24,11 @@ const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
 const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
 function openItem(itemId: number) {
-  routeStack.amend(router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath);
-  return navigateTo(`${currentTabRoot}/item/${itemId}`);
+	routeStack.amend(
+		router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath,
+	);
+	return navigateTo(`${currentTabRoot}/item/${itemId}`);
 }
-
 </script>
 
 <template>

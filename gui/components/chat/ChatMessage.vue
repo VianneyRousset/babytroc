@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-  me: User,
-  msg: ChatMessage,
+	me: User;
+	msg: ChatMessage;
 }>();
 
 const { me, msg } = toRefs(props);
@@ -11,7 +11,6 @@ const slots = useSlots();
 const { origin } = useChatMessageOrigin(msg, me);
 
 const { formattedHour } = useChatMessageTime(msg);
-
 </script>
 
 <template>

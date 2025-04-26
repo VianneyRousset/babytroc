@@ -1,29 +1,32 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { createAvatar } from "@dicebear/core";
+import { thumbs } from "@dicebear/collection";
 
-import { onMounted, ref } from 'vue';
-import { createAvatar } from '@dicebear/core';
-import { thumbs } from '@dicebear/collection';
-
-const props = withDefaults(defineProps<{
-  seed: string | null,
-  size?: number,
-}>(), {
-  size: 64,
-});
+const props = withDefaults(
+	defineProps<{
+		seed: string | null;
+		size?: number;
+	}>(),
+	{
+		size: 64,
+	},
+);
 
 const { seed, size } = toRefs(props);
 
-const avatar = computed(() => createAvatar(thumbs, {
-  seed: unref(seed) ?? "",
-  size: unref(size),
-  scale: 80,
-  radius: 50,
-  backgroundColor: ["c4d6c5"],
-  shapeColor: ["729577"],
-}).toDataUri());
+const avatar = computed(() =>
+	createAvatar(thumbs, {
+		seed: unref(seed) ?? "",
+		size: unref(size),
+		scale: 80,
+		radius: 50,
+		backgroundColor: ["c4d6c5"],
+		shapeColor: ["729577"],
+	}).toDataUri(),
+);
 
 const sizePx = computed(() => `${unref(size)}px`);
-
 </script>
 
 <template>

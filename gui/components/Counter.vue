@@ -1,41 +1,37 @@
 <script setup lang="ts">
-
-import { Circle } from 'lucide-vue-next';
+import { Circle } from "lucide-vue-next";
 
 const model = defineModel<number>();
 
 const props = defineProps<{
-  size?: "normal" | "small" | "tiny",
+	size?: "normal" | "small" | "tiny";
 }>();
 
 const symbolSize = computed(() => {
-  switch (props.size ?? "normal") {
-    case "normal":
-      return 32;
-    case "small":
-      return 24;
-    case "tiny":
-      return 16;
-    default:
-      throw new Error(`Unhandled case: ${props.size}`);
-  }
+	switch (props.size ?? "normal") {
+		case "normal":
+			return 32;
+		case "small":
+			return 24;
+		case "tiny":
+			return 16;
+		default:
+			throw new Error(`Unhandled case: ${props.size}`);
+	}
 });
 
 const symbolStrokeWidth = computed(() => {
-  switch (props.size ?? "normal") {
-    case "normal":
-      return 2;
-    case "small":
-      return 2;
-    case "tiny":
-      return 1.2;
-    default:
-      throw new Error(`Unhandled case: ${props.size}`);
-  }
+	switch (props.size ?? "normal") {
+		case "normal":
+			return 2;
+		case "small":
+			return 2;
+		case "tiny":
+			return 1.2;
+		default:
+			throw new Error(`Unhandled case: ${props.size}`);
+	}
 });
-
-
-
 </script>
 
 <template>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-
-import { Bookmark, BookmarkX, ShieldAlert } from 'lucide-vue-next';
+import { Bookmark, BookmarkX, ShieldAlert } from "lucide-vue-next";
 
 const props = defineProps<{
-  item: Item | ItemPreview,
-  savedItems: Array<Item | ItemPreview>
+	item: Item | ItemPreview;
+	savedItems: Array<Item | ItemPreview>;
 }>();
 
 const { item, savedItems } = toRefs(props);
@@ -13,7 +12,6 @@ const { isSavedByUser } = useItemSave(item, savedItems);
 
 const { mutate: saveItem } = useSaveItemMutation();
 const { mutate: unsaveItem } = useUnsaveItemMutation();
-
 </script>
 
 <template>

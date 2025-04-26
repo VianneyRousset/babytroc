@@ -1,20 +1,18 @@
 <script setup lang="ts">
-
 const model = defineModel<Set<number>>();
 
 function onChange(regionId: number, state: boolean) {
-  if (state) {
-    model.value?.add(regionId);
-  } else {
-    model.value?.delete(regionId);
-  }
+	if (state) {
+		model.value?.add(regionId);
+	} else {
+		model.value?.delete(regionId);
+	}
 }
 
-const { data: regions, status } = useApi('/v1/utils/regions', {
-  key: "/utils/regions", // provided to avoid missmatch with ssr (bug with openfetch?)
-  watch: false,
+const { data: regions, status } = useApi("/v1/utils/regions", {
+	key: "/utils/regions", // provided to avoid missmatch with ssr (bug with openfetch?)
+	watch: false,
 });
-
 </script>
 
 <template>

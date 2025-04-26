@@ -1,9 +1,7 @@
 <script setup lang="ts">
-
-import { ChevronRight } from 'lucide-vue-next';
+import { ChevronRight } from "lucide-vue-next";
 
 const slots = useSlots();
-
 </script>
 
 <template>

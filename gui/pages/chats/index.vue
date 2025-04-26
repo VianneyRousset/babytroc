@@ -1,13 +1,13 @@
 <script setup lang="ts">
-
-import { MessageSquare } from 'lucide-vue-next';
+import { MessageSquare } from "lucide-vue-next";
 
 const { data: chatsPages, status: chatsStatus } = useChatsListQuery();
 const { data: me } = useMeQuery();
 
 // get main header bar height to offset content
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
-
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
 </script>
 
 <template>

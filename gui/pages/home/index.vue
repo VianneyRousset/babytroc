@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { Filter, ArrowLeft, Repeat } from "lucide-vue-next";
 
-import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next';
-
-import { ItemQueryAvailability } from '#build/types/open-fetch/schemas/api';
+import { ItemQueryAvailability } from "#build/types/open-fetch/schemas/api";
 
 const itemsStore = useItemsListStore();
 
 const main = useTemplateRef<HTMLElement>("main");
-const { height: mainHeaderHeight } = useElementSize(useTemplateRef("main-header"));
-const { height: filtersHeaderHeight } = useElementSize(useTemplateRef("filters-header"));
+const { height: mainHeaderHeight } = useElementSize(
+	useTemplateRef("main-header"),
+);
+const { height: filtersHeaderHeight } = useElementSize(
+	useTemplateRef("filters-header"),
+);
 
 const filtersDrawerOpen = ref(false);
 
@@ -17,52 +20,79 @@ const router = useRouter();
 const routeStack = useRouteStack();
 
 // query items
-const { query, data: itemsPages, status: itemsStatus, asyncStatus: itemsAsyncStatus, loadMore } = useItemsListQuery();
+const {
+	query,
+	data: itemsPages,
+	status: itemsStatus,
+	asyncStatus: itemsAsyncStatus,
+	loadMore,
+} = useItemsListQuery();
 
 const {
-  searchInput,
-  stateAvailable,
-  stateUnavailable,
-  targetedAge,
-  regions,
-  isFilterActive,
-  areFilterInputsChanged,
-  filter,
+	searchInput,
+	stateAvailable,
+	stateUnavailable,
+	targetedAge,
+	regions,
+	isFilterActive,
+	areFilterInputsChanged,
+	filter,
 } = useItemFilters();
 
-
 // update store query parameters on route query change
-watch(() => route.query, (routeQuery) => {
-  query.value = {
-    q: routeQuery.q ? getQueryParamAsArray(routeQuery, "q") : undefined,
-    mo: typeof routeQuery.mo === 'string' ? routeQuery.mo : undefined,
-    av: (typeof routeQuery.av === 'string' && Object.values(ItemQueryAvailability).includes(routeQuery.av as ItemQueryAvailability)) ? routeQuery.av as ItemQueryAvailability : undefined,
-    reg: routeQuery.reg ? getQueryParamAsArray(routeQuery, "reg").map(Number.parseInt) : undefined,
-  };
-}, {
-  immediate: true,
-});
+watch(
+	() => route.query,
+	(routeQuery) => {
+		query.value = {
+			q: routeQuery.q ? getQueryParamAsArray(routeQuery, "q") : undefined,
+			mo: typeof routeQuery.mo === "string" ? routeQuery.mo : undefined,
+			av:
+				typeof routeQuery.av === "string" &&
+				Object.values(ItemQueryAvailability).includes(
+					routeQuery.av as ItemQueryAvailability,
+				)
+					? (routeQuery.av as ItemQueryAvailability)
+					: undefined,
+			reg: routeQuery.reg
+				? getQueryParamAsArray(routeQuery, "reg").map(Number.parseInt)
+				: undefined,
+		};
+	},
+	{
+		immediate: true,
+	},
+);
 
 function resetFilterInputs() {
-  stateAvailable.value = true;
-  stateUnavailable.value = false;
-  targetedAge.value = [0, null];
-  regions.clear();
+	stateAvailable.value = true;
+	stateUnavailable.value = false;
+	targetedAge.value = [0, null];
+	regions.clear();
 }
 
-const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
-const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
+// const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
+// const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
+
+const likedItems = Array<ItemPreview>();
+const savedItems = Array<ItemPreview>();
 
 function openItem(itemId: number) {
-  routeStack.amend(router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath);
-  return navigateTo(`/home/item/${itemId}`);
+	routeStack.amend(
+		router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath,
+	);
+	return navigateTo(`/home/item/${itemId}`);
 }
 
-const { reset } = useInfiniteScroll(main, async () => { await loadMore() }, {
-  canLoadMore: () => !unref(itemsPages).end,
-  distance: 1800,
-});
-
+const { reset } = useInfiniteScroll(
+	main,
+	async () => {
+		await loadMore();
+	},
+	{
+		canLoadMore: () => !unref(itemsPages).end,
+		distance: 1800,
+	},
+);
 </script>
 
 <template>

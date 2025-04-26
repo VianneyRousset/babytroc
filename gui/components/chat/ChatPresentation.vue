@@ -1,13 +1,14 @@
 <script setup lang="ts">
 const props = defineProps<{
-  me: User,
-  chat: Chat,
+	me: User;
+	chat: Chat;
 }>();
 
 const { me, chat } = toRefs(props);
 
 // get messages
-const { data: chatMessagesPages, loadMore: loadMoreMessages } = useChatMessagesListQuery(() => unref(chat).id);
+const { data: chatMessagesPages, loadMore: loadMoreMessages } =
+	useChatMessagesListQuery(() => unref(chat).id);
 
 // mutations
 const { mutate: sendMessage } = useSendMessageMutation();
@@ -17,16 +18,19 @@ const inputeText = ref("");
 
 // send message
 async function submitMessage(msg: string) {
-  await sendMessage({
-    chatId: unref(chat).id,
-    text: msg,
-  });
-  inputeText.value = "";
+	await sendMessage({
+		chatId: unref(chat).id,
+		text: msg,
+	});
+	inputeText.value = "";
 }
 
 const chatMessageInput = useTemplateRef<HTMLElement>("chat-message-input");
-const { height: chatMessageInputHeight } = useElementSize(chatMessageInput, undefined, { box: "border-box" });
-
+const { height: chatMessageInputHeight } = useElementSize(
+	chatMessageInput,
+	undefined,
+	{ box: "border-box" },
+);
 </script>
 
 <template>

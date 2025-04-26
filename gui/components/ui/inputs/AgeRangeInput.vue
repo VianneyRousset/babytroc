@@ -1,44 +1,41 @@
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: Array<number | null>,
+	modelValue: Array<number | null>;
 }>();
 const emit = defineEmits<{
-  (e: "update:modelValue", value: Array<number | null>): void
+	(e: "update:modelValue", value: Array<number | null>): void;
 }>();
 
 const rangeMin = 0;
 const rangeMax = 24;
-const range = ref([props.modelValue[0] ?? rangeMin, props.modelValue[1] ?? rangeMax]);
+const range = ref([
+	props.modelValue[0] ?? rangeMin,
+	props.modelValue[1] ?? rangeMax,
+]);
 
-watch(() => props.modelValue, (value) => {
-
-  range.value = [
-    value[0] ?? rangeMin,
-    value[1] ?? rangeMax
-  ]
-
-});
+watch(
+	() => props.modelValue,
+	(value) => {
+		range.value = [value[0] ?? rangeMin, value[1] ?? rangeMax];
+	},
+);
 
 function onChange(value: number[] | undefined) {
-
-  if (value !== undefined)
-    emit('update:modelValue', [
-      value[0],
-      value[1] === rangeMax ? null : value[1],
-    ]);
+	if (value !== undefined)
+		emit("update:modelValue", [
+			value[0],
+			value[1] === rangeMax ? null : value[1],
+		]);
 }
 
 function formatMonth(month: number): string {
+	if (month === rangeMax) return `${rangeMax}+ mois`;
 
-  if (month === rangeMax)
-    return `${rangeMax}+ mois`;
-
-  return `${month} mois`;
+	return `${month} mois`;
 }
 
 const displayedMin = computed(() => formatMonth(range.value[0]));
 const displayedMax = computed(() => formatMonth(range.value[1]));
-
 </script>
 
 <template>

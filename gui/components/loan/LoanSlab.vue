@@ -1,9 +1,8 @@
 <script setup lang="ts">
-
-import { ChevronRight } from 'lucide-vue-next';
+import { ChevronRight } from "lucide-vue-next";
 
 const props = defineProps<{
-  loan: Loan,
+	loan: Loan;
 }>();
 
 // loan
@@ -13,8 +12,9 @@ const { loan } = toRefs(props);
 const { firstImagePath: itemImage } = useItemFirstImage(() => unref(loan).item);
 
 // date range
-const formatedDuring = computed(() => formatRelativeDateRange(loan.value.during));
-
+const formatedDuring = computed(() =>
+	formatRelativeDateRange(loan.value.during),
+);
 </script>
 
 <template>

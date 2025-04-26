@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { Clock } from 'lucide-vue-next';
+import { Clock } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
 }>();
 
 // chat
 const { me, chat, msg } = toRefs(props);
-
 </script>
 
 <template>

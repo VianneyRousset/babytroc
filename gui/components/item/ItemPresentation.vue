@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { Heart } from 'lucide-vue-next';
+import { Heart } from "lucide-vue-next";
 
 import type { AsyncStatus } from "@pinia/colada";
 
 const props = defineProps<{
-  item: Item,
-  itemAsyncStatus: AsyncStatus,
-  me: User,
-  likedItems: Array<Item | ItemPreview>,
-  likedAsyncStatus: AsyncStatus,
-  loanRequests: Array<LoanRequest>,
+	item: Item;
+	itemAsyncStatus: AsyncStatus;
+	me: User;
+	likedItems: Array<Item | ItemPreview>;
+	likedAsyncStatus: AsyncStatus;
+	loanRequests: Array<LoanRequest>;
 }>();
 
 // current tab
@@ -17,7 +17,14 @@ const { currentTab } = useTab();
 
 const router = useRouter();
 
-const { item, itemAsyncStatus, me, likedItems, likedAsyncStatus, loanRequests } = toRefs(props);
+const {
+	item,
+	itemAsyncStatus,
+	me,
+	likedItems,
+	likedAsyncStatus,
+	loanRequests,
+} = toRefs(props);
 
 const { imagesPaths } = useItemImages(item);
 const { isLikedByUser } = useItemLike(item, likedItems);
@@ -26,30 +33,35 @@ const { regions, regionsIds } = useItemRegions(item);
 const { isOwnedByUser } = useIsItemOwnedByUser(item, me);
 const { isRequestedByUser } = useItemLoanRequest(item, loanRequests);
 
-const { mutateAsync: requestItem, asyncStatus: requestItemAsyncStatus } = useRequestItemMutation();
-const { mutateAsync: unrequestItem, asyncStatus: unrequestItemAsyncStatus } = useUnrequestItemMutation();
-const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } = useToggleItemLikeMutation();
+const { mutateAsync: requestItem, asyncStatus: requestItemAsyncStatus } =
+	useRequestItemMutation();
+const { mutateAsync: unrequestItem, asyncStatus: unrequestItemAsyncStatus } =
+	useUnrequestItemMutation();
+const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } =
+	useToggleItemLikeMutation();
 
 // query owner
-const { status: ownerStatus, data: owner } = useUserQuery(computed(() => toValue(item).owner_id));
+const { status: ownerStatus, data: owner } = useUserQuery(
+	computed(() => toValue(item).owner_id),
+);
 
-const activeLikeButton = computed(() => ([
-  toggleItemLikeAsyncStatus,
-  itemAsyncStatus,
-  likedAsyncStatus,
-].some(r => unref(r) === 'loading')
-));
+const activeLikeButton = computed(() =>
+	[toggleItemLikeAsyncStatus, itemAsyncStatus, likedAsyncStatus].some(
+		(r) => unref(r) === "loading",
+	),
+);
 
 async function request(itemId: number) {
-  const loanRequest = await requestItem(itemId);
-  return navigateTo(router.resolve({
-    name: "chats-chat_id",
-    params: {
-      chat_id: loanRequest.chat_id,
-    },
-  }));
+	const loanRequest = await requestItem(itemId);
+	return navigateTo(
+		router.resolve({
+			name: "chats-chat_id",
+			params: {
+				chat_id: loanRequest.chat_id,
+			},
+		}),
+	);
 }
-
 </script>
 
 <template>

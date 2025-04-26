@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api';
-import { Upload } from 'lucide-vue-next';
+import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
+import { Upload } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
 }>();
 
 // chat
 const { me, chat, msg } = toRefs(props);
-
 </script>
 
 <template>

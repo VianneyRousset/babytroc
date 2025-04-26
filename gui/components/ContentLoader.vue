@@ -1,7 +1,5 @@
 <script setup lang="ts">
-
 import { ContentLoader as CL } from "vue-content-loader";
-
 </script>
 
 <template>

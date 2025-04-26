@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api';
-import { Import } from 'lucide-vue-next';
+import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
+import { Import } from "lucide-vue-next";
 
 const props = defineProps<{
-  msg: ChatMessage,
-  me: User,
-  chat: Chat,
-  loanId: number,
+	msg: ChatMessage;
+	me: User;
+	chat: Chat;
+	loanId: number;
 }>();
 
 // chat
@@ -16,16 +16,16 @@ const { me, chat, msg, loanId } = toRefs(props);
 const { data: loan } = useLoanQuery({ loanId });
 
 // mutations
-const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } = useEndLoanMutation();
+const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } =
+	useEndLoanMutation();
 
 // popup
 const showPopup = ref(false);
 
 async function end() {
-  await endLoan({ loanId: unref(loanId) });
-  showPopup.value = false;
+	await endLoan({ loanId: unref(loanId) });
+	showPopup.value = false;
 }
-
 </script>
 
 <template>

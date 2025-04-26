@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { Plus, House, Bookmark, MessageSquare, UserRound } from 'lucide-vue-next';
+import {
+	Plus,
+	House,
+	Bookmark,
+	MessageSquare,
+	UserRound,
+} from "lucide-vue-next";
 
 const route = useRoute();
 </script>

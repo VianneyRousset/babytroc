@@ -1,17 +1,13 @@
-import type { RouterConfig } from '@nuxt/schema';
+import type { RouterConfig } from "@nuxt/schema";
 
 // ensure NuxtLinks jumps to anchors (hash)
 // https://github.com/nuxt/nuxt/issues/14033#issuecomment-1536092133
-export default <RouterConfig>{
-  scrollBehavior(to, _from, _savedPosition) {
+export default (<RouterConfig>{
+	scrollBehavior(to, _from, _savedPosition) {
+		if (to.hash) {
+			const element = document.getElementById(to.hash.substring(1));
 
-    if (to.hash) {
-
-      const element = document.getElementById(to.hash.substring(1))
-
-      if (element)
-        element.scrollIntoView({ block: 'center' });
-
-    }
-  },
-};
+			if (element) element.scrollIntoView({ block: "center" });
+		}
+	},
+});

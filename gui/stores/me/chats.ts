@@ -1,192 +1,177 @@
-import { defineStore } from 'pinia'
-import { parseLinkHeader } from '@web3-storage/parse-link-header'
-import { isEqual } from 'lodash'
+import { defineStore } from "pinia";
+import { parseLinkHeader } from "@web3-storage/parse-link-header";
+import { isEqual } from "lodash";
 
-import type { AsyncDataRequestStatus } from '#app';
-import type { FetchError } from 'ofetch';
+import type { AsyncDataRequestStatus } from "#app";
+import type { FetchError } from "ofetch";
 
 type ChatsStore = () => PaginatedSource<Chat> & {
-  setQuery: (query: ChatQuery) => void,
+	setQuery: (query: ChatQuery) => void;
 };
 
 type ChatMessagesStore = () => PaginatedSource<ChatMessage> & {
-  send: (msg: string) => Promise<void>,
+	send: (msg: string) => Promise<void>;
 };
 
-const useChatsStore: ChatsStore = defineStore('chats', () => {
+const useChatsStore: ChatsStore = defineStore("chats", () => {
+	const { $api } = useNuxtApp();
 
-  const { $api } = useNuxtApp()
+	var query: ChatQuery = {
+		n: 16,
+	};
 
-  var query: ChatQuery = {
-    n: 16,
-  };
+	function setQuery(newQuery: ChatQuery) {
+		if (isEqual(query, newQuery)) return;
 
-  function setQuery(newQuery: ChatQuery) {
+		query = newQuery;
+		reset();
+	}
 
-    if (isEqual(query, newQuery))
-      return;
+	const data = ref(Array<Chat>());
 
-    query = newQuery;
-    reset();
-  }
+	const end = ref<boolean>(false);
+	const error = ref<FetchError | null>(null);
+	const status = ref<AsyncDataRequestStatus>("idle");
 
-  const data = ref(Array<Chat>());
+	var nextQuery: ChatQuery = {};
 
-  const end = ref<boolean>(false);
-  const error = ref<FetchError | null>(null);
-  const status = ref<AsyncDataRequestStatus>("idle");
+	function reset() {
+		data.value = [];
+		nextQuery = {};
+		end.value = false;
+	}
 
-  var nextQuery: ChatQuery = {};
+	async function more() {
+		if (status.value === "pending") return;
 
-  function reset() {
-    data.value = [];
-    nextQuery = {};
-    end.value = false;
-  }
+		status.value = "pending";
 
-  async function more() {
+		try {
+			const newData = await $api("/v1/me/chats", {
+				query: {
+					...query,
+					...nextQuery,
+				},
 
-    if (status.value === "pending")
-      return;
+				async onResponse({ response }) {
+					const linkHeader = parseLinkHeader(response.headers.get("link"));
 
-    status.value = "pending";
+					if (linkHeader === null)
+						return console.error("Null linkHeader when fetching first items.");
 
-    try {
-      const newData = await $api('/v1/me/chats', {
+					const { rel, url, ...query } = linkHeader.next;
+					nextQuery = query;
+				},
+			});
 
-        query: {
-          ...query,
-          ...nextQuery,
-        },
+			end.value = newData.length == 0;
+			data.value = data.value.concat(newData);
+			status.value = "success";
+		} catch (err) {
+			console.error(err);
+			error.value = err as FetchError;
+			end.value = true;
+			status.value = "error";
+		}
+	}
 
-        async onResponse({ response }) {
-          const linkHeader = parseLinkHeader(response.headers.get("link"));
-
-          if (linkHeader === null)
-            return console.error("Null linkHeader when fetching first items.");
-
-          const { rel, url, ...query } = linkHeader.next;
-          nextQuery = query;
-        },
-      });
-
-      end.value = (newData.length == 0);
-      data.value = data.value.concat(newData);
-      status.value = "success";
-
-    } catch (err) {
-      console.error(err);
-      error.value = err as FetchError;
-      end.value = true;
-      status.value = "error";
-    }
-
-  }
-
-  return {
-    data,
-    more,
-    reset,
-    end,
-    error,
-    status,
-    setQuery,
-  };
-
+	return {
+		data,
+		more,
+		reset,
+		end,
+		error,
+		status,
+		setQuery,
+	};
 });
 
 function createChatMessagesStore(chatId: string): ChatMessagesStore {
-  return defineStore(`chatMessages${chatId}`, () => {
+	return defineStore(`chatMessages${chatId}`, () => {
+		const { $api } = useNuxtApp();
 
-    const { $api } = useNuxtApp()
+		var query: ChatMessageQuery = {
+			n: 16,
+		};
 
-    var query: ChatMessageQuery = {
-      n: 16,
-    };
+		const data = ref(Array<ChatMessage>());
 
-    const data = ref(Array<ChatMessage>());
+		const end = ref<boolean>(false);
+		const error = ref<FetchError | null>(null);
+		const status = ref<AsyncDataRequestStatus>("idle");
 
-    const end = ref<boolean>(false);
-    const error = ref<FetchError | null>(null);
-    const status = ref<AsyncDataRequestStatus>("idle");
+		var nextQuery: ChatMessageQuery = {};
 
-    var nextQuery: ChatMessageQuery = {};
+		function reset() {
+			data.value = [];
+			nextQuery = {};
+			end.value = false;
+		}
 
-    function reset() {
-      data.value = [];
-      nextQuery = {};
-      end.value = false;
-    }
+		async function more() {
+			if (status.value === "pending") return;
 
-    async function more() {
+			status.value = "pending";
 
-      if (status.value === "pending")
-        return;
+			try {
+				const newData = await $api("/v1/me/chats/{chat_id}/messages", {
+					path: {
+						chat_id: chatId,
+					},
 
-      status.value = "pending";
+					query: {
+						...query,
+						...nextQuery,
+					},
 
-      try {
-        const newData = await $api('/v1/me/chats/{chat_id}/messages', {
+					async onResponse({ response }) {
+						const linkHeader = parseLinkHeader(response.headers.get("link"));
 
-          path: {
-            chat_id: chatId,
-          },
+						if (linkHeader === null)
+							return console.error(
+								"Null linkHeader when fetching first items.",
+							);
 
-          query: {
-            ...query,
-            ...nextQuery,
-          },
+						const { rel, url, ...query } = linkHeader.next;
+						nextQuery = query;
+					},
+				});
 
-          async onResponse({ response }) {
-            const linkHeader = parseLinkHeader(response.headers.get("link"));
+				end.value = newData.length == 0;
+				data.value = data.value.concat(newData);
+				status.value = "success";
+			} catch (err) {
+				console.error(err);
+				error.value = err as FetchError;
+				end.value = true;
+				status.value = "error";
+			}
+		}
 
-            if (linkHeader === null)
-              return console.error("Null linkHeader when fetching first items.");
+		async function send(msg: string) {
+			await $api("/v1/me/chats/{chat_id}/messages", {
+				method: "post",
+				path: {
+					chat_id: chatId,
+				},
+				body: {
+					text: msg,
+				},
+			});
 
-            const { rel, url, ...query } = linkHeader.next;
-            nextQuery = query;
-          },
-        });
+			reset();
+		}
 
-        end.value = (newData.length == 0);
-        data.value = data.value.concat(newData);
-        status.value = "success";
+		return {
+			data,
+			more,
+			reset,
+			end,
+			error,
+			status,
+			send,
+		};
+	});
+}
 
-      } catch (err) {
-        console.error(err);
-        error.value = err as FetchError;
-        end.value = true;
-        status.value = "error";
-      }
-
-    }
-
-    async function send(msg: string) {
-
-      await $api('/v1/me/chats/{chat_id}/messages', {
-        method: "post",
-        path: {
-          chat_id: chatId,
-        },
-        body: {
-          text: msg,
-        }
-      });
-
-      reset();
-    }
-
-
-    return {
-      data,
-      more,
-      reset,
-      end,
-      error,
-      status,
-      send,
-    };
-  });
-};
-
-export { useChatsStore, createChatMessagesStore }
+export { useChatsStore, createChatMessagesStore };
