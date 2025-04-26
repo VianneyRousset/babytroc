@@ -54,3 +54,7 @@ jobs:
         working-directory: ./api
         env:
           POSTGRES_PASSWORD: xxx
+          JWT_ALGORITHM: "HS256"
+          JWT_SECRET_KEY: "1234"
+          JWT_REFRESH_TOKEN_DURATION_DAYS: "7"
+          JWT_ACCESS_TOKEN_DURATION_MINUTES: "15"
