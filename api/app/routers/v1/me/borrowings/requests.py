@@ -39,7 +39,7 @@ def list_client_borrowing_loan_requests(
         db=db,
         query_filter=LoanRequestQueryFilter(
             borrower_id=client_id,
-            state=query.state,
+            states=query.states,
         ),
         page_options=QueryPageOptions(
             order=["loan_request_id"],

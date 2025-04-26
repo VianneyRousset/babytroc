@@ -1,4 +1,3 @@
-
 from pydantic import field_validator
 from sqlalchemy.dialects.postgresql import Range
 

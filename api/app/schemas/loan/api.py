@@ -1,4 +1,3 @@
-
 from pydantic import Field
 
 from app.enums import LoanRequestState
@@ -7,11 +6,23 @@ from app.schemas.base import ApiQueryBase
 
 class LoanRequestApiQuery(ApiQueryBase):
     # state
-    state: LoanRequestState | None = Field(
-        title="State of the loan request",
-        description="Only return loan requests in the given state.",
-        default=LoanRequestState.pending,
+    active: bool | None = Field(
+        title="Active loan requests",
+        description="Only return pending and accepted loan requests.",
+        default=None,
     )
+
+    @property
+    def states(self) -> None | set[LoanRequestState]:
+        if self.active is None:
+            return None
+
+        active_states = {LoanRequestState.pending, LoanRequestState.accepted}
+
+        if self.active:
+            return active_states
+
+        return set(LoanRequestState) - active_states
 
 
 class LoanApiQuery(ApiQueryBase):

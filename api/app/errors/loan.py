@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from typing import Any
 
 from app.enums import LoanRequestState
@@ -49,12 +49,18 @@ class LoanRequestStateError(LoanRequestError, ConflictError):
     def __init__(
         self,
         *,
-        expected_state: LoanRequestState,
+        expected_state: LoanRequestState | Collection[LoanRequestState],
         actual_state: LoanRequestState,
     ):
+        expected = (
+            " or ".join(repr(state.name) for state in expected_state)
+            if isinstance(expected_state, Collection)
+            else repr(expected_state.name)
+        )
+
         super().__init__(
             message=(
-                f"Loan request state is expected to be {expected_state.name!r}, "
+                f"Loan request state is expected to be {expected}, "
                 f"got: {actual_state.name!r}."
             ),
         )

@@ -46,7 +46,7 @@ def list_client_item_loan_requests(
         db=db,
         query_filter=LoanRequestQueryFilter(
             item_id=item.id,
-            state=query.state,
+            states=query.states,
         ),
         page_options=QueryPageOptions(
             order=["loan_request_id"],

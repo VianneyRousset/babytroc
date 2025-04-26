@@ -43,7 +43,7 @@ def cancel_loan_request(
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
-    return services.loan.cancel_pending_loan_request(
+    return services.loan.cancel_active_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,

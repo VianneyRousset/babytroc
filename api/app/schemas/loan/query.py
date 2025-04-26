@@ -1,4 +1,3 @@
-
 from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
@@ -13,7 +12,7 @@ class LoanRequestQueryFilter(QueryFilterBase):
     item_id: int | None = None
     borrower_id: int | None = None
     owner_id: int | None = None
-    state: LoanRequestState | None = None
+    states: set[LoanRequestState] | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
@@ -31,8 +30,8 @@ class LoanRequestQueryFilter(QueryFilterBase):
             stmt = stmt.join(Item).where(Item.owner_id == self.owner_id)
 
         # filter state
-        if self.state is not None:
-            stmt = stmt.where(LoanRequest.state == self.state)
+        if self.states is not None:
+            stmt = stmt.filter(LoanRequest.state.in_(self.states))
 
         return stmt
 
