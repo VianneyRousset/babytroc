@@ -1,5 +1,5 @@
 {
 	"files": {
-		"ignore": [".nuxt/**"]
+		"ignore": [".nuxt/**", "compnents.d.ts"]
 	}
 }
