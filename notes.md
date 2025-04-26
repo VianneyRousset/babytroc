@@ -12,6 +12,9 @@
 
 # GUI
 
+## TODO
+- change Nuxt file structure to v4
+
 ## Extensions to consider
 - [NuxtAuth](https://github.com/sidebase/nuxt-auth)
 - [Pinia](https://pinia.vuejs.org/introduction.html) - A store
