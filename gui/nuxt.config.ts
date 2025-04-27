@@ -6,6 +6,9 @@ export default defineNuxtConfig({
 	compatibilityDate: "2024-11-01",
 	devtools: { enabled: true },
 
+	future: {
+		compatibilityVersion: 4,
+	},
 	// route rules
 	// TODO add cache control
 	routeRules: {
@@ -79,7 +82,7 @@ export default defineNuxtConfig({
 	openFetch: {
 		// use custom plugin to integrated auth considerations
 		// https://nuxt-open-fetch.vercel.app/advanced/custom-client
-		disableNuxtPlugin: true,
+		disableNuxtPlugin:false,
 		clients: {
 			api: {
 				baseURL: "/api",

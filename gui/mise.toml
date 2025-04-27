@@ -12,10 +12,12 @@ run = "npm install"
 
 [tasks.lint]
 description = "Lint the code"
+depends = ["deps"]
 run = "npx biome lint"
 
 [tasks.format]
 description = "Lint the code"
+depends = ["deps"]
 run = "npx biome format --write"
 
 [tasks.dev]
