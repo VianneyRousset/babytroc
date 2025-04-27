@@ -82,7 +82,7 @@ export default defineNuxtConfig({
 	openFetch: {
 		// use custom plugin to integrated auth considerations
 		// https://nuxt-open-fetch.vercel.app/advanced/custom-client
-		disableNuxtPlugin:false,
+		disableNuxtPlugin:true,
 		clients: {
 			api: {
 				baseURL: "/api",
