@@ -9,6 +9,10 @@ export default defineNuxtConfig({
 	future: {
 		compatibilityVersion: 4,
 	},
+
+	// disable server-side rendering
+	ssr: false,
+
 	// route rules
 	// TODO add cache control
 	routeRules: {
@@ -82,7 +86,7 @@ export default defineNuxtConfig({
 	openFetch: {
 		// use custom plugin to integrated auth considerations
 		// https://nuxt-open-fetch.vercel.app/advanced/custom-client
-		disableNuxtPlugin:true,
+		disableNuxtPlugin: true,
 		clients: {
 			api: {
 				baseURL: "/api",

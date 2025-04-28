@@ -1,14 +1,7 @@
 {
 	"openapi": "3.1.0",
-	"info": {
-		"title": "FastAPI",
-		"version": "0.1.0"
-	},
-	"servers": [
-		{
-			"url": "/api"
-		}
-	],
+	"info": { "title": "FastAPI", "version": "0.1.0" },
+	"servers": [{ "url": "/api" }],
 	"paths": {
 		"/": {
 			"get": {
@@ -17,9 +10,55 @@
 				"responses": {
 					"200": {
 						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					}
+				}
+			}
+		},
+		"/v1/auth/login": {
+			"post": {
+				"summary": "Login",
+				"description": "Get credentials from password.",
+				"operationId": "login_v1_auth_login_post",
+				"requestBody": {
+					"content": {
+						"application/x-www-form-urlencoded": {
+							"schema": { "$ref": "#/components/schemas/AuthPasswordForm" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": { "$ref": "#/components/schemas/UserCredentialsInfo" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/auth/refresh": {
+			"post": {
+				"summary": "Refresh Credentials",
+				"description": "Refresh credentials.",
+				"operationId": "refresh_credentials_v1_auth_refresh_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/UserCredentialsInfo" }
 							}
 						}
 					}
@@ -38,15 +77,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "string" } },
+								{ "type": "null" }
 							],
 							"title": "Words used for fuzzy search",
 							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
@@ -60,13 +92,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "^\\d*-\\d*$"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "type": "null" }
 							],
 							"title": "Targeted age months",
 							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
@@ -80,12 +107,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"$ref": "#/components/schemas/ItemQueryAvailability"
-								},
-								{
-									"type": "null"
-								}
+								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
+								{ "type": "null" }
 							],
 							"title": "Availability",
 							"default": "y"
@@ -97,15 +120,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "integer"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
 							],
 							"title": "Regions",
 							"description": "An item is returned if it is available in any of these regions IDs.",
@@ -119,14 +135,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 128,
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Limit returned items count",
 							"description": "Limit the number of items returned.",
@@ -141,13 +151,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for item ID"
 						}
@@ -158,13 +163,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for words match"
 						}
@@ -177,9 +177,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ItemPreviewRead"
-									},
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 									"title": "Response List Items V1 Items Get"
 								}
 							}
@@ -189,9 +187,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -220,9 +216,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -230,9 +224,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -244,6 +236,7 @@
 				"summary": "Report Item",
 				"description": "Report the specified item.",
 				"operationId": "report_item_v1_items__item_id__report_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -270,19 +263,13 @@
 				"responses": {
 					"201": {
 						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					},
 					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -294,6 +281,7 @@
 				"summary": "Create Loan Request",
 				"description": "Add a loan request of the item.",
 				"operationId": "create_loan_request_v1_items__item_id__request_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -311,9 +299,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -321,9 +307,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -333,6 +317,7 @@
 				"summary": "Cancel Loan Request",
 				"description": "Add a loan request of the item.",
 				"operationId": "cancel_loan_request_v1_items__item_id__request_delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -350,9 +335,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -360,9 +343,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -379,13 +360,12 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/UserRead"
-								}
+								"schema": { "$ref": "#/components/schemas/UserRead" }
 							}
 						}
 					}
-				}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
 			},
 			"post": {
 				"summary": "Update Client User",
@@ -407,9 +387,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/UserRead"
-								}
+								"schema": { "$ref": "#/components/schemas/UserRead" }
 							}
 						}
 					},
@@ -417,23 +395,19 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
-				}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
 			},
 			"delete": {
 				"summary": "Delete Client User",
 				"description": "Delete client user.",
 				"operationId": "delete_client_user_v1_me_delete",
-				"responses": {
-					"204": {
-						"description": "Successful Response"
-					}
-				}
+				"responses": { "204": { "description": "Successful Response" } },
+				"security": [{ "OAuth2PasswordBearer": [] }]
 			}
 		},
 		"/v1/me/liked/{item_id}": {
@@ -441,6 +415,7 @@
 				"summary": "Add Item To Client Liked Items",
 				"description": "Add the specified item to client liked items.",
 				"operationId": "add_item_to_client_liked_items_v1_me_liked__item_id__post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -456,19 +431,13 @@
 				"responses": {
 					"200": {
 						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					},
 					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -478,6 +447,7 @@
 				"summary": "Get Client Liked Item By Id",
 				"description": "Get item liked by client.",
 				"operationId": "get_client_liked_item_by_id_v1_me_liked__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -495,9 +465,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -505,9 +473,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -517,6 +483,7 @@
 				"summary": "Remove Item From Client Liked Items",
 				"description": "Remove the specified item from client liked items.",
 				"operationId": "remove_item_from_client_liked_items_v1_me_liked__item_id__delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -534,9 +501,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -544,9 +509,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -558,6 +521,7 @@
 				"summary": "List Items Liked By Client",
 				"description": "List items like by client.",
 				"operationId": "list_items_liked_by_client_v1_me_liked_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "q",
@@ -565,15 +529,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "string" } },
+								{ "type": "null" }
 							],
 							"title": "Words used for fuzzy search",
 							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
@@ -587,13 +544,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "^\\d*-\\d*$"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "type": "null" }
 							],
 							"title": "Targeted age months",
 							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
@@ -607,12 +559,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"$ref": "#/components/schemas/ItemQueryAvailability"
-								},
-								{
-									"type": "null"
-								}
+								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
+								{ "type": "null" }
 							],
 							"title": "Availability",
 							"default": "y"
@@ -624,15 +572,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "integer"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
 							],
 							"title": "Regions",
 							"description": "An item is returned if it is available in any of these regions IDs.",
@@ -648,9 +589,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ItemPreviewRead"
-									},
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 									"title": "Response List Items Liked By Client V1 Me Liked Get"
 								}
 							}
@@ -660,9 +599,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -674,6 +611,7 @@
 				"summary": "List Client Loans",
 				"description": "List loans where the client is the owner.",
 				"operationId": "list_client_loans_v1_me_loans_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item",
@@ -681,13 +619,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"minimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "minimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Loaned item",
 							"description": "Only return loan with this item ID."
@@ -699,14 +632,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "boolean"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 							"title": "Active",
 							"description": "Only return active loans."
 						},
@@ -720,9 +646,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/LoanRead"
-									},
+									"items": { "$ref": "#/components/schemas/LoanRead" },
 									"title": "Response List Client Loans V1 Me Loans Get"
 								}
 							}
@@ -732,9 +656,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -746,6 +668,7 @@
 				"summary": "Get Client Loan",
 				"description": "Get loan where the client is the owner.",
 				"operationId": "get_client_loan_v1_me_loans__loan_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "loan_id",
@@ -763,9 +686,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
 							}
 						}
 					},
@@ -773,9 +694,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -787,6 +706,7 @@
 				"summary": "End Client Loan",
 				"description": "Put an end to the loan where the client is the owner.",
 				"operationId": "end_client_loan_v1_me_loans__loan_id__end_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "loan_id",
@@ -804,9 +724,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
 							}
 						}
 					},
@@ -814,9 +732,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -828,6 +744,7 @@
 				"summary": "Add Item To Client Saved Items",
 				"description": "Add item to client saved items.",
 				"operationId": "add_item_to_client_saved_items_v1_me_saved__item_id__post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -845,9 +762,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -855,9 +770,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -867,6 +780,7 @@
 				"summary": "Get Client Saved Item By Id",
 				"description": "Get item saved by client.",
 				"operationId": "get_client_saved_item_by_id_v1_me_saved__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -884,9 +798,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -894,9 +806,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -906,6 +816,7 @@
 				"summary": "Remove Item From Client Saved Items",
 				"description": "Remove the specified item from client saved items.",
 				"operationId": "remove_item_from_client_saved_items_v1_me_saved__item_id__delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -923,9 +834,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -933,9 +842,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -947,6 +854,7 @@
 				"summary": "List Items Saved By Client",
 				"description": "List items saved by client.",
 				"operationId": "list_items_saved_by_client_v1_me_saved_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "q",
@@ -954,15 +862,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "string" } },
+								{ "type": "null" }
 							],
 							"title": "Words used for fuzzy search",
 							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
@@ -976,13 +877,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "^\\d*-\\d*$"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "type": "null" }
 							],
 							"title": "Targeted age months",
 							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
@@ -996,12 +892,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"$ref": "#/components/schemas/ItemQueryAvailability"
-								},
-								{
-									"type": "null"
-								}
+								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
+								{ "type": "null" }
 							],
 							"title": "Availability",
 							"default": "y"
@@ -1013,15 +905,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "integer"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
 							],
 							"title": "Regions",
 							"description": "An item is returned if it is available in any of these regions IDs.",
@@ -1037,9 +922,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ItemPreviewRead"
-									},
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 									"title": "Response List Items Saved By Client V1 Me Saved Get"
 								}
 							}
@@ -1049,9 +932,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1063,6 +944,7 @@
 				"summary": "Create Client Item",
 				"description": "Create an item owned by the client.",
 				"operationId": "create_client_item_v1_me_items_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -1079,9 +961,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemPreviewRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -1089,9 +969,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1101,6 +979,7 @@
 				"summary": "List Items Owned By Client",
 				"description": "List items owned by the client.",
 				"operationId": "list_items_owned_by_client_v1_me_items_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "q",
@@ -1108,15 +987,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "string" } },
+								{ "type": "null" }
 							],
 							"title": "Words used for fuzzy search",
 							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
@@ -1130,13 +1002,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "^\\d*-\\d*$"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "type": "null" }
 							],
 							"title": "Targeted age months",
 							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
@@ -1150,12 +1017,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"$ref": "#/components/schemas/ItemQueryAvailability"
-								},
-								{
-									"type": "null"
-								}
+								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
+								{ "type": "null" }
 							],
 							"title": "Availability",
 							"default": "y"
@@ -1167,15 +1030,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "integer"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
 							],
 							"title": "Regions",
 							"description": "An item is returned if it is available in any of these regions IDs.",
@@ -1189,14 +1045,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 128,
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Limit returned items count",
 							"description": "Limit the number of items returned.",
@@ -1211,13 +1061,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for item ID"
 						}
@@ -1228,13 +1073,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for words match"
 						}
@@ -1247,9 +1087,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ItemPreviewRead"
-									},
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 									"title": "Response List Items Owned By Client V1 Me Items Get"
 								}
 							}
@@ -1259,9 +1097,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1273,6 +1109,7 @@
 				"summary": "Delete Client Item",
 				"description": "Delete the specified item owned by the client.",
 				"operationId": "delete_client_item_v1_me_items__item_id__delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1288,19 +1125,13 @@
 				"responses": {
 					"200": {
 						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					},
 					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1310,6 +1141,7 @@
 				"summary": "Get Client Item By Id",
 				"description": "Get client's item by id.",
 				"operationId": "get_client_item_by_id_v1_me_items__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1327,9 +1159,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -1337,9 +1167,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1349,6 +1177,7 @@
 				"summary": "Update Client Item",
 				"description": "Update client's item.",
 				"operationId": "update_client_item_v1_me_items__item_id__post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1377,9 +1206,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemPrivateRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemPrivateRead" }
 							}
 						}
 					},
@@ -1387,9 +1214,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1401,6 +1226,7 @@
 				"summary": "List Client Item Loan Requests",
 				"description": "List loan requests of the item owned by the client.",
 				"operationId": "list_client_item_loan_requests_v1_me_items__item_id__requests_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1413,23 +1239,15 @@
 						}
 					},
 					{
-						"name": "state",
+						"name": "active",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"$ref": "#/components/schemas/LoanRequestState"
-								},
-								{
-									"type": "null"
-								}
-							],
-							"title": "State of the loan request",
-							"description": "Only return loan requests in the given state.",
-							"default": 1
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+							"title": "Active loan requests",
+							"description": "Only return pending and accepted loan requests."
 						},
-						"description": "Only return loan requests in the given state."
+						"description": "Only return pending and accepted loan requests."
 					}
 				],
 				"responses": {
@@ -1439,9 +1257,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/LoanRequestRead"
-									},
+									"items": { "$ref": "#/components/schemas/LoanRequestRead" },
 									"title": "Response List Client Item Loan Requests V1 Me Items  Item Id  Requests Get"
 								}
 							}
@@ -1451,9 +1267,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1465,6 +1279,7 @@
 				"summary": "Get Client Item Loan Request",
 				"description": "Get client's item loan request by id.",
 				"operationId": "get_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1492,9 +1307,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -1502,9 +1315,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1516,6 +1327,7 @@
 				"summary": "Accept Client Item Loan Request",
 				"description": "Accept client's item loan request.",
 				"operationId": "accept_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__accept_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1543,9 +1355,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -1553,9 +1363,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1567,6 +1375,7 @@
 				"summary": "Reject Client Item Loan Request",
 				"description": "Reject client's item loan request.",
 				"operationId": "reject_client_item_loan_request_v1_me_items__item_id__requests__loan_request_id__reject_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -1594,9 +1403,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -1604,9 +1411,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1618,6 +1423,7 @@
 				"summary": "Send Message To Chat",
 				"description": "Send message to chat.",
 				"operationId": "send_message_to_chat_v1_me_chats__chat_id__messages_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -1634,9 +1440,7 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ChatMessageCreate"
-							}
+							"schema": { "$ref": "#/components/schemas/ChatMessageCreate" }
 						}
 					}
 				},
@@ -1645,9 +1449,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ChatMessageRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ChatMessageRead" }
 							}
 						}
 					},
@@ -1655,9 +1457,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1667,6 +1467,7 @@
 				"summary": "List Client Chat Messages",
 				"description": "List messages in the chat.",
 				"operationId": "list_client_chat_messages_v1_me_chats__chat_id__messages_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -1683,14 +1484,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "boolean"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 							"title": "Seen",
 							"description": "Only select messages that have been seen.",
 							"examples": [true, false]
@@ -1703,14 +1497,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 128,
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Limit returned messages count",
 							"description": "Limit the number of messages returned.",
@@ -1725,13 +1513,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"minimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "minimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for chat message ID"
 						}
@@ -1744,9 +1527,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ChatMessageRead"
-									},
+									"items": { "$ref": "#/components/schemas/ChatMessageRead" },
 									"title": "Response List Client Chat Messages V1 Me Chats  Chat Id  Messages Get"
 								}
 							}
@@ -1756,9 +1537,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1770,20 +1549,14 @@
 				"summary": "List Client Chats",
 				"description": "List all chats where the client is a member.",
 				"operationId": "list_client_chats_v1_me_chats_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "integer"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
 							"title": "Item",
 							"description": "Only select chats about the item with this ID.",
 							"examples": [42]
@@ -1795,14 +1568,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "integer"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
 							"title": "Borrower",
 							"description": "Only select chats with the borrower with this ID.",
 							"examples": [42]
@@ -1814,14 +1580,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "integer"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
 							"title": "Owner",
 							"description": "Only select chats with the owner with this ID.",
 							"examples": [42]
@@ -1834,14 +1593,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 128,
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Limit returned chats count",
 							"description": "Limit the number of chats returned.",
@@ -1856,13 +1609,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"minimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "minimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for last message ID"
 						}
@@ -1873,13 +1621,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "\\d+-\\d+"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "\\d+-\\d+" },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for item ID"
 						}
@@ -1892,9 +1635,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ChatRead"
-									},
+									"items": { "$ref": "#/components/schemas/ChatRead" },
 									"title": "Response List Client Chats V1 Me Chats Get"
 								}
 							}
@@ -1904,9 +1645,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1918,6 +1657,7 @@
 				"summary": "Get Client Chat",
 				"description": "Get client chat info by chat id.",
 				"operationId": "get_client_chat_v1_me_chats__chat_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -1935,9 +1675,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ChatRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ChatRead" }
 							}
 						}
 					},
@@ -1945,9 +1683,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -1959,6 +1695,7 @@
 				"summary": "Get Client Chat Message By Id",
 				"description": "Get client's chat message by id.",
 				"operationId": "get_client_chat_message_by_id_v1_me_chats__chat_id__messages__message_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -1986,9 +1723,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ChatMessageRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ChatMessageRead" }
 							}
 						}
 					},
@@ -1996,9 +1731,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2010,6 +1743,7 @@
 				"summary": "Report Client Chat",
 				"description": "Report client's chat by id.",
 				"operationId": "report_client_chat_v1_me_chats__chat_id__report_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -2038,9 +1772,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ChatRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ChatRead" }
 							}
 						}
 					},
@@ -2048,9 +1780,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2062,6 +1792,7 @@
 				"summary": "Mark Client Chat Message As Seen",
 				"description": "Mark client's chat message as seen.",
 				"operationId": "mark_client_chat_message_as_seen_v1_me_chats__chat_id__messages__message_id__see_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "chat_id",
@@ -2089,9 +1820,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ChatMessageRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ChatMessageRead" }
 							}
 						}
 					},
@@ -2099,9 +1828,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2113,6 +1840,7 @@
 				"summary": "List Client Borrowings",
 				"description": "List loans where the client is the borrower.",
 				"operationId": "list_client_borrowings_v1_me_borrowings_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item",
@@ -2120,13 +1848,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"minimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "minimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Loaned item",
 							"description": "Only return loan with this item ID."
@@ -2138,14 +1861,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"type": "boolean"
-								},
-								{
-									"type": "null"
-								}
-							],
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 							"title": "Active",
 							"description": "Only return active loans."
 						},
@@ -2159,9 +1875,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/LoanRead"
-									},
+									"items": { "$ref": "#/components/schemas/LoanRead" },
 									"title": "Response List Client Borrowings V1 Me Borrowings Get"
 								}
 							}
@@ -2171,9 +1885,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2185,25 +1897,18 @@
 				"summary": "List Client Borrowing Loan Requests",
 				"description": "List pending loan requests made by the client.",
 				"operationId": "list_client_borrowing_loan_requests_v1_me_borrowings_requests_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "state",
+						"name": "active",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{
-									"$ref": "#/components/schemas/LoanRequestState"
-								},
-								{
-									"type": "null"
-								}
-							],
-							"title": "State of the loan request",
-							"description": "Only return loan requests in the given state.",
-							"default": 1
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+							"title": "Active loan requests",
+							"description": "Only return pending and accepted loan requests."
 						},
-						"description": "Only return loan requests in the given state."
+						"description": "Only return pending and accepted loan requests."
 					}
 				],
 				"responses": {
@@ -2213,9 +1918,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/LoanRequestRead"
-									},
+									"items": { "$ref": "#/components/schemas/LoanRequestRead" },
 									"title": "Response List Client Borrowing Loan Requests V1 Me Borrowings Requests Get"
 								}
 							}
@@ -2225,9 +1928,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2239,15 +1940,13 @@
 				"summary": "Get Client Borrowing Loan Request",
 				"description": "Get loan request made by the client.",
 				"operationId": "get_client_borrowing_loan_request_v1_me_borrowings_requests__loan_request_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "loan_request_id",
 						"in": "path",
 						"required": true,
-						"schema": {
-							"type": "integer",
-							"title": "Loan Request Id"
-						}
+						"schema": { "type": "integer", "title": "Loan Request Id" }
 					}
 				],
 				"responses": {
@@ -2255,9 +1954,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRequestRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
 							}
 						}
 					},
@@ -2265,9 +1962,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2279,15 +1974,13 @@
 				"summary": "Execute Loan Request",
 				"description": "Create a loan from an accepted loan request.",
 				"operationId": "execute_loan_request_v1_me_borrowings_requests__loan_request_id__execute_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "loan_request_id",
 						"in": "path",
 						"required": true,
-						"schema": {
-							"type": "integer",
-							"title": "Loan Request Id"
-						}
+						"schema": { "type": "integer", "title": "Loan Request Id" }
 					}
 				],
 				"responses": {
@@ -2295,9 +1988,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/LoanRead"
-								}
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
 							}
 						}
 					},
@@ -2305,9 +1996,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2336,15 +2025,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "string"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "string" } },
+								{ "type": "null" }
 							],
 							"title": "Words used for fuzzy search",
 							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
@@ -2358,13 +2040,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "string",
-									"pattern": "^\\d*-\\d*$"
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "type": "null" }
 							],
 							"title": "Targeted age months",
 							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
@@ -2378,12 +2055,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"$ref": "#/components/schemas/ItemQueryAvailability"
-								},
-								{
-									"type": "null"
-								}
+								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
+								{ "type": "null" }
 							],
 							"title": "Availability",
 							"default": "y"
@@ -2395,15 +2068,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "array",
-									"items": {
-										"type": "integer"
-									}
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
 							],
 							"title": "Regions",
 							"description": "An item is returned if it is available in any of these regions IDs.",
@@ -2417,14 +2083,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 128,
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Limit returned items count",
 							"description": "Limit the number of items returned.",
@@ -2439,13 +2099,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"exclusiveMinimum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "exclusiveMinimum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for item ID"
 						}
@@ -2456,13 +2111,8 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{
-									"type": "integer",
-									"maximum": 0
-								},
-								{
-									"type": "null"
-								}
+								{ "type": "integer", "maximum": 0 },
+								{ "type": "null" }
 							],
 							"title": "Page cursor for words match"
 						}
@@ -2475,9 +2125,7 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": {
-										"$ref": "#/components/schemas/ItemPreviewRead"
-									},
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 									"title": "Response List Items Owned By User V1 Users  User Id  Items Get"
 								}
 							}
@@ -2487,9 +2135,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2528,9 +2174,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -2538,9 +2182,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2569,9 +2211,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/UserRead"
-								}
+								"schema": { "$ref": "#/components/schemas/UserRead" }
 							}
 						}
 					},
@@ -2579,9 +2219,7 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2593,6 +2231,7 @@
 				"summary": "Report User",
 				"description": "Report user.",
 				"operationId": "report_user_v1_users__user_id__report_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "user_id",
@@ -2619,19 +2258,13 @@
 				"responses": {
 					"201": {
 						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					},
 					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2649,9 +2282,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/RegionRead"
-									},
+									"items": { "$ref": "#/components/schemas/RegionRead" },
 									"type": "array",
 									"title": "Response List Regions V1 Utils Regions Get"
 								}
@@ -2681,9 +2312,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/ItemImageRead"
-								}
+								"schema": { "$ref": "#/components/schemas/ItemImageRead" }
 							}
 						}
 					},
@@ -2691,13 +2320,12 @@
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
-				}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
 			}
 		},
 		"/v1/images/{image_name}": {
@@ -2710,28 +2338,19 @@
 						"name": "image_name",
 						"in": "path",
 						"required": true,
-						"schema": {
-							"type": "string",
-							"title": "Image Name"
-						}
+						"schema": { "type": "string", "title": "Image Name" }
 					}
 				],
 				"responses": {
 					"200": {
 						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
+						"content": { "application/json": { "schema": {} } }
 					},
 					"422": {
 						"description": "Validation Error",
 						"content": {
 							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/HTTPValidationError"
-								}
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
 							}
 						}
 					}
@@ -2741,28 +2360,32 @@
 	},
 	"components": {
 		"schemas": {
+			"AuthPasswordForm": {
+				"properties": {
+					"grant_type": {
+						"type": "string",
+						"const": "password",
+						"title": "Grant Type"
+					},
+					"username": { "type": "string", "title": "Username" },
+					"password": { "type": "string", "title": "Password" }
+				},
+				"type": "object",
+				"required": ["grant_type", "username", "password"],
+				"title": "AuthPasswordForm",
+				"description": "Authentication form with username and password"
+			},
 			"Body_upload_image_v1_images_post": {
 				"properties": {
-					"file": {
-						"type": "string",
-						"format": "binary",
-						"title": "File"
-					}
+					"file": { "type": "string", "format": "binary", "title": "File" }
 				},
 				"type": "object",
 				"required": ["file"],
 				"title": "Body_upload_image_v1_images_post"
 			},
-			"ChatId": {
-				"type": "string"
-			},
+			"ChatId": { "type": "string" },
 			"ChatMessageCreate": {
-				"properties": {
-					"text": {
-						"type": "string",
-						"title": "Text"
-					}
-				},
+				"properties": { "text": { "type": "string", "title": "Text" } },
 				"additionalProperties": false,
 				"type": "object",
 				"required": ["text"],
@@ -2770,25 +2393,11 @@
 			},
 			"ChatMessageRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"chat_id": {
-						"$ref": "#/components/schemas/ChatId"
-					},
-					"message_type": {
-						"$ref": "#/components/schemas/ChatMessageType"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"chat_id": { "$ref": "#/components/schemas/ChatId" },
+					"message_type": { "$ref": "#/components/schemas/ChatMessageType" },
 					"sender_id": {
-						"anyOf": [
-							{
-								"type": "integer"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
 						"title": "Sender Id"
 					},
 					"creation_date": {
@@ -2796,51 +2405,21 @@
 						"format": "date-time",
 						"title": "Creation Date"
 					},
-					"seen": {
-						"type": "boolean",
-						"title": "Seen"
-					},
+					"seen": { "type": "boolean", "title": "Seen" },
 					"text": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "string" }, { "type": "null" }],
 						"title": "Text"
 					},
 					"loan_request_id": {
-						"anyOf": [
-							{
-								"type": "integer"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
 						"title": "Loan Request Id"
 					},
 					"loan_id": {
-						"anyOf": [
-							{
-								"type": "integer"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "integer" }, { "type": "null" }],
 						"title": "Loan Id"
 					},
-					"item_id": {
-						"type": "integer",
-						"title": "Item Id"
-					},
-					"borrower_id": {
-						"type": "integer",
-						"title": "Borrower Id"
-					}
+					"item_id": { "type": "integer", "title": "Item Id" },
+					"borrower_id": { "type": "integer", "title": "Borrower Id" }
 				},
 				"type": "object",
 				"required": [
@@ -2876,22 +2455,11 @@
 			},
 			"ChatRead": {
 				"properties": {
-					"id": {
-						"$ref": "#/components/schemas/ChatId"
-					},
-					"borrower": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
-					"owner": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
-					"item": {
-						"$ref": "#/components/schemas/ItemPreviewRead"
-					},
-					"last_message_id": {
-						"type": "integer",
-						"title": "Last Message Id"
-					}
+					"id": { "$ref": "#/components/schemas/ChatId" },
+					"borrower": { "$ref": "#/components/schemas/UserPreviewRead" },
+					"owner": { "$ref": "#/components/schemas/UserPreviewRead" },
+					"item": { "$ref": "#/components/schemas/ItemPreviewRead" },
+					"last_message_id": { "type": "integer", "title": "Last Message Id" }
 				},
 				"type": "object",
 				"required": ["id", "borrower", "owner", "item", "last_message_id"],
@@ -2900,9 +2468,7 @@
 			"HTTPValidationError": {
 				"properties": {
 					"detail": {
-						"items": {
-							"$ref": "#/components/schemas/ValidationError"
-						},
+						"items": { "$ref": "#/components/schemas/ValidationError" },
 						"type": "array",
 						"title": "Detail"
 					}
@@ -2925,35 +2491,15 @@
 						"title": "Description"
 					},
 					"images": {
-						"items": {
-							"type": "string"
-						},
+						"items": { "type": "string" },
 						"type": "array",
 						"minItems": 1,
 						"title": "Images"
 					},
 					"targeted_age_months": {
 						"prefixItems": [
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							},
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							}
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
 						],
 						"type": "array",
 						"maxItems": 2,
@@ -2961,21 +2507,12 @@
 						"title": "Targeted Age Months"
 					},
 					"regions": {
-						"items": {
-							"type": "integer"
-						},
+						"items": { "type": "integer" },
 						"type": "array",
 						"title": "Regions"
 					},
 					"blocked": {
-						"anyOf": [
-							{
-								"type": "boolean"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 						"title": "Blocked",
 						"default": false
 					}
@@ -2993,18 +2530,9 @@
 			},
 			"ItemImageRead": {
 				"properties": {
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
-					"order": {
-						"type": "integer",
-						"title": "Order"
-					},
-					"owner_id": {
-						"type": "integer",
-						"title": "Owner Id"
-					},
+					"name": { "type": "string", "title": "Name" },
+					"order": { "type": "integer", "title": "Order" },
+					"owner_id": { "type": "integer", "title": "Owner Id" },
 					"creation_date": {
 						"type": "string",
 						"format": "date-time",
@@ -3017,54 +2545,21 @@
 			},
 			"ItemPreviewRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
 					"targeted_age_months": {
 						"prefixItems": [
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							},
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							}
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
 						],
 						"type": "array",
 						"maxItems": 2,
 						"minItems": 2,
 						"title": "Targeted Age Months"
 					},
-					"first_image_name": {
-						"type": "string",
-						"title": "First Image Name"
-					},
-					"available": {
-						"type": "boolean",
-						"title": "Available"
-					},
-					"owner_id": {
-						"type": "integer",
-						"title": "Owner Id"
-					}
+					"first_image_name": { "type": "string", "title": "First Image Name" },
+					"available": { "type": "boolean", "title": "Available" },
+					"owner_id": { "type": "integer", "title": "Owner Id" }
 				},
 				"type": "object",
 				"required": [
@@ -3079,40 +2574,13 @@
 			},
 			"ItemPrivateRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
-					"description": {
-						"type": "string",
-						"title": "Description"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"description": { "type": "string", "title": "Description" },
 					"targeted_age_months": {
 						"prefixItems": [
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							},
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							}
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
 						],
 						"type": "array",
 						"maxItems": 2,
@@ -3120,42 +2588,22 @@
 						"title": "Targeted Age Months"
 					},
 					"images_names": {
-						"items": {
-							"type": "string"
-						},
+						"items": { "type": "string" },
 						"type": "array",
 						"title": "Images Names"
 					},
-					"available": {
-						"type": "boolean",
-						"title": "Available"
-					},
-					"owner_id": {
-						"type": "integer",
-						"title": "Owner Id"
-					},
-					"owner": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
+					"available": { "type": "boolean", "title": "Available" },
+					"owner_id": { "type": "integer", "title": "Owner Id" },
+					"owner": { "$ref": "#/components/schemas/UserPreviewRead" },
 					"regions": {
-						"items": {
-							"$ref": "#/components/schemas/RegionRead"
-						},
+						"items": { "$ref": "#/components/schemas/RegionRead" },
 						"type": "array",
 						"title": "Regions"
 					},
-					"likes_count": {
-						"type": "integer",
-						"title": "Likes Count"
-					},
-					"blocked": {
-						"type": "boolean",
-						"title": "Blocked"
-					},
+					"likes_count": { "type": "integer", "title": "Likes Count" },
+					"blocked": { "type": "boolean", "title": "Blocked" },
 					"loans": {
-						"items": {
-							"$ref": "#/components/schemas/LoanRead"
-						},
+						"items": { "$ref": "#/components/schemas/LoanRead" },
 						"type": "array",
 						"title": "Loans"
 					}
@@ -3185,40 +2633,13 @@
 			},
 			"ItemRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
-					"description": {
-						"type": "string",
-						"title": "Description"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"description": { "type": "string", "title": "Description" },
 					"targeted_age_months": {
 						"prefixItems": [
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							},
-							{
-								"anyOf": [
-									{
-										"type": "integer"
-									},
-									{
-										"type": "null"
-									}
-								]
-							}
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
+							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
 						],
 						"type": "array",
 						"maxItems": 2,
@@ -3226,34 +2647,19 @@
 						"title": "Targeted Age Months"
 					},
 					"images_names": {
-						"items": {
-							"type": "string"
-						},
+						"items": { "type": "string" },
 						"type": "array",
 						"title": "Images Names"
 					},
-					"available": {
-						"type": "boolean",
-						"title": "Available"
-					},
-					"owner_id": {
-						"type": "integer",
-						"title": "Owner Id"
-					},
-					"owner": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
+					"available": { "type": "boolean", "title": "Available" },
+					"owner_id": { "type": "integer", "title": "Owner Id" },
+					"owner": { "$ref": "#/components/schemas/UserPreviewRead" },
 					"regions": {
-						"items": {
-							"$ref": "#/components/schemas/RegionRead"
-						},
+						"items": { "$ref": "#/components/schemas/RegionRead" },
 						"type": "array",
 						"title": "Regions"
 					},
-					"likes_count": {
-						"type": "integer",
-						"title": "Likes Count"
-					}
+					"likes_count": { "type": "integer", "title": "Likes Count" }
 				},
 				"type": "object",
 				"required": [
@@ -3274,41 +2680,22 @@
 				"properties": {
 					"name": {
 						"anyOf": [
-							{
-								"type": "string",
-								"maxLength": 30,
-								"minLength": 5
-							},
-							{
-								"type": "null"
-							}
+							{ "type": "string", "maxLength": 30, "minLength": 5 },
+							{ "type": "null" }
 						],
 						"title": "Name"
 					},
 					"description": {
 						"anyOf": [
-							{
-								"type": "string",
-								"maxLength": 600,
-								"minLength": 20
-							},
-							{
-								"type": "null"
-							}
+							{ "type": "string", "maxLength": 600, "minLength": 20 },
+							{ "type": "null" }
 						],
 						"title": "Description"
 					},
 					"images": {
 						"anyOf": [
-							{
-								"items": {
-									"type": "string"
-								},
-								"type": "array"
-							},
-							{
-								"type": "null"
-							}
+							{ "items": { "type": "string" }, "type": "array" },
+							{ "type": "null" }
 						],
 						"title": "Images"
 					},
@@ -3316,60 +2703,26 @@
 						"anyOf": [
 							{
 								"prefixItems": [
-									{
-										"anyOf": [
-											{
-												"type": "integer"
-											},
-											{
-												"type": "null"
-											}
-										]
-									},
-									{
-										"anyOf": [
-											{
-												"type": "integer"
-											},
-											{
-												"type": "null"
-											}
-										]
-									}
+									{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
+									{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
 								],
 								"type": "array",
 								"maxItems": 2,
 								"minItems": 2
 							},
-							{
-								"type": "null"
-							}
+							{ "type": "null" }
 						],
 						"title": "Targeted Age Months"
 					},
 					"regions": {
 						"anyOf": [
-							{
-								"items": {
-									"type": "integer"
-								},
-								"type": "array"
-							},
-							{
-								"type": "null"
-							}
+							{ "items": { "type": "integer" }, "type": "array" },
+							{ "type": "null" }
 						],
 						"title": "Regions"
 					},
 					"blocked": {
-						"anyOf": [
-							{
-								"type": "boolean"
-							},
-							{
-								"type": "null"
-							}
-						],
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 						"title": "Blocked"
 					}
 				},
@@ -3379,44 +2732,23 @@
 			},
 			"LoanRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"item": {
-						"$ref": "#/components/schemas/ItemPreviewRead"
-					},
-					"owner": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
-					"borrower": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
-					"chat_id": {
-						"$ref": "#/components/schemas/ChatId"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"item": { "$ref": "#/components/schemas/ItemPreviewRead" },
+					"owner": { "$ref": "#/components/schemas/UserPreviewRead" },
+					"borrower": { "$ref": "#/components/schemas/UserPreviewRead" },
+					"chat_id": { "$ref": "#/components/schemas/ChatId" },
 					"during": {
 						"prefixItems": [
 							{
 								"anyOf": [
-									{
-										"type": "string",
-										"format": "date-time"
-									},
-									{
-										"type": "null"
-									}
+									{ "type": "string", "format": "date-time" },
+									{ "type": "null" }
 								]
 							},
 							{
 								"anyOf": [
-									{
-										"type": "string",
-										"format": "date-time"
-									},
-									{
-										"type": "null"
-									}
+									{ "type": "string", "format": "date-time" },
+									{ "type": "null" }
 								]
 							}
 						],
@@ -3425,10 +2757,7 @@
 						"minItems": 2,
 						"title": "During"
 					},
-					"active": {
-						"type": "boolean",
-						"title": "Active"
-					}
+					"active": { "type": "boolean", "title": "Active" }
 				},
 				"type": "object",
 				"required": [
@@ -3444,22 +2773,11 @@
 			},
 			"LoanRequestRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"item": {
-						"$ref": "#/components/schemas/ItemPreviewRead"
-					},
-					"borrower": {
-						"$ref": "#/components/schemas/UserPreviewRead"
-					},
-					"chat_id": {
-						"$ref": "#/components/schemas/ChatId"
-					},
-					"state": {
-						"$ref": "#/components/schemas/LoanRequestState"
-					}
+					"id": { "type": "integer", "title": "Id" },
+					"item": { "$ref": "#/components/schemas/ItemPreviewRead" },
+					"borrower": { "$ref": "#/components/schemas/UserPreviewRead" },
+					"chat_id": { "$ref": "#/components/schemas/ChatId" },
+					"state": { "$ref": "#/components/schemas/LoanRequestState" }
 				},
 				"type": "object",
 				"required": ["id", "item", "borrower", "chat_id", "state"],
@@ -3479,14 +2797,8 @@
 			},
 			"RegionRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					}
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" }
 				},
 				"type": "object",
 				"required": ["id", "name"],
@@ -3494,34 +2806,28 @@
 			},
 			"ReportCreate": {
 				"properties": {
-					"message": {
-						"type": "string",
-						"title": "Message"
-					},
-					"context": {
-						"type": "string",
-						"title": "Context"
-					}
+					"message": { "type": "string", "title": "Message" },
+					"context": { "type": "string", "title": "Context" }
 				},
 				"additionalProperties": false,
 				"type": "object",
 				"required": ["message", "context"],
 				"title": "ReportCreate"
 			},
+			"UserCredentialsInfo": {
+				"properties": {
+					"expires_in": { "type": "integer", "title": "Expires In" }
+				},
+				"type": "object",
+				"required": ["expires_in"],
+				"title": "UserCredentialsInfo",
+				"description": "Info about the user credentials.\n\nDoes not contain any token as the latters are given via cookies."
+			},
 			"UserPreviewRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
-					"avatar_seed": {
-						"type": "string",
-						"title": "Avatar Seed"
-					}
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"avatar_seed": { "type": "string", "title": "Avatar Seed" }
 				},
 				"type": "object",
 				"required": ["id", "name", "avatar_seed"],
@@ -3529,30 +2835,13 @@
 			},
 			"UserRead": {
 				"properties": {
-					"id": {
-						"type": "integer",
-						"title": "Id"
-					},
-					"name": {
-						"type": "string",
-						"title": "Name"
-					},
-					"avatar_seed": {
-						"type": "string",
-						"title": "Avatar Seed"
-					},
-					"stars_count": {
-						"type": "integer",
-						"title": "Stars Count"
-					},
-					"likes_count": {
-						"type": "integer",
-						"title": "Likes Count"
-					},
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"avatar_seed": { "type": "string", "title": "Avatar Seed" },
+					"stars_count": { "type": "integer", "title": "Stars Count" },
+					"likes_count": { "type": "integer", "title": "Likes Count" },
 					"items": {
-						"items": {
-							"$ref": "#/components/schemas/ItemPreviewRead"
-						},
+						"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
 						"type": "array",
 						"title": "Items"
 					}
@@ -3572,27 +2861,15 @@
 				"properties": {
 					"name": {
 						"anyOf": [
-							{
-								"type": "string",
-								"maxLength": 30,
-								"minLength": 3
-							},
-							{
-								"type": "null"
-							}
+							{ "type": "string", "maxLength": 30, "minLength": 3 },
+							{ "type": "null" }
 						],
 						"title": "Name"
 					},
 					"avatar_seed": {
 						"anyOf": [
-							{
-								"type": "string",
-								"maxLength": 10,
-								"minLength": 5
-							},
-							{
-								"type": "null"
-							}
+							{ "type": "string", "maxLength": 10, "minLength": 5 },
+							{ "type": "null" }
 						],
 						"title": "Avatar Seed"
 					}
@@ -3604,31 +2881,24 @@
 			"ValidationError": {
 				"properties": {
 					"loc": {
-						"items": {
-							"anyOf": [
-								{
-									"type": "string"
-								},
-								{
-									"type": "integer"
-								}
-							]
-						},
+						"items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
 						"type": "array",
 						"title": "Location"
 					},
-					"msg": {
-						"type": "string",
-						"title": "Message"
-					},
-					"type": {
-						"type": "string",
-						"title": "Error Type"
-					}
+					"msg": { "type": "string", "title": "Message" },
+					"type": { "type": "string", "title": "Error Type" }
 				},
 				"type": "object",
 				"required": ["loc", "msg", "type"],
 				"title": "ValidationError"
+			}
+		},
+		"securitySchemes": {
+			"OAuth2PasswordBearer": {
+				"type": "oauth2",
+				"flows": {
+					"password": { "scopes": {}, "tokenUrl": "/api/v1/auth/login" }
+				}
 			}
 		}
 	}

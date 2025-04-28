@@ -68,10 +68,10 @@ function resetFilterInputs() {
 	regions.clear();
 }
 
-// const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
+const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
 // const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
-const likedItems = Array<ItemPreview>();
+//const likedItems = Array<ItemPreview>();
 const savedItems = Array<ItemPreview>();
 
 function openItem(itemId: number) {
@@ -91,6 +91,7 @@ const { reset } = useInfiniteScroll(
 		distance: 1800,
 	},
 );
+
 </script>
 
 <template>
