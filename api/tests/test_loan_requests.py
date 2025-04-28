@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.enums import LoanRequestState, ChatMessageType
+from app.enums import ChatMessageType, LoanRequestState
 from app.schemas.item.read import ItemRead
 
 
