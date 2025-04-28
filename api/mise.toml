@@ -33,12 +33,12 @@ run = "./entrypoint.sh"
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
 depends = ["deps", "deps-dev"]
-run = "ruff check app/"
+run = "ruff check app/ tests/"
 
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
 depends = ["deps", "deps-dev"]
-run = "mypy app/"
+run = "mypy app/ tests/"
 
 [tasks.lint]
 description = "Lint the code"

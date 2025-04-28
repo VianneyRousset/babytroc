@@ -148,3 +148,35 @@ def refresh_credentials(
     return UserCredentialsInfo(
         expires_in=round(credentials.access_token_duration.total_seconds()),
     )
+
+
+@router.post("/logout")
+def logout(
+    request: Request,
+    response: Response,
+) -> None:
+    """Remove credentials cookies."""
+
+    root_path = request.scope.get("root_path") or ""
+    secure = not request.app.state.config.test
+
+    # set access token http-only cookie
+    response.set_cookie(
+        key="Authorization",
+        value="",
+        httponly=True,
+        samesite="strict",
+        max_age=0,
+        secure=secure,
+    )
+
+    # set refresh token http-only cookie
+    response.set_cookie(
+        key="refresh_token",
+        value="",
+        httponly=True,
+        samesite="strict",
+        path=f"{root_path}/v1/auth/refresh",
+        max_age=0,
+        secure=secure,
+    )

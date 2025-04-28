@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 
 from app.schemas.item.read import ItemRead
 from app.schemas.user.read import UserRead
-from app.schemas.user.update import UserUpdate
 
 
 @pytest.mark.usefixtures("alice")

@@ -87,3 +87,17 @@ class TestAuth:
 
         # test access is wokring
         alice_client.get("/v1/me").raise_for_status()
+
+    def test_logout(
+        self,
+        alice_client: TestClient,
+    ):
+        """Check logout removes credentials."""
+
+        # logout
+        resp = alice_client.post("/v1/auth/logout")
+        resp.raise_for_status()
+
+        # test access is not working anymore
+        resp = alice_client.get("/v1/me")
+        assert not resp.is_success
