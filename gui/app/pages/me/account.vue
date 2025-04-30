@@ -22,6 +22,15 @@ const { data: me } = useMeQuery();
 const usernameInput = useTemplateRef("usernameInput");
 const passwordInput = useTemplateRef("passwordInput");
 
+const route = useRoute();
+
+watch(loggedIn, (newState, oldState) => {
+  if (oldState === false && newState === true && route.query.redirect)
+    navigateTo(route.query.redirect as string);
+});
+
+const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(password).length > 0);
+
 </script>
 
 <template>
@@ -43,7 +52,7 @@ const passwordInput = useTemplateRef("passwordInput");
 
       <!-- Not logged in: show login form -->
       <div v-else-if="loggedIn === false" class="app-content page">
-        <div class="lock" :class="{red: loginStatus === 'error'}">
+        <div class="lock" :class="{ red: loginStatus === 'error' }">
           <div>
             <LockKeyholeOpen :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
           </div>
@@ -52,10 +61,12 @@ const passwordInput = useTemplateRef("passwordInput");
         </div>
         <h2>Se connecter</h2>
         <div class="form">
-          <input type="email" ref="usernameInput" v-model="username" placeholder="Email" tabindex="1" autofocus @keyup.enter="passwordInput?.focus()" />
-          <input type="password" ref="passwordInput" v-model="password" placeholder="Password" tabindex="2" @keyup.enter="login" />
-          <TextButton aspect="flat" size="large" color="primary" @click="login" :loading="loginAsyncStatus === 'loading'"
-            tabindex="3">Valider</TextButton>
+          <input type="email" ref="usernameInput" v-model="username" placeholder="Email" tabindex="1" autofocus
+            @keyup.enter="passwordInput?.focus()" />
+          <input type="password" ref="passwordInput" v-model="password" placeholder="Password" tabindex="2"
+            @keyup.enter="login" />
+          <TextButton aspect="flat" size="large" color="primary" @click="enableLogin ? login() : null"
+            :loading="loginAsyncStatus === 'loading'" tabindex="3" :disabled="!enableLogin">Valider</TextButton>
         </div>
       </div>
 

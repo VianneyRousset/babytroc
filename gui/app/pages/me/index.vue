@@ -1,22 +1,25 @@
 <script setup lang="ts">
 import {
-	ChevronRight,
-	UserRound,
-	Heart,
-	Package,
-	Gift,
-	UserPen,
-	LockKeyhole,
-	Info,
-	MessageCircleQuestion,
-	Scale,
-	AtSign,
+  ChevronRight,
+  UserRound,
+  Heart,
+  Package,
+  Gift,
+  UserPen,
+  LockKeyhole,
+  Info,
+  MessageCircleQuestion,
+  Scale,
+  AtSign,
 } from "lucide-vue-next";
 
 // get main header bar height to offset content
 const { height: mainHeaderHeight } = useElementSize(
-	useTemplateRef("main-header"),
+  useTemplateRef("main-header"),
 );
+
+// auth session
+const { loggedIn } = useAuth();
 </script>
 
 <template>
@@ -31,8 +34,8 @@ const { height: mainHeaderHeight } = useElementSize(
     <!-- Main content -->
     <main class="app-content ">
 
-      <h2>Activités</h2>
-      <SlabList>
+      <h2 v-if="loggedIn === true">Activités</h2>
+      <SlabList v-if="loggedIn === true">
         <NuxtLink to="/me/liked">
           <MeSlab>
             Objets aimés
@@ -62,7 +65,7 @@ const { height: mainHeaderHeight } = useElementSize(
       <h2>Options</h2>
       <SlabList>
         <NuxtLink to="/me/profile">
-          <MeSlab>
+          <MeSlab v-if="loggedIn === true">
             Profile
             <template #image>
               <UserPen :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
