@@ -3,6 +3,8 @@ import { Filter, ArrowLeft, Repeat } from "lucide-vue-next";
 
 import { ItemQueryAvailability } from "#build/types/open-fetch/schemas/api";
 
+const { $api } = useNuxtApp();
+
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(
 	useTemplateRef("main-header"),
@@ -46,9 +48,9 @@ watch(
 			mo: typeof routeQuery.mo === "string" ? routeQuery.mo : undefined,
 			av:
 				typeof routeQuery.av === "string" &&
-				Object.values(ItemQueryAvailability).includes(
-					routeQuery.av as ItemQueryAvailability,
-				)
+					Object.values(ItemQueryAvailability).includes(
+						routeQuery.av as ItemQueryAvailability,
+					)
 					? (routeQuery.av as ItemQueryAvailability)
 					: undefined,
 			reg: routeQuery.reg
@@ -69,14 +71,11 @@ function resetFilterInputs() {
 }
 
 const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
-// const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
-
-//const likedItems = Array<ItemPreview>();
-const savedItems = Array<ItemPreview>();
+const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
 function openItem(itemId: number) {
 	routeStack.amend(
-		router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath,
+		router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
 	);
 	return navigateTo(`/home/item/${itemId}`);
 }
@@ -92,80 +91,89 @@ const { reset } = useInfiniteScroll(
 	},
 );
 
+async function logout() {
+	await $api("/v1/auth/logout", {
+		method: "POST",
+	});
+}
+
 </script>
 
 <template>
-  <div>
+	<div>
 
-    <!-- Header bar -->
-    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
-      <SearchInput v-model="searchInput" @submit="filter()" />
-      <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle">
-        <Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" class="filterIcon"
-          :class="{ active: isFilterActive }" />
-      </Toggle>
-    </AppHeaderBar>
+		<!-- Header bar -->
+		<AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+			<SearchInput v-model="searchInput" @submit="filter()" />
+			<Toggle v-model:pressed="filtersDrawerOpen" class="Toggle">
+				<Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" class="filterIcon"
+					:class="{ active: isFilterActive }" />
+			</Toggle>
+			<IconButton @click="logout">
+				<Repeat :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+			</IconButton>
+		</AppHeaderBar>
 
-    <!-- Filters drawer -->
-    <Drawer v-model="filtersDrawerOpen">
+		<!-- Filters drawer -->
+		<Drawer v-model="filtersDrawerOpen">
 
-      <!-- Filters header bar -->
-      <AppHeaderBar ref="filters-header">
-        <Toggle v-model:pressed="filtersDrawerOpen" class="Toggle" @click="filter()">
-          <ArrowLeft :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        </Toggle>
-        <h1>Filtres</h1>
-        <IconButton :disabled="!areFilterInputsChanged" @click="resetFilterInputs()">
-          <Repeat :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        </IconButton>
-      </AppHeaderBar>
+			<!-- Filters header bar -->
+			<AppHeaderBar ref="filters-header">
+				<Toggle v-model:pressed="filtersDrawerOpen" class="Toggle" @click="filter()">
+					<ArrowLeft :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+				</Toggle>
+				<h1>Filtres</h1>
+				<IconButton :disabled="!areFilterInputsChanged" @click="resetFilterInputs()">
+					<Repeat :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+				</IconButton>
+			</AppHeaderBar>
 
-      <!-- Filters main -->
-      <div class="app-content filters page">
+			<!-- Filters main -->
+			<div class="app-content filters page">
 
-        <h2>Disponibilité</h2>
-        <div class="checkbox-group">
-          <Checkbox v-model="stateAvailable">Disponible</Checkbox>
-          <Checkbox v-model="stateUnavailable">Non-disponible</Checkbox>
-        </div>
+				<h2>Disponibilité</h2>
+				<div class="checkbox-group">
+					<Checkbox v-model="stateAvailable">Disponible</Checkbox>
+					<Checkbox v-model="stateUnavailable">Non-disponible</Checkbox>
+				</div>
 
-        <h2>Age</h2>
-        <AgeRangeInput v-model="targetedAge" />
+				<h2>Age</h2>
+				<AgeRangeInput v-model="targetedAge" />
 
-        <h2>Régions</h2>
-        <RegionsMap v-model="regions" />
-        <RegionsCheckboxes v-model="regions" />
+				<h2>Régions</h2>
+				<RegionsMap v-model="regions" />
+				<RegionsCheckboxes v-model="regions" />
 
-      </div>
-    </Drawer>
+			</div>
+		</Drawer>
 
-    <!-- Main content -->
-    <main>
-      <List v-if="likedItems && savedItems" ref="main" class="app-content page">
-        <ItemCard v-for="item in itemsPages.data ?? []" @click="openItem(item.id)" :key="`item-${item.id}`"
-          :id="`item-${item.id}`" :item="item" :likedItems="likedItems" :savedItems="savedItems" />
-        <ListError v-if="itemsStatus === 'error'">Une erreur est survenue.</ListError>
-        <ListLoader v-if="itemsAsyncStatus === 'loading'" />
-        <ListEmpty v-else-if="itemsPages.data.length === 0">Aucun résultat</ListEmpty>
-      </List>
-    </main>
+		<!-- Main content -->
+		<main>
+			<List ref="main" class="app-content page">
+				<ItemCard v-for="item in itemsPages.data ?? []" @click="openItem(item.id)" :key="`item${item.id}`"
+					:id="`item${item.id}`" :item="item" :likedItems="likedItems ?? []" :savedItems="savedItems ?? []" />
+				<ListError v-if="itemsStatus === 'error'">Une erreur est survenue.</ListError>
+				<ListLoader v-if="itemsAsyncStatus === 'loading'" />
+				<ListEmpty v-else-if="itemsPages.data.length === 0">Aucun résultat</ListEmpty>
+			</List>
+		</main>
 
-  </div>
+	</div>
 </template>
 
 <style scoped lang="scss">
 main {
-  --header-height: v-bind(mainHeaderHeight + "px");
-  overflow-y: scroll;
+	--header-height: v-bind(mainHeaderHeight + "px");
+	overflow-y: scroll;
 }
 
 .filters.app-content {
-  --header-height: v-bind(filtersHeaderHeight + "px");
+	--header-height: v-bind(filtersHeaderHeight + "px");
 }
 
 .filterIcon.active {
-  stroke: $primary-400;
-  filter: drop-shadow(0px 0px 2px $primary-200);
+	stroke: $primary-400;
+	filter: drop-shadow(0px 0px 2px $primary-200);
 
 }
 </style>

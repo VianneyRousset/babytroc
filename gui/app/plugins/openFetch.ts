@@ -1,8 +1,14 @@
 // Base on Nuxt open fetch custom client documentation
 // https://nuxt-open-fetch.vercel.app/advanced/custom-client
 
-import type { FetchContext, FetchHook } from "ofetch";
+import type {
+	FetchContext,
+	FetchHook,
+	FetchOptions,
+	ResponseType,
+} from "ofetch";
 import { StatusCodes } from "http-status-codes";
+import type { NitroFetchOptions } from "nitropack/types";
 
 // Call fetch hooks
 async function callHooks<C extends FetchContext = FetchContext>(
@@ -25,6 +31,7 @@ export default defineNuxtPlugin({
 	enforce: "pre", // clients will be ready to use by other plugins, Pinia stores etc.
 	setup() {
 		const clientsConfig = useRuntimeConfig().public.openFetch;
+		const $fetch = globalThis.$fetch;
 
 		return {
 			provide: Object.fromEntries(
@@ -35,38 +42,49 @@ export default defineNuxtPlugin({
 							...options,
 							...localOptions,
 
-							onRequest: async (ctx) => {
-								console.log("FETCHING >>> ", ctx.request);
-								if (localOptions)
-									return await callHooks(ctx, localOptions.onRequest);
-							},
-
 							onResponse: async (ctx) => {
-								console.log("RESPONSE", ctx.response);
+								const activeSession =
+									localStorage.getItem("auth-session") === "true";
 
-								// if unauthorized, try to log in and reexecute query
-								if (ctx.response.status === StatusCodes.UNAUTHORIZED) {
+								// if active session and received unauthorized,
+								// try to refresh token and reexecute query
+								if (
+									activeSession &&
+									ctx.response.status === StatusCodes.UNAUTHORIZED
+								) {
 									console.log("UNAUTHORIZAED");
 
-									const formData = new FormData();
-
-									formData.append("grant_type", "password");
-									formData.append("username", "alice@kindbaby.ch");
-									formData.append("password", "alice_password");
-
-									globalThis.$fetch("/api/v1/auth/login", {
+									await $fetch("/api/v1/auth/refresh", {
 										method: "POST",
-										body: formData,
-										onResponse: async ({ response }) => {
-											console.log("AUTH", response.ok ? "OK" : "NOK");
+										onRequest: async () => {
+											console.log("REFRESH");
+										},
+										onResponse: async ({ response: authResponse }) => {
+											console.log(
+												"REFRESH RESULT",
+												authResponse.ok ? "OK" : "NOK",
+											);
+
+											// if authentification succeeded, reexecute the query
+											// and update reponse
+											if (authResponse.ok) {
+												await $fetch(ctx.request, {
+													...options,
+													...(localOptions as NitroFetchOptions<ResponseType>),
+													onResponse: async (newCtx) => {
+														if (newCtx.response.ok) Object.assign(ctx, newCtx);
+													},
+												});
+											}
 										},
 									});
-
-									//Object.assign(ctx, )
 								}
+
+								// call other hooks
+								if (localOptions) await callHooks(ctx, localOptions.onResponse);
 							},
 						}),
-						globalThis.$fetch,
+						$fetch,
 					),
 				]),
 			),

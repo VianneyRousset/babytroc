@@ -25,7 +25,7 @@ const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
 function openItem(itemId: number) {
 	routeStack.amend(
-		router.resolve({ ...route, hash: `#item-${itemId}` }).fullPath,
+		router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
 	);
 	return navigateTo(`${currentTabRoot}/item/${itemId}`);
 }
@@ -71,7 +71,7 @@ function openItem(itemId: number) {
     <!-- Main content -->
     <main>
       <List v-if="user && likedItems && savedItems" ref="main" class="app-content page">
-        <ItemCard v-for="item in user.items" @click="openItem(item.id)" :key="`item-${item.id}`" :id="`item-${item.id}`"
+        <ItemCard v-for="item in user.items" @click="openItem(item.id)" :key="`item${item.id}`" :id="`item${item.id}`"
           :item="item" :likedItems="likedItems" :savedItems="savedItems" />
         <ListEmpty v-if="user.items.length === 0">{{ user?.name }} n'a pas encore d'objet.</ListEmpty>
       </List>

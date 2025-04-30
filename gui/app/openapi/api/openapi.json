@@ -65,6 +65,19 @@
 				}
 			}
 		},
+		"/v1/auth/logout": {
+			"post": {
+				"summary": "Logout",
+				"description": "Remove credentials cookies.",
+				"operationId": "logout_v1_auth_logout_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					}
+				}
+			}
+		},
 		"/v1/items": {
 			"get": {
 				"summary": "List Items",

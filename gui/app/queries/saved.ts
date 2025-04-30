@@ -1,10 +1,8 @@
-import { useQuery } from "@pinia/colada";
-
 function useSavedItemsQuery() {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
-		key: () => ["me-saved-items"],
+	return useQueryWithAuth({
+		key: () => ["me", "me-saved-items"],
 		query: () => $api("/v1/me/saved"),
 	});
 }

@@ -1,9 +1,7 @@
-import { useQuery } from "@pinia/colada";
-
 function useMeQuery() {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me"],
 		query: () => $api("/v1/me"),
 	});

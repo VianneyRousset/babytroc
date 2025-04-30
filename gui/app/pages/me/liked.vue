@@ -31,8 +31,8 @@ function openItem(itemId: number) {
     <!-- Main content -->
     <main>
       <List v-if="likedItems && savedItems" ref="main" class="app-content page">
-        <ItemCard v-for="item in likedItems ?? []" @click="openItem(item.id)" :key="`item-${item.id}`"
-          :id="`item-${item.id}`" :item="item" :likedItems="likedItems!" :savedItems="savedItems!" />
+        <ItemCard v-for="item in likedItems ?? []" @click="openItem(item.id)" :key="`item${item.id}`"
+          :id="`item${item.id}`" :item="item" :likedItems="likedItems!" :savedItems="savedItems!" />
         <ListError v-if="savedItemsStatus === 'error'">Une erreur est survenue.</ListError>
         <ListLoader v-if="savedItemsStatus === 'pending'" />
         <ListEmpty v-else-if="savedItems.length === 0">Aucun objet sauvegardé</ListEmpty>

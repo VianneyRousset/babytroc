@@ -4,8 +4,8 @@ import { parseLinkHeader } from "@web3-storage/parse-link-header";
 export function useChatQuery(chatId: string) {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
-		key: () => ["chat", chatId],
+	return useQueryWithAuth({
+		key: () => ["me", "chat", chatId],
 		query: () =>
 			$api("/v1/me/chats/{chat_id}", {
 				path: {
@@ -19,7 +19,7 @@ export const useChatsListQuery = defineQuery(() => {
 	const { $api } = useNuxtApp();
 
 	return useInfiniteQuery({
-		key: ["chats"],
+		key: ["me", "chats"],
 
 		initialPage: {
 			data: Array<Chat>(),
@@ -76,7 +76,7 @@ export const useChatMessagesListQuery = (chatId: MaybeRefOrGetter<string>) => {
 		const { $api } = useNuxtApp();
 
 		return useInfiniteQuery({
-			key: ["chat", toValue(chatId), "messages"],
+			key: ["me", "chat", toValue(chatId), "messages"],
 
 			initialPage: {
 				data: Array<ChatMessage>(),

@@ -12,8 +12,17 @@ run = "npm install"
 
 [tasks.lint]
 description = "Lint the code"
+depends = ["lint:*"]
+
+[tasks."lint:biome"]
+description = "Lint the code with biome"
 depends = ["deps"]
 run = "npx biome lint"
+
+[tasks."lint:typescript"]
+description = "Lint the code with typescript"
+depends = ["deps"]
+run = "tsc --noEmit"
 
 [tasks.format]
 description = "Lint the code"

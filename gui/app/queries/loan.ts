@@ -1,10 +1,8 @@
-import { useQuery } from "@pinia/colada";
-
 // TODO check paginated
 export function useBorrowingsListQuery() {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me", "borrowings"],
 		query: () => $api("/v1/me/borrowings"),
 	});
@@ -13,7 +11,7 @@ export function useBorrowingsListQuery() {
 export function useBorrowingsLoanRequestsListQuery() {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me", "borrowings", "requests"],
 		query: () => $api("/v1/me/borrowings/requests"),
 	});
@@ -24,7 +22,7 @@ export function useBorrowingsLoanRequestQuery(
 ) {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me", "borrowings", "requests", toValue(loanRequestId)],
 		query: () =>
 			$api("/v1/me/borrowings/requests/{loan_request_id}", {
@@ -38,7 +36,7 @@ export function useBorrowingsLoanRequestQuery(
 export function useItemLoanRequestsListQuery(itemId: MaybeRefOrGetter<number>) {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me", "items", toValue(itemId), "requests"],
 		query: () =>
 			$api("/v1/me/items/{item_id}/requests", {
@@ -58,7 +56,7 @@ export function useItemLoanRequestQuery({
 }) {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => [
 			"me",
 			"items",
@@ -79,7 +77,7 @@ export function useItemLoanRequestQuery({
 export function useLoanQuery({ loanId }: { loanId: MaybeRefOrGetter<number> }) {
 	const { $api } = useNuxtApp();
 
-	return useQuery({
+	return useQueryWithAuth({
 		key: () => ["me", "loans", toValue(loanId)],
 		query: () =>
 			$api("/v1/me/loans/{loan_id}", {
