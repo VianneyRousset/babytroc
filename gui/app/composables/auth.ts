@@ -26,43 +26,37 @@ export function useAuth() {
 	});
 
 	// login
-	async function login(email: string, password: string) {
-		// create form data
-		const formData = new FormData();
-		formData.append("grant_type", "password");
-		formData.append("username", email);
-		formData.append("password", password);
+	const {
+		mutate: loginRaw,
+		status: loginStatus,
+		asyncStatus: loginAsyncStatus,
+	} = useLoginMutation();
 
-		// try to login to api
-		await $api("/v1/auth/login", {
-			method: "POST",
+	const username = ref("");
+	const password = ref("");
 
-			// @ts-expect-error: cannot type FormData
-			body: formData,
-		}).then(() => {
-			const queryCache = useQueryCache();
-			localStorage.setItem("auth-session", "true");
-			console.log("Invalidate cache");
-			queryCache.invalidateQueries({ key: ["me"] });
-			queryCache.invalidateQueries({ key: ["auth"] });
+	const login = async () =>
+		loginRaw({
+			username: unref(username),
+			password: unref(password),
 		});
-	}
 
 	// logout
-	async function logout() {
-		await $api("/v1/auth/logout", {
-			method: "POST",
-		}).then(async () => {
-			const queryCache = useQueryCache();
-			localStorage.removeItem("auth-session");
-			console.log("Invalidate cache");
-			queryCache.invalidateQueries({ key: ["auth"], exact: true });
-		});
-	}
+	const {
+		mutate: logout,
+		status: logoutStatus,
+		asyncStatus: logoutAsyncStatus,
+	} = useLogoutMutation();
 
 	return {
+		username,
+		password,
 		login,
+		loginStatus,
+		loginAsyncStatus,
 		logout,
+		logoutStatus,
+		logoutAsyncStatus,
 		loggedIn: computed(() => {
 			if (unref(meStatus) === "pending") return undefined;
 			return unref(me) != null;

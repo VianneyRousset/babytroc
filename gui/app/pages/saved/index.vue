@@ -8,7 +8,7 @@ const { height: mainHeaderHeight } = useElementSize(
   useTemplateRef("main-header"),
 );
 
-const { loggedIn, loggedInStatus, login, logout } = useAuth();
+const { loggedIn, loggedInStatus } = useAuth();
 const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
 const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
@@ -21,11 +21,6 @@ function openItem(itemId: number) {
     router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
   );
   return navigateTo(`/home/item/${itemId}`);
-}
-
-async function tryLogin() {
-  console.log("trying to log in");
-  await login("alice@kindbaby.ch", "alice_password");
 }
 
 </script>

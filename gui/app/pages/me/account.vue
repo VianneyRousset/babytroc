@@ -1,0 +1,104 @@
+<script setup lang="ts">
+import { LockKeyhole, LockKeyholeOpen } from "lucide-vue-next";
+
+const { height: mainHeaderHeight } = useElementSize(
+  useTemplateRef("main-header"),
+);
+
+const {
+  loggedIn,
+  loggedInStatus,
+  username,
+  password,
+  login,
+  loginStatus,
+  loginAsyncStatus,
+  logout,
+  logoutStatus,
+  logoutAsyncStatus
+} = useAuth();
+const { data: me } = useMeQuery();
+
+const usernameInput = useTemplateRef("usernameInput");
+const passwordInput = useTemplateRef("passwordInput");
+
+</script>
+
+<template>
+  <div>
+
+    <!-- Header bar -->
+    <AppHeaderBar ref="main-header">
+      <AppBack />
+      <h1>Compte</h1>
+    </AppHeaderBar>
+
+    <!-- Main content -->
+    <main>
+
+      <!-- Loader when not knowing if logged in -->
+      <div v-if="loggedInStatus === 'pending'" class="app-content flex-column-center">
+        <Loader />
+      </div>
+
+      <!-- Not logged in: show login form -->
+      <div v-else-if="loggedIn === false" class="app-content page">
+        <div class="lock" :class="{red: loginStatus === 'error'}">
+          <div>
+            <LockKeyholeOpen :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+          </div>
+          <div v-if="loginStatus !== 'error'">Vous n'êtes pas connecté</div>
+          <div v-else>Email ou mot de passe invalide</div>
+        </div>
+        <h2>Se connecter</h2>
+        <div class="form">
+          <input type="email" ref="usernameInput" v-model="username" placeholder="Email" tabindex="1" autofocus @keyup.enter="passwordInput?.focus()" />
+          <input type="password" ref="passwordInput" v-model="password" placeholder="Password" tabindex="2" @keyup.enter="login" />
+          <TextButton aspect="flat" size="large" color="primary" @click="login" :loading="loginAsyncStatus === 'loading'"
+            tabindex="3">Valider</TextButton>
+        </div>
+      </div>
+
+      <div v-else-if="loggedIn === true" class="app-content page">
+        <div class="lock">
+          <div>
+            <LockKeyhole :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+          </div>
+          <div>{{ me?.email }}</div>
+        </div>
+        <TextButton aspect="bezel" size="large" @click="logout">Se déconnecter</TextButton>
+      </div>
+    </main>
+
+  </div>
+</template>
+
+<style scoped lang="scss">
+main {
+  --header-height: v-bind(mainHeaderHeight + "px");
+}
+
+.lock {
+  @include flex-column-center;
+  gap: 1rem;
+  height: 8rem;
+  width: 100%;
+  color: $neutral-800;
+
+  &.red {
+    color: $red-800;
+  }
+}
+
+.form {
+  @include flex-column;
+  align-items: stretch;
+  gap: 1rem;
+
+  input {
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 1.5rem;
+  }
+}
+</style>
