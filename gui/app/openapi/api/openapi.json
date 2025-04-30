@@ -373,7 +373,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/UserRead" }
+								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
 							}
 						}
 					}
@@ -400,7 +400,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/UserRead" }
+								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
 							}
 						}
 					},
@@ -2845,6 +2845,32 @@
 				"type": "object",
 				"required": ["id", "name", "avatar_seed"],
 				"title": "UserPreviewRead"
+			},
+			"UserPrivateRead": {
+				"properties": {
+					"id": { "type": "integer", "title": "Id" },
+					"name": { "type": "string", "title": "Name" },
+					"email": { "type": "string", "title": "Email" },
+					"avatar_seed": { "type": "string", "title": "Avatar Seed" },
+					"stars_count": { "type": "integer", "title": "Stars Count" },
+					"likes_count": { "type": "integer", "title": "Likes Count" },
+					"items": {
+						"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
+						"type": "array",
+						"title": "Items"
+					}
+				},
+				"type": "object",
+				"required": [
+					"id",
+					"name",
+					"email",
+					"avatar_seed",
+					"stars_count",
+					"likes_count",
+					"items"
+				],
+				"title": "UserPrivateRead"
 			},
 			"UserRead": {
 				"properties": {
