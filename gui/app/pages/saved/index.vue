@@ -29,7 +29,7 @@ function openItem(itemId: number) {
   <div>
 
     <!-- Header bar -->
-    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
       <Bookmark :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
       <h1>Objets sauvegardés</h1>
     </AppHeaderBar>
