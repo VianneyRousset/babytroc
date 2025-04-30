@@ -10,6 +10,12 @@ const { height: mainHeaderHeight } = useElementSize(
 	useTemplateRef("main-header"),
 );
 
+const {loggedIn} = useAuth();
+
+watch(loggedIn, (state) => {
+  if (state === false) navigateTo("/chats");
+})
+
 // current tab
 const { currentTab } = useTab();
 
