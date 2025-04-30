@@ -2,14 +2,14 @@ from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.schemas.user.create import UserCreate
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 from app.services.auth import hash_password
 
 
 def create_user(
     db: Session,
     user_create: UserCreate,
-) -> UserRead:
+) -> UserPrivateRead:
     """Create a user."""
 
     # insert new user in database
@@ -21,4 +21,4 @@ def create_user(
         avatar_seed=user_create.avatar_seed,
     )
 
-    return UserRead.model_validate(user)
+    return UserPrivateRead.model_validate(user)

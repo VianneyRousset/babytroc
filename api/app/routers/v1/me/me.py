@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 from app.schemas.user.update import UserUpdate
 
 from .router import router
@@ -20,10 +20,10 @@ def get_client_user(
     client_id: client_id_annotation,
     request: Request,
     db: Annotated[Session, Depends(get_db_session)],
-) -> UserRead:
+) -> UserPrivateRead:
     """Get client user."""
 
-    return services.user.get_user(
+    return services.user.get_user_private(
         db=db,
         user_id=client_id,
     )
@@ -41,7 +41,7 @@ def update_client_user(
         Body(title="User fields to update."),
     ],
     db: Annotated[Session, Depends(get_db_session)],
-) -> UserRead:
+) -> UserPrivateRead:
     """Update client user."""
 
     return services.user.update_user(

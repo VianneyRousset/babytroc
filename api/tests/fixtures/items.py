@@ -12,7 +12,7 @@ from app.schemas.image.read import ItemImageRead
 from app.schemas.item.create import ItemCreate
 from app.schemas.item.read import ItemRead
 from app.schemas.region.read import RegionRead
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 
 
 class UserData(TypedDict):
@@ -115,7 +115,7 @@ def bob_items_image_data() -> bytes:
 def alice_items_image(
     app_config: Config,
     database: sqlalchemy.URL,
-    alice: UserRead,
+    alice: UserPrivateRead,
     alice_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Alice's item image exists."""
@@ -134,7 +134,7 @@ def alice_items_image(
 def bob_items_image(
     app_config: Config,
     database: sqlalchemy.URL,
-    bob: UserRead,
+    bob: UserPrivateRead,
     bob_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Bob's item image exists."""
@@ -152,7 +152,7 @@ def bob_items_image(
 @pytest.fixture(scope="class")
 def alice_items(
     database: sqlalchemy.URL,
-    alice: UserRead,
+    alice: UserPrivateRead,
     alice_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures Alice's items exist."""
@@ -173,7 +173,7 @@ def alice_items(
 @pytest.fixture
 def alice_new_item(
     database: sqlalchemy.URL,
-    alice: UserRead,
+    alice: UserPrivateRead,
     alice_new_item_data: ItemData,
 ) -> ItemRead:
     """Alice's new items."""
@@ -190,7 +190,7 @@ def alice_new_item(
 @pytest.fixture(scope="class")
 def bob_items(
     database: sqlalchemy.URL,
-    bob: UserRead,
+    bob: UserPrivateRead,
     bob_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures bob's items exist."""

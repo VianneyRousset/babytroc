@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from app.app import create_app
 from app.config import Config
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 
 from .users import UserData
 
@@ -19,7 +19,7 @@ def client(
 @pytest.fixture
 def alice_client(
     app_config: Config,
-    alice: UserRead,
+    alice: UserPrivateRead,
     alice_user_data: UserData,
 ) -> TestClient:
     """HTTP client to the app with Alice's credentials."""
@@ -34,7 +34,7 @@ def alice_client(
 @pytest.fixture
 def bob_client(
     app_config: Config,
-    bob: UserRead,
+    bob: UserPrivateRead,
     bob_user_data: UserData,
 ) -> TestClient:
     """HTTP client to the app with Bob's credentials."""

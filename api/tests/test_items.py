@@ -3,7 +3,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.schemas.item.read import ItemRead
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.items import ItemData
 
 
@@ -14,7 +14,7 @@ class TestItemsCreateUpdateDelete:
     def test_created_item_is_public(
         self,
         client: TestClient,
-        alice: UserRead,
+        alice: UserPrivateRead,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
     ):

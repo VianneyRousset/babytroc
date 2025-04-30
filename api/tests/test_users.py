@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.schemas.item.read import ItemRead
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 
 
 @pytest.mark.usefixtures("alice")
@@ -12,7 +12,7 @@ class TestReadUser:
     def test_get_user(
         self,
         client: TestClient,
-        alice: UserRead,
+        alice: UserPrivateRead,
         alice_items: list[ItemRead],
     ):
         """Check that user info can be publicaly retrieved."""
@@ -32,7 +32,7 @@ class TestReadUser:
     def test_get_user_me(
         self,
         alice_client: TestClient,
-        alice: UserRead,
+        alice: UserPrivateRead,
         alice_items: list[ItemRead],
     ):
         """Check that user 'me' can be retrieved."""
@@ -57,7 +57,7 @@ class TestUpdateUser:
         self,
         client: TestClient,
         alice_client: TestClient,
-        alice: UserRead,
+        alice: UserPrivateRead,
     ):
         """Test updating user name."""
 
@@ -87,7 +87,7 @@ class TestDeleteUser:
         self,
         client: TestClient,
         alice_client: TestClient,
-        alice: UserRead,
+        alice: UserPrivateRead,
     ):
         """Check an user can delete the account."""
 

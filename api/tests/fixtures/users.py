@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.schemas.user.create import UserCreate
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 
 
 class UserData(TypedDict):
@@ -42,21 +42,25 @@ def bob_user_data() -> UserData:
 def alice(
     database: sqlalchemy.URL,
     alice_user_data: UserData,
-) -> UserRead:
+) -> UserPrivateRead:
     """Ensures Alice exists."""
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return services.user.create_user(session, UserCreate(**alice_user_data))
+        return UserPrivateRead.model_validate(
+            services.user.create_user(session, UserCreate(**alice_user_data))
+        )
 
 
 @pytest.fixture(scope="class")
 def bob(
     database: sqlalchemy.URL,
     bob_user_data: UserData,
-) -> UserRead:
+) -> UserPrivateRead:
     """Ensures Bob exists."""
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return services.user.create_user(session, UserCreate(**bob_user_data))
+        return UserPrivateRead.model_validate(
+            services.user.create_user(session, UserCreate(**bob_user_data))
+        )
