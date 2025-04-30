@@ -18,7 +18,6 @@ export const useLoginMutation = defineMutation(() => {
 		},
 
 		onSettled: () => {
-			console.log("Invalidate cache");
 			queryCache.invalidateQueries({ key: ["me"] });
 			queryCache.invalidateQueries({ key: ["auth"] });
 		},
@@ -30,7 +29,7 @@ export const useLoginMutation = defineMutation(() => {
 });
 
 export const useLogoutMutation = defineMutation(() => {
-	const { $api } = useNuxtApp();
+	const { $api, $toast } = useNuxtApp();
 	const queryCache = useQueryCache();
 
 	return useMutation({
@@ -41,9 +40,14 @@ export const useLogoutMutation = defineMutation(() => {
 		},
 
 		onSettled: () => {
-			localStorage.removeItem("auth-session");
-			console.log("Invalidate cache");
+			queryCache.invalidateQueries({ key: ["me"] });
 			queryCache.invalidateQueries({ key: ["auth"], exact: true });
 		},
+
+		onSuccess: () => {
+			localStorage.removeItem("auth-session");
+		},
+
+		onError: () => $toast("Échec de la déconnection."),
 	});
 });

@@ -18,10 +18,8 @@ export function useAuth() {
 			$api("/v1/me", {
 				onResponse: async (ctx) => {
 					if (ctx.response.status === StatusCodes.UNAUTHORIZED) {
-						console.log("GOT UNAUTHORIZED");
 						ctx.error = undefined;
 						ctx.response = new Response("null");
-						console.log("response set to null");
 					}
 				},
 			}),

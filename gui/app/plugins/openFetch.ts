@@ -1,12 +1,7 @@
 // Base on Nuxt open fetch custom client documentation
 // https://nuxt-open-fetch.vercel.app/advanced/custom-client
 
-import type {
-	FetchContext,
-	FetchHook,
-	FetchOptions,
-	ResponseType,
-} from "ofetch";
+import type { FetchContext, FetchHook, ResponseType } from "ofetch";
 import { StatusCodes } from "http-status-codes";
 import type { NitroFetchOptions } from "nitropack/types";
 
@@ -52,19 +47,9 @@ export default defineNuxtPlugin({
 									activeSession &&
 									ctx.response.status === StatusCodes.UNAUTHORIZED
 								) {
-									console.log("UNAUTHORIZAED");
-
 									await $fetch("/api/v1/auth/refresh", {
 										method: "POST",
-										onRequest: async () => {
-											console.log("REFRESH");
-										},
 										onResponse: async ({ response: authResponse }) => {
-											console.log(
-												"REFRESH RESULT",
-												authResponse.ok ? "OK" : "NOK",
-											);
-
 											// if authentification succeeded, reexecute the query
 											// and update reponse
 											if (authResponse.ok) {
