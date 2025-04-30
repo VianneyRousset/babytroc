@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bookmark } from "lucide-vue-next";
+import { Bookmark, LockKeyholeOpen } from "lucide-vue-next";
 
 import { Filter, ArrowLeft, Repeat } from "lucide-vue-next";
 
@@ -8,7 +8,7 @@ const { height: mainHeaderHeight } = useElementSize(
   useTemplateRef("main-header"),
 );
 
-const { loggedIn, loggedInStatus } = useAuth();
+const { loggedIn, loggedInStatus, loginRoute } = useAuth();
 const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
 const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
 
@@ -42,8 +42,12 @@ function openItem(itemId: number) {
       </div>
 
       <!-- Not logged in prompt -->
-      <div v-else-if="loggedIn === false" class="app-content">
-        Vous n'êtes pas connecté.
+      <div v-else-if="loggedIn === false" class="app-content flex-column-center">
+        <div class="lock">
+          <LockKeyholeOpen :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+          <div>Vous n'êtes pas connecté</div>
+          <TextButton aspect="outline" @click="navigateTo(loginRoute)">Se connecter</TextButton>
+        </div>
       </div>
 
       <!-- Logged in: show the list of saved items -->
@@ -65,4 +69,11 @@ function openItem(itemId: number) {
 main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
+
+.lock {
+  @include flex-column-center;
+  gap: 1rem;
+  color: $neutral-800;
+}
+
 </style>

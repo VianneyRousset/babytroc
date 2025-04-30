@@ -42,11 +42,11 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"typescript-language-server": "^4.3.4",
 		"@types/luxon": "^3.4.2",
 		"nuxt-open-fetch": "^0.9.5",
 		"sass": "^1.83.0",
 		"typescript": "^5.7.2",
+		"typescript-language-server": "^4.3.4",
 		"unplugin-vue-components": "^28.0.0",
 		"vue-tsc": "^2.1.10"
 	}

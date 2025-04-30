@@ -9,6 +9,8 @@ import { StatusCodes } from "http-status-codes";
 
 export function useAuth() {
 	const { $api } = useNuxtApp();
+	const route = useRoute();
+	const router = useRouter();
 
 	const { data: me, status: meStatus } = useQuery({
 		key: () => ["auth"],
@@ -48,7 +50,18 @@ export function useAuth() {
 		asyncStatus: logoutAsyncStatus,
 	} = useLogoutMutation();
 
+	// login path
+	const loginRoute = computed(() =>
+		router.resolve({
+			path: "/me/account",
+			query: {
+				redirect: route.fullPath,
+			},
+		}),
+	);
+
 	return {
+		loginRoute,
 		username,
 		password,
 		login,

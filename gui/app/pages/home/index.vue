@@ -109,9 +109,6 @@ async function logout() {
 				<Filter :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" class="filterIcon"
 					:class="{ active: isFilterActive }" />
 			</Toggle>
-			<IconButton @click="logout">
-				<Repeat :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
-			</IconButton>
 		</AppHeaderBar>
 
 		<!-- Filters drawer -->

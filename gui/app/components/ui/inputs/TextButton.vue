@@ -81,6 +81,8 @@ watch(
 
   transition: transform 200ms ease-out, opacity 200ms ease-out;
 
+  --color-100: #{$neutral-100};
+  --color-400: #{$neutral-400};
   --color-500: #{$neutral-500};
   --color-600: #{$neutral-600};
   --color-700: #{$neutral-700};
@@ -100,6 +102,8 @@ watch(
   }
 
   &.primary {
+    --color-100: #{$primary-100};
+    --color-400: #{$primary-400};
     --color-500: #{$primary-500};
     --color-600: #{$primary-600};
     --color-700: #{$primary-700};
@@ -107,6 +111,8 @@ watch(
   }
 
   &.red {
+    --color-100: #{$red-100};
+    --color-400: #{$red-400};
     --color-500: #{$red-500};
     --color-600: #{$red-600};
     --color-700: #{$red-700};
