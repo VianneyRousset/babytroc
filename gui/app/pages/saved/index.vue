@@ -36,6 +36,7 @@ function openItem(itemId: number) {
 
     <!-- Main content -->
     <main>
+
       <!-- Loader when not knowing if logged in -->
       <div v-if="loggedInStatus === 'pending'" class="app-content flex-column-center">
         <Loader />
@@ -51,7 +52,7 @@ function openItem(itemId: number) {
       </div>
 
       <!-- Logged in: show the list of saved items -->
-      <div ref="main">
+      <div v-else-if="loggedIn === true" ref="main">
         <List v-if="savedItems" class="main app-content page">
           <ItemCard v-for="item in savedItems" @click="openItem(item.id)" :key="`item${item.id}`"
             :id="`item${item.id}`" :item="item" :likedItems="likedItems ?? []" :savedItems="savedItems!" />

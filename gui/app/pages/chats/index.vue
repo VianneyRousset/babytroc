@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { MessageSquare } from "lucide-vue-next";
+import { MessageSquare, LockKeyholeOpen } from "lucide-vue-next";
 
 const { data: chatsPages, status: chatsStatus } = useChatsListQuery();
 const { data: me } = useMeQuery();
+
+const { loggedIn, loggedInStatus, loginRoute } = useAuth();
 
 // get main header bar height to offset content
 const { height: mainHeaderHeight } = useElementSize(
@@ -21,7 +23,23 @@ const { height: mainHeaderHeight } = useElementSize(
 
     <!-- Main content -->
     <main>
-      <SlabList v-if="chatsPages.data && me" class="app-content">
+
+      <!-- Loader when not knowing if logged in -->
+      <div v-if="loggedInStatus === 'pending'" class="app-content flex-column-center">
+        <Loader />
+      </div>
+
+      <!-- Not logged in prompt -->
+      <div v-else-if="loggedIn === false" class="app-content flex-column-center">
+        <div class="lock">
+          <LockKeyholeOpen :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+          <div>Vous n'êtes pas connecté</div>
+          <TextButton aspect="outline" @click="navigateTo(loginRoute)">Se connecter</TextButton>
+        </div>
+      </div>
+
+      <!-- Logged in: show the chats list -->
+      <SlabList v-else-if="loggedIn ===true && chatsPages.data && me" class="app-content">
         <NuxtLink v-for="chat in chatsPages.data" :to="`/chats/${chat.id}`" :id="`chat-${chat.id}`"
           :key="`chat-${chat.id}`" class="reset-link">
           <ChatSlab :chat="chat" :me="me" :key="`${chat.id}`" />
@@ -36,17 +54,17 @@ const { height: mainHeaderHeight } = useElementSize(
 
 
 <style scoped lang="scss">
-.app-content {
+main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
 
-.app-content {
-  @include flex-column;
-  gap: 0;
-  flex-grow: 1;
-  overflow-y: scroll;
-  align-items: stretch;
+.lock {
+  @include flex-column-center;
+  gap: 1rem;
+  color: $neutral-800;
+}
 
+.app-content {
   .ChatSlab {
     border-bottom: 1px solid $neutral-200;
   }
