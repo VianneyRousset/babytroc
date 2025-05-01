@@ -29,6 +29,33 @@ class DatabaseConfig(NamedTuple):
         return cls(url=url)
 
 
+class PubsubConfig(NamedTuple):
+    url: str
+
+    @classmethod
+    def from_env(cls, url: sqlalchemy.URL | str | None = None) -> Self:
+        if url is None:
+            user = os.environ["POSTGRES_USER"]
+            password = os.environ["POSTGRES_PASSWORD"]
+            host = os.environ["POSTGRES_HOST"]
+            port = int(os.environ["POSTGRES_PORT"])
+            database = os.environ["POSTGRES_DATABASE"]
+
+            url = sqlalchemy.URL.create(
+                "postgresql",
+                username=user,
+                password=password,
+                host=host,
+                port=port,
+                database=database,
+            )
+
+        if isinstance(url, sqlalchemy.URL):
+            url = str(url)
+
+        return cls(url=url)
+
+
 class ImgpushConfig(NamedTuple):
     url: str
 
@@ -83,6 +110,7 @@ class AuthConfig(NamedTuple):
 class Config(NamedTuple):
     test: bool
     database: DatabaseConfig
+    pubsub: PubsubConfig
     imgpush: ImgpushConfig
     auth: AuthConfig
 
@@ -92,6 +120,7 @@ class Config(NamedTuple):
         *,
         test: bool | None = None,
         database: DatabaseConfig | None = None,
+        pubsub: PubsubConfig | None = None,
         imgpush: ImgpushConfig | None = None,
         auth: AuthConfig | None = None,
     ) -> Self:
@@ -100,6 +129,9 @@ class Config(NamedTuple):
 
         if database is None:
             database = DatabaseConfig.from_env()
+
+        if pubsub is None:
+            pubsub = PubsubConfig.from_env()
 
         if imgpush is None:
             imgpush = ImgpushConfig.from_env()
@@ -110,6 +142,7 @@ class Config(NamedTuple):
         return cls(
             test=test,
             database=database,
+            pubsub=pubsub,
             imgpush=imgpush,
             auth=auth,
         )

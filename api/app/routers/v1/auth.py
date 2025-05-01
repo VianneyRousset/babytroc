@@ -130,7 +130,6 @@ def refresh_credentials(
     scheme, token = get_authorization_scheme_param(authorization)
 
     if not authorization or scheme.lower() != "bearer":
-        print("No refresh_token in the cookies")
         raise InvalidCredentialError()
 
     credentials = services.auth.refresh_user_credentials(

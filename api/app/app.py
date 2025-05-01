@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+
+from broadcaster import Broadcast
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -9,11 +12,21 @@ from .database import create_session_maker
 from .routers.v1 import router
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await app.state.broadcast.connect()
+    yield
+    await app.state.broadcast.disconnect()
+
+
 def create_app(config: Config) -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(
+        lifespan=lifespan,
+    )
 
     app.state.config = config
     app.state.db_session_maker = create_session_maker(config.database.url)
+    app.state.broadcast = Broadcast(config.pubsub.url)
 
     @app.get("/")
     def root(request: Request) -> JSONResponse:
