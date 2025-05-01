@@ -1,15 +1,15 @@
-import { useInfiniteQuery, useQuery } from "@pinia/colada";
+import { useInfiniteQuery } from "@pinia/colada";
 import { parseLinkHeader } from "@web3-storage/parse-link-header";
 
-export function useChatQuery(chatId: string) {
+export function useChatQuery(chatId: MaybeRefOrGetter<string>) {
 	const { $api } = useNuxtApp();
 
 	return useQueryWithAuth({
-		key: () => ["me", "chat", chatId],
+		key: () => ["me", "chats", toValue(chatId)],
 		query: () =>
 			$api("/v1/me/chats/{chat_id}", {
 				path: {
-					chat_id: chatId,
+					chat_id: toValue(chatId),
 				},
 			}),
 	});
@@ -76,7 +76,7 @@ export const useChatMessagesListQuery = (chatId: MaybeRefOrGetter<string>) => {
 		const { $api } = useNuxtApp();
 
 		return useInfiniteQuery({
-			key: ["me", "chat", toValue(chatId), "messages"],
+			key: () => ["me", "chats", toValue(chatId), "messages"],
 
 			initialPage: {
 				data: Array<ChatMessage>(),

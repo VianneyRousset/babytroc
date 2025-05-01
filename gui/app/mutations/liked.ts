@@ -12,8 +12,8 @@ export const useToggleItemLikeMutation = defineMutation(() => {
 			});
 		},
 		onSettled: (_data, _error, vars) => {
-			queryCache.invalidateQueries({ key: ["me-liked-items"] });
-			queryCache.invalidateQueries({ key: ["item", vars.itemId] });
+			queryCache.invalidateQueries({ key: ["me", "liked-items"] });
+			queryCache.invalidateQueries({ key: ["items", vars.itemId] });
 		},
 	});
 });

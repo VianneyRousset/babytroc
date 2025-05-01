@@ -2,11 +2,11 @@ import { ItemQueryAvailability } from "#build/types/open-fetch/schemas/api";
 
 export const useIsItemOwnedByUser = (
 	item: MaybeRefOrGetter<Item | ItemPreview>,
-	user: MaybeRefOrGetter<User | UserPreview | undefined>,
+	user: MaybeRefOrGetter<UserPrivate | User | UserPreview | undefined>,
 ) => ({
 	isOwnedByUser: computed(() => {
 		const _user = toValue(user);
-		if (_user === undefined) return false;
+		if (_user === undefined) return undefined;
 		return toValue(item).owner_id === _user.id;
 	}),
 });

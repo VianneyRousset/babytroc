@@ -4,7 +4,7 @@ export function useUserQuery(userId: MaybeRefOrGetter<number>) {
 	const { $api } = useNuxtApp();
 
 	return useQuery({
-		key: () => ["user", toValue(userId)],
+		key: () => ["users", toValue(userId)],
 		query: () =>
 			$api("/v1/users/{user_id}", {
 				path: {

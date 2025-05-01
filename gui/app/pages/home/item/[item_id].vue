@@ -20,7 +20,7 @@ const { state: me } = useMeQuery();
 const { state: savedItems } = useSavedItemsQuery();
 const { state: likedItems, asyncStatus: likedAsyncStatus } =
 	useLikedItemsQuery();
-const { state: loanRequests } = useBorrowingsLoanRequestsListQuery();
+const { state: loanRequests } = useBorrowingsLoanRequestsListQuery({active: true});
 </script>
 
 <template>
@@ -40,9 +40,9 @@ const { state: loanRequests } = useBorrowingsLoanRequestsListQuery();
     <main ref="main" class="app-content page">
 
       <!-- Gallery -->
-      <ItemPresentation v-if="item.data && me.data && likedItems.data && loanRequests.data" :item="item.data!"
-        :item-async-status="itemAsyncStatus" :me="me.data!" :liked-items="likedItems.data!"
-        :liked-async-status="likedAsyncStatus" :loan-requests="loanRequests.data!" />
+      <ItemPresentation v-if="item.data" :item="item.data!"
+        :item-async-status="itemAsyncStatus" :me="me.data" :liked-items="likedItems.data ?? []"
+        :liked-async-status="likedAsyncStatus" :loan-requests="loanRequests.data ?? []" />
     </main>
 
   </div>

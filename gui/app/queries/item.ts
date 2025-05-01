@@ -5,7 +5,7 @@ export function useItemQuery(itemId: MaybeRefOrGetter<number>) {
 	const { $api } = useNuxtApp();
 
 	return useQuery({
-		key: () => ["item", toValue(itemId)],
+		key: () => ["items", toValue(itemId)],
 		query: () =>
 			$api("/v1/items/{item_id}", {
 				path: {

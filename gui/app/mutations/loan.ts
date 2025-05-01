@@ -16,7 +16,7 @@ export const useRequestItemMutation = defineMutation(() => {
 			queryCache.invalidateQueries({ key: ["me", "borrowings", "requests"] });
 			if (data)
 				queryCache.invalidateQueries({
-					key: ["chat", data.chat_id, "messages"],
+					key: ["chats", data.chat_id, "messages"],
 				});
 		},
 	});
@@ -40,7 +40,7 @@ export const useUnrequestItemMutation = defineMutation(() => {
 			queryCache.invalidateQueries({ key: ["me", "borrowings", "requests"] });
 			if (data)
 				queryCache.invalidateQueries({
-					key: ["chat", data.chat_id, "messages"],
+					key: ["chats", data.chat_id, "messages"],
 				});
 		},
 	});

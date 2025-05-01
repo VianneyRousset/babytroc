@@ -3,17 +3,24 @@ export function useBorrowingsListQuery() {
 	const { $api } = useNuxtApp();
 
 	return useQueryWithAuth({
-		key: () => ["me", "borrowings"],
+		key: ["me", "borrowings"],
 		query: () => $api("/v1/me/borrowings"),
 	});
 }
 
-export function useBorrowingsLoanRequestsListQuery() {
+export function useBorrowingsLoanRequestsListQuery(options: {
+	active: MaybeRefOrGetter<boolean>;
+}) {
 	const { $api } = useNuxtApp();
 
 	return useQueryWithAuth({
-		key: () => ["me", "borrowings", "requests"],
-		query: () => $api("/v1/me/borrowings/requests"),
+		key: ["me", "borrowings", "requests"],
+		query: () =>
+			$api("/v1/me/borrowings/requests", {
+				query: {
+					active: toValue(options.active),
+				},
+			}),
 	});
 }
 

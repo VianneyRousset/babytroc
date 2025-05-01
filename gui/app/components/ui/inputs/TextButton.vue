@@ -81,12 +81,16 @@ watch(
 
   transition: transform 200ms ease-out, opacity 200ms ease-out;
 
+  --color-50: #{$neutral-50};
   --color-100: #{$neutral-100};
+  --color-200: #{$neutral-200};
+  --color-300: #{$neutral-300};
   --color-400: #{$neutral-400};
   --color-500: #{$neutral-500};
   --color-600: #{$neutral-600};
   --color-700: #{$neutral-700};
   --color-800: #{$neutral-800};
+  --color-900: #{$neutral-900};
 
   .loader {
     @include flex-row-center;
@@ -102,21 +106,29 @@ watch(
   }
 
   &.primary {
+    --color-50: #{$primary-50};
     --color-100: #{$primary-100};
+    --color-200: #{$primary-200};
+    --color-300: #{$primary-300};
     --color-400: #{$primary-400};
     --color-500: #{$primary-500};
     --color-600: #{$primary-600};
     --color-700: #{$primary-700};
     --color-800: #{$primary-800};
+    --color-900: #{$primary-900};
   }
 
   &.red {
+    --color-50: #{$red-50};
     --color-100: #{$red-100};
+    --color-200: #{$red-200};
+    --color-300: #{$red-300};
     --color-400: #{$red-400};
     --color-500: #{$red-500};
     --color-600: #{$red-600};
     --color-700: #{$red-700};
     --color-800: #{$red-800};
+    --color-900: #{$red-900};
   }
 
   &.large {

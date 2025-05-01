@@ -5,10 +5,7 @@ import type { AsyncStatus } from "@pinia/colada";
 
 const props = defineProps<{
 	item: Item;
-	itemAsyncStatus: AsyncStatus;
 	me?: UserPrivate | User;
-	likedItems: Array<Item | ItemPreview>;
-	likedAsyncStatus: AsyncStatus;
 	loanRequests: Array<LoanRequest>;
 }>();
 
@@ -17,12 +14,11 @@ const { currentTab } = useTab();
 
 const router = useRouter();
 
+const { loggedIn, loginRoute } = useAuth();
+
 const {
 	item,
-	itemAsyncStatus,
 	me,
-	likedItems,
-	likedAsyncStatus,
 	loanRequests,
 } = toRefs(props);
 
@@ -33,19 +29,6 @@ const { mutateAsync: requestItem, asyncStatus: requestItemAsyncStatus } =
 	useRequestItemMutation();
 const { mutateAsync: unrequestItem, asyncStatus: unrequestItemAsyncStatus } =
 	useUnrequestItemMutation();
-const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } =
-	useToggleItemLikeMutation();
-
-// query owner
-const { status: ownerStatus, data: owner } = useUserQuery(
-	computed(() => toValue(item).owner_id),
-);
-
-const activeLikeButton = computed(() =>
-	[toggleItemLikeAsyncStatus, itemAsyncStatus, likedAsyncStatus].some(
-		(r) => unref(r) === "loading",
-	),
-);
 
 async function request(itemId: number) {
 	const loanRequest = await requestItem(itemId);
@@ -61,35 +44,34 @@ async function request(itemId: number) {
 </script>
 
 <template>
-  <div class="ItemPresentation">
-
-    <!-- Gallery -->
-    <ItemImagesGallery :item="item" />
-
-    <!-- Availability and likes count -->
-    <ItemAvailabilityAndLikesCount
-      :item="item" :itemAsyncStatus="itemAsyncStatus"
-      :likedItems="likedItems" :likedAsyncStatus="likedAsyncStatus"
-    />
-
-    <!-- Description and details (age and regions)-->
-		<ItemDescriptionAndDetails :item="item" />
-
-    <!-- Owner -->
-    <NuxtLink v-if="owner" :to="`/${currentTab}/user/${item.owner_id}`" class="reset-link">
-      <UserCard :user="owner" />
-    </NuxtLink>
-
-    <!-- Request -->
-		<ItemRequest :item="item" :me="me" :loanRequests="loanRequests"/>
+	<div class="ItemRequest">
+		<div v-if="loggedIn === true">
+	    <TextButton v-if="isOwnedByUser !== true && !isRequestedByUser" aspect="bezel" size="large" color="primary"
+	      :loading="requestItemAsyncStatus === 'loading'" @click="request(item.id)">Demander</TextButton>
+	    <TextButton v-if="isOwnedByUser !== true && isRequestedByUser" aspect="outline" size="large" color="neutral"
+	      :loading="requestItemAsyncStatus === 'loading'" @click="unrequestItem(item.id)">Annuler la demande</TextButton>
+		</div>
+		<div v-if="loggedIn === false" class="login">
+		<div>Connectez vous pour emprunter.</div>
+    <TextButton aspect="outline" @click="navigateTo(loginRoute)">Se connecter</TextButton>
+		</div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.ItemPresentation {
+.ItemRequest {
   @include flex-column;
   align-items: stretch;
-  gap: 1rem;
+
+	.login {
+	  @include flex-column;
+		gap: 0.6rem;
+		margin: 1.5rem 0;
+	  align-items: center;
+	  color: $neutral-800;
+		font-style: italic;
+		text-align: center;
+	}
 
   .status {
     @include flex-row;
