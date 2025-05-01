@@ -8,6 +8,11 @@ const router = useRouter();
 const routeStack = useRouteStack();
 const userId = Number.parseInt(route.params.user_id as string); // TODO avoid this hack
 
+const { currentTab } = useTab();
+
+// goto tab main page if invalid itemId
+if (isNaN(userId)) navigateTo(`/${currentTab}`)
+
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
 const { height: mainHeaderHeight } = useElementSize(
@@ -29,20 +34,23 @@ function openItem(itemId: number) {
 	);
 	return navigateTo(`${currentTabRoot}/item/${itemId}`);
 }
+
+// auth
+const { loggedIn } = useAuth();
 </script>
 
 <template>
   <div>
 
     <!-- Header bar -->
-    <AppHeaderBar v-if="main !== null" ref="main-header" :scroll="main ?? false" :scrollOffset="32">
+    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
 
       <div>
         <AppBack />
         <h1 :title="user?.name">{{ user?.name }}</h1>
 
         <!-- Dropdown menu -->
-        <DropdownMenu>
+        <DropdownMenu v-if="loggedIn === true">
           <DropdownMenuItem class="red">
             <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
             <div>Signaler</div>
@@ -70,9 +78,9 @@ function openItem(itemId: number) {
 
     <!-- Main content -->
     <main>
-      <List v-if="user && likedItems && savedItems" ref="main" class="app-content page">
+      <List v-if="user" ref="main" class="app-content page">
         <ItemCard v-for="item in user.items" @click="openItem(item.id)" :key="`item${item.id}`" :id="`item${item.id}`"
-          :item="item" :likedItems="likedItems" :savedItems="savedItems" />
+          :item="item" :likedItems="likedItems ?? []" :savedItems="savedItems ?? []" />
         <ListEmpty v-if="user.items.length === 0">{{ user?.name }} n'a pas encore d'objet.</ListEmpty>
       </List>
     </main>

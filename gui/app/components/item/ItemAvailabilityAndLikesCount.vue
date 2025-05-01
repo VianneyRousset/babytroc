@@ -36,12 +36,16 @@ const activeLikeButton = computed(() =>
 		(r) => unref(r) === "loading",
 	),
 );
+
+// auth
+const { loggedIn } = useAuth();
+
 </script>
 
 <template>
   <div class="ItemAvailabilityAndLikesCount">
     <Availability :available="item.available" />
-    <IconButton @click="toggleItemLike({ itemId: item.id, isLikedByUser })" :active="activeLikeButton">
+    <IconButton @click="loggedIn === true ? toggleItemLike({ itemId: item.id, isLikedByUser }) : null" :active="activeLikeButton">
       <Counter v-model="item.likes_count">
         <Heart :class="{ filled: isLikedByUser }" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
       </Counter>
