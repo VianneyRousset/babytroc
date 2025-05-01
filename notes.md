@@ -14,6 +14,7 @@
 
 ## TODO
 - change Nuxt file structure to v4
+- group chats by active / inactive loan+loan_request
 
 ## Extensions to consider
 - [NuxtAuth](https://github.com/sidebase/nuxt-auth)
