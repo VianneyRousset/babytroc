@@ -21,6 +21,9 @@ const { state: savedItems } = useSavedItemsQuery();
 const { state: likedItems, asyncStatus: likedAsyncStatus } =
 	useLikedItemsQuery();
 const { state: loanRequests } = useBorrowingsLoanRequestsListQuery({active: true});
+
+// auth
+const { loggedIn } = useAuth();
 </script>
 
 <template>
@@ -32,7 +35,7 @@ const { state: loanRequests } = useBorrowingsLoanRequestsListQuery({active: true
       <h1 :title="item.data?.name">{{ item.data?.name }}</h1>
 
       <!-- Dropdown menu -->
-      <ItemDropdownMenu v-if="item.data && savedItems.data" :item="item.data" :saved-items="savedItems.data" />
+      <ItemDropdownMenu v-if="loggedIn === true && item.data && savedItems.data" :item="item.data" :saved-items="savedItems.data" />
 
     </AppHeaderBar>
 
