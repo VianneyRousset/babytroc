@@ -1,4 +1,4 @@
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.clients import database
@@ -54,6 +54,24 @@ def get_message(
 
     # get message from database
     message = database.chat.get_message(
+        db=db,
+        message_id=message_id,
+        query_filter=query_filter,
+    )
+
+    return ChatMessageRead.model_validate(message)
+
+
+async def get_message_async(
+    db: AsyncSession,
+    message_id: int,
+    *,
+    query_filter: ChatMessageQueryFilter | None = None,
+) -> ChatMessageRead:
+    """Get message with `message_id`."""
+
+    # get message from database
+    message = await database.chat.get_message_async(
         db=db,
         message_id=message_id,
         query_filter=query_filter,

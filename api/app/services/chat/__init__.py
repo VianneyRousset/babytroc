@@ -10,13 +10,14 @@ from .create import (
     send_message_loan_started,
     send_message_text,
 )
-from .read import get_chat, get_message, list_chats, list_messages
+from .read import get_chat, get_message, get_message_async, list_chats, list_messages
 from .report import report_chat
 from .update import mark_message_as_seen
 
 __all__ = [
     "get_chat",
     "get_message",
+    "get_message_async",
     "list_chats",
     "list_messages",
     "mark_message_as_seen",

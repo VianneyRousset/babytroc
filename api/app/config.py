@@ -7,9 +7,14 @@ import sqlalchemy
 
 class DatabaseConfig(NamedTuple):
     url: sqlalchemy.URL
+    async_url: sqlalchemy.URL
 
     @classmethod
-    def from_env(cls, url: sqlalchemy.URL | None = None) -> Self:
+    def from_env(
+        cls,
+        url: sqlalchemy.URL | None = None,
+        async_url: sqlalchemy.URL | None = None,
+    ) -> Self:
         if url is None:
             user = os.environ["POSTGRES_USER"]
             password = os.environ["POSTGRES_PASSWORD"]
@@ -26,14 +31,33 @@ class DatabaseConfig(NamedTuple):
                 database=database,
             )
 
-        return cls(url=url)
+        if async_url is None:
+            user = os.environ["POSTGRES_USER"]
+            password = os.environ["POSTGRES_PASSWORD"]
+            host = os.environ["POSTGRES_HOST"]
+            port = int(os.environ["POSTGRES_PORT"])
+            database = os.environ["POSTGRES_DATABASE"]
+
+            async_url = sqlalchemy.URL.create(
+                "postgresql+psycopg_async",
+                username=user,
+                password=password,
+                host=host,
+                port=port,
+                database=database,
+            )
+
+        return cls(
+            url=url,
+            async_url=async_url,
+        )
 
 
 class PubsubConfig(NamedTuple):
-    url: str
+    url: sqlalchemy.URL
 
     @classmethod
-    def from_env(cls, url: sqlalchemy.URL | str | None = None) -> Self:
+    def from_env(cls, url: sqlalchemy.URL | None = None) -> Self:
         if url is None:
             user = os.environ["POSTGRES_USER"]
             password = os.environ["POSTGRES_PASSWORD"]
@@ -49,9 +73,6 @@ class PubsubConfig(NamedTuple):
                 port=port,
                 database=database,
             )
-
-        if isinstance(url, sqlalchemy.URL):
-            url = str(url)
 
         return cls(url=url)
 

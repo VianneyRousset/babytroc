@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from starlette.testclient import WebSocketTestSession
 
 from app.app import create_app
 from app.config import Config
@@ -44,6 +45,40 @@ def bob_client(
         username=bob_user_data["email"],
         password=bob_user_data["password"],
     )
+
+
+@pytest.fixture
+def alice_websocket(
+    app_config: Config,
+    alice: UserPrivateRead,
+    alice_user_data: UserData,
+) -> WebSocketTestSession:
+    """Websocket with Alice's credentials."""
+
+    alice_client = login_as_user(
+        client=create_client(app_config),
+        username=alice_user_data["email"],
+        password=alice_user_data["password"],
+    )
+
+    return alice_client.websocket_connect("/v1/me/websocket")
+
+
+@pytest.fixture
+def bob_websocket(
+    app_config: Config,
+    bob: UserPrivateRead,
+    bob_user_data: UserData,
+) -> WebSocketTestSession:
+    """Websocket with Bob's credentials."""
+
+    bob_client = login_as_user(
+        client=create_client(app_config),
+        username=bob_user_data["email"],
+        password=bob_user_data["password"],
+    )
+
+    return bob_client.websocket_connect("/v1/me/websocket")
 
 
 # TODO share app ?

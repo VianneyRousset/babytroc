@@ -1,7 +1,7 @@
 import os
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Request, Response
+from fastapi import APIRouter, Depends, Form, Request, Response, WebSocket
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.orm import Session
@@ -48,6 +48,25 @@ def get_client_id(
 
 
 client_id_annotation = Annotated[int, Depends(get_client_id)]
+
+
+def verify_websocket_credentials(
+    websocket: WebSocket,
+) -> int:
+    """Verify access token and return client user id."""
+
+    authorization = websocket.cookies.get("Authorization")
+    scheme, token = get_authorization_scheme_param(authorization)
+
+    if not authorization or scheme.lower() != "bearer":
+        raise InvalidCredentialError()
+
+    token_data = services.auth.verify_access_token(
+        token=token,
+        config=websocket.app.state.config.auth,
+    )
+
+    return token_data.sub
 
 
 def set_response_with_token_cookies(

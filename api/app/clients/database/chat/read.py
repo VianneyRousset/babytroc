@@ -1,6 +1,6 @@
-
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.errors.chat import ChatMessageNotFoundError, ChatNotFoundError
@@ -94,6 +94,29 @@ def get_message(
 
     try:
         return (db.execute(stmt)).unique().scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
+
+
+async def get_message_async(
+    db: AsyncSession,
+    message_id: int,
+    *,
+    query_filter: ChatMessageQueryFilter | None = None,
+) -> ChatMessage:
+    """Get message with `message_id`."""
+
+    # if no query filter is provided, use an empty filter
+    query_filter = query_filter or ChatMessageQueryFilter()
+
+    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
+
+    stmt = query_filter.apply(stmt)
+
+    try:
+        return (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": message_id}

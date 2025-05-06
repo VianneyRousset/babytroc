@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import Path, Query, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Path, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
@@ -78,7 +77,7 @@ def end_client_loan(
     loan_id: loan_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRead:
-    """Put an end to the loan where the client is the owner."""
+    """End the loan where the client is the owner."""
 
     return services.loan.end_loan(
         db=db,

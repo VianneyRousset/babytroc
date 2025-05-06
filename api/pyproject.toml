@@ -4,7 +4,7 @@ version = "0.0.0"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi[standard]==0.*",
-  "sqlalchemy[postgresql-psycopg2binary]==2.*",
+  "sqlalchemy[postgresql-psycopg2binary, postgresql-psycopgbinary]==2.*",
   "passlib[bcrypt]",
   "alembic>=1.15.2",
   "pillow>=11.2.1",
@@ -22,6 +22,8 @@ dev = [
   "pylyzer>=0.0.82",
   "pyright>=1.1.399",
   "pytest>=8.3.5",
+  "pytest-timeout>=2.3.1",
+  "pytest-xdist>=3.6.1",
   "ruff>=0.11.6",
   "sqlalchemy-utils>=0.41.2",
   "types-passlib>=1.7.7.20250408",
@@ -58,10 +60,12 @@ lint.extend-select = [
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
   "fastapi.Depends",
-  "fastapi.params.Depends",
+  "fastapi.Depends",
   "fastapi.Query",
-  "fastapi.params.Query",
+  "fastapi.Query",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = "."
+timeout = 20
+addopts = "-vv"

@@ -1,13 +1,10 @@
 from typing import Annotated
 
-from broadcaster import Broadcast
-from fastapi import Query, Request, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.pubsub import get_broadcast
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.api import LikedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
@@ -26,14 +23,8 @@ async def add_item_to_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-    broadcast: Annotated[Broadcast, Depends(get_broadcast)],
 ):
     """Add the specified item to client liked items."""
-
-    await broadcast.publish(
-        channel="chat-messages",
-        message="new message",
-    )
 
     return services.item.like.add_item_to_user_liked_items(
         db=db,

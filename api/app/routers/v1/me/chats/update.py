@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import status
-from fastapi.params import Depends
+from fastapi import Depends, status
 from sqlalchemy.orm import Session
 
 from app import services

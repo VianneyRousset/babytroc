@@ -8,10 +8,11 @@ from fastapi.responses import JSONResponse
 from app.errors import ApiError
 
 from .config import Config
-from .database import create_session_maker
+from .database import create_async_session_maker, create_session_maker
 from .routers.v1 import router
 
 
+# TODO check usefull ?
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await app.state.broadcast.connect()
@@ -25,8 +26,13 @@ def create_app(config: Config) -> FastAPI:
     )
 
     app.state.config = config
+    app.state.db_async_session_maker = create_async_session_maker(
+        config.database.async_url
+    )
     app.state.db_session_maker = create_session_maker(config.database.url)
-    app.state.broadcast = Broadcast(config.pubsub.url)
+    app.state.broadcast = Broadcast(
+        config.pubsub.url.render_as_string(hide_password=False)
+    )
 
     @app.get("/")
     def root(request: Request) -> JSONResponse:

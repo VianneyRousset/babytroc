@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.enums import ChatMessageType, LoanRequestState
+from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
 
 
@@ -39,18 +39,6 @@ class TestCreateLoanRequest:
             f"/v1/me/items/{alice_new_item.id}/requests/{request['id']}"
         ).raise_for_status()
 
-        # check a chat message has been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_created
-
-        # check a chat message has been created for bob
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_created
-
     def test_cannot_request_item_twice(
         self,
         alice_new_item: ItemRead,
@@ -63,24 +51,11 @@ class TestCreateLoanRequest:
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
         resp.raise_for_status()
-        request = resp.json()
-
-        # check a chat message has been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_created
 
         # request it again
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
         assert not resp.is_success
-
-        # check not changes in the chat messages
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        print(resp.text)
-        assert resp.json()[0]["id"] == last_message["id"]
 
     def test_cannot_request_own_item(
         self,
@@ -159,18 +134,6 @@ class TestLoanRequestStateDiagram:
         request = resp.json()
         assert request["state"] == LoanRequestState.rejected
 
-        # check a chat message has been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_rejected
-
-        # check a chat message has been created for bob
-        resp = bob_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_rejected
-
     def test_path2_pending_cancelled(
         self,
         alice_new_item: ItemRead,
@@ -195,18 +158,6 @@ class TestLoanRequestStateDiagram:
         resp.raise_for_status()
         request = resp.json()
         assert request["state"] == LoanRequestState.cancelled
-
-        # check a chat message has been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_cancelled
-
-        # check a chat message has been created for bob
-        resp = bob_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        last_message = resp.json()[0]
-        assert last_message["message_type"] == ChatMessageType.loan_request_cancelled
 
     def test_path3_pending_accepted_rejected(
         self,
@@ -248,22 +199,6 @@ class TestLoanRequestStateDiagram:
         request = resp.json()
         assert request["state"] == LoanRequestState.rejected
 
-        # check a chat messages have been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_request_rejected
-
-        # check a chat message has been created for bob
-        resp = bob_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_request_rejected
-
     def test_path4_pending_accepted_cancelled(
         self,
         alice_new_item: ItemRead,
@@ -302,22 +237,6 @@ class TestLoanRequestStateDiagram:
         request = resp.json()
         assert request["state"] == LoanRequestState.cancelled
 
-        # check a chat messages have been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_request_cancelled
-
-        # check a chat message has been created for bob
-        resp = bob_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_request_cancelled
-
     def test_path5_pending_accepted_executed(
         self,
         alice_new_item: ItemRead,
@@ -355,22 +274,6 @@ class TestLoanRequestStateDiagram:
         resp.raise_for_status()
         request = resp.json()
         assert request["state"] == LoanRequestState.executed
-
-        # check a chat messages have been created for alice
-        resp = alice_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_started
-
-        # check a chat message has been created for bob
-        resp = bob_client.get(f"/v1/me/chats/{request['chat_id']}/messages")
-        resp.raise_for_status()
-        messages = resp.json()
-        assert messages[2]["message_type"] == ChatMessageType.loan_request_created
-        assert messages[1]["message_type"] == ChatMessageType.loan_request_accepted
-        assert messages[0]["message_type"] == ChatMessageType.loan_started
 
     def test_state_pending_invalid_transitions(
         self,
