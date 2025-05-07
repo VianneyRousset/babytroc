@@ -46,6 +46,7 @@ const { formattedHour } = useChatMessageTime(msg);
 
     line-height: 1.25;
     max-width: 85%;
+    min-width: 4rem;
     padding: 0.8rem 1rem;
     position: relative;
     word-wrap: break-word;
