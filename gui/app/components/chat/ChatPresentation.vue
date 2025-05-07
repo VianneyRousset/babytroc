@@ -7,14 +7,13 @@ const props = defineProps<{
 const { me, chat } = toRefs(props);
 
 // get messages
-const { data: chatMessagesPages, loadMore: loadMoreMessages } =
-	useChatMessagesListQuery(() => unref(chat).id);
+const {messages, loadMore, addMessage} = useChatMessages(() => unref(chat).id);
 
 // mutations
 const { mutate: sendMessage } = useSendMessageMutation();
 
 // chat input
-const inputeText = ref("");
+const inputText = ref("");
 
 // send message
 async function submitMessage(msg: string) {
@@ -22,7 +21,7 @@ async function submitMessage(msg: string) {
 		chatId: unref(chat).id,
 		text: msg,
 	});
-	inputeText.value = "";
+	inputText.value = "";
 }
 
 const chatMessageInput = useTemplateRef<HTMLElement>("chat-message-input");
@@ -35,8 +34,8 @@ const { height: chatMessageInputHeight } = useElementSize(
 
 <template>
   <div class="ChatPresentation">
-    <ChatMessagesList :me="me" :chat="chat" :messages="chatMessagesPages.data" />
-    <ChatMessageInput ref="chat-message-input" v-model="inputeText" @submit="submitMessage" />
+    <ChatMessagesList :me="me" :chat="chat" :messages="messages" />
+    <ChatMessageInput ref="chat-message-input" v-model="inputText" @submit="submitMessage" />
   </div>
 </template>
 

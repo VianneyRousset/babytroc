@@ -17,11 +17,6 @@ export default defineNuxtConfig({
 	// TODO add cache control
 	routeRules: {
 		"/": { redirect: "/home" },
-		// TODO use env variable
-		// use CORS ?
-		"/api/**": {
-			proxy: "http://localhost:8080/**",
-		},
 	},
 
 	// use typescript type checking
