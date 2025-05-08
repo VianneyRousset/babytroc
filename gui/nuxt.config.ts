@@ -94,6 +94,6 @@ export default defineNuxtConfig({
 
 	pinia: {
 		// accept nested store directories
-		storesDirs: ["./stores/**"],
+		storesDirs: ["app/stores/**"],
 	},
 });

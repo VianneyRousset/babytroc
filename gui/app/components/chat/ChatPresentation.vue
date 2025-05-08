@@ -42,6 +42,9 @@ const { height: chatMessageInputHeight } = useElementSize(
 <style lang="scss" scoped>
 .ChatPresentation {
 
+	@include flex-column;
+	flex-direction: column-reverse;
+
   --chat-message-input-height: v-bind(chatMessageInputHeight + "px");
 
   padding-top: calc(var(--footer-height) + 1rem);

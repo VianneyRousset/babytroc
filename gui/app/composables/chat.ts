@@ -4,7 +4,55 @@ import { toValue, type MaybeRefOrGetter } from "vue";
 
 import { DateTime } from "luxon";
 import { groupBy } from "lodash";
-import { useChatExtraMessagesStore } from "~/stores/chats";
+
+export function useChats() {
+	const { data: chatPages, loadMore } = useChatsListQuery();
+
+	const extraChatsStore = useExtraChatsStore();
+	const { chats: extraChats } = storeToRefs(extraChatsStore);
+	const chats: Ref<Array<Chat>> = computed(() => {
+		const _chats: Map<string, Chat> = new Map(
+			unref(chatPages).data.map((chat) => [chat.id, chat]),
+		);
+		const _extraChats: Map<string, Chat> = unref(extraChats);
+		return Array.from(new Map([..._chats, ..._extraChats]).values()).sort(
+			(a, b) => b.last_message_id - a.last_message_id,
+		);
+	});
+
+	return {
+		chats,
+		end: computed(() => unref(chatPages).end),
+		loadMore,
+		setMessage: extraChatsStore.setMessage,
+	};
+}
+
+export function useChatMessages(chatId: MaybeRefOrGetter<string>) {
+	const { data: messagePages, loadMore } = useChatMessagesListQuery(chatId);
+	const extraMessagesStore = computed(() =>
+		useChatExtraMessagesStore(toValue(chatId)),
+	);
+	const messages: Ref<Array<ChatMessage>> = computed(() => {
+		const _messages: Map<number, ChatMessage> = new Map(
+			unref(messagePages).data?.map((msg) => [msg.id, msg]) ?? [],
+		);
+		const _extraMessagesStore = unref(extraMessagesStore);
+		const _extraMessages: Map<number, ChatMessage> =
+			_extraMessagesStore.messages;
+		return Array.from(new Map([..._messages, ..._extraMessages]).values());
+	});
+
+	const setMessage = (msg: ChatMessage) =>
+		unref(extraMessagesStore).setMessage(msg);
+
+	return {
+		messages,
+		end: computed(() => unref(messagePages).end),
+		loadMore,
+		addMessage: setMessage,
+	};
+}
 
 export function useChatRoles(
 	chat: MaybeRefOrGetter<Chat>,
@@ -73,46 +121,6 @@ export function useGroupChatMessages(
 					createMessageDateGroup(date, _messages, _me),
 				);
 		}),
-	};
-}
-
-export function useChats() {
-	// add message to the proper extra chat messages store
-	function addMessage(msg: ChatMessage) {
-		const chatId = msg.chat_id;
-		const extraMessagesStore = useChatExtraMessagesStore(chatId);
-		console.log("add msg to store", extraMessagesStore);
-		extraMessagesStore.addMessage(msg);
-	}
-
-	return {
-		addMessage,
-	};
-}
-
-export function useChatMessages(chatId: MaybeRefOrGetter<string>) {
-	const { data: messagesPage, loadMore } = useChatMessagesListQuery(chatId);
-	const extraMessagesStore = computed(() =>
-		useChatExtraMessagesStore(toValue(chatId)),
-	);
-	const messages: Ref<Array<ChatMessage>> = computed(() => {
-		const _messages: Map<number, ChatMessage> = new Map(
-			unref(messagesPage).data?.map((msg) => [msg.id, msg]) ?? [],
-		);
-		const _extraMessagesStore = unref(extraMessagesStore);
-		const _extraMessages: Map<number, ChatMessage> =
-			_extraMessagesStore.messages;
-		return Array.from(new Map([..._messages, ..._extraMessages]).values());
-	});
-
-	const addMessage = (msg: ChatMessage) =>
-		unref(extraMessagesStore).addMessage(msg);
-
-	return {
-		messages,
-		end: computed(() => unref(messagesPage).end),
-		loadMore,
-		addMessage,
 	};
 }
 
