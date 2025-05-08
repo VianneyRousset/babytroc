@@ -8,6 +8,7 @@ declare global {
 	type ChatMessageQuery =
 		ApiRequestQuery<"list_client_chat_messages_v1_me_chats__chat_id__messages_get">;
 
+	type ChatMessageSender = "me" | "interlocutor";
 	type ChatMessageOrigin = "me" | "interlocutor" | "system";
 
 	type ChatMessageChunk = {

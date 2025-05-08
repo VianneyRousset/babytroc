@@ -54,6 +54,33 @@ export function useChatMessages(chatId: MaybeRefOrGetter<string>) {
 	};
 }
 
+export function useChatMessageIsNew(
+	msg: MaybeRefOrGetter<ChatMessage>,
+	me: MaybeRefOrGetter<User>,
+) {
+	const { sender } = useChatMessageSender(msg, me);
+	const isNew: Ref<boolean> = computed(() =>
+		unref(sender) === "me" ? false : !toValue(msg).seen,
+	);
+
+	return { isNew };
+}
+
+export function useChatHasNewMessages(
+	chat: MaybeRefOrGetter<Chat>,
+	me: MaybeRefOrGetter<User>,
+): { hasNewMessages: Ref<boolean> } {
+	const { messages } = useChatMessages(computed(() => toValue(chat).id));
+
+	return {
+		hasNewMessages: computed(() =>
+			unref(messages).some(
+				(msg) => unref(useChatMessageIsNew(msg, me).isNew) === true,
+			),
+		),
+	};
+}
+
 export function useChatRoles(
 	chat: MaybeRefOrGetter<Chat>,
 	me: MaybeRefOrGetter<User>,
@@ -84,6 +111,17 @@ export function useChatMessageOrigin(
 	);
 
 	return { origin };
+}
+
+export function useChatMessageSender(
+	msg: MaybeRefOrGetter<ChatMessage>,
+	me: MaybeRefOrGetter<User>,
+): { sender: Ref<ChatMessageSender> } {
+	return {
+		sender: computed(() =>
+			toValue(msg).sender_id === toValue(me).id ? "me" : "interlocutor",
+		),
+	};
 }
 
 export function useChatMessageTime(message: MaybeRefOrGetter<ChatMessage>) {

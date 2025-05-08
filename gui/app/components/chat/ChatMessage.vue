@@ -9,23 +9,27 @@ const { me, msg } = toRefs(props);
 const slots = useSlots();
 
 const { origin } = useChatMessageOrigin(msg, me);
+const { isNew } = useChatMessageIsNew(msg, me);
 
 const { formattedHour } = useChatMessageTime(msg);
 </script>
 
 <template>
-  <div class="ChatMessage" :origin="origin">
-    <div class="bubble">
-      <div class="text">
-        <slot />
+  <div class="ChatMessage" :origin="origin" :new="isNew">
+
+  <transition :name="isNew ? 'pop' : undefined" mode="in-out" appear>
+      <div class="bubble">
+        <div class="text">
+          <slot />
+        </div>
+        <div v-if="slots.buttons" class="buttons">
+          <slot name="buttons" />
+        </div>
+        <div class="hour">
+          {{ formattedHour }}
+        </div>
       </div>
-      <div v-if="slots.buttons" class="buttons">
-        <slot name="buttons" />
-      </div>
-      <div class="hour">
-        {{ formattedHour }}
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -188,5 +192,17 @@ const { formattedHour } = useChatMessageTime(msg);
     font-size: 0.7rem;
   }
 
+}
+
+
+.pop-enter-active,
+.pop-leave-active {
+  transition: all 0.2s cubic-bezier(0.65, 0.54, 0.6, 1.5);
+}
+
+.pop-enter-from,
+.pop-leaver-to {
+  transform: scale(0.5);
+  opacity: 0;
 }
 </style>
