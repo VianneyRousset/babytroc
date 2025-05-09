@@ -34,8 +34,7 @@ const { hasNewMessages } = useChatHasNewMessages(chat, me);
       {{ chat.item.name }}
     </template>
 
-    <template #badge>
-    </template>
+    <template v-if="hasNewMessages" #badge />
 
   </Slab>
 </template>

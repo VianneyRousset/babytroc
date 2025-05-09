@@ -24,7 +24,7 @@ watch(loggedIn, (state) => {
 
       const wsMessage = JSON.parse(event.data);
       
-      if (wsMessage.type === "new_chat_message") {
+      if (["new_chat_message", "updated_chat_message"].includes(wsMessage.type)) {
         setMessage(wsMessage.message);
       }
       

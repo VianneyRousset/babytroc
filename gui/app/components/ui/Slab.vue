@@ -22,9 +22,11 @@ const slots = useSlots();
       <slot name="mini" />
     </div>
 
-    <div v-if="slots.badge" class="badge">
-      <slot name="badge" />
-    </div>
+    <transition name="pop" mode="in-out" appear>
+      <div v-if="slots.badge" class="badge">
+        <slot name="badge" />
+      </div>
+    </transition>
 
     <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
 

@@ -26,7 +26,7 @@ export default defineNuxtConfig({
 	},
 
 	// inject SCSS code (colors definition)
-	css: ["assets/styles/main.scss"],
+	css: ["assets/styles/main.scss", "assets/styles/animations.scss"],
 
 	// import pinia-colada queries and mutations
 	imports: {
