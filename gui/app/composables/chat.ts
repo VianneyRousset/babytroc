@@ -138,7 +138,7 @@ export function useGroupChatMessages(
 ) {
 	return {
 		dateGroups: computed(() => {
-			const _messages = toValue(messages);
+			const _messages = toValue(messages).sort((a, b) => b.id - a.id);
 			const _me = toValue(me);
 
 			// group message by creation date
