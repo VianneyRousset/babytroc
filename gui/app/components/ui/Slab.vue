@@ -22,6 +22,12 @@ const slots = useSlots();
       <slot name="mini" />
     </div>
 
+    <transition name="pop" mode="in-out" appear>
+      <div v-if="slots.badge" class="badge">
+        <slot name="badge" />
+      </div>
+    </transition>
+
     <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
 
   </div>
@@ -70,6 +76,16 @@ const slots = useSlots();
     right: 1rem;
     color: $neutral-300;
     font-size: 0.75rem;
+  }
+
+  .badge {
+    @include flex-column-center;
+    background: $primary-300;
+    min-height: 0.75rem;
+    min-width: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    color: white;
   }
 
   /* chevron */

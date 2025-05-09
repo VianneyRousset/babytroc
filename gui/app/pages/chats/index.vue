@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { MessageSquare, LockKeyholeOpen } from "lucide-vue-next";
 
-const { data: chatsPages, status: chatsStatus } = useChatsListQuery();
+const { chats } = useChats();
 const { data: me } = useMeQuery();
-
 const { loggedIn, loggedInStatus, loginRoute } = useAuth();
 
 // get main header bar height to offset content
@@ -23,7 +22,6 @@ const { height: mainHeaderHeight } = useElementSize(
 
     <!-- Main content -->
     <main>
-
       <!-- Loader when not knowing if logged in -->
       <div v-if="loggedInStatus === 'pending'" class="app-content flex-column-center">
         <Loader />
@@ -39,14 +37,15 @@ const { height: mainHeaderHeight } = useElementSize(
       </div>
 
       <!-- Logged in: show the chats list -->
-      <SlabList v-else-if="loggedIn ===true && chatsPages.data && me" class="app-content">
-        <NuxtLink v-for="chat in chatsPages.data" :to="`/chats/${chat.id}`" :id="`chat-${chat.id}`"
+      <SlabList v-else-if="loggedIn ===true && chats && me" class="app-content">
+        <NuxtLink v-for="chat in chats" :to="`/chats/${chat.id}`" :id="`chat-${chat.id}`"
           :key="`chat-${chat.id}`" class="reset-link">
           <ChatSlab :chat="chat" :me="me" :key="`${chat.id}`" />
           <!-- TODO add empty -->
         </NuxtLink>
-        <ListEmpty v-if="chatsPages.data && chatsPages.data.length === 0">Vous n'avez pas encore de message.</ListEmpty>
+        <ListEmpty v-if="chats.length === 0">Vous n'avez pas encore de message.</ListEmpty>
       </SlabList>
+
     </main>
 
   </div>

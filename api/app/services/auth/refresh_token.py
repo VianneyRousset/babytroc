@@ -45,16 +45,11 @@ def verify_refresh_token(
     if refresh_token.invalidated:
         raise InvalidCredentialError()
 
-    print("refresh token not invalidated")
-
     if is_refresh_token_expired(
         token_creation_date=refresh_token.creation_date,
         config=config,
     ):
-        print("refresh expired")
         raise InvalidCredentialError()
-
-    print("refresh not expired")
 
     return AuthRefreshTokenRead.model_validate(refresh_token)
 

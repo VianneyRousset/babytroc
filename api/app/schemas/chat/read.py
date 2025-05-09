@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from pydantic import field_validator
+
 from app.enums import ChatMessageType
 from app.schemas.base import ReadBase
 from app.schemas.item.preview import ItemPreviewRead
@@ -28,3 +30,12 @@ class ChatMessageRead(ChatBase, ReadBase):
     loan_id: int | None
     item_id: int
     borrower_id: int
+
+    @field_validator("chat_id", mode="before")
+    def validate_chat_id(
+        cls,  # noqa: N805
+        v: ChatId | str,
+    ) -> ChatId:
+        if isinstance(v, str):
+            return ChatId.from_str(v)
+        return v

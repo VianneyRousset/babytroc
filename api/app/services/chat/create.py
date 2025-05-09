@@ -1,10 +1,11 @@
-
 from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.enums import ChatMessageType
+from app.pubsub import notify_user
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatMessageRead
+from app.schemas.pubsub import PubsubMessageNewChatMessage
 
 
 def send_message_text(
@@ -247,6 +248,8 @@ def send_message(
         chat_id=chat_id,
     )
 
+    # no need to commit before notify users as notifications are performed
+    # only during commit
     message = database.chat.create_message(
         db=db,
         chat=chat,
@@ -255,6 +258,24 @@ def send_message(
         text=text,
         loan_request_id=loan_request_id,
         loan_id=loan_id,
+    )
+
+    pubsub_message = PubsubMessageNewChatMessage(
+        chat_message_id=message.id,
+    )
+
+    # notify owner
+    notify_user(
+        db=db,
+        user_id=chat.item.owner_id,
+        message=pubsub_message,
+    )
+
+    # notify borrower
+    notify_user(
+        db=db,
+        user_id=chat.borrower_id,
+        message=pubsub_message,
     )
 
     return ChatMessageRead.model_validate(message)

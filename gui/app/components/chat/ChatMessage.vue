@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Check, CheckCheck } from "lucide-vue-next";
+
 const props = defineProps<{
 	me: User;
 	msg: ChatMessage;
@@ -9,23 +11,56 @@ const { me, msg } = toRefs(props);
 const slots = useSlots();
 
 const { origin } = useChatMessageOrigin(msg, me);
+const { isNew } = useChatMessageIsNew(msg, me);
+const { $api } = useNuxtApp();
+
+let seeMessageTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+
+watch(isNew, (isNew) => {
+  if (isNew === true) {
+    seeMessageTimeout = setTimeout(async () => {
+      const _msg = unref(msg);
+      await $api("/v1/me/chats/{chat_id}/messages/{message_id}/see", {
+        method: "post",
+        path: {
+          chat_id: _msg.chat_id,
+          message_id: _msg.id,
+        },
+      });
+    }, 2000);
+  }
+}, {immediate: true});
+
+onUnmounted(() => {
+  if (seeMessageTimeout !== undefined) {
+    clearTimeout(seeMessageTimeout);
+    seeMessageTimeout = undefined;
+  }
+});
 
 const { formattedHour } = useChatMessageTime(msg);
 </script>
 
 <template>
-  <div class="ChatMessage" :origin="origin">
-    <div class="bubble">
-      <div class="text">
-        <slot />
+  <div class="ChatMessage" :origin="origin" :new="isNew">
+
+  <transition :name="isNew ? 'pop' : undefined" mode="in-out" appear>
+      <div class="bubble">
+        <div class="text">
+          <slot />
+        </div>
+        <div v-if="slots.buttons" class="buttons">
+          <slot name="buttons" />
+        </div>
+        <div class="hour-and-check">
+          <div class="hour">{{ formattedHour }}</div>
+          <transition name="pop" mode="in-out">
+            <CheckCheck v-if="msg.seen" :size="16" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
+            <Check v-else  :size="16" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
+          </transition>
+        </div>
       </div>
-      <div v-if="slots.buttons" class="buttons">
-        <slot name="buttons" />
-      </div>
-      <div class="hour">
-        {{ formattedHour }}
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -46,6 +81,7 @@ const { formattedHour } = useChatMessageTime(msg);
 
     line-height: 1.25;
     max-width: 85%;
+    min-width: 5rem;
     padding: 0.8rem 1rem;
     position: relative;
     word-wrap: break-word;
@@ -179,13 +215,15 @@ const { formattedHour } = useChatMessageTime(msg);
     }
   }
 
-  .hour {
+  .hour-and-check {
+    @include flex-row;
+    gap: 0.3rem;
     position: absolute;
     bottom: 0.15rem;
     right: 0.5rem;
     opacity: 0.3;
     font-size: 0.7rem;
+  white-space: nowrap;
   }
-
 }
 </style>

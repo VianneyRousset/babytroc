@@ -16,6 +16,9 @@ const { interlocutor } = useChatRoles(chat, me);
 const { firstImagePath: itemImage } = useItemFirstImage(
 	computed(() => unref(chat).item),
 );
+
+// has new messages
+const { hasNewMessages } = useChatHasNewMessages(chat, me);
 </script>
 
 <template>
@@ -30,6 +33,8 @@ const { firstImagePath: itemImage } = useItemFirstImage(
     <template #sub>
       {{ chat.item.name }}
     </template>
+
+    <template v-if="hasNewMessages" #badge />
 
   </Slab>
 </template>

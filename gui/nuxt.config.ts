@@ -17,11 +17,6 @@ export default defineNuxtConfig({
 	// TODO add cache control
 	routeRules: {
 		"/": { redirect: "/home" },
-		// TODO use env variable
-		// use CORS ?
-		"/api/**": {
-			proxy: "http://localhost:8080/**",
-		},
 	},
 
 	// use typescript type checking
@@ -31,7 +26,7 @@ export default defineNuxtConfig({
 	},
 
 	// inject SCSS code (colors definition)
-	css: ["assets/styles/main.scss"],
+	css: ["assets/styles/main.scss", "assets/styles/animations.scss"],
 
 	// import pinia-colada queries and mutations
 	imports: {
@@ -99,6 +94,6 @@ export default defineNuxtConfig({
 
 	pinia: {
 		// accept nested store directories
-		storesDirs: ["./stores/**"],
+		storesDirs: ["app/stores/**"],
 	},
 });

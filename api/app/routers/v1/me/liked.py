@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import Query, Request, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
@@ -20,7 +19,7 @@ from .me import router
 
 
 @router.post("/liked/{item_id}", status_code=status.HTTP_200_OK)
-def add_item_to_client_liked_items(
+async def add_item_to_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
