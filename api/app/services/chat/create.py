@@ -5,7 +5,7 @@ from app.enums import ChatMessageType
 from app.pubsub import notify_user
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatMessageRead
-from app.schemas.pubsub import PubsubMessage
+from app.schemas.pubsub import PubsubMessageNewChatMessage
 
 
 def send_message_text(
@@ -260,8 +260,7 @@ def send_message(
         loan_id=loan_id,
     )
 
-    pubsub_message = PubsubMessage(
-        type="new_chat_message",
+    pubsub_message = PubsubMessageNewChatMessage(
         chat_message_id=message.id,
     )
 

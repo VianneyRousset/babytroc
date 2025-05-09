@@ -1,7 +1,6 @@
 from contextlib import AbstractContextManager
 from time import sleep
 from types import TracebackType
-from typing import cast
 
 from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketTestSession
@@ -12,7 +11,12 @@ from app.schemas.chat.read import ChatMessageRead
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
-from app.schemas.websocket import WebSocketMessage, WebSocketMessageNewChatMessage
+from app.schemas.websocket import (
+    WebSocketMessage,
+    WebSocketMessageNewChatMessage,
+    WebSocketMessageTypeAdapter,
+    WebSocketMessageUpdatedChatMessage,
+)
 
 
 class WebSocketsRecorder(AbstractContextManager):
@@ -29,8 +33,8 @@ class WebSocketsRecorder(AbstractContextManager):
         self.alice_websocket = alice_websocket
         self.bob_websocket = bob_websocket
 
-        self.alice_websocket_message = cast("WebSocketMessage | None", None)
-        self.bob_websocket_message = cast("WebSocketMessage | None", None)
+        self.alice_websocket_message: WebSocketMessage | None = None
+        self.bob_websocket_message: WebSocketMessage | None = None
 
     def __enter__(self):
         self.alice_websocket.__enter__()
@@ -47,12 +51,14 @@ class WebSocketsRecorder(AbstractContextManager):
     ) -> bool | None:
         # record alice message and close websocket
         content = self.alice_websocket.receive_text()
-        self.alice_websocket_message = WebSocketMessage.model_validate_json(content)
+        self.alice_websocket_message = WebSocketMessageTypeAdapter.validate_json(
+            content
+        )
         self.alice_websocket.close()
 
         # record alice message and close websocket
         content = self.bob_websocket.receive_text()
-        self.bob_websocket_message = WebSocketMessage.model_validate_json(content)
+        self.bob_websocket_message = WebSocketMessageTypeAdapter.validate_json(content)
         self.bob_websocket.close()
 
         # wait for websocket close message
@@ -609,6 +615,92 @@ class TestChatMessage:
         # construct expected websocket message
         expected_websocket_message = WebSocketMessageNewChatMessage(
             type="new_chat_message",
+            message=expected_chat_message,
+        )
+
+        # check websocket messages
+        assert (
+            recorder.alice_websocket_message.model_dump()
+            == expected_websocket_message.model_dump()
+        )
+        assert (
+            recorder.bob_websocket_message.model_dump()
+            == expected_websocket_message.model_dump()
+        )
+
+        # check a chat message has been created for alice
+        resp = alice_client.get(f"/v1/me/chats/{chat_id}/messages")
+        resp.raise_for_status()
+        last_chat_message = ChatMessageRead.model_validate(resp.json()[0])
+        assert last_chat_message.model_dump() == expected_chat_message.model_dump()
+
+        # check a chat message has been created for bob
+        resp = bob_client.get(f"/v1/me/chats/{chat_id}/messages")
+        resp.raise_for_status()
+        last_chat_message = ChatMessageRead.model_validate(resp.json()[0])
+        assert last_chat_message.model_dump() == expected_chat_message.model_dump()
+
+    def test_mark_message_as_seen(
+        self,
+        alice: UserPrivateRead,
+        bob: UserPrivateRead,
+        alice_client: TestClient,
+        bob_client: TestClient,
+        alice_websocket: WebSocketTestSession,
+        bob_websocket: WebSocketTestSession,
+        alice_new_item: ItemRead,
+        bob_new_loan_request_for_alice_new_item: LoanRequestRead,
+    ):
+        """Check that seeing a message mark it as read and emit a websocket message."""
+
+        chat_id = bob_new_loan_request_for_alice_new_item.chat_id
+        text = "hello"
+
+        # send text message
+        resp = alice_client.post(
+            f"/v1/me/chats/{chat_id}/messages",
+            json={"text": text},
+        )
+        resp.raise_for_status()
+        message = ChatMessageRead.model_validate_json(resp.text)
+
+        recorder = WebSocketsRecorder(
+            alice_websocket=alice_websocket,
+            bob_websocket=bob_websocket,
+        )
+
+        with recorder:
+            resp = bob_client.post(f"/v1/me/chats/{chat_id}/messages/{message.id}/see")
+            resp.raise_for_status()
+
+        assert isinstance(
+            recorder.alice_websocket_message, WebSocketMessageUpdatedChatMessage
+        )
+
+        assert isinstance(
+            recorder.bob_websocket_message, WebSocketMessageUpdatedChatMessage
+        )
+
+        alice_chat_message = recorder.alice_websocket_message.message
+
+        # construct expected chat message
+        expected_chat_message = ChatMessageRead(
+            id=alice_chat_message.id,
+            chat_id=chat_id,
+            message_type=ChatMessageType.text,
+            sender_id=alice.id,
+            creation_date=alice_chat_message.creation_date,
+            seen=True,
+            text=text,
+            loan_request_id=None,
+            loan_id=None,
+            item_id=alice_new_item.id,
+            borrower_id=bob.id,
+        )
+
+        # construct expected websocket message
+        expected_websocket_message = WebSocketMessageUpdatedChatMessage(
+            type="updated_chat_message",
             message=expected_chat_message,
         )
 

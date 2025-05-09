@@ -8,8 +8,15 @@ from app import services
 from app.pubsub import get_broadcast
 from app.routers.v1.auth import verify_websocket_credentials
 from app.schemas.chat.query import ChatMessageQueryFilter
-from app.schemas.pubsub import PubsubMessage, PubsubMessageNewChatMessage
-from app.schemas.websocket import WebSocketMessageNewChatMessage
+from app.schemas.pubsub import (
+    PubsubMessageNewChatMessage,
+    PubsubMessageTypeAdapter,
+    PubsubMessageUpdatedChatMessage,
+)
+from app.schemas.websocket import (
+    WebSocketMessageNewChatMessage,
+    WebSocketMessageUpdatedChatMessage,
+)
 
 from .router import router
 
@@ -46,7 +53,7 @@ async def relay_broacast_events_to_websocket(
             if event is None:
                 continue
 
-            pubsub_message = PubsubMessage.model_validate_json(event.message)
+            pubsub_message = PubsubMessageTypeAdapter.validate_json(event.message)
 
             if isinstance(pubsub_message, PubsubMessageNewChatMessage):
                 async with websocket.app.state.db_async_session_maker.begin() as db:
@@ -59,7 +66,21 @@ async def relay_broacast_events_to_websocket(
                     )
                 await websocket.send_text(
                     WebSocketMessageNewChatMessage(
-                        type="new_chat_message",
+                        message=chat_message,
+                    ).model_dump_json()
+                )
+
+            elif isinstance(pubsub_message, PubsubMessageUpdatedChatMessage):
+                async with websocket.app.state.db_async_session_maker.begin() as db:
+                    chat_message = await services.chat.get_message_async(
+                        db=db,
+                        message_id=pubsub_message.chat_message_id,
+                        query_filter=ChatMessageQueryFilter(
+                            member_id=client_id,
+                        ),
+                    )
+                await websocket.send_text(
+                    WebSocketMessageUpdatedChatMessage(
                         message=chat_message,
                     ).model_dump_json()
                 )
