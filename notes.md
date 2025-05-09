@@ -3,6 +3,7 @@
 - No need to split create and insert in client.database and no need to create helpers to create db objects. Could it be done from the Model class ?
 - pydantic schematics should be think as interfaces (services-routes, routes, ...)
 - Should services and clients return HTTP errors. I don't think so. Generic errors could be interpreted by FastAPI to return the proper HTTP status (e.g. a NotFoundError treated as a 404)
+- https://github.com/Kludex/fastapi-tips
 
 ## TODO
 - check alembic version files for proper indices creation
