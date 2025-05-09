@@ -11,7 +11,7 @@ const userId = Number.parseInt(route.params.user_id as string); // TODO avoid th
 const { currentTab } = useTab();
 
 // goto tab main page if invalid itemId
-if (isNaN(userId)) navigateTo(`/${currentTab}`)
+if (Number.isNaN(userId)) navigateTo(`/${currentTab}`)
 
 // get main header bar height to offset content
 const main = useTemplateRef<HTMLElement>("main");
