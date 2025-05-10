@@ -55,12 +55,12 @@ const { height: chatMessageInputHeight } = useElementSize(
 
   --chat-message-input-height: v-bind(chatMessageInputHeight + "px");
 
-  padding-top: calc(var(--footer-height) + 1rem);
-  padding-bottom: calc(var(--footer-height) + var(--chat-message-input-height) + 1rem);
+  padding-top: calc(var(--header-height) + 1rem);
+  padding-bottom: calc(64px + var(--chat-message-input-height) + 1rem);
 
   .ChatMessageInput {
     position: absolute;
-    bottom: calc(var(--footer-height) + 1rem);
+    bottom: calc(64px + 1rem);
     left: 0;
     right: 0;
   }
