@@ -1,50 +1,72 @@
 <script setup lang="ts">
-import { Heart, Bookmark, Clock } from "lucide-vue-next";
+import { Heart, Bookmark, Clock } from 'lucide-vue-next'
 
 // TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
 const props = defineProps<{
-	item: ItemPreview;
-	likedItems: Array<Item | ItemPreview>;
-	savedItems: Array<Item | ItemPreview>;
-}>();
-const { item, likedItems, savedItems } = toRefs(props);
+  item: ItemPreview
+  likedItems: Array<Item | ItemPreview>
+  savedItems: Array<Item | ItemPreview>
+}>()
+const { item, likedItems, savedItems } = toRefs(props)
 
-const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item);
-const { firstImagePath } = useItemFirstImage(item);
-const { isLikedByUser } = useItemLike(item, likedItems);
-const { isSavedByUser } = useItemSave(item, savedItems);
+const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
+const { firstImagePath } = useItemFirstImage(item)
+const { isLikedByUser } = useItemLike(item, likedItems)
+const { isSavedByUser } = useItemSave(item, savedItems)
 
 const backgroundImage = computed(() => {
-	const backgrounds = [];
-	const params = "";
+  const backgrounds = []
+  const params = ''
 
-	backgrounds.push("linear-gradient(transparent 0 40%, #202020 100%)");
-	backgrounds.push(`url('${unref(firstImagePath)}${params}')`);
+  backgrounds.push('linear-gradient(transparent 0 40%, #202020 100%)')
+  backgrounds.push(`url('${unref(firstImagePath)}${params}')`)
 
-	return backgrounds.join(", ");
-});
+  return backgrounds.join(', ')
+})
 </script>
 
 <template>
   <aspectRatio :ratio="1">
-    <div class="ItemCard" :style="{ backgroundImage: backgroundImage }">
-
+    <div
+      class="ItemCard"
+      :style="{ backgroundImage: backgroundImage }"
+    >
       <div class="status">
-        <Heart v-if="isLikedByUser" class="liked" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        <Bookmark v-if="isSavedByUser" class="saved" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
-        <Clock v-if="!item.available" class="not-available" :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Heart
+          v-if="isLikedByUser"
+          class="liked"
+          :size="24"
+          :stroke-width="2"
+          :absolute-stroke-width="true"
+        />
+        <Bookmark
+          v-if="isSavedByUser"
+          class="saved"
+          :size="24"
+          :stroke-width="2"
+          :absolute-stroke-width="true"
+        />
+        <Clock
+          v-if="!item.available"
+          class="not-available"
+          :size="24"
+          :stroke-width="2"
+          :absolute-stroke-width="true"
+        />
       </div>
 
       <div class="info">
-        <div class="age">{{ formatedTargetedAgeMonths }}
+        <div class="age">
+          {{ formatedTargetedAgeMonths }}
         </div>
-        <div class="name">{{ item.name }}</div>
+        <div class="name">
+          {{ item.name }}
+        </div>
       </div>
     </div>
   </AspectRatio>
-
 </template>
 
 <style scoped lang="scss">

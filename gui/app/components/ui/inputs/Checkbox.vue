@@ -1,20 +1,24 @@
 <script setup lang="ts">
-const model = defineModel<boolean>();
+const model = defineModel<boolean>()
 </script>
 
 <template>
-
-  <label class="Checkbox" :class="{ checked: model }">
-    <CheckboxRoot v-model:checked="model" class="CheckboxRoot">
+  <label
+    class="Checkbox"
+    :class="{ checked: model }"
+  >
+    <CheckboxRoot
+      v-model:checked="model"
+      class="CheckboxRoot"
+    >
       <CheckboxIndicator class="CheckboxIndicator">
-        <div></div>
+        <div />
       </CheckboxIndicator>
     </CheckboxRoot>
     <span>
       <slot />
     </span>
   </label>
-
 </template>
 
 <style scoped lang="scss">
@@ -31,7 +35,6 @@ const model = defineModel<boolean>();
 
   font-size: 1.2rem;
   color: $neutral-700;
-
 
   &:hover {
     border-color: $neutral-200;

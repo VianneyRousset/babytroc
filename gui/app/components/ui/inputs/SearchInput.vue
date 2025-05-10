@@ -1,35 +1,52 @@
 <script setup lang="ts">
-import { Search, X } from "lucide-vue-next";
+import { Search, X } from 'lucide-vue-next'
 
-const model = defineModel<string>();
+const model = defineModel<string>()
 
-const emit = defineEmits<(e: "submit", value: string) => void>();
+const emit = defineEmits<(e: 'submit', value: string) => void>()
 
-const input = ref<HTMLElement | null>(null);
+const input = ref<HTMLElement | null>(null)
 
 function blur() {
-	if (input.value) input.value.blur();
+  if (input.value) input.value.blur()
 }
 
 function clear() {
-	model.value = "";
+  model.value = ''
 }
 
 function submit() {
-	emit("submit", model.value ?? "");
+  emit('submit', model.value ?? '')
 }
 </script>
 
 <template>
-
   <div>
-    <Search class="search-icon" :size="20" :strokeWidth="1" :absoluteStrokeWidth="true" />
-    <input v-model="model" ref="input" placeholder="Search" type="search" tabindex="1" autofocus
-      @keyup.enter="blur(); submit();" @keyup.escape="blur(); clear(); submit();" />
-    <X v-if="model !== ''" @click="clear(); submit();" class="x-icon" :size="20" :strokeWidth="1"
-      :absoluteStrokeWidth="true" />
+    <Search
+      class="search-icon"
+      :size="20"
+      :stroke-width="1"
+      :absolute-stroke-width="true"
+    />
+    <input
+      ref="input"
+      v-model="model"
+      placeholder="Search"
+      type="search"
+      tabindex="1"
+      autofocus
+      @keyup.enter="blur(); submit();"
+      @keyup.escape="blur(); clear(); submit();"
+    >
+    <X
+      v-if="model !== ''"
+      class="x-icon"
+      :size="20"
+      :stroke-width="1"
+      :absolute-stroke-width="true"
+      @click="clear(); submit();"
+    />
   </div>
-
 </template>
 
 <style scoped lang="scss">

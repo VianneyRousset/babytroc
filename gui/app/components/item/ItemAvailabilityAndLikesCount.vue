@@ -1,54 +1,52 @@
 <script setup lang="ts">
-import { Heart } from "lucide-vue-next";
+import { Heart } from 'lucide-vue-next'
 
-import type { AsyncStatus } from "@pinia/colada";
+import type { AsyncStatus } from '@pinia/colada'
 
 const props = defineProps<{
-	item: Item;
-	itemAsyncStatus: AsyncStatus;
-	likedItems: Array<Item | ItemPreview>;
-	likedAsyncStatus: AsyncStatus;
-}>();
+  item: Item
+  itemAsyncStatus: AsyncStatus
+  likedItems: Array<Item | ItemPreview>
+  likedAsyncStatus: AsyncStatus
+}>()
 
 const {
   item,
   itemAsyncStatus,
   likedItems,
   likedAsyncStatus,
-} = toRefs(props);
+} = toRefs(props)
 
-// current tab
-const { currentTab } = useTab();
+const { isLikedByUser } = useItemLike(item, likedItems)
 
-const { isLikedByUser } = useItemLike(item, likedItems);
+const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } = useToggleItemLikeMutation()
 
-const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } =
-	useToggleItemLikeMutation();
-
-// query owner
-const { status: ownerStatus, data: owner } = useUserQuery(
-	computed(() => toValue(item).owner_id),
-);
-
-// like button is active if like-toggling, item or liked item are loading 
+// like button is active if like-toggling, item or liked item are loading
 const activeLikeButton = computed(() =>
-	[toggleItemLikeAsyncStatus, itemAsyncStatus, likedAsyncStatus].some(
-		(r) => unref(r) === "loading",
-	),
-);
+  [toggleItemLikeAsyncStatus, itemAsyncStatus, likedAsyncStatus].some(
+    r => unref(r) === 'loading',
+  ),
+)
 
 // auth
-const { loggedIn } = useAuth();
-
+const { loggedIn } = useAuth()
 </script>
 
 <template>
   <div class="ItemAvailabilityAndLikesCount">
-    <Availability :available="item.available" />
-    <IconButton @click="loggedIn === true ? toggleItemLike({ itemId: item.id, isLikedByUser }) : null" :active="activeLikeButton">
-      <Counter v-model="item.likes_count">
-        <Heart :class="{ filled: isLikedByUser }" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-      </Counter>
+    <ItemAvailability :available="item.available" />
+    <IconButton
+      :active="activeLikeButton"
+      @click="loggedIn === true ? toggleItemLike({ itemId: item.id, isLikedByUser }) : null"
+    >
+      <StatsCounter v-model="item.likes_count">
+        <Heart
+          :class="{ filled: isLikedByUser }"
+          :size="32"
+          :stroke-width="2"
+          :absolute-stroke-width="true"
+        />
+      </StatsCounter>
     </IconButton>
   </div>
 </template>

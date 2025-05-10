@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  ChevronRight,
   UserRound,
   Heart,
   Package,
@@ -11,36 +10,44 @@ import {
   MessageCircleQuestion,
   Scale,
   AtSign,
-} from "lucide-vue-next";
+} from 'lucide-vue-next'
 
 // get main header bar height to offset content
 const { height: mainHeaderHeight } = useElementSize(
-  useTemplateRef("main-header"),
-);
+  useTemplateRef('main-header'),
+)
 
 // auth session
-const { loggedIn } = useAuth();
+const { loggedIn } = useAuth()
 </script>
 
 <template>
   <div>
-
     <!-- Header bar -->
     <AppHeaderBar ref="main-header">
-      <UserRound :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+      <UserRound
+        :size="32"
+        :stroke-width="2"
+        :absolute-stroke-width="true"
+      />
       <h1>Mes activités & options</h1>
     </AppHeaderBar>
 
     <!-- Main content -->
     <main class="app-content ">
-
-      <h2 v-if="loggedIn === true">Activités</h2>
+      <h2 v-if="loggedIn === true">
+        Activités
+      </h2>
       <SlabList v-if="loggedIn === true">
         <NuxtLink to="/me/liked">
           <MeSlab>
             Objets aimés
             <template #image>
-              <Heart :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <Heart
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -48,7 +55,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             Mes emprunts
             <template #image>
-              <Package :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <Package
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -56,7 +67,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             Mes prêts
             <template #image>
-              <Gift :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <Gift
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -68,7 +83,11 @@ const { loggedIn } = useAuth();
           <MeSlab v-if="loggedIn === true">
             Profile
             <template #image>
-              <UserPen :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <UserPen
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -76,7 +95,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             Compte
             <template #image>
-              <LockKeyhole :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <LockKeyhole
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -88,7 +111,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             A propos de BabyTroc
             <template #image>
-              <Info :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <Info
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -96,7 +123,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             FAQ
             <template #image>
-              <MessageCircleQuestion :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <MessageCircleQuestion
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -104,7 +135,11 @@ const { loggedIn } = useAuth();
           <MeSlab>
             Politiques
             <template #image>
-              <Scale :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <Scale
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
@@ -112,13 +147,16 @@ const { loggedIn } = useAuth();
           <MeSlab>
             Contact
             <template #image>
-              <AtSign :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+              <AtSign
+                :size="32"
+                :stroke-width="2"
+                :absolute-stroke-width="true"
+              />
             </template>
           </MeSlab>
         </NuxtLink>
       </SlabList>
     </main>
-
   </div>
 </template>
 

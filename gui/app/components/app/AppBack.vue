@@ -1,32 +1,38 @@
 <script setup lang="ts">
-import { ArrowLeft } from "lucide-vue-next";
+import { ArrowLeft } from 'lucide-vue-next'
 
 const props = defineProps<{
-	fallback?: string;
-}>();
+  fallback?: string
+}>()
 
-const { fallback } = toRefs(props);
+const { fallback } = toRefs(props)
 
-const routeStack = useRouteStack();
+const routeStack = useRouteStack()
 
-const { currentTabRoot } = useTab();
+const { currentTabRoot } = useTab()
 const targetRoute = computed(
-	() => routeStack.previous.value ?? unref(fallback) ?? currentTabRoot,
-);
+  () => routeStack.previous.value ?? unref(fallback) ?? currentTabRoot,
+)
 
 async function onclick() {
-	routeStack.markBackward();
-	routeStack.pop();
-	routeStack.pop();
+  routeStack.markBackward()
+  routeStack.pop()
+  routeStack.pop()
 }
 </script>
 
 <template>
-
-  <NuxtLink :to="targetRoute" @click="onclick">
-    <ArrowLeft style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+  <NuxtLink
+    :to="targetRoute"
+    @click="onclick"
+  >
+    <ArrowLeft
+      style="cursor: pointer;"
+      :size="32"
+      :stroke-width="2"
+      :absolute-stroke-width="true"
+    />
   </NuxtLink>
-
 </template>
 
 <style scoped lang="scss">

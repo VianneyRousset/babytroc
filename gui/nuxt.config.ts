@@ -1,99 +1,99 @@
-import Components from "unplugin-vue-components/vite";
-import RadixVueResolver from "radix-vue/resolver";
+import Components from 'unplugin-vue-components/vite'
+import RadixVueResolver from 'radix-vue/resolver'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	compatibilityDate: "2024-11-01",
-	devtools: { enabled: true },
 
-	future: {
-		compatibilityVersion: 4,
-	},
+  modules: [
+    'nuxt-open-fetch',
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+    'nuxt-swiper',
+    'radix-vue/nuxt',
+    '@pinia/colada-nuxt',
+    '@nuxt/eslint',
+  ],
 
-	// disable server-side rendering
-	ssr: false,
+  // disable server-side rendering
+  ssr: false,
 
-	// route rules
-	// TODO add cache control
-	routeRules: {
-		"/": { redirect: "/home" },
-	},
+  // do not name components based on path
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false,
+    },
+  ],
 
-	// use typescript type checking
-	typescript: {
-		strict: true,
-		typeCheck: true,
-	},
+  // import pinia-colada queries and mutations
+  imports: {
+    dirs: ['queries', 'queries/**', 'mutations', 'mutations/**'],
+  },
+  devtools: { enabled: true },
 
-	// inject SCSS code (colors definition)
-	css: ["assets/styles/main.scss", "assets/styles/animations.scss"],
+  // inject SCSS code (colors definition)
+  css: ['assets/styles/main.scss', 'assets/styles/animations.scss'],
 
-	// import pinia-colada queries and mutations
-	imports: {
-		dirs: ["queries", "queries/**", "mutations", "mutations/**"],
-	},
+  runtimeConfig: {
+    public: {
+      openFetch: {
+        api: {
+          baseURL: '/api',
+        },
+      },
+    },
+  },
 
-	// do not name components based on path
-	components: [
-		{
-			path: "~/components",
-			pathPrefix: false,
-		},
-	],
+  // route rules
+  // TODO add cache control
+  routeRules: {
+    '/': { redirect: '/home' },
+  },
 
-	vite: {
-		css: {
-			preprocessorOptions: {
-				scss: {
-					additionalData:
-						'@use "~/assets/styles/_colors.scss" as *; @use "~/assets/styles/_mixings.scss" as *; @use "~/assets/styles/_fonts.scss" as *;',
-				},
-			},
-		},
+  future: {
+    compatibilityVersion: 4,
+  },
+  compatibilityDate: '2024-11-01',
 
-		plugins: [
-			Components({
-				dts: true,
-				resolvers: [RadixVueResolver()],
-			}),
-		],
-	},
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@use "~/assets/styles/_colors.scss" as *; @use "~/assets/styles/_mixings.scss" as *; @use "~/assets/styles/_fonts.scss" as *;',
+        },
+      },
+    },
 
-	modules: [
-		"nuxt-open-fetch",
-		"@pinia/nuxt",
-		"@vueuse/nuxt",
-		"nuxt-swiper",
-		"radix-vue/nuxt",
-		"@pinia/colada-nuxt",
-	],
+    plugins: [
+      Components({
+        dts: true,
+        resolvers: [RadixVueResolver()],
+      }),
+    ],
+  },
 
-	runtimeConfig: {
-		public: {
-			openFetch: {
-				api: {
-					baseURL: "/api",
-				},
-			},
-		},
-	},
+  // use typescript type checking
+  typescript: {
+    strict: true,
+    typeCheck: true,
+  },
 
-	openFetch: {
-		// use custom plugin to integrated auth considerations
-		// https://nuxt-open-fetch.vercel.app/advanced/custom-client
-		disableNuxtPlugin: true,
-		clients: {
-			api: {
-				baseURL: "/api",
-			},
-		},
-		openAPITS: {
-			enum: true,
-		},
-	},
+  openFetch: {
+    // use custom plugin to integrated auth considerations
+    // https://nuxt-open-fetch.vercel.app/advanced/custom-client
+    disableNuxtPlugin: true,
+    clients: {
+      api: {
+        baseURL: '/api',
+      },
+    },
+    openAPITS: {
+      enum: true,
+    },
+  },
 
-	pinia: {
-		// accept nested store directories
-		storesDirs: ["app/stores/**"],
-	},
-});
+  pinia: {
+    // accept nested store directories
+    storesDirs: ['app/stores/**'],
+  },
+})

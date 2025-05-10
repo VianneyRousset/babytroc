@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { LockKeyhole, LockKeyholeOpen } from "lucide-vue-next";
+import { LockKeyhole, LockKeyholeOpen } from 'lucide-vue-next'
 
 const { height: mainHeaderHeight } = useElementSize(
-  useTemplateRef("main-header"),
-);
+  useTemplateRef('main-header'),
+)
 
 const {
   loggedIn,
@@ -14,28 +14,24 @@ const {
   loginStatus,
   loginAsyncStatus,
   logout,
-  logoutStatus,
-  logoutAsyncStatus
-} = useAuth();
-const { data: me } = useMeQuery();
+} = useAuth()
+const { data: me } = useMeQuery()
 
-const usernameInput = useTemplateRef("usernameInput");
-const passwordInput = useTemplateRef("passwordInput");
+const usernameInput = useTemplateRef('usernameInput')
+const passwordInput = useTemplateRef('passwordInput')
 
-const route = useRoute();
+const route = useRoute()
 
 watch(loggedIn, (newState, oldState) => {
   if (oldState === false && newState === true && route.query.redirect)
-    navigateTo(route.query.redirect as string);
-});
+    navigateTo(route.query.redirect as string)
+})
 
-const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(password).length > 0);
-
+const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(password).length > 0)
 </script>
 
 <template>
   <div>
-
     <!-- Header bar -->
     <AppHeaderBar ref="main-header">
       <AppBack />
@@ -44,43 +40,93 @@ const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(
 
     <!-- Main content -->
     <main>
-
       <!-- Loader when not knowing if logged in -->
-      <div v-if="loggedInStatus === 'pending'" class="app-content flex-column-center">
-        <Loader />
+      <div
+        v-if="loggedInStatus === 'pending'"
+        class="app-content flex-column-center"
+      >
+        <LoadingAnimation />
       </div>
 
       <!-- Not logged in: show login form -->
-      <div v-else-if="loggedIn === false" class="app-content page">
-        <div class="lock" :class="{ red: loginStatus === 'error' }">
+      <div
+        v-else-if="loggedIn === false"
+        class="app-content page"
+      >
+        <div
+          class="lock"
+          :class="{ red: loginStatus === 'error' }"
+        >
           <div>
-            <LockKeyholeOpen :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+            <LockKeyholeOpen
+              :size="48"
+              :stroke-width="3"
+              :absolute-stroke-width="true"
+            />
           </div>
-          <div v-if="loginStatus !== 'error'">Vous n'êtes pas connecté</div>
-          <div v-else>Email ou mot de passe invalide</div>
+          <div v-if="loginStatus !== 'error'">
+            Vous n'êtes pas connecté
+          </div>
+          <div v-else>
+            Email ou mot de passe invalide
+          </div>
         </div>
         <h2>Se connecter</h2>
         <div class="form">
-          <input type="email" ref="usernameInput" v-model="username" placeholder="Email" tabindex="1" autofocus
-            @keyup.enter="passwordInput?.focus()" />
-          <input type="password" ref="passwordInput" v-model="password" placeholder="Password" tabindex="2"
-            @keyup.enter="login" />
-          <TextButton aspect="flat" size="large" color="primary" @click="enableLogin ? login() : null"
-            :loading="loginAsyncStatus === 'loading'" tabindex="3" :disabled="!enableLogin">Valider</TextButton>
+          <input
+            ref="usernameInput"
+            v-model="username"
+            type="email"
+            placeholder="Email"
+            tabindex="1"
+            autofocus
+            @keyup.enter="passwordInput?.focus()"
+          >
+          <input
+            ref="passwordInput"
+            v-model="password"
+            type="password"
+            placeholder="Password"
+            tabindex="2"
+            @keyup.enter="login"
+          >
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="primary"
+            :loading="loginAsyncStatus === 'loading'"
+            tabindex="3"
+            :disabled="!enableLogin"
+            @click="enableLogin ? login() : null"
+          >
+            Valider
+          </TextButton>
         </div>
       </div>
 
-      <div v-else-if="loggedIn === true" class="app-content page">
+      <div
+        v-else-if="loggedIn === true"
+        class="app-content page"
+      >
         <div class="lock">
           <div>
-            <LockKeyhole :size="48" :strokeWidth="3" :absoluteStrokeWidth="true" />
+            <LockKeyhole
+              :size="48"
+              :stroke-width="3"
+              :absolute-stroke-width="true"
+            />
           </div>
           <div>{{ me?.email }}</div>
         </div>
-        <TextButton aspect="bezel" size="large" @click="logout">Se déconnecter</TextButton>
+        <TextButton
+          aspect="bezel"
+          size="large"
+          @click="logout"
+        >
+          Se déconnecter
+        </TextButton>
       </div>
     </main>
-
   </div>
 </template>
 

@@ -1,29 +1,38 @@
 <script setup lang="ts">
-import { Ellipsis } from "lucide-vue-next";
+import { Ellipsis } from 'lucide-vue-next'
 
-const open = ref(false);
+const open = ref(false)
 </script>
 
 <template>
   <div class="DropdownMenu">
     <DropdownMenuRoot v-model:open="open">
-
       <!-- Trigger button -->
       <DropdownMenuTrigger class="DropdownMenuTrigger">
-        <Ellipsis style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+        <Ellipsis
+          style="cursor: pointer;"
+          :size="32"
+          :stroke-width="2"
+          :absolute-stroke-width="true"
+        />
       </DropdownMenuTrigger>
 
       <Overlay v-model="open">
-
         <DropdownMenuPortal>
-
-          <!-- Menu content-->
-          <DropdownMenuContent class="DropdownMenuContent" :side-offset="-10" align="start">
+          <!-- Menu content -->
+          <DropdownMenuContent
+            class="DropdownMenuContent"
+            :side-offset="-10"
+            align="start"
+          >
             <slot />
-            <DropdownMenuArrow class="DropdownMenuArrow" :width="28" :height="14" />
+            <DropdownMenuArrow
+              class="DropdownMenuArrow"
+              :width="28"
+              :height="14"
+            />
           </DropdownMenuContent>
         </DropdownMenuPortal>
-
       </Overlay>
     </DropdownMenuRoot>
   </div>
@@ -79,7 +88,6 @@ const open = ref(false);
       color: $neutral-700;
     }
   }
-
 
 }
 

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ChevronRight } from "lucide-vue-next";
+import { ChevronRight } from 'lucide-vue-next'
 
-const open = defineModel<boolean>();
+const open = defineModel<boolean>()
 </script>
 
 <template>
-  <CollapsibleRoot v-model:open="open" class="Fold">
-
+  <CollapsibleRoot
+    v-model:open="open"
+    class="PageFold"
+  >
     <!-- Header -->
     <CollapsibleTrigger class="header">
-      <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+      <ChevronRight
+        :size="32"
+        :stroke-width="2"
+        :absolute-stroke-width="true"
+      />
       <h2>
         <slot name="title" />
       </h2>
@@ -21,12 +27,11 @@ const open = defineModel<boolean>();
         <slot />
       </div>
     </CollapsibleContent>
-
   </CollapsibleRoot>
 </template>
 
 <style scoped lang="scss">
-.Fold {
+.PageFold {
 
   @include flex-column;
   border-top: 1px solid $neutral-200;

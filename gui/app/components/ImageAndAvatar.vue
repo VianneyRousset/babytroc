@@ -2,28 +2,28 @@
 // TODO query reduced image size
 
 const props = defineProps<{
-	image: string | null;
-	avatar: string | null;
-}>();
+  image: string | null
+  avatar: string | null
+}>()
 
-const { image, avatar } = toRefs(props);
-
-const imageStyle = computed(() => ({
-	backgroundImage: `url('/api/v1/images/${props.image}')`,
-}));
+const { image, avatar } = toRefs(props)
 </script>
 
 <template>
   <div class="ImageAndAvatar">
-
     <div class="image">
       <AspectRatio :ratio="1">
-        <img v-if="image" :src="image">
+        <img
+          v-if="image"
+          :src="image"
+        >
       </AspectRatio>
     </div>
 
-    <Avatar :seed="avatar" :size="32" />
-
+    <UserAvatar
+      :seed="avatar"
+      :size="32"
+    />
   </div>
 </template>
 
@@ -51,7 +51,7 @@ const imageStyle = computed(() => ({
     }
   }
 
-  .Avatar {
+  .UserAvatar {
     position: absolute;
     bottom: -10px;
     right: -10px;

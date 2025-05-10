@@ -19,6 +19,11 @@ description = "Lint the code with biome"
 depends = ["deps"]
 run = "npx biome lint"
 
+[tasks."lint:eslint"]
+description = "Lint the code with eslint"
+depends = ["deps"]
+run = "eslint"
+
 [tasks."lint:typescript"]
 description = "Lint the code with typescript"
 depends = ["deps"]

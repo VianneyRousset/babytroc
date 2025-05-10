@@ -1,51 +1,74 @@
 <script setup lang="ts">
-import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
-import { Import } from "lucide-vue-next";
+import { Import } from 'lucide-vue-next'
 
 const props = defineProps<{
-	msg: ChatMessage;
-	me: User;
-	chat: Chat;
-	loanId: number;
-}>();
+  msg: ChatMessage
+  me: User
+  chat: Chat
+  loanId: number
+}>()
 
 // chat
-const { me, chat, msg, loanId } = toRefs(props);
+const { me, chat, msg, loanId } = toRefs(props)
 
 // get loan
-const { data: loan } = useLoanQuery({ loanId });
+const { data: loan } = useLoanQuery({ loanId })
 
 // mutations
-const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } =
-	useEndLoanMutation();
+const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } = useEndLoanMutation()
 
 // popup
-const showPopup = ref(false);
+const showPopup = ref(false)
 
 async function end() {
-	await endLoan({ loanId: unref(loanId) });
-	showPopup.value = false;
+  await endLoan({ loanId: unref(loanId) })
+  showPopup.value = false
 }
 </script>
 
 <template>
-  <ChatMessage :me="me" :msg="msg">
-    <Import :size="24" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
+  <ChatMessage
+    :me="me"
+    :msg="msg"
+  >
+    <Import
+      :size="24"
+      :stroke-width="1.33"
+    />
     <div>Vous avez prêté l'objet <b>{{ chat.item.name }}</b> à <b>{{ chat.borrower.name }}</b>.</div>
-    <template v-if="loan?.active" #buttons>
-      <TextButton aspect="outline" color="neutral" @click="showPopup = true">Objet rendu</TextButton>
+    <template
+      v-if="loan?.active"
+      #buttons
+    >
+      <TextButton
+        aspect="outline"
+        color="neutral"
+        @click="showPopup = true"
+      >
+        Objet rendu
+      </TextButton>
     </template>
 
     <Overlay v-model="showPopup">
       <Popup v-model="showPopup">
-        <Import :size="128" :strokeWidth="4" :absoluteStrokeWidth="true" />
-        <div><b>{{ chat.borrower.name }}</b> a accepté de vous prêter de l'objet <b>{{ chat.item.name }}</b> vous a-t'il
+        <Import
+          :size="128"
+          :stroke-width="1"
+        />
+        <div>
+          <b>{{ chat.borrower.name }}</b> a accepté de vous prêter de l'objet <b>{{ chat.item.name }}</b> vous a-t'il
           bien rendu l'objet <b>{{ chat.item.name }}</b> ? Une fois confirmé, l'emprunt sera officiellement terminé.
         </div>
-        <TextButton aspect="flat" size="large" color="primary" :loading="endLoanAsyncStatus === 'loading'" @click="end">
-          Objet rendu</TextButton>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="primary"
+          :loading="endLoanAsyncStatus === 'loading'"
+          @click="end"
+        >
+          Objet rendu
+        </TextButton>
       </Popup>
     </Overlay>
-
   </ChatMessage>
 </template>

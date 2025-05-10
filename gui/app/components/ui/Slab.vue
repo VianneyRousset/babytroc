@@ -1,37 +1,51 @@
 <script setup lang="ts">
-import { ChevronRight } from "lucide-vue-next";
+import { ChevronRight } from 'lucide-vue-next'
 
-const slots = useSlots();
+const slots = useSlots()
 </script>
 
 <template>
   <div class="Slab">
-
     <slot name="image" />
 
     <div class="title">
       <div>
         <slot />
       </div>
-      <div v-if="slots.sub" class="sub">
+      <div
+        v-if="slots.sub"
+        class="sub"
+      >
         <slot name="sub" />
       </div>
     </div>
 
-    <div v-if="slots.mini" class="mini">
+    <div
+      v-if="slots.mini"
+      class="mini"
+    >
       <slot name="mini" />
     </div>
 
-    <transition name="pop" mode="in-out" appear>
-      <div v-if="slots.badge" class="badge">
+    <transition
+      name="pop"
+      mode="in-out"
+      appear
+    >
+      <div
+        v-if="slots.badge"
+        class="badge"
+      >
         <slot name="badge" />
       </div>
     </transition>
 
-    <ChevronRight :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
-
+    <ChevronRight
+      :size="32"
+      :stroke-width="2"
+      :absolute-stroke-width="true"
+    />
   </div>
-
 </template>
 
 <style scoped lang="scss">

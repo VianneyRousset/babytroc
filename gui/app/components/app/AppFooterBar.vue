@@ -1,42 +1,58 @@
 <script setup lang="ts">
 import {
-	Plus,
-	House,
-	Bookmark,
-	MessageSquare,
-	UserRound,
-} from "lucide-vue-next";
+  Plus,
+  House,
+  Bookmark,
+  MessageSquare,
+  UserRound,
+} from 'lucide-vue-next'
 
-const route = useRoute();
+const route = useRoute()
 </script>
 
 <template>
   <nav>
     <ul>
-
       <li :active="route.path.startsWith('/home')">
         <NuxtLink to="/home">
           <div>
-            <House :size="24" :strokeWidth="route.path.startsWith('/home') ? 2 : 1.33" :absoluteStrokeWidth="true" />
+            <House
+              :size="24"
+              :stroke-width="route.path.startsWith('/home') ? 2 : 1.33"
+              :absolute-stroke-width="true"
+            />
             <div>Accueil</div>
           </div>
         </NuxtLink>
       </li>
 
       <li :active="route.path.startsWith('/saved')">
-        <NuxtLink active to="/saved">
+        <NuxtLink
+          active
+          to="/saved"
+        >
           <div>
-            <Bookmark :size="24" :strokeWidth="route.path.startsWith('/saved') ? 2 : 1.33"
-              :absoluteStrokeWidth="true" />
+            <Bookmark
+              :size="24"
+              :stroke-width="route.path.startsWith('/saved') ? 2 : 1.33"
+              :absolute-stroke-width="true"
+            />
             <div>Sauvés</div>
           </div>
         </NuxtLink>
       </li>
 
       <li>
-        <NuxtLink active to="/newitem">
+        <NuxtLink
+          active
+          to="/newitem"
+        >
           <div class="plus">
-            <Plus :size="44" :strokeWidth="2" :absoluteStrokeWidth="true" />
+            <Plus
+              :size="44"
+              :stroke-width="2"
+              :absolute-stroke-width="true"
+            />
           </div>
         </NuxtLink>
       </li>
@@ -44,8 +60,11 @@ const route = useRoute();
       <li :active="route.path.startsWith('/chats')">
         <NuxtLink to="/chats">
           <div>
-            <MessageSquare :size="24" :strokeWidth="route.path.startsWith('/chats') ? 2 : 1.33"
-              :absoluteStrokeWidth="true" />
+            <MessageSquare
+              :size="24"
+              :stroke-width="route.path.startsWith('/chats') ? 2 : 1.33"
+              :absolute-stroke-width="true"
+            />
             <div>Chats</div>
           </div>
         </NuxtLink>
@@ -54,12 +73,15 @@ const route = useRoute();
       <li :active="route.path.startsWith('/me')">
         <NuxtLink to="/me">
           <div>
-            <UserRound :size="24" :strokeWidth="route.path.startsWith('/me') ? 2 : 1.33" :absoluteStrokeWidth="true" />
+            <UserRound
+              :size="24"
+              :stroke-width="route.path.startsWith('/me') ? 2 : 1.33"
+              :absolute-stroke-width="true"
+            />
             <div>Moi</div>
           </div>
         </NuxtLink>
       </li>
-
     </ul>
   </nav>
 </template>
@@ -116,7 +138,6 @@ nav {
         @include flex-column;
         justify-content: center;
         gap: 4px;
-
 
         &.plus {
 

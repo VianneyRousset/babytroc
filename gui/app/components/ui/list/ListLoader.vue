@@ -1,6 +1,6 @@
 <template>
   <div class="ListLoader">
-    <Loader />
+    <LoadingAnimation />
   </div>
 </template>
 

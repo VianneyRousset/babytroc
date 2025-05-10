@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import { LoanRequestState } from "#build/types/open-fetch/schemas/api";
-import { PartyPopper, Import } from "lucide-vue-next";
+import { Import } from 'lucide-vue-next'
 
 const props = defineProps<{
-	msg: ChatMessage;
-	me: User;
-	chat: Chat;
-}>();
+  msg: ChatMessage
+  me: User
+  chat: Chat
+}>()
 
 // chat
-const { me, chat, msg } = toRefs(props);
+const { me, chat, msg } = toRefs(props)
 </script>
 
 <template>
-  <ChatMessage :me="me" :msg="msg">
-    <Import :size="24" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
+  <ChatMessage
+    :me="me"
+    :msg="msg"
+  >
+    <Import
+      :size="24"
+      :stroke-width="1.33"
+    />
     <div>Vous avez reçu l'objet <b>{{ chat.item.name }}.</b></div>
   </ChatMessage>
 </template>

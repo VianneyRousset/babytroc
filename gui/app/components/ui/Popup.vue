@@ -1,15 +1,19 @@
 <script setup lang="ts">
-const model = defineModel<boolean>();
+const model = defineModel<boolean>()
 </script>
 
 <template>
-
-  <transition name="pop" mode="in-out">
-    <div class="popup" v-show="model">
+  <transition
+    name="pop"
+    mode="in-out"
+  >
+    <div
+      v-show="model"
+      class="popup"
+    >
       <slot />
     </div>
   </transition>
-
 </template>
 
 <style scoped lang="scss">

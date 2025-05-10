@@ -1,26 +1,48 @@
 <script setup lang="ts">
-import { ChevronRight, Heart, Star } from "lucide-vue-next";
+import { ChevronRight, Heart, Star } from 'lucide-vue-next'
 
 const props = defineProps<{
-	user: User;
-}>();
+  user: User
+}>()
 
-const { user } = toRefs(props);
+const { user } = toRefs(props)
 </script>
 
 <template>
-  <div class="UserCard" :title="user.name">
-    <Avatar :seed="user.avatar_seed" />
+  <div
+    class="UserCard"
+    :title="user.name"
+  >
+    <UserAvatar :seed="user.avatar_seed" />
     <span class="name">{{ user.name }}</span>
     <div class="counters">
-      <Counter size="tiny" v-model="user.stars_count">
-        <Heart :size="16" :strokeWidth="1.25" :absoluteStrokeWidth="true" />
-      </Counter>
-      <Counter size="tiny" v-model="user.likes_count">
-        <Star :size="16" :strokeWidth="1.25" :absoluteStrokeWidth="true" />
-      </Counter>
+      <StatsCounter
+        v-model="user.stars_count"
+        size="tiny"
+      >
+        <Heart
+          :size="16"
+          :stroke-width="1.25"
+          :absolute-stroke-width="true"
+        />
+      </StatsCounter>
+      <StatsCounter
+        v-model="user.likes_count"
+        size="tiny"
+      >
+        <Star
+          :size="16"
+          :stroke-width="1.25"
+          :absolute-stroke-width="true"
+        />
+      </StatsCounter>
     </div>
-    <ChevronRight class="chevron" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+    <ChevronRight
+      class="chevron"
+      :size="32"
+      :stroke-width="2"
+      :absolute-stroke-width="true"
+    />
   </div>
 </template>
 

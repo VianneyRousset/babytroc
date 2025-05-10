@@ -1,35 +1,46 @@
 <script setup lang="ts">
-import { Heart } from "lucide-vue-next";
+const props = defineProps<{ item: Item }>()
 
-import type { AsyncStatus } from "@pinia/colada";
+const { item } = toRefs(props)
 
-const props = defineProps<{item: Item}>();
-
-const { item } = toRefs(props);
-
-const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item);
-const { regions, regionsIds } = useItemRegions(item);
+const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
+const { regions, regionsIds } = useItemRegions(item)
 </script>
 
 <template>
   <div class="ItemDescriptionAndDetails">
-    <Fold>
-      <template v-slot:title>Description</template>
-      <div class="name">{{ item.name }}</div>
+    <PageFold>
+      <template #title>
+        Description
+      </template>
+      <div class="name">
+        {{ item.name }}
+      </div>
       <div>{{ item.description }}</div>
-    </Fold>
-    <Fold>
-      <template v-slot:title>Détails</template>
+    </PageFold>
+    <PageFold>
+      <template #title>
+        Détails
+      </template>
       <div class="minitable">
-        <div class="label">Âge</div>
+        <div class="label">
+          Âge
+        </div>
         <div>{{ formatedTargetedAgeMonths }}</div>
-        <div class="label">Régions</div>
+        <div class="label">
+          Régions
+        </div>
         <ul>
-          <li v-for="region in regions">{{ region.name }}</li>
+          <li
+            v-for="region in regions"
+            :key="`region${region.id}`"
+          >
+            {{ region.name }}
+          </li>
         </ul>
       </div>
-      <RegionsMap :modelValue="regionsIds" />
-    </Fold>
+      <RegionsMap :model-value="regionsIds" />
+    </PageFold>
   </div>
 </template>
 

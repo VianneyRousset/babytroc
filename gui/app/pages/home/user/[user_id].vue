@@ -1,65 +1,73 @@
 <script setup lang="ts">
-import { Bookmark, BookmarkX, ShieldAlert } from "lucide-vue-next";
-import { computedAsync } from "@vueuse/core";
+import { ShieldAlert } from 'lucide-vue-next'
 
 // get user ID from route
-const route = useRoute();
-const router = useRouter();
-const routeStack = useRouteStack();
-const userId = Number.parseInt(route.params.user_id as string); // TODO avoid this hack
+const route = useRoute()
+const router = useRouter()
+const routeStack = useRouteStack()
+const userId = Number.parseInt(route.params.user_id as string) // TODO avoid this hack
 
-const { currentTab } = useTab();
+const { currentTab } = useTab()
 
 // goto tab main page if invalid itemId
 if (Number.isNaN(userId)) navigateTo(`/${currentTab}`)
 
 // get main header bar height to offset content
-const main = useTemplateRef<HTMLElement>("main");
+const main = useTemplateRef<HTMLElement>('main')
 const { height: mainHeaderHeight } = useElementSize(
-	useTemplateRef("main-header"),
-);
+  useTemplateRef('main-header'),
+)
 
 // current tab
-const { currentTabRoot } = useTab();
+const { currentTabRoot } = useTab()
 
 // get user data
-const { data: user } = useUserQuery(userId);
+const { data: user } = useUserQuery(userId)
 
-const { status: likedItemsStatus, data: likedItems } = useLikedItemsQuery();
-const { status: savedItemsStatus, data: savedItems } = useSavedItemsQuery();
+const { data: likedItems } = useLikedItemsQuery()
+const { data: savedItems } = useSavedItemsQuery()
 
 function openItem(itemId: number) {
-	routeStack.amend(
-		router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
-	);
-	return navigateTo(`${currentTabRoot}/item/${itemId}`);
+  routeStack.amend(
+    router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
+  )
+  return navigateTo(`${currentTabRoot}/item/${itemId}`)
 }
 
 // auth
-const { loggedIn } = useAuth();
+const { loggedIn } = useAuth()
 </script>
 
 <template>
   <div>
-
     <!-- Header bar -->
-    <AppHeaderBar ref="main-header" :scroll="main ?? false" :scrollOffset="32">
-
+    <AppHeaderBar
+      ref="main-header"
+      :scroll="main ?? false"
+      :scroll-offset="32"
+    >
       <div>
         <AppBack />
-        <h1 :title="user?.name">{{ user?.name }}</h1>
+        <h1 :title="user?.name">
+          {{ user?.name }}
+        </h1>
 
         <!-- Dropdown menu -->
         <DropdownMenu v-if="loggedIn === true">
           <DropdownMenuItem class="red">
-            <ShieldAlert style="cursor: pointer;" :size="32" :strokeWidth="2" :absoluteStrokeWidth="true" />
+            <ShieldAlert
+              style="cursor: pointer;"
+              :size="32"
+              :stroke-width="2"
+              :absolute-stroke-width="true"
+            />
             <div>Signaler</div>
           </DropdownMenuItem>
         </DropdownMenu>
       </div>
 
       <div v-if="user">
-        <Avatar :seed="user.avatar_seed" />
+        <UserAvatar :seed="user.avatar_seed" />
         <div class="counter">
           <div>{{ user.stars_count }}</div>
           <div>Étoiles</div>
@@ -73,18 +81,29 @@ const { loggedIn } = useAuth();
           <div>Objects</div>
         </div>
       </div>
-
     </AppHeaderBar>
 
     <!-- Main content -->
     <main>
-      <List v-if="user" ref="main" class="app-content page">
-        <ItemCard v-for="item in user.items" @click="openItem(item.id)" :key="`item${item.id}`" :id="`item${item.id}`"
-          :item="item" :likedItems="likedItems ?? []" :savedItems="savedItems ?? []" />
-        <ListEmpty v-if="user.items.length === 0">{{ user?.name }} n'a pas encore d'objet.</ListEmpty>
+      <List
+        v-if="user"
+        ref="main"
+        class="app-content page"
+      >
+        <ItemCard
+          v-for="item in user.items"
+          :id="`item${item.id}`"
+          :key="`item${item.id}`"
+          :item="item"
+          :liked-items="likedItems ?? []"
+          :saved-items="savedItems ?? []"
+          @click="openItem(item.id)"
+        />
+        <ListEmpty v-if="user.items.length === 0">
+          {{ user?.name }} n'a pas encore d'objet.
+        </ListEmpty>
       </List>
     </main>
-
   </div>
 </template>
 

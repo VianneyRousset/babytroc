@@ -1,73 +1,78 @@
 <script setup lang="ts">
 const props = withDefaults(
-	defineProps<{
-		aspect?: "flat" | "outline" | "bezel";
-		size?: "large" | "normal";
-		color?: "neutral" | "primary" | "red";
-		loading?: boolean;
-		timeout?: number;
-		disabled?: boolean;
-	}>(),
-	{
-		aspect: "flat",
-		size: "normal",
-		color: "neutral",
-		loading: false,
-		timeout: 1000,
-		disabled: false,
-	},
-);
-const { aspect, size, color, loading, timeout, disabled } = toRefs(props);
+  defineProps<{
+    aspect?: 'flat' | 'outline' | 'bezel'
+    size?: 'large' | 'normal'
+    color?: 'neutral' | 'primary' | 'red'
+    loading?: boolean
+    timeout?: number
+    disabled?: boolean
+  }>(),
+  {
+    aspect: 'flat',
+    size: 'normal',
+    color: 'neutral',
+    loading: false,
+    timeout: 1000,
+    disabled: false,
+  },
+)
+const { aspect, size, color, loading, timeout, disabled } = toRefs(props)
 
-const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>);
-const showLoader = ref(false);
+const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>)
+const showLoader = ref(false)
 
 const classes = computed(() => ({
-	large: unref(size) === "large",
+  large: unref(size) === 'large',
 
-	flat: unref(aspect) === "flat",
-	outline: unref(aspect) === "outline",
-	bezel: unref(aspect) === "bezel",
+  flat: unref(aspect) === 'flat',
+  outline: unref(aspect) === 'outline',
+  bezel: unref(aspect) === 'bezel',
 
-	disabled: unref(disabled),
+  disabled: unref(disabled),
 
-	primary: unref(color) === "primary",
-	red: unref(color) === "red",
+  primary: unref(color) === 'primary',
+  red: unref(color) === 'red',
 
-	loading: unref(showLoader),
-}));
+  loading: unref(showLoader),
+}))
 
 watch(
-	loading,
-	(v) => {
-		if (v) {
-			clearTimeout(loadingTimeout.value ?? undefined);
+  loading,
+  (v) => {
+    if (v) {
+      clearTimeout(loadingTimeout.value ?? undefined)
 
-			loadingTimeout.value = setTimeout(() => {
-				showLoader.value = true;
-			}, unref(timeout));
-		} else {
-			clearTimeout(unref(loadingTimeout.value) ?? undefined);
-			loadingTimeout.value = null;
+      loadingTimeout.value = setTimeout(() => {
+        showLoader.value = true
+      }, unref(timeout))
+    }
+    else {
+      clearTimeout(unref(loadingTimeout.value) ?? undefined)
+      loadingTimeout.value = null
 
-			showLoader.value = false;
-		}
-	},
-	{ immediate: true },
-);
+      showLoader.value = false
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-
-  <div class="button" :class="classes">
-    <div v-if="showLoader" class="loader">
-      <Loader :small="true" />
+  <div
+    class="button"
+    :class="classes"
+  >
+    <div
+      v-if="showLoader"
+      class="loader"
+    >
+      <LoadingAnimation :small="true" />
     </div>
     <span>
       <slot />
     </span>
   </div>
-
 </template>
 
 <style scoped lang="scss">

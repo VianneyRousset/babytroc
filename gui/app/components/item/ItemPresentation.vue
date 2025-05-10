@@ -1,87 +1,64 @@
 <script setup lang="ts">
-import { Heart } from "lucide-vue-next";
-
-import type { AsyncStatus } from "@pinia/colada";
+import type { AsyncStatus } from '@pinia/colada'
 
 const props = defineProps<{
-	item: Item;
-	itemAsyncStatus: AsyncStatus;
-	me?: UserPrivate | User;
-	likedItems: Array<Item | ItemPreview>;
-	likedAsyncStatus: AsyncStatus;
-	loanRequests: Array<LoanRequest>;
-}>();
+  item: Item
+  itemAsyncStatus: AsyncStatus
+  me?: UserPrivate | User
+  likedItems: Array<Item | ItemPreview>
+  likedAsyncStatus: AsyncStatus
+  loanRequests: Array<LoanRequest>
+}>()
 
 // current tab
-const { currentTab } = useTab();
-
-const router = useRouter();
+const { currentTab } = useTab()
 
 const {
-	item,
-	itemAsyncStatus,
-	me,
-	likedItems,
-	likedAsyncStatus,
-	loanRequests,
-} = toRefs(props);
-
-const { isOwnedByUser } = useIsItemOwnedByUser(item, me);
-const { isRequestedByUser } = useItemLoanRequest(item, loanRequests);
-
-const { mutateAsync: requestItem, asyncStatus: requestItemAsyncStatus } =
-	useRequestItemMutation();
-const { mutateAsync: unrequestItem, asyncStatus: unrequestItemAsyncStatus } =
-	useUnrequestItemMutation();
-const { mutateAsync: toggleItemLike, asyncStatus: toggleItemLikeAsyncStatus } =
-	useToggleItemLikeMutation();
+  item,
+  itemAsyncStatus,
+  me,
+  likedItems,
+  likedAsyncStatus,
+  loanRequests,
+} = toRefs(props)
 
 // query owner
-const { status: ownerStatus, data: owner } = useUserQuery(
-	computed(() => toValue(item).owner_id),
-);
-
-const activeLikeButton = computed(() =>
-	[toggleItemLikeAsyncStatus, itemAsyncStatus, likedAsyncStatus].some(
-		(r) => unref(r) === "loading",
-	),
-);
-
-async function request(itemId: number) {
-	const loanRequest = await requestItem(itemId);
-	return navigateTo(
-		router.resolve({
-			name: "chats-chat_id",
-			params: {
-				chat_id: loanRequest.chat_id,
-			},
-		}),
-	);
-}
+const { data: owner } = useUserQuery(
+  computed(() => toValue(item).owner_id),
+)
 </script>
 
 <template>
   <div class="ItemPresentation">
-
     <!-- Gallery -->
     <ItemImagesGallery :item="item" />
 
     <!-- Availability and likes count -->
     <ItemAvailabilityAndLikesCount
-      :item="item" :itemAsyncStatus="itemAsyncStatus"
-      :likedItems="likedItems" :likedAsyncStatus="likedAsyncStatus"
+      :item="item"
+      :item-async-status="itemAsyncStatus"
+      :liked-items="likedItems"
+      :liked-async-status="likedAsyncStatus"
     />
 
-    <!-- Description and details (age and regions)-->
-		<ItemDescriptionAndDetails :item="item" />
+    <!-- Description and details (age and regions) -->
+    <ItemDescriptionAndDetails :item="item" />
 
     <!-- Owner -->
-    <NuxtLink v-if="owner" :to="`/${currentTab}/user/${item.owner_id}`" class="reset-link">
+    <NuxtLink
+      v-if="owner"
+      :to="`/${currentTab}/user/${item.owner_id}`"
+      class="reset-link"
+    >
       <UserCard :user="owner" />
     </NuxtLink>
 
     <!-- Request -->
-		<ItemRequest :item="item" :me="me" :loanRequests="loanRequests"/>
+    <ItemRequest
+      :item="item"
+      :me="me"
+      :loan-requests="loanRequests"
+    />
   </div>
 </template>
 

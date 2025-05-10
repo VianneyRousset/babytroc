@@ -1,26 +1,34 @@
 <script setup lang="ts">
 const props = defineProps<{
-	small?: boolean;
-}>();
+  small?: boolean
+}>()
+
+const { small } = toRefs(props)
 </script>
 
 <template>
-  <div v-if="small" class="spinner-small">
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
-    <div class="spinner-small-blade"></div>
+  <div
+    v-if="small"
+    class="spinner-small"
+  >
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
+    <div class="spinner-small-blade" />
   </div>
-  <div v-else class="spinner-big">
-    <div></div>
+  <div
+    v-else
+    class="spinner-big"
+  >
+    <div />
   </div>
 </template>
 

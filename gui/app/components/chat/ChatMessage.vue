@@ -1,62 +1,85 @@
 <script setup lang="ts">
-import { Check, CheckCheck } from "lucide-vue-next";
+import { Check, CheckCheck } from 'lucide-vue-next'
 
 const props = defineProps<{
-	me: User;
-	msg: ChatMessage;
-}>();
+  me: User
+  msg: ChatMessage
+}>()
 
-const { me, msg } = toRefs(props);
+const { me, msg } = toRefs(props)
 
-const slots = useSlots();
+const slots = useSlots()
 
-const { origin } = useChatMessageOrigin(msg, me);
-const { isNew } = useChatMessageIsNew(msg, me);
-const { $api } = useNuxtApp();
+const { origin } = useChatMessageOrigin(msg, me)
+const { isNew } = useChatMessageIsNew(msg, me)
+const { $api } = useNuxtApp()
 
-let seeMessageTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+let seeMessageTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 
 watch(isNew, (isNew) => {
   if (isNew === true) {
     seeMessageTimeout = setTimeout(async () => {
-      const _msg = unref(msg);
-      await $api("/v1/me/chats/{chat_id}/messages/{message_id}/see", {
-        method: "post",
+      const _msg = unref(msg)
+      await $api('/v1/me/chats/{chat_id}/messages/{message_id}/see', {
+        method: 'post',
         path: {
           chat_id: _msg.chat_id,
           message_id: _msg.id,
         },
-      });
-    }, 2000);
+      })
+    }, 2000)
   }
-}, {immediate: true});
+}, { immediate: true })
 
 onUnmounted(() => {
   if (seeMessageTimeout !== undefined) {
-    clearTimeout(seeMessageTimeout);
-    seeMessageTimeout = undefined;
+    clearTimeout(seeMessageTimeout)
+    seeMessageTimeout = undefined
   }
-});
+})
 
-const { formattedHour } = useChatMessageTime(msg);
+const { formattedHour } = useChatMessageTime(msg)
 </script>
 
 <template>
-  <div class="ChatMessage" :origin="origin" :new="isNew">
-
-  <transition :name="isNew ? 'pop' : undefined" mode="in-out" appear>
+  <div
+    class="ChatMessage"
+    :origin="origin"
+    :new="isNew"
+  >
+    <transition
+      :name="isNew ? 'pop' : undefined"
+      mode="in-out"
+      appear
+    >
       <div class="bubble">
         <div class="text">
           <slot />
         </div>
-        <div v-if="slots.buttons" class="buttons">
+        <div
+          v-if="slots.buttons"
+          class="buttons"
+        >
           <slot name="buttons" />
         </div>
         <div class="hour-and-check">
-          <div class="hour">{{ formattedHour }}</div>
-          <transition name="pop" mode="in-out">
-            <CheckCheck v-if="msg.seen" :size="16" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
-            <Check v-else  :size="16" :strokeWidth="1.33" :absoluteStrokeWidth="true" />
+          <div class="hour">
+            {{ formattedHour }}
+          </div>
+          <transition
+            name="pop"
+            mode="in-out"
+          >
+            <CheckCheck
+              v-if="msg.seen"
+              :size="16"
+              :stroke-width="1.33"
+            />
+            <Check
+              v-else
+              :size="16"
+              :stroke-width="1.33"
+            />
           </transition>
         </div>
       </div>

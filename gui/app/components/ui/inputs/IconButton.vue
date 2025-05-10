@@ -1,24 +1,33 @@
 <script setup lang="ts">
-import { Square } from "lucide-vue-next";
+import { Square } from 'lucide-vue-next'
 
 const props = withDefaults(
-	defineProps<{
-		active?: boolean;
-		disabled?: boolean;
-	}>(),
-	{
-		active: false,
-		disabled: false,
-	},
-);
+  defineProps<{
+    active?: boolean
+    disabled?: boolean
+  }>(),
+  {
+    active: false,
+    disabled: false,
+  },
+)
 
-const { disabled, active } = toRefs(props);
+const { disabled, active } = toRefs(props)
 </script>
 
 <template>
-  <div class="IconButton" role="button" :disabled="disabled" :active="active">
+  <div
+    class="IconButton"
+    role="button"
+    :disabled="disabled"
+    :active="active"
+  >
     <slot>
-      <Square :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+      <Square
+        :size="24"
+        :stroke-width="2"
+        :absolute-stroke-width="true"
+      />
     </slot>
   </div>
 </template>

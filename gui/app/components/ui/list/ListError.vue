@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { OctagonAlert } from "lucide-vue-next";
+import { OctagonAlert } from 'lucide-vue-next'
 </script>
 
 <template>
   <div class="ListError">
-    <OctagonAlert :size="24" :strokeWidth="2" :absoluteStrokeWidth="true" />
+    <OctagonAlert
+      :size="24"
+      :stroke-width="2"
+      :absolute-stroke-width="true"
+    />
     <slot />
   </div>
 </template>

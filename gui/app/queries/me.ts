@@ -1,10 +1,10 @@
 function useMeQuery() {
-	const { $api } = useNuxtApp();
+  const { $api } = useNuxtApp()
 
-	return useQueryWithAuth({
-		key: ["me"],
-		query: () => $api("/v1/me"),
-	});
+  return useQueryWithAuth({
+    key: ['me'],
+    query: () => $api('/v1/me'),
+  })
 }
 
-export { useMeQuery };
+export { useMeQuery }

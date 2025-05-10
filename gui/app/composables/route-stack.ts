@@ -1,47 +1,47 @@
 export const useRouteStack = () => {
-	const stack = useNuxtApp().$routeStack;
-	const backwardFlag = useNuxtApp().$routeStackBackwardFlag;
-	const direction = useNuxtApp().$routeStackDirection;
+  const stack = useNuxtApp().$routeStack
+  const backwardFlag = useNuxtApp().$routeStackBackwardFlag
+  const direction = useNuxtApp().$routeStackDirection
 
-	function push(fullPath: string) {
-		if (stack.length === 0) return stack.push(fullPath);
+  function push(fullPath: string) {
+    if (stack.length === 0) return stack.push(fullPath)
 
-		if (stack[stack.length - 1] === fullPath) return;
+    if (stack[stack.length - 1] === fullPath) return
 
-		return stack.push(fullPath);
-	}
+    return stack.push(fullPath)
+  }
 
-	function amend(fullPath: string) {
-		stack[stack.length - 1] = fullPath;
-	}
+  function amend(fullPath: string) {
+    stack[stack.length - 1] = fullPath
+  }
 
-	function pop() {
-		const route = current.value;
-		stack.pop();
-		return route;
-	}
+  function pop() {
+    const route = current.value
+    stack.pop()
+    return route
+  }
 
-	function markBackward() {
-		backwardFlag.value = true;
-		direction.value = "backward";
-	}
+  function markBackward() {
+    backwardFlag.value = true
+    direction.value = 'backward'
+  }
 
-	const current = computed(() => stack[stack.length - 1]);
+  const current = computed(() => stack[stack.length - 1])
 
-	const previous = computed(() => {
-		if (!stack || stack.length < 2) return null;
+  const previous = computed(() => {
+    if (!stack || stack.length < 2) return null
 
-		return stack[stack.length - 2];
-	});
+    return stack[stack.length - 2]
+  })
 
-	return {
-		stack,
-		direction,
-		push,
-		amend,
-		pop,
-		current,
-		previous,
-		markBackward,
-	};
-};
+  return {
+    stack,
+    direction,
+    push,
+    amend,
+    pop,
+    current,
+    previous,
+    markBackward,
+  }
+}

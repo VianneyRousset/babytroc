@@ -1,68 +1,85 @@
 <script setup lang="ts">
-import { Send } from "lucide-vue-next";
+import { Send } from 'lucide-vue-next'
 
-const model = defineModel<string>();
+const model = defineModel<string>()
 
 // props
 const props = withDefaults(
-	defineProps<{
-		loading?: boolean;
-	}>(),
-	{
-		loading: false,
-	},
-);
-const { loading } = toRefs(props);
+  defineProps<{
+    loading?: boolean
+  }>(),
+  {
+    loading: false,
+  },
+)
+const { loading } = toRefs(props)
 
-const emit = defineEmits<(e: "submit", value: string) => void>();
+const emit = defineEmits<(e: 'submit', value: string) => void>()
 
-const { textarea, input: autosizeInput } = useTextareaAutosize();
+const { textarea, input: autosizeInput } = useTextareaAutosize()
 
 const input = computed({
-	get: () => model.value,
-	set: (newValue) => {
-		model.value = newValue;
-		autosizeInput.value = newValue ?? "";
-	},
-});
+  get: () => model.value,
+  set: (newValue) => {
+    model.value = newValue
+    autosizeInput.value = newValue ?? ''
+  },
+})
 
 function blur() {
-	if (textarea.value) textarea.value.blur();
+  if (textarea.value) textarea.value.blur()
 }
 
 function enterDown(event: KeyboardEvent) {
-	// ignore keydown enter if shift is not rpressed
-	if (!event.shiftKey) event.preventDefault();
+  // ignore keydown enter if shift is not rpressed
+  if (!event.shiftKey) event.preventDefault()
 }
 
 function enterUp(event: KeyboardEvent) {
-	// if shift key is pressed, handle it as a normal line return
-	if (event.shiftKey) return;
+  // if shift key is pressed, handle it as a normal line return
+  if (event.shiftKey) return
 
-	event.preventDefault();
-	submit();
+  event.preventDefault()
+  submit()
 }
 
 function submit() {
-	emit("submit", model.value ?? "");
+  emit('submit', model.value ?? '')
 }
 
 const disabled = computed(
-	() => model.value?.trim().length === 0 || loading.value,
-);
+  () => model.value?.trim().length === 0 || loading.value,
+)
 </script>
 
 <template>
-
   <div class="ChatMessageInput">
-    <textarea ref="textarea" v-model="input" placeholder="Répondre" tabindex="1" @keydown.enter="enterDown"
-      @keyup.enter="enterUp" @keyup.escape="blur();" />
-    <IconButton @click="submit" class="IconButton" :disabled="disabled">
-      <Loader v-if="loading" :small="true" />
-      <Send v-else :size="20" :strokeWidth="1.5" :absoluteStrokeWidth="true" />
+    <textarea
+      ref="textarea"
+      v-model="input"
+      placeholder="Répondre"
+      tabindex="1"
+      @keydown.enter="enterDown"
+      @keyup.enter="enterUp"
+      @keyup.escape="blur();"
+    />
+    <IconButton
+      class="IconButton"
+      :disabled="disabled"
+      @click="submit"
+    >
+      <LoadingAnimation
+        v-if="loading"
+        :small="true"
+      />
+      <Send
+        v-else
+        :size="20"
+        :stroke-width="1.5"
+        :absolute-stroke-width="true"
+      />
     </IconButton>
   </div>
-
 </template>
 
 <style scoped lang="scss">
@@ -96,7 +113,6 @@ const disabled = computed(
     padding-left: 1rem;
     padding-top: 1.2rem;
     padding-right: 64px;
-
 
     font-family: 'Inter',
     sans-serif;
