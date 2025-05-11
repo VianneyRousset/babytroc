@@ -8,6 +8,16 @@ export function useBorrowingsListQuery() {
   })
 }
 
+// TODO check paginated
+export function useLoansListQuery() {
+  const { $api } = useNuxtApp()
+
+  return useQueryWithAuth({
+    key: ['me', 'loans'],
+    query: () => $api('/v1/me/loans'),
+  })
+}
+
 export function useBorrowingsLoanRequestsListQuery(options: {
   active: MaybeRefOrGetter<boolean>
 }) {

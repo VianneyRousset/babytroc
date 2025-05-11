@@ -111,7 +111,7 @@ const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(
           <div>
             <LockKeyhole
               :size="48"
-              :stroke-width="3"
+              :stroke-width="2"
             />
           </div>
           <div>{{ me?.email }}</div>

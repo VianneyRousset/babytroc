@@ -7,7 +7,7 @@ const props = defineProps<{
 const { me, chat } = toRefs(props)
 
 // get messages
-const { messages } = useChatMessages(() => unref(chat).id)
+const { messages, loadMore, end } = useChatMessages(() => unref(chat).id)
 
 // mutations
 const { mutate: sendMessage } = useSendMessageMutation()
@@ -30,10 +30,25 @@ const { height: chatMessageInputHeight } = useElementSize(
   undefined,
   { box: 'border-box' },
 )
+
+const chatPresentation = useTemplateRef<HTMLElement>('chatPresentation')
+useInfiniteScroll(
+  chatPresentation,
+  async () => {
+    await loadMore()
+  },
+  {
+    canLoadMore: () => !unref(end),
+    distance: 1800,
+  },
+)
 </script>
 
 <template>
-  <div class="ChatPresentation">
+  <div
+    ref="chatPresentation"
+    class="ChatPresentation"
+  >
     <ChatMessagesList
       :me="me"
       :chat="chat"
@@ -52,6 +67,7 @@ const { height: chatMessageInputHeight } = useElementSize(
 
   @include flex-column;
   flex-direction: column-reverse;
+  align-items: stretch;
 
   --chat-message-input-height: v-bind(chatMessageInputHeight + "px");
 

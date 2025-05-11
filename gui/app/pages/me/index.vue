@@ -108,7 +108,7 @@ const { loggedIn } = useAuth()
 
       <h2>Info</h2>
       <SlabList>
-        <NuxtLink to="/me/info">
+        <NuxtLink to="/me/about">
           <MeSlab>
             A propos de BabyTroc
             <template #image>
