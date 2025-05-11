@@ -26,7 +26,6 @@ function submit() {
       class="search-icon"
       :size="20"
       :stroke-width="1"
-      :absolute-stroke-width="true"
     />
     <input
       ref="input"
@@ -43,7 +42,6 @@ function submit() {
       class="x-icon"
       :size="20"
       :stroke-width="1"
-      :absolute-stroke-width="true"
       @click="clear(); submit();"
     />
   </div>

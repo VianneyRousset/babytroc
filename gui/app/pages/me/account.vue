@@ -60,8 +60,7 @@ const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(
           <div>
             <LockKeyholeOpen
               :size="48"
-              :stroke-width="3"
-              :absolute-stroke-width="true"
+              :stroke-width="2"
             />
           </div>
           <div v-if="loginStatus !== 'error'">
@@ -113,7 +112,6 @@ const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(
             <LockKeyhole
               :size="48"
               :stroke-width="3"
-              :absolute-stroke-width="true"
             />
           </div>
           <div>{{ me?.email }}</div>

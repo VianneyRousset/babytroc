@@ -43,7 +43,6 @@ const slots = useSlots()
     <ChevronRight
       :size="32"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
   </div>
 </template>

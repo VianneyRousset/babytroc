@@ -24,7 +24,6 @@ const { mutate: unsaveItem } = useUnsaveItemMutation()
       <BookmarkX
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <div>Oublier</div>
     </DropdownMenuItem>
@@ -37,7 +36,6 @@ const { mutate: unsaveItem } = useUnsaveItemMutation()
       <Bookmark
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <div>Enregistrer</div>
     </DropdownMenuItem>
@@ -47,7 +45,6 @@ const { mutate: unsaveItem } = useUnsaveItemMutation()
       <ShieldAlert
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <div>Signaler</div>
     </DropdownMenuItem>

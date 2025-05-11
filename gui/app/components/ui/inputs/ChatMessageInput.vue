@@ -76,7 +76,6 @@ const disabled = computed(
         v-else
         :size="20"
         :stroke-width="1.5"
-        :absolute-stroke-width="true"
       />
     </IconButton>
   </div>

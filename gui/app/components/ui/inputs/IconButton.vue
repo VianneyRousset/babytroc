@@ -26,7 +26,6 @@ const { disabled, active } = toRefs(props)
       <Square
         :size="24"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
     </slot>
   </div>

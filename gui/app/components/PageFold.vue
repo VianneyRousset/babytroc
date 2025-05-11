@@ -14,7 +14,6 @@ const open = defineModel<boolean>()
       <ChevronRight
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <h2>
         <slot name="title" />

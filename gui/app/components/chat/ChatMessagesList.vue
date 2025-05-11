@@ -57,6 +57,20 @@ const { isUserBorrowing } = useChatRoles(chat, me)
             />
           </template>
 
+          <template #[ChatMessageType.loan_request_cancelled]>
+            <ChatMessageLoanRequestCancelledBorrower
+              v-if="isUserBorrowing"
+              :msg="msg"
+              :me="me"
+            />
+            <ChatMessageLoanRequestCancelledOwner
+              v-else
+              :msg="msg"
+              :me="me"
+              :chat="chat"
+            />
+          </template>
+
           <template #[ChatMessageType.loan_request_accepted]>
             <ChatMessageLoanRequestAcceptedBorrower
               v-if="isUserBorrowing"

@@ -33,7 +33,6 @@ function openItem(itemId: number) {
       <Bookmark
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <h1>Objets sauvegardés</h1>
     </AppHeaderBar>
@@ -57,7 +56,6 @@ function openItem(itemId: number) {
           <LockKeyholeOpen
             :size="48"
             :stroke-width="3"
-            :absolute-stroke-width="true"
           />
           <div>Vous n'êtes pas connecté</div>
           <TextButton

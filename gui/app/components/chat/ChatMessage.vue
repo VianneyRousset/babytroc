@@ -140,10 +140,7 @@ const { formattedHour } = useChatMessageTime(msg)
       align-self: center;
       color: $neutral-400;
       border-radius: 0.5rem;
-
-      .hour {
-        color: black;
-      }
+      width: 70%;
     }
   }
 
@@ -240,13 +237,13 @@ const { formattedHour } = useChatMessageTime(msg)
 
   .hour-and-check {
     @include flex-row;
+    color: $neutral-400;
     gap: 0.3rem;
     position: absolute;
     bottom: 0.15rem;
     right: 0.5rem;
-    opacity: 0.3;
     font-size: 0.7rem;
-  white-space: nowrap;
+    white-space: nowrap;
   }
 }
 </style>

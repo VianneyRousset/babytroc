@@ -19,7 +19,6 @@ const route = useRoute()
             <House
               :size="24"
               :stroke-width="route.path.startsWith('/home') ? 2 : 1.33"
-              :absolute-stroke-width="true"
             />
             <div>Accueil</div>
           </div>
@@ -35,7 +34,6 @@ const route = useRoute()
             <Bookmark
               :size="24"
               :stroke-width="route.path.startsWith('/saved') ? 2 : 1.33"
-              :absolute-stroke-width="true"
             />
             <div>Sauvés</div>
           </div>
@@ -51,7 +49,6 @@ const route = useRoute()
             <Plus
               :size="44"
               :stroke-width="2"
-              :absolute-stroke-width="true"
             />
           </div>
         </NuxtLink>
@@ -63,7 +60,6 @@ const route = useRoute()
             <MessageSquare
               :size="24"
               :stroke-width="route.path.startsWith('/chats') ? 2 : 1.33"
-              :absolute-stroke-width="true"
             />
             <div>Chats</div>
           </div>
@@ -76,7 +72,6 @@ const route = useRoute()
             <UserRound
               :size="24"
               :stroke-width="route.path.startsWith('/me') ? 2 : 1.33"
-              :absolute-stroke-width="true"
             />
             <div>Moi</div>
           </div>

@@ -43,7 +43,6 @@ const symbolStrokeWidth = computed(() => {
       <Circle
         :size="symbolSize"
         :stroke-width="symbolStrokeWidth"
-        :absolute-stroke-width="true"
       />
     </slot>
     <div>{{ model }}</div>

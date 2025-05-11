@@ -17,13 +17,11 @@ const { available } = toRefs(props)
       v-if="available"
       :size="32"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
     <Clock
       v-else
       :size="32"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
     <div>{{ available ? "Disponible" : "Non-disponible" }}</div>
   </div>

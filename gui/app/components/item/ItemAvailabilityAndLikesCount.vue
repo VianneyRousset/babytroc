@@ -44,7 +44,6 @@ const { loggedIn } = useAuth()
           :class="{ filled: isLikedByUser }"
           :size="32"
           :stroke-width="2"
-          :absolute-stroke-width="true"
         />
       </StatsCounter>
     </IconButton>

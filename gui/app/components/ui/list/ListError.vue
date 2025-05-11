@@ -7,7 +7,6 @@ import { OctagonAlert } from 'lucide-vue-next'
     <OctagonAlert
       :size="24"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
     <slot />
   </div>

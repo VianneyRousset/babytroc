@@ -39,21 +39,18 @@ const backgroundImage = computed(() => {
           class="liked"
           :size="24"
           :stroke-width="2"
-          :absolute-stroke-width="true"
         />
         <Bookmark
           v-if="isSavedByUser"
           class="saved"
           :size="24"
           :stroke-width="2"
-          :absolute-stroke-width="true"
         />
         <Clock
           v-if="!item.available"
           class="not-available"
           :size="24"
           :stroke-width="2"
-          :absolute-stroke-width="true"
         />
       </div>
 

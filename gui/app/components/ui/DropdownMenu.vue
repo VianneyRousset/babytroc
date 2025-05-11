@@ -13,7 +13,6 @@ const open = ref(false)
           style="cursor: pointer;"
           :size="32"
           :stroke-width="2"
-          :absolute-stroke-width="true"
         />
       </DropdownMenuTrigger>
 

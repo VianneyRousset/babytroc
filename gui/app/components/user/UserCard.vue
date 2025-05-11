@@ -23,7 +23,6 @@ const { user } = toRefs(props)
         <Heart
           :size="16"
           :stroke-width="1.25"
-          :absolute-stroke-width="true"
         />
       </StatsCounter>
       <StatsCounter
@@ -33,7 +32,6 @@ const { user } = toRefs(props)
         <Star
           :size="16"
           :stroke-width="1.25"
-          :absolute-stroke-width="true"
         />
       </StatsCounter>
     </div>
@@ -41,7 +39,6 @@ const { user } = toRefs(props)
       class="chevron"
       :size="32"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
   </div>
 </template>

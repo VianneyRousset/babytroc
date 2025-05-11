@@ -18,7 +18,6 @@ const { height: mainHeaderHeight } = useElementSize(
       <MessageSquare
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <h1>Messages</h1>
     </AppHeaderBar>
@@ -41,8 +40,7 @@ const { height: mainHeaderHeight } = useElementSize(
         <div class="lock">
           <LockKeyholeOpen
             :size="48"
-            :stroke-width="3"
-            :absolute-stroke-width="true"
+            :stroke-width="2"
           />
           <div>Vous n'êtes pas connecté</div>
           <TextButton

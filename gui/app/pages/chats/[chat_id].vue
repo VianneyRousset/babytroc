@@ -59,7 +59,6 @@ const interlocutor = computed(() => {
             <Box
               :size="32"
               :stroke-width="2"
-              :absolute-stroke-width="true"
             />
             <div>Voir l'objet</div>
           </DropdownMenuItem>

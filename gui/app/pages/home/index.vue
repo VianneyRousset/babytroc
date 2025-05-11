@@ -108,7 +108,6 @@ useInfiniteScroll(
         <Filter
           :size="24"
           :stroke-width="2"
-          :absolute-stroke-width="true"
           class="filterIcon"
           :class="{ active: isFilterActive }"
         />
@@ -127,7 +126,6 @@ useInfiniteScroll(
           <ArrowLeft
             :size="32"
             :stroke-width="2"
-            :absolute-stroke-width="true"
           />
         </Toggle>
         <h1>Filtres</h1>
@@ -138,7 +136,6 @@ useInfiniteScroll(
           <Repeat
             :size="24"
             :stroke-width="2"
-            :absolute-stroke-width="true"
           />
         </IconButton>
       </AppHeaderBar>

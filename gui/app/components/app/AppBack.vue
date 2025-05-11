@@ -30,7 +30,6 @@ async function onclick() {
       style="cursor: pointer;"
       :size="32"
       :stroke-width="2"
-      :absolute-stroke-width="true"
     />
   </NuxtLink>
 </template>

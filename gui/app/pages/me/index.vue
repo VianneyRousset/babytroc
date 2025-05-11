@@ -6,6 +6,7 @@ import {
   Gift,
   UserPen,
   LockKeyhole,
+  LockKeyholeOpen,
   Info,
   MessageCircleQuestion,
   Scale,
@@ -28,7 +29,6 @@ const { loggedIn } = useAuth()
       <UserRound
         :size="32"
         :stroke-width="2"
-        :absolute-stroke-width="true"
       />
       <h1>Mes activités & options</h1>
     </AppHeaderBar>
@@ -46,7 +46,6 @@ const { loggedIn } = useAuth()
               <Heart
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -58,7 +57,6 @@ const { loggedIn } = useAuth()
               <Package
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -70,7 +68,6 @@ const { loggedIn } = useAuth()
               <Gift
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -86,7 +83,6 @@ const { loggedIn } = useAuth()
               <UserPen
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -96,9 +92,14 @@ const { loggedIn } = useAuth()
             Compte
             <template #image>
               <LockKeyhole
+                v-if="loggedIn === true"
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
+              />
+              <LockKeyholeOpen
+                v-else
+                :size="32"
+                :stroke-width="2"
               />
             </template>
           </MeSlab>
@@ -114,7 +115,6 @@ const { loggedIn } = useAuth()
               <Info
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -126,7 +126,6 @@ const { loggedIn } = useAuth()
               <MessageCircleQuestion
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -138,7 +137,6 @@ const { loggedIn } = useAuth()
               <Scale
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
@@ -150,7 +148,6 @@ const { loggedIn } = useAuth()
               <AtSign
                 :size="32"
                 :stroke-width="2"
-                :absolute-stroke-width="true"
               />
             </template>
           </MeSlab>
