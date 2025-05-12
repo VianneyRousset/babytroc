@@ -1,4 +1,7 @@
 # Kindbaby
+[![Linting](https://github.com/VianneyRousset/kindbaby/actions/workflows/linting.yaml/badge.svg?branch=dev)](https://github.com/VianneyRousset/kindbaby/actions/workflows/linting.yaml)
+[![Tests](https://github.com/VianneyRousset/kindbaby/actions/workflows/tests.yaml/badge.svg?branch=dev)](https://github.com/VianneyRousset/kindbaby/actions/workflows/tests.yaml)
+
 A sharing platform for baby stuff.
 
 ## How to start the service ?
