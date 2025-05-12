@@ -1,5 +1,5 @@
 name: Publish
-run-name: Publishing "{{ github.ref }}"
+run-name: Publishing "${{ github.ref }}"
 
 on:
   workflow_run:
@@ -12,12 +12,12 @@ jobs:
 
   publish-github-container-api:
     runs-on: ubuntu-latest
+    permissions:
+          contents: read
+          packages: write
     defaults:
         run:
           working-directory: './api'
-        permissions:
-              contents: read
-              packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3

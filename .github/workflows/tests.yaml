@@ -1,5 +1,5 @@
 name: Tests
-run-name: Testing commit "{{ github.event.head_commit.message }}" in "{{ github.ref }}"
+run-name: Testing commit "${{ github.event.head_commit.message }}" in "${{ github.ref }}"
 
 on:
 
