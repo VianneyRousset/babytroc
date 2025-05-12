@@ -15,12 +15,14 @@
 
 set -eu
 
+source .venv/bin/activate
+
 : ${API_HOST:="0.0.0.0"}
 : ${API_PORT:=8080}
 : ${API_APP:="app.main:app"}
 : ${API_PREFIX:=""}
 
-uvicorn ${API_APP} \
-  --host=${API_HOST} \
-  --port=${API_PORT} \
-  --root-path ${API_PREFIX}
+python -m uvicorn "${API_APP}" \
+  --host="${API_HOST}" \
+  --port="${API_PORT}" \
+  --root-path="${API_PREFIX}"

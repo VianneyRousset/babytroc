@@ -1,7 +1,7 @@
-FROM ghcr.io/astral-sh/uv:alpine
+FROM python:3-alpine
 
 RUN apk update
-RUN apk add git
+RUN apk add uv git bash
 
 # set the working directory
 WORKDIR /usr/src/api
