@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 
 class ApiError(Exception):
@@ -12,7 +12,8 @@ class ApiError(Exception):
         message: str,
         *,
         status_code: int = HTTPStatus.INTERNAL_SERVER_ERROR,
-        creation_date: Optional[datetime] = None,
+        creation_date: datetime | None = None,
+        headers: dict[str, str] | None = None,
     ):
         if creation_date is None:
             creation_date = datetime.now()
@@ -20,6 +21,7 @@ class ApiError(Exception):
         self.message = message
         self.status_code = status_code
         self.creation_date = creation_date.astimezone()
+        self.headers = headers
 
         super().__init__(message)
 

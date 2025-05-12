@@ -3,14 +3,14 @@ from sqlalchemy.orm import Session
 from app import domain
 from app.clients import database
 from app.schemas.item.create import ItemCreate
-from app.schemas.item.preview import ItemPreviewRead
+from app.schemas.item.read import ItemRead
 
 
 def create_item(
     db: Session,
     owner_id: int,
     item_create: ItemCreate,
-) -> ItemPreviewRead:
+) -> ItemRead:
     """Create a new item in the database."""
 
     # create item in database
@@ -32,4 +32,4 @@ def create_item(
         count=domain.star.stars_gain_when_adding_item(1),
     )
 
-    return ItemPreviewRead.model_validate(item)
+    return ItemRead.model_validate(item)

@@ -1,12 +1,12 @@
 from typing import Annotated
 
-from fastapi import Body, Request, status
-from fastapi.params import Depends
+from fastapi import Body, Depends, Request, status
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.user.read import UserRead
+from app.routers.v1.auth import client_id_annotation
+from app.schemas.user.private import UserPrivateRead
 from app.schemas.user.update import UserUpdate
 
 from .router import router
@@ -16,16 +16,15 @@ from .router import router
 
 @router.get("", status_code=status.HTTP_200_OK)
 def get_client_user(
+    client_id: client_id_annotation,
     request: Request,
     db: Annotated[Session, Depends(get_db_session)],
-) -> UserRead:
+) -> UserPrivateRead:
     """Get client user."""
 
-    client_user_id = services.auth.check_auth(request)
-
-    return services.user.get_user(
+    return services.user.get_user_private(
         db=db,
-        user_id=client_user_id,
+        user_id=client_id,
     )
 
 
@@ -34,20 +33,19 @@ def get_client_user(
 
 @router.post("", status_code=status.HTTP_200_OK)
 def update_client_user(
+    client_id: client_id_annotation,
     request: Request,
     user_update: Annotated[
         UserUpdate,
         Body(title="User fields to update."),
     ],
     db: Annotated[Session, Depends(get_db_session)],
-) -> UserRead:
+) -> UserPrivateRead:
     """Update client user."""
-
-    client_user_id = services.auth.check_auth(request)
 
     return services.user.update_user(
         db=db,
-        user_id=client_user_id,
+        user_id=client_id,
         user_update=user_update,
     )
 
@@ -57,14 +55,13 @@ def update_client_user(
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT)
 def delete_client_user(
+    client_id: client_id_annotation,
     request: Request,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> None:
     """Delete client user."""
 
-    client_user_id = services.auth.check_auth(request)
-
     services.user.delete_user(
         db=db,
-        user_id=client_user_id,
+        user_id=client_id,
     )

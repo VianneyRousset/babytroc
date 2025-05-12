@@ -5,7 +5,6 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Integer,
-    UniqueConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import (
@@ -21,9 +20,9 @@ from sqlalchemy.orm import (
 )
 
 from app.enums import LoanRequestState
+from app.schemas.chat.base import ChatId
 
 from .base import Base, CreationDate, IntegerIdentifier
-from .chat import ChatMessage
 
 if TYPE_CHECKING:
     from .item import Item
@@ -37,14 +36,14 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "user.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
     )
     state: Mapped[LoanRequestState] = mapped_column(
@@ -79,8 +78,12 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    creation_message_id: Mapped[int] = mapped_column(ForeignKey(ChatMessage.id))
-    creation_chat_message: Mapped[ChatMessage] = relationship(ChatMessage)
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
+        )
 
     __table_args__ = (
         ExcludeConstraint(
@@ -111,7 +114,7 @@ class Loan(IntegerIdentifier, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",
+            ondelete="CASCADE",  # TODO is this correct ?
         ),
         index=True,
     )
@@ -148,25 +151,22 @@ class Loan(IntegerIdentifier, Base):
         single_parent=True,
     )
 
-    # chat messages linked to this loan
-    creation_message_id: Mapped[int] = mapped_column(
-        ForeignKey(
-            ChatMessage.id,
-            ondelete="CASCADE",
+    @hybrid_property
+    def owner(self) -> "User":
+        return self.item.owner
+
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
         )
-    )
-    creation_chat_message: Mapped[ChatMessage] = relationship(
-        ChatMessage,
-        foreign_keys=[creation_message_id],
-        single_parent=True,
-    )
 
     @hybrid_property
     def active(self) -> bool:
         return self.during.upper is None
 
     __table_args__ = (
-        UniqueConstraint(borrower_id),
         ExcludeConstraint(
             (item_id, "="),
             (during, "&&"),

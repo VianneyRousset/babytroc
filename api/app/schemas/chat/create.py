@@ -4,4 +4,4 @@ from .base import ChatMessageBase
 
 
 class ChatMessageCreate(ChatMessageBase, CreateBase):
-    payload: str
+    text: str

@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import Query, Request, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
@@ -26,8 +25,6 @@ def list_items_owned_by_user(
     db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items owned by user."""
-
-    services.auth.check_auth(request)
 
     result = services.item.list_items(
         db=db,
@@ -70,8 +67,6 @@ def get_client_item_by_id(
     db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get user's item by id."""
-
-    services.auth.check_auth(request)
 
     return services.item.get_item(
         db=db,

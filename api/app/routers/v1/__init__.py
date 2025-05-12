@@ -1,11 +1,16 @@
 from fastapi import APIRouter
 
-from . import images, items, me, users, utils
+from . import auth, images, items, me, users, utils
 
-__all__ = ["items", "me", "users", "utils"]
+__all__ = ["auth", "items", "me", "users", "utils"]
 
 
 router = APIRouter()
+
+router.include_router(
+    router=auth.router,
+    prefix="/auth",
+)
 
 router.include_router(
     router=items.router,
@@ -23,7 +28,7 @@ router.include_router(
 )
 
 router.include_router(
-    router=APIRouter(),
+    router=utils.router,
     prefix="/utils",
 )
 

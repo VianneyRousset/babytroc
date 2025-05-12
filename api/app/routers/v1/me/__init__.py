@@ -1,4 +1,4 @@
-from . import borrowings, chats, items, liked, loans, me, saved
+from . import borrowings, chats, items, liked, loans, me, saved, websocket
 from .router import router
 
 router.include_router(
@@ -9,6 +9,11 @@ router.include_router(
 router.include_router(
     router=chats.router,
     prefix="/chats",
+)
+
+router.include_router(
+    router=borrowings.router,
+    prefix="/borrowings",
 )
 
 
@@ -22,4 +27,5 @@ __all__ = [
     "router",
     "router",
     "saved",
+    "websocket",
 ]

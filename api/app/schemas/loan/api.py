@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import Field
 
 from app.enums import LoanRequestState
@@ -8,34 +6,28 @@ from app.schemas.base import ApiQueryBase
 
 class LoanRequestApiQuery(ApiQueryBase):
     # state
-    state: Optional[LoanRequestState] = Field(
-        title="State of the loan request",
-        description="Only return loan requests in the given state.",
+    active: bool | None = Field(
+        title="Active loan requests",
+        description="Only return pending and accepted loan requests.",
         default=None,
-    )
-    # limit
-    n: Optional[int] = Field(
-        title="Limit returned loan requests count",
-        description="Limit the number of loan requests returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
     )
 
-    # cursor loan_request_id
-    cid: Optional[int] = Field(
-        title="Page cursor for loan request ID",
-        gt=0,
-        default=None,
-    )
+    @property
+    def states(self) -> None | set[LoanRequestState]:
+        if self.active is None:
+            return None
+
+        active_states = {LoanRequestState.pending, LoanRequestState.accepted}
+
+        if self.active:
+            return active_states
+
+        return set(LoanRequestState) - active_states
 
 
 class LoanApiQuery(ApiQueryBase):
     # item_id
-    item: Optional[int] = Field(
+    item: int | None = Field(
         title="Loaned item",
         description="Only return loan with this item ID.",
         ge=0,
@@ -43,27 +35,8 @@ class LoanApiQuery(ApiQueryBase):
     )
 
     # active
-    active: Optional[bool] = Field(
+    active: bool | None = Field(
         title="Active",
         description="Only return active loans.",
-        default=None,
-    )
-
-    # limit
-    n: Optional[int] = Field(
-        title="Limit returned loans count",
-        description="Limit the number of loans returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
-    )
-
-    # cursor loan_request_id
-    cid: Optional[int] = Field(
-        title="Page cursor for loan ID",
-        gt=0,
         default=None,
     )

@@ -1,3 +1,37 @@
+[project]
+name = "babytroc"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi[standard]==0.*",
+  "sqlalchemy[postgresql-psycopg2binary, postgresql-psycopgbinary]==2.*",
+  "passlib[bcrypt]",
+  "alembic>=1.15.2",
+  "pillow>=11.2.1",
+  "requests>=2.32.3",
+  "pyjwt>=2.10.1",
+  "uvicorn>=0.34.2",
+  "websocket>=0.2.1",
+  "broadcaster[postgres] @ git+https://github.com/encode/broadcaster.git@6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.15.0",
+  "pylsp-mypy>=0.7.0",
+  "pylyzer>=0.0.82",
+  "pyright>=1.1.399",
+  "pytest>=8.3.5",
+  "pytest-timeout>=2.3.1",
+  "pytest-xdist>=3.6.1",
+  "ruff>=0.11.6",
+  "sqlalchemy-utils>=0.41.2",
+  "types-passlib>=1.7.7.20250408",
+  "types-psycopg2>=2.9.21.20250318",
+  "types-requests>=2.32.0.20250328",
+  "types-sqlalchemy-utils>=1.1.0",
+]
+
 [tool.ruff]
 lint.extend-select = [
   "ASYNC",
@@ -19,16 +53,19 @@ lint.extend-select = [
   "UP",
   "W",
 ]
+
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["S101", "S311"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
   "fastapi.Depends",
-  "fastapi.params.Depends",
+  "fastapi.Depends",
   "fastapi.Query",
-  "fastapi.params.Query",
+  "fastapi.Query",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = "."
+timeout = 20
+addopts = "-vv"

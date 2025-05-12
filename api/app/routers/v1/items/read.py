@@ -1,7 +1,6 @@
 from typing import Annotated
 
-from fastapi import Query, Request, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
@@ -26,14 +25,13 @@ def list_items(
 ) -> list[ItemPreviewRead]:
     """List items."""
 
-    services.auth.check_auth(request)
-
     result = services.item.list_items(
         db=db,
         query_filter=ItemQueryFilter(
             words=query.q,
             targeted_age_months=query.parsed_mo,
             regions=query.reg,
+            availability=query.av,
         ),
         page_options=QueryPageOptions(
             limit=query.n,
@@ -62,13 +60,10 @@ def list_items(
 
 @router.get("/{item_id}", status_code=status.HTTP_200_OK)
 def get_item(
-    request: Request,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item."""
-
-    services.auth.check_auth(request)
 
     return services.item.get_item(
         db=db,

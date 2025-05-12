@@ -46,19 +46,33 @@ class ItemImage(Base, CreationDate):
         ),
     )
 
-    # the item
+    items: Mapped[set["Item"]] = relationship(
+        "Item",
+        secondary="item_image_association",
+        back_populates="images",
+    )
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__} {self.name!r}>"
+
+
+class ItemImageAssociation(Base):
+    __tablename__ = "item_image_association"
+
     item_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "item.id",
             ondelete="CASCADE",
         ),
-        nullable=True,
-    )
-    item: Mapped["Item"] = relationship(
-        "Item",
-        back_populates="images",
+        primary_key=True,
     )
 
-    def __repr__(self):
-        return f"<{self.__class__.__name__} {self.name!r}>"
+    image_name: Mapped[str] = mapped_column(
+        String,
+        ForeignKey(
+            "item_image.name",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    )

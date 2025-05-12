@@ -28,10 +28,10 @@ def limit_image_size(
 
     if image.width > image.height:
         w = max_dim
-        h = int(round(w / aspect_ratio))
+        h = round(w / aspect_ratio)
     else:
         h = max_dim
-        w = int(round(h * aspect_ratio))
+        w = round(h * aspect_ratio)
 
     return image.resize(
         size=[w, h],

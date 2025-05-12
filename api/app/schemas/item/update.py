@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import Field, field_validator
 
@@ -10,23 +10,23 @@ from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
 
 class ItemUpdate(ItemBase, UpdateBase):
     name: Annotated[
-        Optional[str],
+        str | None,
         Field(
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
     ] = None
     description: Annotated[
-        Optional[str],
+        str | None,
         Field(
             min_length=DESCRIPTION_LENGTH.start,
             max_length=DESCRIPTION_LENGTH.stop,
         ),
     ] = None
-    images: Optional[list[str]] = None
-    targeted_age_months: Optional[tuple[int | None, int | None]] = None
-    regions: Optional[list[int]] = None
-    blocked: Optional[bool] = None
+    images: list[str] | None = None
+    targeted_age_months: tuple[int | None, int | None] | None = None
+    regions: list[int] | None = None
+    blocked: bool | None = None
 
     # TODO global field validator for targeted_age_months ?
     @field_validator("targeted_age_months")

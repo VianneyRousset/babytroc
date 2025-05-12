@@ -131,8 +131,26 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    payload: Mapped[str] = mapped_column(
+    text: Mapped[str] = mapped_column(
         Text,
+        nullable=True,
+    )
+
+    loan_request_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "loan_request.id",
+            ondelete="CASCADE",  # TODO is this correct ?
+        ),
+        nullable=True,
+    )
+
+    loan_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "loan.id",
+            ondelete="CASCADE",  # TODO is this correct ?
+        ),
         nullable=True,
     )
 
@@ -140,6 +158,13 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         Boolean,
         default=False,
     )
+
+    @hybrid_property
+    def chat_id(self) -> ChatId:
+        return ChatId(
+            item_id=self.item_id,
+            borrower_id=self.borrower_id,
+        )
 
     __table_args__ = (
         ForeignKeyConstraint(

@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import Field
 
@@ -7,7 +6,7 @@ from app.schemas.base import ApiQueryBase
 
 class ChatApiQuery(ApiQueryBase):
     # item_id
-    item: Optional[int] = Field(
+    item: int | None = Field(
         title="Item",
         description=("Only select chats about the item with this ID."),
         examples=[42],
@@ -15,7 +14,7 @@ class ChatApiQuery(ApiQueryBase):
     )
 
     # borrower_id
-    borrower: Optional[int] = Field(
+    borrower: int | None = Field(
         title="Borrower",
         description=("Only select chats with the borrower with this ID."),
         examples=[42],
@@ -23,7 +22,7 @@ class ChatApiQuery(ApiQueryBase):
     )
 
     # borrower_id
-    owner: Optional[int] = Field(
+    owner: int | None = Field(
         title="Owner",
         description=("Only select chats with the owner with this ID."),
         examples=[42],
@@ -31,7 +30,7 @@ class ChatApiQuery(ApiQueryBase):
     )
 
     # limit
-    n: Optional[int] = Field(
+    n: int | None = Field(
         title="Limit returned chats count",
         description="Limit the number of chats returned.",
         examples=[
@@ -43,14 +42,14 @@ class ChatApiQuery(ApiQueryBase):
     )
 
     # cursor last_message_id
-    clm: Optional[int] = Field(
+    clm: int | None = Field(
         title="Page cursor for last message ID",
         ge=0,
         default=None,
     )
 
     # cursor chat_id
-    cid: Optional[str] = Field(
+    cid: str | None = Field(
         title="Page cursor for item ID",
         pattern=r"\d+-\d+",
         default=None,
@@ -59,7 +58,7 @@ class ChatApiQuery(ApiQueryBase):
 
 class ChatMessageApiQuery(ApiQueryBase):
     # seen
-    seen: Optional[bool] = Field(
+    seen: bool | None = Field(
         title="Seen",
         description=("Only select messages that have been seen."),
         examples=[True, False],
@@ -67,7 +66,7 @@ class ChatMessageApiQuery(ApiQueryBase):
     )
 
     # limit
-    n: Optional[int] = Field(
+    n: int | None = Field(
         title="Limit returned messages count",
         description="Limit the number of messages returned.",
         examples=[
@@ -79,7 +78,7 @@ class ChatMessageApiQuery(ApiQueryBase):
     )
 
     # cursor message_id
-    cid: Optional[int] = Field(
+    cid: int | None = Field(
         title="Page cursor for chat message ID",
         ge=0,
         default=None,

@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import Query, Request, Response, status
-from fastapi.params import Depends
+from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
 from app.schemas.loan.query import LoanRequestQueryFilter
@@ -19,8 +19,10 @@ from .router import router
 # READ
 
 
+# TODO fix this endpoint
 @router.get("/{item_id}/requests", status_code=status.HTTP_200_OK)
 def list_client_item_loan_requests(
+    client_id: client_id_annotation,
     request: Request,
     response: Response,
     item_id: item_id_annotation,
@@ -29,14 +31,12 @@ def list_client_item_loan_requests(
 ) -> list[LoanRequestRead]:
     """List loan requests of the item owned by the client."""
 
-    client_user_id = services.auth.check_auth(request)
-
     # get item to check it is owned by the client
     item = services.item.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemQueryFilter(
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )
 
@@ -45,12 +45,10 @@ def list_client_item_loan_requests(
         db=db,
         query_filter=LoanRequestQueryFilter(
             item_id=item.id,
-            state=query.state,
+            states=query.states,
         ),
         page_options=QueryPageOptions(
-            limit=query.n,
             order=["loan_request_id"],
-            cursor={"loan_request_id": query.cid},
             desc=True,
         ),
     )
@@ -76,21 +74,19 @@ def list_client_item_loan_requests(
     status_code=status.HTTP_200_OK,
 )
 def get_client_item_loan_request(
-    request: Request,
+    client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Get client's item loan request by id."""
 
-    client_user_id = services.auth.check_auth(request)
-
     # get item to check it is owned by the client
     item = services.item.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemQueryFilter(
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )
 
@@ -108,21 +104,19 @@ def get_client_item_loan_request(
     status_code=status.HTTP_200_OK,
 )
 def accept_client_item_loan_request(
-    request: Request,
+    client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
-    client_user_id = services.auth.check_auth(request)
-
     return services.loan.accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestQueryFilter(
             item_id=item_id,
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )
 
@@ -132,20 +126,18 @@ def accept_client_item_loan_request(
     status_code=status.HTTP_200_OK,
 )
 def reject_client_item_loan_request(
-    request: Request,
+    client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 
-    client_user_id = services.auth.check_auth(request)
-
     return services.loan.reject_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestQueryFilter(
             item_id=item_id,
-            owner_id=client_user_id,
+            owner_id=client_id,
         ),
     )

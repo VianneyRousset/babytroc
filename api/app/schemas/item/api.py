@@ -1,13 +1,12 @@
-from typing import Optional
-
 from pydantic import Field, field_validator
 
+from app.enums import ItemQueryAvailability
 from app.schemas.base import ApiQueryBase
 
 
-class ItemApiQuery(ApiQueryBase):
+class ItemApiQueryBase(ApiQueryBase):
     # words
-    q: Optional[list[str]] = Field(
+    q: list[str] | None = Field(
         title="Words used for fuzzy search",
         description=(
             "An item is returned if any word in this list fuzzy-matches a word in the "
@@ -23,7 +22,7 @@ class ItemApiQuery(ApiQueryBase):
     )
 
     # targeted_age_months
-    mo: Optional[str] = Field(
+    mo: str | None = Field(
         alias="mo",
         title="Targeted age months",
         description=(
@@ -39,41 +38,45 @@ class ItemApiQuery(ApiQueryBase):
         pattern=r"^\d*-\d*$",
     )
 
+    # availability
+    av: ItemQueryAvailability | None = Field(
+        title="Availability",
+        default=ItemQueryAvailability.yes,
+    )
+
     @field_validator("mo")
-    def validate_mo(cls, mo):  # noqa: N805
-        mo_range = cls.parse_mo(mo)
+    def validate_mo(cls, mo: str):  # noqa: N805
+        lower, upper = cls.parse_mo(mo)
 
-        if len(mo_range) != 2:
-            msg = "mo must have 2 values"
-            raise ValueError(msg)
-
-        if (
-            mo_range[0] is not None
-            and mo_range[1] is not None
-            and mo_range[0] > mo_range[1]
-        ):
+        if lower is not None and upper is not None and lower > upper:
             msg = "mo values must be in order"
             raise ValueError(msg)
 
         return mo
 
     @staticmethod
-    def parse_mo(mo):
-        if mo is None:
-            return None
+    def parse_mo(mo: str) -> tuple[int | None, int | None]:
+        try:
+            lower_str, upper_str = mo.split("-")
 
-        lower, upper = mo.split("-")
-        lower = int(lower) if lower else None
-        upper = int(upper) if upper else None
+        except ValueError as error:
+            msg = "mo must have 2 values"
+            raise ValueError(msg) from error
 
-        return (lower, upper)
+        lower = int(lower_str) if lower_str else None
+        upper = int(upper_str) if upper_str else None
+
+        return lower, upper
 
     @property
-    def parsed_mo(self) -> Optional[tuple[int | None, int | None]]:
+    def parsed_mo(self) -> tuple[int | None, int | None] | None:
+        if self.mo is None:
+            return None
+
         return self.parse_mo(self.mo)
 
     # regions
-    reg: Optional[list[int]] = Field(
+    reg: list[int] | None = Field(
         title="Regions",
         description=(
             "An item is returned if it is available in any of these regions IDs."
@@ -85,8 +88,10 @@ class ItemApiQuery(ApiQueryBase):
         default=None,
     )
 
+
+class ItemApiQuery(ItemApiQueryBase):
     # limit
-    n: Optional[int] = Field(
+    n: int | None = Field(
         title="Limit returned items count",
         description="Limit the number of items returned.",
         examples=[
@@ -98,33 +103,23 @@ class ItemApiQuery(ApiQueryBase):
     )
 
     # cursor item_id
-    cid: Optional[int] = Field(
+    cid: int | None = Field(
         title="Page cursor for item ID",
         gt=0,
         default=None,
     )
 
     # cursor words_match
-    cwm: Optional[int] = Field(
+    cwm: int | None = Field(
         title="Page cursor for words match",
         le=0,
         default=None,
     )
 
 
-class SavedItemApiQuery(ItemApiQuery):
-    # cursor save_id
-    sid: Optional[int] = Field(
-        title="Page cursor for save ID",
-        gt=0,
-        default=None,
-    )
+class SavedItemApiQuery(ItemApiQueryBase):
+    pass
 
 
-class LikedItemApiQuery(ItemApiQuery):
-    # cursor save_id
-    lid: Optional[int] = Field(
-        title="Page cursor for like ID",
-        gt=0,
-        default=None,
-    )
+class LikedItemApiQuery(ItemApiQueryBase):
+    pass

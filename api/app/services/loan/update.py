@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from app.clients import database
@@ -11,18 +9,21 @@ from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.services.chat import (
     send_message_loan_ended,
     send_message_loan_request_accepted,
-    send_message_loan_request_canceled,
+    send_message_loan_request_cancelled,
     send_message_loan_request_rejected,
 )
 
 
-def cancel_pending_loan_request(
+def cancel_active_loan_request(
     db: Session,
     *,
     item_id: int,
     borrower_id: int,
 ) -> LoanRequestRead:
-    """Cancel the pending loan request made by `borrower_id` to `item_id`."""
+    """Cancel the active loan request made by `borrower_id` to `item_id`.
+
+    An active loan request is defined as being in 'pending' or 'accepted' state.
+    """
 
     # find pending loan request
     loan_request = database.loan.get_loan_request(
@@ -30,7 +31,7 @@ def cancel_pending_loan_request(
         query_filter=LoanRequestQueryFilter(
             item_id=item_id,
             borrower_id=borrower_id,
-            state=LoanRequestState.pending,
+            states={LoanRequestState.pending, LoanRequestState.accepted},
         ),
     )
 
@@ -43,10 +44,10 @@ def cancel_pending_loan_request(
 def cancel_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
-    """Set loan request state to `canceled`.
+    """Set loan request state to `cancelled`.
 
     Loan request state must be `pending` if `force` is `False`.
     """
@@ -58,19 +59,11 @@ def cancel_loan_request(
         query_filter=query_filter,
     )
 
-    # create chat message
-    send_message_loan_request_canceled(
-        db=db,
-        chat_id=ChatId(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-    )
-
     # check loan request state
-    if not force and loan_request.state != LoanRequestState.pending:
+    active_states = {LoanRequestState.pending, LoanRequestState.accepted}
+    if not force and loan_request.state not in active_states:
         raise LoanRequestStateError(
-            expected_state=LoanRequestState.pending,
+            expected_state=active_states,
             actual_state=loan_request.state,
         )
 
@@ -78,7 +71,17 @@ def cancel_loan_request(
     loan_request = database.loan.update_loan_request(
         db=db,
         loan_request=loan_request,
-        attributes={"state": LoanRequestState.canceled},
+        attributes={"state": LoanRequestState.cancelled},
+    )
+
+    # create chat message
+    send_message_loan_request_cancelled(
+        db=db,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
+        loan_request_id=loan_request.id,
     )
 
     return LoanRequestRead.model_validate(loan_request)
@@ -87,7 +90,7 @@ def cancel_loan_request(
 def accept_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
@@ -100,15 +103,6 @@ def accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=query_filter,
-    )
-
-    # create chat message
-    send_message_loan_request_accepted(
-        db=db,
-        chat_id=ChatId(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
     )
 
     # check loan request state
@@ -125,13 +119,23 @@ def accept_loan_request(
         attributes={"state": LoanRequestState.accepted},
     )
 
+    # create chat message
+    send_message_loan_request_accepted(
+        db=db,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
+        loan_request_id=loan_request.id,
+    )
+
     return LoanRequestRead.model_validate(loan_request)
 
 
 def reject_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: Optional[LoanRequestQueryFilter] = None,
+    query_filter: LoanRequestQueryFilter | None = None,
     force: bool = False,
 ) -> LoanRequestRead:
     """Set loan request state to `rejected`.
@@ -146,19 +150,14 @@ def reject_loan_request(
         query_filter=query_filter,
     )
 
-    # create chat message
-    send_message_loan_request_rejected(
-        db=db,
-        chat_id=ChatId(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-    )
-
     # check loan request state
-    if not force and loan_request.state != LoanRequestState.pending:
+    active_states = {
+        LoanRequestState.pending,
+        LoanRequestState.accepted,
+    }
+    if not force and loan_request.state not in active_states:
         raise LoanRequestStateError(
-            expected_state=LoanRequestState.pending,
+            expected_state=active_states,
             actual_state=loan_request.state,
         )
 
@@ -169,13 +168,23 @@ def reject_loan_request(
         attributes={"state": LoanRequestState.rejected},
     )
 
+    # create chat message
+    send_message_loan_request_rejected(
+        db=db,
+        chat_id=ChatId(
+            item_id=loan_request.item_id,
+            borrower_id=loan_request.borrower_id,
+        ),
+        loan_request_id=loan_request.id,
+    )
+
     return LoanRequestRead.model_validate(loan_request)
 
 
 def end_loan(
     db: Session,
     loan_id: int,
-    query_filter: Optional[LoanQueryFilter] = None,
+    query_filter: LoanQueryFilter | None = None,
 ):
     """Set loan end date to now.
 
@@ -200,6 +209,7 @@ def end_loan(
             item_id=loan.item_id,
             borrower_id=loan.borrower_id,
         ),
+        loan_id=loan.id,
     )
 
     # set loan.during upper bound to now()

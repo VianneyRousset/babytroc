@@ -1,7 +1,6 @@
-from typing import Optional
-
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.errors.chat import ChatMessageNotFoundError, ChatNotFoundError
@@ -15,7 +14,7 @@ def get_chat(
     db: Session,
     chat_id: ChatId,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
+    query_filter: ChatQueryFilter | None = None,
 ) -> Chat:
     """Get chat with `chat_id`."""
 
@@ -41,8 +40,8 @@ def get_chat(
 def list_chats(
     db: Session,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Chat]:
     """List chats matching criteria."""
 
@@ -82,7 +81,7 @@ def get_message(
     db: Session,
     message_id: int,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
 ) -> ChatMessage:
     """Get message with `message_id`."""
 
@@ -101,11 +100,34 @@ def get_message(
         raise ChatMessageNotFoundError(key) from error
 
 
+async def get_message_async(
+    db: AsyncSession,
+    message_id: int,
+    *,
+    query_filter: ChatMessageQueryFilter | None = None,
+) -> ChatMessage:
+    """Get message with `message_id`."""
+
+    # if no query filter is provided, use an empty filter
+    query_filter = query_filter or ChatMessageQueryFilter()
+
+    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
+
+    stmt = query_filter.apply(stmt)
+
+    try:
+        return (await db.execute(stmt)).unique().scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
+
+
 def list_messages(
     db: Session,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatMessage]:
     """List chat messages matching criteria."""
 

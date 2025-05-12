@@ -19,8 +19,11 @@ run = "uv pip install mypy"
 
 [tasks.deps]
 description = "Install dependencies"
-depends = ["deps:*"]
-run = "uv pip install -r requirements.txt"
+run = "uv sync"
+
+[tasks.deps-dev]
+description = "Install dev dependencies"
+run = "uv sync --group dev"
 
 [tasks.dev]
 description = "Run the application"
@@ -29,21 +32,21 @@ run = "./entrypoint.sh"
 
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
-run = "ruff check app/"
+depends = ["deps", "deps-dev"]
+run = "ruff check app/ tests/"
 
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
-depends = ["deps"]
-run = "mypy app/"
+depends = ["deps", "deps-dev"]
+run = "mypy app/ tests/"
 
 [tasks.lint]
 description = "Lint the code"
 depends = ["lint:*"]
-run = "ruff check app/"
 
 [tasks.test]
 description = "Test the code"
-depends = ["deps"]
+depends = ["deps", "deps-dev"]
 run = "pytest"
 
 [tasks.build]

@@ -1,3 +1,5 @@
+from pydantic import model_serializer
+
 from app.schemas.base import Base
 
 
@@ -21,6 +23,10 @@ class ChatId(Base):
             item_id=int(item_id),
             borrower_id=int(borrower_id),
         )
+
+    @model_serializer
+    def ser_model(self) -> str:
+        return str(self)
 
     def __str__(self):
         return f"{self.item_id}-{self.borrower_id}"

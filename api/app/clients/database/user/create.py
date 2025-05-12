@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -11,14 +10,14 @@ def create_user(
     email: str,
     name: str,
     password_hash: str,
-    avatar_seed: Optional[str] = None,
+    avatar_seed: str | None = None,
 ) -> User:
     """Create and insert user into database."""
 
     user = User(
         email=email,
         name=name,
-        password=password_hash,
+        password_hash=password_hash,
         avatar_seed=avatar_seed,
     )
 

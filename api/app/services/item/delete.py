@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +9,7 @@ def delete_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ):
     """Delete the item with ID `item_id`."""
 

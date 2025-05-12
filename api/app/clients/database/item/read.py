@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import cast
 
 from sqlalchemy import (
     BinaryExpression,
@@ -20,7 +20,7 @@ def get_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ) -> Item:
     """Get item with `item_id` from database."""
 
@@ -42,8 +42,8 @@ def get_item(
 def list_items(
     db: Session,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ItemQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Item]:
     """List items matchings criteria in the database."""
 
@@ -54,13 +54,10 @@ def list_items(
     page_options = page_options or QueryPageOptions()
 
     active_selections = cast(
-        dict[
-            str,
-            type[Item]
-            | ColumnElement[int]
-            | BinaryExpression[int]
-            | InstrumentedAttribute,
-        ],
+        "dict[str,type[Item]"
+        "| ColumnElement[int]"
+        "| BinaryExpression[int]"
+        "| InstrumentedAttribute,]",
         {"item": Item},
     )
     active_selections = {"item": Item}
@@ -88,11 +85,11 @@ def list_items(
         columns={
             "item_id": Item.id,
             "words_match": cast(
-                ColumnElement[int] | BinaryExpression[int],
+                "ColumnElement[int] | BinaryExpression[int]",
                 active_selections.get("words_match"),
             ),
-            "like_id": cast(InstrumentedAttribute, active_selections.get("like_id")),
-            "save_id": cast(InstrumentedAttribute, active_selections.get("save_id")),
+            "like_id": cast("InstrumentedAttribute", active_selections.get("like_id")),
+            "save_id": cast("InstrumentedAttribute", active_selections.get("save_id")),
         },
     )
 
@@ -135,11 +132,9 @@ def _get_words_match(
     if len(words) == 1:
         return func.round(-normalized_word_distance(column, words[0]) * 1e5)
 
-    distance = normalized_word_distance(column, words[0]) + normalized_word_distance(
-        column, words[1]
-    )
+    distance = normalized_word_distance(column, words[0])
 
-    for word in words:
-        distance -= normalized_word_distance(column, word)
+    for word in words[1:]:
+        distance += normalized_word_distance(column, word)
 
     return func.round(-distance * 1e5)

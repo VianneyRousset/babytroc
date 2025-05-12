@@ -1,5 +1,4 @@
-from typing import Optional
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.clients import database
@@ -13,7 +12,7 @@ def get_chat(
     db: Session,
     *,
     chat_id: ChatId,
-    query_filter: Optional[ChatQueryFilter] = None,
+    query_filter: ChatQueryFilter | None = None,
 ) -> ChatRead:
     """Get chat by id."""
 
@@ -30,8 +29,8 @@ def get_chat(
 def list_chats(
     db: Session,
     *,
-    query_filter: Optional[ChatQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatRead]:
     """List chats match criteria."""
 
@@ -49,7 +48,7 @@ def get_message(
     db: Session,
     message_id: int,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
 ) -> ChatMessageRead:
     """Get message with `message_id`."""
 
@@ -63,11 +62,29 @@ def get_message(
     return ChatMessageRead.model_validate(message)
 
 
+async def get_message_async(
+    db: AsyncSession,
+    message_id: int,
+    *,
+    query_filter: ChatMessageQueryFilter | None = None,
+) -> ChatMessageRead:
+    """Get message with `message_id`."""
+
+    # get message from database
+    message = await database.chat.get_message_async(
+        db=db,
+        message_id=message_id,
+        query_filter=query_filter,
+    )
+
+    return ChatMessageRead.model_validate(message)
+
+
 def list_messages(
     db: Session,
     *,
-    query_filter: Optional[ChatMessageQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ChatMessageQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatMessageRead]:
     """List messages."""
 

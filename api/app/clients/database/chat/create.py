@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -82,7 +81,9 @@ def create_message(
     chat: Chat,
     message_type: ChatMessageType,
     sender_id: int,
-    payload: Optional[str] = None,
+    text: str | None = None,
+    loan_request_id: int | None = None,
+    loan_id: int | None = None,
     seen: bool = False,
 ) -> ChatMessage:
     """Create and insert a chat message into `chat`."""
@@ -95,7 +96,9 @@ def create_message(
     message = ChatMessage(
         message_type=message_type,
         sender=sender,
-        payload=payload,
+        text=text,
+        loan_request_id=loan_request_id,
+        loan_id=loan_id,
         seen=seen,
     )
 

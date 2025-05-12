@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
@@ -11,10 +9,10 @@ from app.schemas.base import QueryFilterBase
 class LoanRequestQueryFilter(QueryFilterBase):
     """Filter of the loan requests query."""
 
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    state: Optional[LoanRequestState] = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    states: set[LoanRequestState] | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
@@ -32,8 +30,8 @@ class LoanRequestQueryFilter(QueryFilterBase):
             stmt = stmt.join(Item).where(Item.owner_id == self.owner_id)
 
         # filter state
-        if self.state is not None:
-            stmt = stmt.where(LoanRequest.state == self.state)
+        if self.states is not None:
+            stmt = stmt.filter(LoanRequest.state.in_(self.states))
 
         return stmt
 
@@ -41,10 +39,10 @@ class LoanRequestQueryFilter(QueryFilterBase):
 class LoanQueryFilter(QueryFilterBase):
     """Filter of the loans query."""
 
-    item_id: Optional[int] = None
-    borrower_id: Optional[int] = None
-    owner_id: Optional[int] = None
-    active: Optional[bool] = None
+    item_id: int | None = None
+    borrower_id: int | None = None
+    owner_id: int | None = None
+    active: bool | None = None
 
     def apply(self, stmt: Select) -> Select:
         """Apply filtering."""
@@ -63,6 +61,9 @@ class LoanQueryFilter(QueryFilterBase):
 
         # filter state
         if self.active is not None:
-            stmt = stmt.where(func.upper_inf(Loan.during))
+            if self.active:
+                stmt = stmt.where(func.upper_inf(Loan.during))
+            else:
+                stmt = stmt.where(func.upper(Loan.during).is_not(None))
 
         return stmt

@@ -44,7 +44,7 @@ class QueryFilterBase(Base, extra="forbid"):
 
     @property
     def key(self) -> dict[str, Any]:
-        return self.dict(exclude_none=True)
+        return self.model_dump(exclude_none=True)
 
 
 class ApiQueryBase(Base, extra="forbid"):

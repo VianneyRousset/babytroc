@@ -1,0 +1,44 @@
+[env]
+HOST = "0"
+PORT = 3000
+_.path = ['{{config_root}}/node_modules/.bin']
+
+[tools]
+node = "22"
+
+[tasks.deps]
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.lint]
+description = "Lint the code"
+depends = ["lint:*"]
+
+[tasks."lint:biome"]
+description = "Lint the code with biome"
+depends = ["deps"]
+run = "npx biome lint"
+
+[tasks."lint:eslint"]
+description = "Lint the code with eslint"
+depends = ["deps"]
+run = "eslint"
+
+[tasks."lint:typescript"]
+description = "Lint the code with typescript"
+depends = ["deps"]
+run = "tsc --noEmit"
+
+[tasks.format]
+description = "Lint the code"
+depends = ["deps"]
+run = "npx biome format --write"
+
+[tasks.dev]
+description = "Run gui in development mode"
+depends = ["deps"]
+run = "npx nuxi dev --inspect"
+
+[tasks.build]
+description = "Build docker image"
+run = "docker build . --tag=vianneyrousset/babytroc-gui"

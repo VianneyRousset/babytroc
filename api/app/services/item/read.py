@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -14,7 +13,7 @@ def get_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ) -> ItemRead:
     """Get item by id."""
 
@@ -32,7 +31,7 @@ def get_private_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
+    query_filter: ItemQueryFilter | None = None,
 ) -> ItemPrivateRead:
     """Get item by id with private info"""
 
@@ -49,8 +48,8 @@ def get_private_item(
 def list_items(
     db: Session,
     *,
-    query_filter: Optional[ItemQueryFilter] = None,
-    page_options: Optional[QueryPageOptions] = None,
+    query_filter: ItemQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ItemPreviewRead]:
     """List items matchings criteria in the database."""
 
@@ -61,5 +60,7 @@ def list_items(
         query_filter=query_filter,
         page_options=page_options,
     )
+
+    result.data = [ItemPreviewRead.model_validate(item) for item in result.data]
 
     return QueryPageResult[ItemPreviewRead].model_validate(result)
