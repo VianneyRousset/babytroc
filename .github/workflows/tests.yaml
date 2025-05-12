@@ -1,4 +1,4 @@
-name: CI
+name: Tests
 
 on:
 
@@ -16,15 +16,6 @@ env:
   MISE_EXPERIMENTAL: true
 
 jobs:
-
-  api-lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v1
-      - uses: jdx/mise-action@v2
-      - run: mise run lint
-        working-directory: ./api
 
   api-test:
     runs-on: ubuntu-latest
@@ -48,7 +39,7 @@ jobs:
           - 5000:5000
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
       - run: mise run test
         working-directory: ./api
