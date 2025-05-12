@@ -57,7 +57,7 @@ def database() -> Generator[sqlalchemy.URL]:
 def user_alice_data() -> dict:
     return {
         "name": "alice",
-        "email": "alice@ekindbaby.ch",
+        "email": "alice@babytroc.ch",
         "password": "password-alice",
     }
 
@@ -66,7 +66,7 @@ def user_alice_data() -> dict:
 def user_bob_data() -> dict:
     return {
         "name": "bob",
-        "email": "bob@ekindbaby.ch",
+        "email": "bob@babytroc.ch",
         "password": "password-bob",
     }
 
