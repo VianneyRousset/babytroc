@@ -5,7 +5,7 @@ on:
     workflows: [Linting, Tests]
     branches: [main]
     types:
-      - completed  push:
+      - completed
 
 jobs:
 
