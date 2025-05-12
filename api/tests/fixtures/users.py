@@ -22,7 +22,7 @@ def alice_user_data() -> UserData:
 
     return {
         "name": "alice",
-        "email": "alice@ekindbaby.ch",
+        "email": "alice@babytroc.ch",
         "password": "password-alice",
     }
 
@@ -33,7 +33,7 @@ def bob_user_data() -> UserData:
 
     return {
         "name": "bob",
-        "email": "bob@ekindbaby.ch",
+        "email": "bob@babytroc.ch",
         "password": "password-bob",
     }
 

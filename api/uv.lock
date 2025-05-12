@@ -522,7 +522,7 @@ wheels = [
 ]
 
 [[package]]
-name = "kindbaby"
+name = "babytroc"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [

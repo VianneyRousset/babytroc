@@ -1,8 +1,8 @@
 [env]
 POSTGRES_HOST = "localhost"
 POSTGRES_PORT = 5432
-POSTGRES_DATABASE = "kindbaby"
-POSTGRES_USER = "kindbaby"
+POSTGRES_DATABASE = "babytroc"
+POSTGRES_USER = "babytroc"
 IMGPUSH_HOST = "localhost"
 IMGPUSH_PORT = 5000
 _.file = ".env.yaml"
@@ -51,4 +51,4 @@ run = "pytest"
 
 [tasks.build]
 description = "Build docker image"
-run = "docker build . --tag=vianneyrousset/kindbaby-api"
+run = "docker build . --tag=vianneyrousset/babytroc-api"

@@ -41,4 +41,4 @@ run = "npx nuxi dev --inspect"
 
 [tasks.build]
 description = "Build docker image"
-run = "docker build . --tag=vianneyrousset/kindbaby-gui"
+run = "docker build . --tag=vianneyrousset/babytroc-gui"
