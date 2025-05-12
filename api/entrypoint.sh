@@ -22,7 +22,9 @@ source .venv/bin/activate
 : ${API_APP:="app.main:app"}
 : ${API_PREFIX:=""}
 
-python -m uvicorn "${API_APP}" \
+alembic upgrade head
+
+uvicorn "${API_APP}" \
   --host="${API_HOST}" \
   --port="${API_PORT}" \
   --root-path="${API_PREFIX}"
