@@ -1,5 +1,5 @@
 name: Linting
-run-name: Linting check for commit "${{ github.event.head_commit.message }}" in "${{ github.ref }}"
+run-name: Linting check for commit "${{ github.event.head_commit.message }}" in "${{ github.ref_name }}"
 
 on:
 

@@ -1,5 +1,5 @@
 name: Publish
-run-name: Publishing "${{ github.ref }}"
+run-name: Publishing "${{ github.ref_name }}"
 
 on:
   workflow_run:
