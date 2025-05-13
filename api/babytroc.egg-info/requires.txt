@@ -1,0 +1,10 @@
+fastapi[standard]==0.*
+sqlalchemy[postgresql-psycopg2binary,postgresql-psycopgbinary]==2.*
+passlib[bcrypt]
+alembic>=1.15.2
+pillow>=11.2.1
+requests>=2.32.3
+pyjwt>=2.10.1
+uvicorn>=0.34.2
+websocket>=0.2.1
+broadcaster[postgres]@ git+https://github.com/encode/broadcaster.git@6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d
