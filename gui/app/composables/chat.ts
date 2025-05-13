@@ -7,6 +7,7 @@ import { ChatMessageType } from '#build/types/open-fetch/schemas/api'
 
 export function useChats() {
   const { data: chatPages, loadMore } = useChatsListQuery()
+  const { data: me } = useMeQuery()
 
   const extraChatsStore = useExtraChatsStore()
   const { chats: extraChats } = storeToRefs(extraChatsStore)
@@ -19,12 +20,20 @@ export function useChats() {
       (a, b) => b.last_message_id - a.last_message_id,
     )
   })
+  const hasNewMessages: Ref<boolean> = computed(() => {
+    const _chats = unref(chats)
+    const _me = unref(me)
+    if (_me === undefined)
+      return false
+    return _chats.some(chat => unref(useChatHasNewMessages(chat, _me).hasNewMessages) === true)
+  })
 
   return {
     chats,
     end: computed(() => unref(chatPages).end),
     loadMore,
     setMessage: extraChatsStore.setMessage,
+    hasNewMessages,
   }
 }
 

@@ -8,6 +8,8 @@ import {
 } from 'lucide-vue-next'
 
 const route = useRoute()
+
+const { hasNewMessages } = useChats()
 </script>
 
 <template>
@@ -56,12 +58,22 @@ const route = useRoute()
 
       <li :active="route.path.startsWith('/chats')">
         <NuxtLink to="/chats">
-          <div>
+          <div class="badge-container">
             <MessageSquare
               :size="24"
               :stroke-width="route.path.startsWith('/chats') ? 2 : 1.33"
             />
             <div>Chats</div>
+            <transition
+              name="pop"
+              mode="in-out"
+              appear
+            >
+              <div
+                v-if="hasNewMessages"
+                class="badge"
+              />
+            </transition>
           </div>
         </NuxtLink>
       </li>
@@ -133,6 +145,7 @@ nav {
         @include flex-column;
         justify-content: center;
         gap: 4px;
+        position: relative;
 
         &.plus {
 
@@ -149,8 +162,24 @@ nav {
             stroke: $primary-300;
           }
         }
+
       }
+
     }
   }
+
+  .badge {
+    @include flex-column-center;
+    position: absolute;
+    right: -0.5rem;
+    top: -0.3rem;
+    background: $primary-300;
+    min-height: 0.75rem;
+    min-width: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    color: white;
+  }
+
 }
 </style>
