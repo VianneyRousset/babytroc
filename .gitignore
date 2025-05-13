@@ -3,6 +3,8 @@
 
 # Python
 **/__pycache__/
+api/build
+*.egg-info
 
 # Data
 db/*
