@@ -1,2 +1,0 @@
-- cache DB
-- cache avatar generation ?
