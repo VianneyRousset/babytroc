@@ -55,7 +55,7 @@ function openItem(itemId: number) {
         <div class="lock">
           <LockKeyholeOpen
             :size="48"
-            :stroke-width="3"
+            :stroke-width="2"
           />
           <div>Vous n'êtes pas connecté</div>
           <TextButton
