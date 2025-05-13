@@ -27,6 +27,7 @@ logs/*
 .node_repl_history
 
 # dotenv environment variable files
+.env*
 .env.*
 
 # Cache
