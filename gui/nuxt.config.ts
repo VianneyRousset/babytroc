@@ -4,6 +4,7 @@ import RadixVueResolver from 'radix-vue/resolver'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 
+  /* Extends */
   modules: [
     'nuxt-open-fetch',
     '@pinia/nuxt',
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
   // disable server-side rendering
   ssr: false,
 
+  /* Nuxt Core Features */
   // do not name components based on path
   components: [
     {
@@ -29,7 +31,24 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['queries', 'queries/**', 'mutations', 'mutations/**'],
   },
+
   devtools: { enabled: true },
+
+  /* Client-side Integrations */
+  app: {
+    head: {
+      title: 'Babytroc', // default fallback title
+      htmlAttrs: {
+        lang: 'fr',
+      },
+      meta: [
+        // set mobile status bar color
+        { name: 'theme-color', content: '#f6f7f6' },
+        { name: 'msapplication-navbutton-color', content: '#f6f7f6' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: '#f6f7f6' },
+      ],
+    },
+  },
 
   // inject SCSS code (colors definition)
   css: ['assets/styles/main.scss', 'assets/styles/animations.scss'],
@@ -44,17 +63,18 @@ export default defineNuxtConfig({
     },
   },
 
-  // route rules
-  // TODO add cache control
+  /* Build Pipeline Configs */
   routeRules: {
     '/': { redirect: '/home' },
   },
 
+  /* Feature flags */
   future: {
     compatibilityVersion: 4,
   },
   compatibilityDate: '2024-11-01',
 
+  /* Tooling Integrations */
   vite: {
     css: {
       preprocessorOptions: {
