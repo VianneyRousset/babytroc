@@ -5,7 +5,7 @@
 .nitro
 .cache
 dist
-components.d.ts
+app/components.d.ts
 
 # Node dependencies
 node_modules
