@@ -155,6 +155,11 @@ const { width } = useElementSize(
       height: clamp(100px, 20%, 160px);
       color: white;
 
+    .IconButton.gallery {
+      width: 60px;
+      height: 60px;
+    }
+
     .IconButton.shoot {
       width: 100px;
       height: 100px;
