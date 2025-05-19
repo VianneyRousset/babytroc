@@ -4,7 +4,7 @@ import { X } from 'lucide-vue-next'
 
 <template>
   <div>
-    <ItemImagesStudio>
+    <ItemStudio>
       <template #header>
         <NuxtLink
           to="/home"
@@ -18,7 +18,7 @@ import { X } from 'lucide-vue-next'
         </NuxtLink>
         <h1>Nouvel objet</h1>
       </template>
-    </ItemImagesStudio>
+    </ItemStudio>
   </div>
 </template>
 
@@ -30,7 +30,5 @@ import { X } from 'lucide-vue-next'
   left: 0;
   right: 0;
   z-index: 20;
-
-
 }
 </style>
