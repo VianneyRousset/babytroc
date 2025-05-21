@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const images = ref(Array<StudioImage>())
+const selected = ref<number | undefined>(undefined)
 
 const video = useTemplateRef<HTMLVideoElement>('video')
 const studio = useTemplateRef<HTMLElement>('studio')
@@ -27,6 +28,12 @@ function addImage(data: string) {
     unref(images).push(img)
   }
 }
+
+function selectImage(id: number | undefined) {
+  const img = unref(images).find(img => img.id === id)
+  selected.value = id
+  console.log('select', id, img)
+}
 </script>
 
 <template>
@@ -44,7 +51,11 @@ function addImage(data: string) {
     <!-- framing -->
     <div class="framing">
       <div class="images">
-        <ItemStudioImages v-model="images" />
+        <ItemStudioImages
+          v-model="images"
+          :selected="selected"
+          @select="selectImage"
+        />
       </div>
       <div class="guides">
         <div />
@@ -53,6 +64,7 @@ function addImage(data: string) {
         <ItemStudioControls
           v-if="video"
           :video="video"
+          :disable-new-image="images.length >= 6"
           @new-image="addImage"
         />
       </div>

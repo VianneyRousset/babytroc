@@ -1,7 +1,17 @@
 <script setup lang="ts">
+import { Plus } from 'lucide-vue-next'
 import draggable from 'vuedraggable'
 
 const images = defineModel<Array<StudioImage>>()
+
+const props = defineProps<{
+  selected?: number
+}>()
+
+const { selected } = toRefs(props)
+
+
+const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
 
 const dragging = ref(false)
 </script>
@@ -23,10 +33,27 @@ const dragging = ref(false)
         mode="in-out"
         appear
       >
-        <li class="list-group-item">
+        <li
+          class="list-group-item"
+          :class="{ selected: selected === element.id }"
+          @click="emit('select', element.id)"
+        >
           <img :src="element.cropped">
         </li>
       </transition>
+    </template>
+
+    <template #footer>
+      <li
+        class="add"
+        :class="{ selected: selected === undefined }"
+        @click="emit('select', undefined)"
+      >
+        <Plus
+          :size="24"
+          :stroke-width="2"
+        />
+      </li>
     </template>
   </draggable>
 </template>
@@ -44,6 +71,19 @@ const dragging = ref(false)
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 0 8px black;
+    border: 3px solid transparent;
+    cursor: pointer;
+
+    &.selected {
+      border: 3px solid $primary-400;
+      box-shadow: 0 0 8px black;
+    }
+
+    &.add {
+      @include flex-column-center;
+      color: $neutral-400;
+    }
+
     img {
       width: 100%;
       height: 100%;
