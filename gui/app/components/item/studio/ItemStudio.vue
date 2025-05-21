@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const images = reactive(Array<string>())
-
+const images = ref(Array<StudioImage>())
 
 const video = useTemplateRef<HTMLVideoElement>('video')
 const studio = useTemplateRef<HTMLElement>('studio')
@@ -10,11 +9,24 @@ const { width } = useElementSize(
   { box: 'border-box' },
 )
 
-function addImage(url: string) {
-  images.push(url)
-  console.log(toRaw(images.length))
-}
+function addImage(data: string) {
+  const img = useStudioImage(data)
+  const cropRatio = 1
 
+  // img width and height are not set until the img is fully loaded
+  img.onload = () => {
+    const vw: number = img.width
+    const vh: number = img.height
+
+    if (!vw || !vh)
+      throw new Error(`Invalid image dimensions: ${vw}x${vh}`)
+
+    img.crop.w = Math.floor((vw / vh > cropRatio) ? vh * cropRatio : vw)
+    img.crop.h = Math.floor((vw / vh > cropRatio) ? vh : vw / cropRatio)
+
+    unref(images).push(img)
+  }
+}
 </script>
 
 <template>
@@ -118,7 +130,6 @@ function addImage(url: string) {
     .images {
       @include flex-column;
       justify-content: flex-end;
-      overflow-x: scroll;
     }
 
     .controls {

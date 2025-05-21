@@ -2,7 +2,7 @@
 import { Images, Camera, ArrowRight } from 'lucide-vue-next'
 
 const props = defineProps<{
-  video: HTMLVideoElement,
+  video: HTMLVideoElement
 }>()
 
 const { video } = toRefs(props)
@@ -22,7 +22,7 @@ const { capture } = useVideoCamera(video)
     </IconButton>
     <IconButton
       class="shoot"
-      @click="emit('new-image', capture({ cropRatio: 1 }))"
+      @click="emit('new-image', capture())"
     >
       <Camera
         :size="48"

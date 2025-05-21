@@ -26,4 +26,19 @@ declare global {
     error: FetchError | null
     status: AsyncDataRequestStatus
   }
+
+  type StudioImage = {
+    id: number
+    original: string
+    width: number
+    height: number
+    crop: {
+      x: number
+      y: number
+      w?: number
+      h?: number
+    }
+    cropped: string
+    onload?: () => void,
+  }
 }
