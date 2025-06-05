@@ -5,16 +5,12 @@ const capture = ref(false)
 const mode = ref<'view' | 'crop'>('view')
 
 function addImage(img: StudioImage) {
-  // img width and height are not set until the img is fully loaded
-  img.onload = () => {
-    const vw: number = img.width
-    const vh: number = img.height
+  const _images = unref(images)
 
-    if (!vw || !vh)
-      throw new Error(`Invalid image dimensions: ${vw}x${vh}`)
+  if (_images.length >= 6)
+    return
 
-    unref(images).push(img)
-  }
+  _images.push(img)
 }
 
 function selectImage(id: number | undefined) {
@@ -98,7 +94,8 @@ function cropSelectedImage(crop: StudioImageCrop) {
         appear
       >
         <ItemStudioControls
-          :disable-new-image="selectedImage !== undefined || images.length >= 6"
+          :disable-shoot="images.length >= 6 || selectedImage !== undefined"
+          :disable-gallery="images.length >= 6"
           @new-image="addImage"
           @capture="capture = true"
         />

@@ -33,10 +33,9 @@ declare global {
   type StudioImage = {
     id: number
     original: string
-    width: number
-    height: number
+    width?: number
+    height?: number
     crop: StudioImageCrop
-    cropped: string
-    onload?: () => void
+    cropped?: string
   }
 }

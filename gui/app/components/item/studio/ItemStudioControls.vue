@@ -2,14 +2,16 @@
 import { Images, Camera, ArrowRight } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{
-  disableNewImage?: boolean
+  disableShoot?: boolean
+  disableGallery?: boolean
 }>(),
 {
-  disableNewImage: false,
+  disableShoot: false,
+  disableGallery: false,
 },
 )
 
-const { disableNewImage } = toRefs(props)
+const { disableShoot, disableGallery } = toRefs(props)
 
 const emit = defineEmits<{
   (e: 'capture'): void
@@ -21,7 +23,7 @@ const emit = defineEmits<{
   <div class="ItemStudioControls">
     <IconButton
       class="gallery"
-      :disabled="disableNewImage"
+      :disabled="disableGallery"
     >
       <Images
         :size="32"
@@ -30,8 +32,8 @@ const emit = defineEmits<{
     </IconButton>
     <IconButton
       class="shoot"
-      :disabled="disableNewImage"
-      @click="!disableNewImage && emit('capture')"
+      :disabled="disableShoot"
+      @click="!disableShoot && emit('capture')"
     >
       <Camera
         :size="48"

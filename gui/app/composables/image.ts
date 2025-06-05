@@ -1,13 +1,18 @@
+import { useImage } from '@vueuse/core'
+
 let studioImageIndex = 0
 
 export function useStudioImage(
-  data: string,
+  src: string,
   crop?: StudioImageCrop | 'center' | 'all',
 ): StudioImage {
-  const img = ref(new Image())
+
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
   const _crop = crop ?? 'all'
+
+  const original = ref<string>(src)
+  const { state: img } = useImage(() => ({ src: unref(original) }))
 
   if (!context)
     throw new Error('Unsupported context identifier')
@@ -17,20 +22,11 @@ export function useStudioImage(
   const top = ref(0)
   const left = ref(0)
 
-  const onload = ref<(() => void) | undefined>(undefined)
-
-  let _original = data
-  const original = computed<string>({
-    get: () => _original,
-    set: (v: string) => {
-      _original = v
-      unref(img).src = v
-    },
-  })
-
-  unref(img).onload = () => {
-    const _onload = unref(onload)
+  watchEffect(() => {
     const _img = unref(img)
+
+    if (_img == null)
+      return
 
     if (_crop === 'center') {
       const s = Math.min(_img.width, _img.height)
@@ -51,19 +47,13 @@ export function useStudioImage(
       top.value = _crop.top
       left.value = _crop.left
     }
-
-    triggerRef(img)
-    if (_onload)
-      _onload()
-  }
-
-  unref(img).src = data
+  })
 
   return reactive({
     id: studioImageIndex++,
-    original,
-    width: computed(() => unref(img).width),
-    height: computed(() => unref(img).height),
+    original: src,
+    width: computed(() => unref(img)?.width),
+    height: computed(() => unref(img)?.height),
     crop: { width, height, top, left },
     cropped: computed(() => {
       const _width = unref(width)
@@ -72,6 +62,9 @@ export function useStudioImage(
       const _left = unref(left)
 
       const _img = unref(img)
+
+      if (_img == null)
+        return
 
       canvas.width = _width
       canvas.height = _height
@@ -84,7 +77,6 @@ export function useStudioImage(
 
       return canvas.toDataURL()
     }),
-    onload,
   })
 }
 
