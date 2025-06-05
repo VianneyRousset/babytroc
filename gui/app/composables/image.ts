@@ -1,17 +1,21 @@
 let studioImageIndex = 0
 
-export function useStudioImage(data: string): StudioImage {
+export function useStudioImage(
+  data: string,
+  crop?: StudioImageCrop | 'center' | 'all',
+): StudioImage {
   const img = ref(new Image())
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
+  const _crop = crop ?? 'all'
 
   if (!context)
     throw new Error('Unsupported context identifier')
 
-  const x = ref(0)
-  const y = ref(0)
-  const w = ref<number | undefined>(undefined)
-  const h = ref<number | undefined>(undefined)
+  const width = ref(0)
+  const height = ref(0)
+  const top = ref(0)
+  const left = ref(0)
 
   const onload = ref<(() => void) | undefined>(undefined)
 
@@ -26,6 +30,28 @@ export function useStudioImage(data: string): StudioImage {
 
   unref(img).onload = () => {
     const _onload = unref(onload)
+    const _img = unref(img)
+
+    if (_crop === 'center') {
+      const s = Math.min(_img.width, _img.height)
+      width.value = s
+      height.value = s
+      top.value = (_img.height - s) / 2
+      left.value = (_img.width - s) / 2
+    }
+    else if (_crop === 'all') {
+      width.value = _img.width
+      height.value = _img.height
+      top.value = 0
+      left.value = 0
+    }
+    else {
+      width.value = _crop.width
+      height.value = _crop.height
+      top.value = _crop.top
+      left.value = _crop.left
+    }
+
     triggerRef(img)
     if (_onload)
       _onload()
@@ -38,19 +64,23 @@ export function useStudioImage(data: string): StudioImage {
     original,
     width: computed(() => unref(img).width),
     height: computed(() => unref(img).height),
-    crop: { x, y, w, h },
+    crop: { width, height, top, left },
     cropped: computed(() => {
-      const _x = unref(x)
-      const _y = unref(y)
-      const _w = unref(w)
-      const _h = unref(h)
+      const _width = unref(width)
+      const _height = unref(height)
+      const _top = unref(top)
+      const _left = unref(left)
 
       const _img = unref(img)
 
-      canvas.width = _w ?? _img.width
-      canvas.height = _h ?? _img.height
+      canvas.width = _width
+      canvas.height = _height
 
-      context.drawImage(_img, -_x, -_y)
+      context.drawImage(
+        _img,
+        -_left,
+        -_top,
+      )
 
       return canvas.toDataURL()
     }),
@@ -58,18 +88,31 @@ export function useStudioImage(data: string): StudioImage {
   })
 }
 
-export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement>) {
+export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null | undefined>) {
   const currentCamera = shallowRef<string>()
   const canvas: HTMLCanvasElement = document.createElement('canvas')
   const { stream, enabled } = useUserMedia({
     constraints: reactive({ video: { deviceId: currentCamera } }),
   })
+  const width = ref<number | undefined>()
+  const height = ref<number | undefined>()
+  const aspectRatio = computed<number | undefined>(() => {
+    const _width = unref(width)
+    const _height = unref(height)
+    return (_width == null || _height == null) ? undefined : _width / _height
+  })
 
   watchEffect(() => {
     const _video = toValue(video)
     const _stream = unref(stream)
-    if (_video && _stream)
+    if (_video && _stream) {
+      _video.addEventListener('loadedmetadata', () => {
+        width.value = _video.videoWidth
+        height.value = _video.videoHeight
+      })
+
       _video.srcObject = _stream
+    }
   })
 
   enabled.value = true
@@ -101,5 +144,8 @@ export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement>) {
 
   return {
     capture,
+    width,
+    height,
+    aspectRatio,
   }
 }

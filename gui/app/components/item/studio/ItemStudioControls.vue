@@ -2,7 +2,6 @@
 import { Images, Camera, ArrowRight } from 'lucide-vue-next'
 
 const props = withDefaults(defineProps<{
-  video: HTMLVideoElement
   disableNewImage?: boolean
 }>(),
 {
@@ -10,11 +9,12 @@ const props = withDefaults(defineProps<{
 },
 )
 
-const { video } = toRefs(props)
+const { disableNewImage } = toRefs(props)
 
-const emit = defineEmits<(e: 'new-image', value: string) => void>()
-
-const { capture } = useVideoCamera(video)
+const emit = defineEmits<{
+  (e: 'capture'): void
+  (e: 'new-image', img: StudioImage): void
+}>()
 </script>
 
 <template>
@@ -31,7 +31,7 @@ const { capture } = useVideoCamera(video)
     <IconButton
       class="shoot"
       :disabled="disableNewImage"
-      @click="disableNewImage === false && emit('new-image', capture())"
+      @click="!disableNewImage && emit('capture')"
     >
       <Camera
         :size="48"

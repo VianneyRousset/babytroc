@@ -37,6 +37,7 @@
 		"tailwindcss-animate": "^1.0.7",
 		"typescript": "^5.8.3",
 		"vue": "^3.0.4",
+		"vue-advanced-cropper": "^2.8.9",
 		"vue-content-loader": "^2.0.1",
 		"vue-router": "^4.5.0",
 		"vue3-toastify": "^0.2.8",

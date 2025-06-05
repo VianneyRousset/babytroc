@@ -10,19 +10,14 @@ const props = defineProps<{
 
 const { selected } = toRefs(props)
 
-
 const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
-
-const dragging = ref(false)
 </script>
 
 <template>
   <draggable
     v-model="images"
     class="ItemStudioImages"
-    :component-data="{
-      tag: 'ul',
-    }"
+    tag="ul"
     :animation="200"
     ghost-class="ghost"
     item-key="id"
@@ -46,7 +41,7 @@ const dragging = ref(false)
     <template #footer>
       <li
         class="add"
-        :class="{ selected: selected === undefined }"
+        :class="{ selected: selected == null }"
         @click="emit('select', undefined)"
       >
         <Plus
@@ -61,6 +56,7 @@ const dragging = ref(false)
 <style lang="scss" scoped>
 .ItemStudioImages {
   @include flex-row-center;
+  @include reset-list;
   flex-wrap: wrap;
   gap: 16px;
   margin: 16px;

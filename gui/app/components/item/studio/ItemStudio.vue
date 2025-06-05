@@ -1,19 +1,10 @@
 <script setup lang="ts">
 const images = ref(Array<StudioImage>())
-const selected = ref<number | undefined>(undefined)
+const selectedImage = ref<StudioImage | undefined>(undefined)
+const capture = ref(false)
+const mode = ref<'view' | 'crop'>('view')
 
-const video = useTemplateRef<HTMLVideoElement>('video')
-const studio = useTemplateRef<HTMLElement>('studio')
-const { width } = useElementSize(
-  studio,
-  undefined,
-  { box: 'border-box' },
-)
-
-function addImage(data: string) {
-  const img = useStudioImage(data)
-  const cropRatio = 1
-
+function addImage(img: StudioImage) {
   // img width and height are not set until the img is fully loaded
   img.onload = () => {
     const vw: number = img.width
@@ -22,17 +13,38 @@ function addImage(data: string) {
     if (!vw || !vh)
       throw new Error(`Invalid image dimensions: ${vw}x${vh}`)
 
-    img.crop.w = Math.floor((vw / vh > cropRatio) ? vh * cropRatio : vw)
-    img.crop.h = Math.floor((vw / vh > cropRatio) ? vh : vw / cropRatio)
-
     unref(images).push(img)
   }
 }
 
 function selectImage(id: number | undefined) {
-  const img = unref(images).find(img => img.id === id)
-  selected.value = id
-  console.log('select', id, img)
+  mode.value = 'view'
+  selectedImage.value = unref(images).find(img => img.id === id)
+}
+
+function deleteImage(id: number) {
+  const _images = unref(images)
+
+  // get selected image index
+  const index: number | undefined = images.value.findIndex(img => img.id === id)
+  const nextIndex = Math.min(Math.max(0, index - 1), _images.length - 1)
+
+  // remove image from array
+  images.value = unref(images).filter(img => img.id !== id)
+
+  selectedImage.value = unref(images)[nextIndex]
+}
+
+function cropSelectedImage(crop: StudioImageCrop) {
+  const _selectedImage = unref(selectedImage)
+
+  if (_selectedImage == null)
+    return
+
+  _selectedImage.crop.width = crop.width
+  _selectedImage.crop.height = crop.height
+  _selectedImage.crop.top = crop.top
+  _selectedImage.crop.left = crop.left
 }
 </script>
 
@@ -41,34 +53,58 @@ function selectImage(id: number | undefined) {
     ref="studio"
     class="ItemImagesStudio"
   >
-    <!-- video -->
-    <video
-      ref="video"
-      muted
-      autoplay
-    >Video stream not available.</video>
-
-    <!-- framing -->
-    <div class="framing">
-      <div class="images">
-        <ItemStudioImages
-          v-model="images"
-          :selected="selected"
-          @select="selectImage"
-        />
-      </div>
-      <div class="guides">
-        <div />
-      </div>
-      <div class="controls">
-        <ItemStudioControls
-          v-if="video"
-          :video="video"
-          :disable-new-image="images.length >= 6"
-          @new-image="addImage"
-        />
-      </div>
+    <!-- top -->
+    <div class="top">
+      <ItemStudioImages
+        v-model="images"
+        :selected="selectedImage?.id"
+        @select="selectImage"
+      />
     </div>
+
+    <!-- center -->
+    <AspectRatio
+      :ratio="1"
+      class="center"
+    >
+      <!-- video -->
+      <ItemStudioCamera
+        v-if="selectedImage === undefined"
+        v-model="capture"
+        @new-image="addImage"
+      />
+
+      <!-- view -->
+      <ItemStudioImageView
+        v-if="selectedImage !== undefined && mode === 'view'"
+        v-model="selectedImage"
+        @delete="selectedImage ? deleteImage(selectedImage.id) : undefined"
+        @crop="mode = 'crop'"
+      />
+
+      <!-- crop -->
+      <ItemStudioImageCrop
+        v-if="selectedImage !== undefined && mode === 'crop'"
+        v-model="selectedImage"
+        @crop="(crop) => { cropSelectedImage(crop); mode = 'view' }"
+      />
+    </AspectRatio>
+
+    <!-- bottom -->
+    <div class="bottom">
+      <transition
+        name="pop"
+        mode="in-out"
+        appear
+      >
+        <ItemStudioControls
+          :disable-new-image="selectedImage !== undefined || images.length >= 6"
+          @new-image="addImage"
+          @capture="capture = true"
+        />
+      </transition>
+    </div>
+
     <!-- header -->
     <div class="header">
       <slot name="header" />
@@ -79,13 +115,13 @@ function selectImage(id: number | undefined) {
 <style lang="scss" scoped>
 .ItemImagesStudio {
   @include flex-column-center;
-  align-items: stretch;
-  background: #3A403A;
-  background: radial-gradient(circle, $neutral-400 0%, black 100%);
   position: relative;
+  align-items: stretch;
+  background: radial-gradient(circle, $neutral-400 0%, black 100%);
 
   .header {
     @include flex-row;
+    z-index: 2;
     gap: 16px;
     height: 64px;
     position: absolute;
@@ -94,59 +130,43 @@ function selectImage(id: number | undefined) {
     width: 100%;
     color: white;
     padding: 0 1rem;
+
+    :deep(a) {
+      @include reset-link;
+    }
+
+    :deep(h1) {
+      @include ellipsis-overflow;
+      position: relative;
+      top: -0.1rem;
+      flex-grow: 1;
+      margin: 0;
+      font-weight: 500;
+      font-size: 1.6rem;
+    }
+
   }
 
-  :deep(a) {
-    @include reset-link;
+  .top, .bottom {
+    background: rgba(0, 0, 0, 0.75);
+    flex: 1;
+    z-index: 1;
   }
 
-  :deep(h1) {
-    @include ellipsis-overflow;
-    position: relative;
-    top: -0.1rem;
-    flex-grow: 1;
-    margin: 0;
-    font-weight: 500;
-    font-size: 1.6rem;
+  :deep(.center) {
+    &>* {
+      width: 100%;
+      height: 100%;
+    }
   }
 
-  video {
-    min-height: v-bind('width + "px"');
-    object-fit: cover;
-  }
-
-  .framing {
+  .top {
     @include flex-column;
-    align-items: stretch;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    justify-content: flex-end;
+  }
 
-    &>div:not(:nth-child(2)) {
-      background: rgba(0, 0, 0, 0.5);
-      flex: 1;
-    }
-
-    &>div:nth-child(2) {
-      @include flex-column;
-      align-items: stretch;
-      aspect-ratio: 1;
-      padding: 5%;
-      &>div {
-        flex: 1;
-        border-radius: 4%;
-        border: 2px dashed rgba(0, 0, 0, 0.2);
-      }
-    }
-
-    .images {
-      @include flex-column;
-      justify-content: flex-end;
-    }
-
-    .controls {
-      @include flex-column-center;
-    }
+  .bottom {
+    @include flex-column-center;
   }
 }
 </style>

@@ -1,4 +1,5 @@
 import type { FetchError } from 'ofetch'
+import type { VisibleArea } from 'vue-advanced-cropper'
 import type { AsyncDataRequestStatus } from '#app'
 
 export type {
@@ -27,18 +28,15 @@ declare global {
     status: AsyncDataRequestStatus
   }
 
+  type StudioImageCrop = VisibleArea
+
   type StudioImage = {
     id: number
     original: string
     width: number
     height: number
-    crop: {
-      x: number
-      y: number
-      w?: number
-      h?: number
-    }
+    crop: StudioImageCrop
     cropped: string
-    onload?: () => void,
+    onload?: () => void
   }
 }

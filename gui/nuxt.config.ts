@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     'nuxt-open-fetch',
     '@pinia/nuxt',
     '@vueuse/nuxt',
+    '@vueuse/motion/nuxt',
     'nuxt-swiper',
     'radix-vue/nuxt',
     '@pinia/colada-nuxt',
