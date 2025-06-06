@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const images = ref(Array<StudioImage>())
+const stagedImages = defineModel<Array<StudioImage>>()
+const images = ref<Array<StudioImage>>(Array.from(unref(stagedImages) ?? []))
+const emit = defineEmits(['done'])
+
 const selectedImage = ref<StudioImage | undefined>(undefined)
 const capture = ref(false)
 const mode = ref<'view' | 'crop'>('view')
@@ -42,6 +45,11 @@ function cropSelectedImage(crop: StudioImageCrop) {
   _selectedImage.crop.top = crop.top
   _selectedImage.crop.left = crop.left
 }
+
+async function done() {
+  stagedImages.value = images.value
+  emit('done')
+}
 </script>
 
 <template>
@@ -52,6 +60,7 @@ function cropSelectedImage(crop: StudioImageCrop) {
     <!-- top -->
     <div class="top">
       <ItemStudioImages
+        v-if="mode != 'crop'"
         v-model="images"
         :selected="selectedImage?.id"
         @select="selectImage"
@@ -94,10 +103,13 @@ function cropSelectedImage(crop: StudioImageCrop) {
         appear
       >
         <ItemStudioControls
+          v-if="mode != 'crop'"
           :disable-shoot="images.length >= 6 || selectedImage !== undefined"
           :disable-gallery="images.length >= 6"
+          :disable-done="images.length == 0"
           @new-image="addImage"
           @capture="capture = true"
+          @done="done()"
         />
       </transition>
     </div>

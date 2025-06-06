@@ -4,16 +4,18 @@ import { Images, Camera, ArrowRight } from 'lucide-vue-next'
 const props = withDefaults(defineProps<{
   disableShoot?: boolean
   disableGallery?: boolean
+  disableDone?: boolean
 }>(),
 {
   disableShoot: false,
   disableGallery: false,
+  disableDone: false,
 },
 )
 
 const emit = defineEmits<{
-  (e: 'capture'): void
-  (e: 'new-image', img: StudioImage): void
+  (event: 'capture' | 'done'): void
+  (event: 'new-image', img: StudioImage): void
 }>()
 
 const { disableShoot, disableGallery } = toRefs(props)
@@ -63,10 +65,14 @@ function emitImageFromFile(file: File) {
         :stroke-width="1.5"
       />
     </IconButton>
-    <IconButton class="continue">
+    <IconButton
+      class="done"
+      :disabled="disableDone"
+    >
       <ArrowRight
         :size="32"
         :stroke-width="1.5"
+        @click="!disableDone && emit('done')"
       />
     </IconButton>
   </div>
@@ -98,7 +104,7 @@ function emitImageFromFile(file: File) {
     border: 1px solid $neutral-600;
   }
 
-  .IconButton.continue {
+  .IconButton.done {
     width: 60px;
     height: 60px;
     border-radius: 50%;

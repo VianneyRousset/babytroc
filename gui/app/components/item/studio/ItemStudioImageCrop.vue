@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check } from 'lucide-vue-next'
-import { Cropper } from 'vue-advanced-cropper'
+import { Cropper, type Boundaries } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
 const img = defineModel<StudioImage>()
@@ -20,6 +20,13 @@ function emitCrop() {
   const { visibleArea } = _cropper.getResult()
   emit('crop', visibleArea)
 }
+
+function stencilSize({ boundaries }: { boundaries: Boundaries }) {
+  return {
+    width: boundaries.width,
+    height: boundaries.height,
+  }
+}
 </script>
 
 <template>
@@ -30,10 +37,8 @@ function emitCrop() {
       v-if="img"
       ref="cropper"
       :src="img?.original"
-      :stencil-size="{
-        width: 400,
-        height: 400,
-      }"
+      :min-width="256"
+      :stencil-size="stencilSize"
       :stencil-props="{
         aspectRatio: 1,
         movable: false,

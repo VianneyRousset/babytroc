@@ -74,7 +74,7 @@ export function useStudioImage(
         -_top,
       )
 
-      return canvas.toDataURL()
+      return canvas.toDataURL('image/jpeg')
     }),
   })
 }
