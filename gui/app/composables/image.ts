@@ -6,7 +6,6 @@ export function useStudioImage(
   src: string,
   crop?: StudioImageCrop | 'center' | 'all',
 ): StudioImage {
-
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
   const _crop = crop ?? 'all'

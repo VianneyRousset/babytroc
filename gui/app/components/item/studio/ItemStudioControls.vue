@@ -11,12 +11,34 @@ const props = withDefaults(defineProps<{
 },
 )
 
-const { disableShoot, disableGallery } = toRefs(props)
-
 const emit = defineEmits<{
   (e: 'capture'): void
   (e: 'new-image', img: StudioImage): void
 }>()
+
+const { disableShoot, disableGallery } = toRefs(props)
+
+const { open, onChange } = useFileDialog({
+  accept: 'image/*',
+  reset: true,
+})
+
+onChange((files) => {
+  for (const file of files ?? [])
+    emitImageFromFile(file)
+})
+
+function emitImageFromFile(file: File) {
+  const fileReader = new FileReader()
+  fileReader.onload = () => {
+    if (typeof fileReader.result !== 'string')
+      throw new Error('File reader result is not a string')
+
+    const img: StudioImage = useStudioImage(fileReader.result, 'center')
+    emit('new-image', img)
+  }
+  fileReader.readAsDataURL(file)
+}
 </script>
 
 <template>
@@ -24,6 +46,7 @@ const emit = defineEmits<{
     <IconButton
       class="gallery"
       :disabled="disableGallery"
+      @click="!disableGallery && open()"
     >
       <Images
         :size="32"
