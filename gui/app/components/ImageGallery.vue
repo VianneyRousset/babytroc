@@ -14,6 +14,11 @@ const swiper = useSwiper(containerRef, {
 })
 
 function onKeyDown(event: KeyboardEvent) {
+  const element = event.target as HTMLElement
+
+  if (element.tagName === 'INPUT')
+    return
+
   switch (event.key) {
     case 'ArrowLeft':
       swiper.prev()
@@ -22,8 +27,6 @@ function onKeyDown(event: KeyboardEvent) {
       swiper.next()
       break
   }
-
-  event.preventDefault()
 }
 
 onMounted(() => window.addEventListener('keydown', onKeyDown))

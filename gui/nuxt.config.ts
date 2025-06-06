@@ -66,6 +66,7 @@ export default defineNuxtConfig({
   /* Build Pipeline Configs */
   routeRules: {
     '/': { redirect: '/home' },
+    '/newitem': { redirect: '/newitem/studio' },
   },
 
   /* Feature flags */

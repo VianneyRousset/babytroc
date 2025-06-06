@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
 
-const studioImagesUploadStore = useStudioImagesUploadStore('newitem')
+const itemEditStore = useItemEditStore('new-item')
 
-watch(() => studioImagesUploadStore.data, images => console.log(toRaw(images)))
+function done(images: Array<StudioImage>) {
+  itemEditStore.studioImages.images = images
+  navigateTo('/newitem/info')
+}
 </script>
 
 <template>
   <div>
     <ItemStudio
-      v-model="studioImagesUploadStore.images"
-      @done="console.log('done')"
+      :init-images="itemEditStore.studioImages.images"
+      @done="done"
     >
       <template #header>
         <NuxtLink

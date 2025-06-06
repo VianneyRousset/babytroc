@@ -60,7 +60,7 @@ watch(
 
 <template>
   <div
-    class="button"
+    class="TextButton"
     :class="classes"
   >
     <div
@@ -76,7 +76,7 @@ watch(
 </template>
 
 <style scoped lang="scss">
-.button {
+.TextButton {
   position: relative;
   color: white;
   text-align: center;

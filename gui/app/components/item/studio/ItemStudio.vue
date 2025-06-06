@@ -1,7 +1,17 @@
 <script setup lang="ts">
-const stagedImages = defineModel<Array<StudioImage>>()
-const images = ref<Array<StudioImage>>(Array.from(unref(stagedImages) ?? []))
-const emit = defineEmits(['done'])
+const props = defineProps<{
+  initImages: Array<StudioImage>
+}>()
+
+const { initImages } = toRefs(props)
+
+const images = ref(Array<StudioImage>())
+
+watch(initImages, (_initImages) => {
+  images.value = _initImages
+}, { immediate: true })
+
+const emit = defineEmits<(event: 'done', images: Array<StudioImage>) => void>()
 
 const selectedImage = ref<StudioImage | undefined>(undefined)
 const capture = ref(false)
@@ -47,8 +57,7 @@ function cropSelectedImage(crop: StudioImageCrop) {
 }
 
 async function done() {
-  stagedImages.value = images.value
-  emit('done')
+  emit('done', unref(images))
 }
 </script>
 

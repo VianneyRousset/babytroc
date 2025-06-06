@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const props = defineProps<{
-  modelValue: [number | null, number | null]
+  modelValue: AgeRange
 }>()
 const emit = defineEmits<
-  (e: 'update:modelValue', value: [number | null, number | null]) => void
+  (e: 'update:modelValue', value: AgeRange) => void
 >()
 
 const rangeMin = 0

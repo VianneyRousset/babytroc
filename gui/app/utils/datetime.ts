@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 
 export function formatTargetedAge(
-  ageMin: number | null,
-  ageMax: number | null,
+  ageMin: Age,
+  ageMax: Age,
 ): string {
   if (ageMin !== null && ageMin > 0) {
     if (ageMax === null) return `À partie de ${ageMin} mois`
@@ -19,7 +19,7 @@ export function range2string(range: Array<number | null>): string {
   return `${range[0] ?? ''}-${range[1] ?? ''}`
 }
 
-export function string2range(range: string): [number | null, number | null] {
+export function string2range(range: string): AgeRange {
   const { 0: lowerStr, 1: upperStr } = { ...range.split('-') }
 
   if (lowerStr === undefined || upperStr === undefined)

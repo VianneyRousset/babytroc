@@ -71,7 +71,7 @@ export const useItemFilters = () => {
     || route.query.av === ItemQueryAvailability.all,
   )
 
-  const targetedAge = ref<[number | null, number | null]>(
+  const targetedAge = ref<AgeRange>(
     typeof route.query.mo === 'string'
       ? string2range(route.query.mo)
       : [0, null],
