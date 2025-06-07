@@ -19,6 +19,7 @@ export function useObjectFit(
       return
     }
 
+    // is the video flatter than its container ?
     const _flatter = _aspectRatio > _containerWidth / _containerHeight
 
     switch (toValue(fit)) {
@@ -28,13 +29,13 @@ export function useObjectFit(
         break
 
       case 'cover':
-        width.value = _flatter ? _aspectRatio * _containerHeight : _containerWidth
-        height.value = _flatter ? _containerHeight : _aspectRatio * _containerWidth
+        width.value = _flatter ? undefined : _containerWidth
+        height.value = _flatter ? _containerHeight : undefined
         break
 
       case 'contain':
-        width.value = _flatter ? _containerWidth : _aspectRatio * _containerHeight
-        height.value = _flatter ? _aspectRatio * _containerWidth : _containerHeight
+        width.value = _flatter ? _containerWidth : undefined
+        height.value = _flatter ? undefined : _containerHeight
         break
     }
   })
