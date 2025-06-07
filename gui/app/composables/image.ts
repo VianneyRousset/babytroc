@@ -21,9 +21,7 @@ export function useStudioImage(
   const top = ref(0)
   const left = ref(0)
 
-  watchEffect(() => {
-    const _img = unref(img)
-
+  watch(img, (_img) => {
     if (_img == null)
       return
 
