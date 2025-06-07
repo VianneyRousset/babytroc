@@ -2,17 +2,6 @@
 const { height: mainHeaderHeight } = useElementSize(
   useTemplateRef('main-header'),
 )
-
-const {
-  loggedIn,
-} = useAuth()
-
-const route = useRoute()
-
-watch(loggedIn, (newState, oldState) => {
-  if (oldState === false && newState === true && route.query.redirect)
-    navigateTo(route.query.redirect as string)
-})
 </script>
 
 <template>
