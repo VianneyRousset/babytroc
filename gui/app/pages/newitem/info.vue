@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import VSwitch from '@lmiller1990/v-switch'
+import { Check, OctagonAlert } from 'lucide-vue-next'
+
 const { height: headerHeight } = useElementSize(
   useTemplateRef('header'),
 )
@@ -57,6 +60,32 @@ async function createItem() {
       <div>
         <ImageGallery :images="itemEditStore.studioImages.images.map(img => img.cropped ?? ',')" />
 
+        <div
+          class="image-upload-status"
+          :status="itemEditStore.studioImages.status"
+        >
+          <v-switch :case="itemEditStore.studioImages.status">
+            <template #pending>
+              <LoadingAnimation :small="true" />
+              <div>Téléversement des images</div>
+            </template>
+            <template #success>
+              <Check
+                :size="24"
+                :stroke-width="2"
+              />
+              <div>Images téléversées</div>
+            </template>
+            <template #error>
+              <OctagonAlert
+                :size="24"
+                :stroke-width="2"
+              />
+              <div>Échec du téléversément</div>
+            </template>
+          </v-switch>
+        </div>
+
         <h2>Description</h2>
         <div class="textarea-wrapper">
           <textarea
@@ -90,7 +119,7 @@ async function createItem() {
           color="primary"
           :loading="createItemAsyncStatus === 'loading'"
           :disabled="!itemEditStore.isValid || itemEditStore.studioImages.status !== 'success'"
-          @click="createItem()"
+          @click="itemEditStore.isValid && createItem()"
         >
           Créer l'objet
         </TextButton>
@@ -136,6 +165,27 @@ main {
   gap: 1rem;
 
   --header-height: v-bind(headerHeight + "px");
+
+  .image-upload-status {
+    @include flex-row;
+    gap: 0.6rem;
+    padding: 1rem;
+
+    font-family: "Inter", sans-serif;
+    color: $neutral-400;
+
+    &[status="success"] {
+      color: $primary-400;
+    }
+
+    &[status="error"] {
+      color: $red-800;
+    }
+
+    div {
+      @include ellipsis-overflow;
+    }
+  }
 
   textarea {
     -ms-overflow-style: none;
