@@ -20,13 +20,13 @@ watch(loggedIn, (newState, oldState) => {
     <!-- Header bar -->
     <AppHeaderBar ref="main-header">
       <AppBack />
-      <h1>Profile</h1>
+      <h1>A propos de Babytroc</h1>
     </AppHeaderBar>
 
     <!-- Main content -->
     <main class="app-content page">
       <h1>In construction</h1>
-      <p>Will allow you to change your username and maybe offer some statistics.</p>
+      <p>Will some context on babytroc</p>
     </main>
   </div>
 </template>
