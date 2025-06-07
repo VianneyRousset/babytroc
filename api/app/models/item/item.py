@@ -78,6 +78,7 @@ class Item(CreationDate, UpdateDate, Base):
     images: Mapped[list[ItemImage]] = relationship(
         ItemImage,
         secondary="item_image_association",
+        order_by="ItemImageAssociation.order",
         back_populates="items",
     )
 

@@ -1,4 +1,3 @@
-
 from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
 
@@ -6,6 +5,7 @@ from app.clients.database.image import get_image
 from app.clients.database.region import get_region
 from app.clients.database.user import get_user
 from app.models.item import Item
+from app.models.item.image import ItemImageAssociation
 
 
 def create_item(
@@ -36,9 +36,20 @@ def create_item(
     )
 
     db.add(item)
+    db.flush()
+    db.refresh(item)
+
+    # add item-image associations
+    for i, name in enumerate(images):
+        association = ItemImageAssociation(
+            item_id=item.id,
+            image_name=name,
+            order=i,
+        )
+        db.add(association)
 
     # add images to item
-    item.images.extend([get_image(db, name) for name in images])
+    item.images = [get_image(db, name) for name in images]
 
     # add regions to item
     for region_id in regions:

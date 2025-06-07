@@ -106,12 +106,6 @@ def create_item_image_table():
     op.create_table(
         "item_image",
         sa.Column("name", sa.String(), nullable=False),
-        sa.Column(
-            "order",
-            sa.Integer(),
-            sa.Identity(always=True, start=1, increment=1),
-            nullable=False,
-        ),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.Column(
             "creation_date",
@@ -135,6 +129,7 @@ def create_item_image_association_table():
         "item_image_association",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("image_name", sa.String(), nullable=False),
+        sa.Column("order", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["image_name"], ["item_image.name"], ondelete="CASCADE"
         ),

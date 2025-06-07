@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Identity, Integer, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -27,15 +27,6 @@ class ItemImage(Base, CreationDate):
         primary_key=True,
         unique=True,
         index=True,
-    )
-
-    order: Mapped[int] = mapped_column(
-        Integer,
-        Identity(
-            always=True,
-            start=1,
-            increment=1,
-        ),
     )
 
     owner_id: Mapped[int] = mapped_column(
@@ -75,4 +66,9 @@ class ItemImageAssociation(Base):
             ondelete="CASCADE",
         ),
         primary_key=True,
+    )
+
+    order: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
     )
