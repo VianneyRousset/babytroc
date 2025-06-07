@@ -9,6 +9,14 @@ if (itemEditStore.studioImages.images.length === 0) navigateTo('/newitem')
 
 const { mutateAsync: mutate, asyncStatus: createItemAsyncStatus } = useCreateItemMutation()
 
+const isNameTouched = ref(false)
+const isDescriptionTouched = ref(false)
+const isRegionsTouched = ref(false)
+
+watch(itemEditStore.regions, () => {
+  isRegionsTouched.value = true
+})
+
 async function createItem() {
   if (itemEditStore.studioImages.data == null || itemEditStore.studioImages.data.some(img => img == null))
     throw new Error('Some img are not yet uploaded')
@@ -38,10 +46,9 @@ async function createItem() {
       <AppBack />
       <input
         v-model="itemEditStore.name"
+        :class="{ invalid: isNameTouched && !itemEditStore.isNameValid }"
         placeholder="Nom"
-        tabindex="1"
-        autofocus
-        rows="20"
+        @blur="isNameTouched = true"
       >
     </AppHeaderBar>
 
@@ -56,6 +63,8 @@ async function createItem() {
             ref="textarea"
             v-model="itemEditStore.description"
             placeholder="Description"
+            :class="{ invalid: isDescriptionTouched && !itemEditStore.isDescriptionValid }"
+            @blur="isDescriptionTouched = true"
           />
         </div>
 
@@ -70,7 +79,10 @@ async function createItem() {
         </div>
 
         <h2>Régions</h2>
-        <RegionsMap v-model="itemEditStore.regions" />
+        <RegionsMap
+          v-model="itemEditStore.regions"
+          :class="{ invalid: isRegionsTouched && !itemEditStore.isRegionsValid }"
+        />
         <RegionsCheckboxes v-model="itemEditStore.regions" />
         <TextButton
           aspect="bezel"
@@ -107,6 +119,14 @@ async function createItem() {
     margin: 0;
     font-weight: 500;
     font-size: 1.6rem;
+
+    &.invalid {
+      color: $red-700;
+      &::placeholder {
+        color: $red-700;
+      }
+    }
+
   }
 }
 
@@ -120,10 +140,24 @@ main {
   textarea {
     -ms-overflow-style: none;
     scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.invalid {
+      color: $red-700;
+      box-shadow: 0 0 8px $red-700;
+      &::placeholder {
+        color: $red-700;
+      }
+    }
   }
 
-  textarea::-webkit-scrollbar {
-    display: none;
+  .RegionsMap {
+    &.invalid {
+      filter: drop-shadow(0 0 3px $red-700);
+    }
   }
 
   .TextButton {
