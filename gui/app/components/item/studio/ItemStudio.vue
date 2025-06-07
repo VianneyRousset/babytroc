@@ -5,16 +5,17 @@ const props = defineProps<{
 
 const { initImages } = toRefs(props)
 
+const camera = useTemplateRef('camera')
+
 const images = ref(Array<StudioImage>())
 
 watch(initImages, (_initImages) => {
-  images.value = _initImages
+  images.value = [..._initImages]
 }, { immediate: true })
 
 const emit = defineEmits<(event: 'done', images: Array<StudioImage>) => void>()
 
 const selectedImage = ref<StudioImage | undefined>(undefined)
-const capture = ref(false)
 const mode = ref<'view' | 'crop'>('view')
 
 function addImage(img: StudioImage) {
@@ -57,7 +58,7 @@ function cropSelectedImage(crop: StudioImageCrop) {
 }
 
 async function done() {
-  emit('done', unref(images))
+  emit('done', toRaw(unref(images)))
 }
 </script>
 
@@ -84,7 +85,7 @@ async function done() {
       <!-- video -->
       <ItemStudioCamera
         v-if="selectedImage === undefined"
-        v-model="capture"
+        ref="camera"
         @new-image="addImage"
       />
 
@@ -117,7 +118,7 @@ async function done() {
           :disable-gallery="images.length >= 6"
           :disable-done="images.length == 0"
           @new-image="addImage"
-          @capture="capture = true"
+          @capture="camera?.capture()"
           @done="done()"
         />
       </transition>

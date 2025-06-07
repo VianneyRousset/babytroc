@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const capture = defineModel<boolean>()
 const emit = defineEmits<(event: 'new-image', img: StudioImage) => void>()
 
 const video = useTemplateRef<HTMLVideoElement>('video')
@@ -19,8 +18,8 @@ const {
   'cover',
 )
 
-watch(capture, (_capture) => {
-  if (_capture === true) {
+defineExpose({
+  capture: () => {
     const _w = unref(videoWidth)
     const _h = unref(videoHeight)
 
@@ -31,9 +30,9 @@ watch(capture, (_capture) => {
     const img: StudioImage = useStudioImage(recordImage(), 'center')
 
     emit('new-image', img)
-    capture.value = false
-  }
-}, { immediate: true })
+    return img
+  },
+})
 </script>
 
 <template>
