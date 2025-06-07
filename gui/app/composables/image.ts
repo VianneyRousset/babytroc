@@ -78,10 +78,16 @@ export function useStudioImage(
 }
 
 export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null | undefined>) {
-  const currentCamera = shallowRef<string>()
   const canvas: HTMLCanvasElement = document.createElement('canvas')
   const { stream, enabled } = useUserMedia({
-    constraints: reactive({ video: { deviceId: currentCamera } }),
+    constraints: {
+      audio: false,
+      video: {
+        facingMode: {
+          ideal: 'environment',
+        },
+      },
+    },
   })
   const width = ref<number | undefined>()
   const height = ref<number | undefined>()
@@ -105,15 +111,6 @@ export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null |
   })
 
   enabled.value = true
-
-  const { videoInputs: cameras } = useDevicesList({
-    requestPermissions: true,
-    constraints: { video: true, audio: false },
-    onUpdated() {
-      if (!cameras.value.find(i => i.deviceId === currentCamera.value))
-        currentCamera.value = cameras.value[0]?.deviceId
-    },
-  })
 
   function capture(): string {
     const _video = toValue(video)
