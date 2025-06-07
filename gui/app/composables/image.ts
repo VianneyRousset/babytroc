@@ -2,14 +2,19 @@ import { useImage } from '@vueuse/core'
 
 let studioImageIndex = 0
 
+type UseStudioImageOptions = {
+  crop?: StudioImageCrop | 'center' | 'all'
+  maxSize?: number
+}
+
 export function useStudioImage(
   src: string,
-  crop?: StudioImageCrop | 'center' | 'all',
+  options?: UseStudioImageOptions,
 ): StudioImage {
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
-  const _crop = crop ?? 'all'
-
+  const _crop = options?.crop ?? 'all'
+  const _maxSize = options?.maxSize
   const original = ref<string>(src)
   const { state: img } = useImage(() => ({ src: unref(original) }))
 
@@ -63,13 +68,19 @@ export function useStudioImage(
       if (_img == null)
         return
 
-      canvas.width = _width
-      canvas.height = _height
+      const scaleDown: number = _maxSize == null
+        ? 1
+        : Math.max(_width / _maxSize, _height / _maxSize, 1)
+
+      canvas.width = _width / scaleDown
+      canvas.height = _height / scaleDown
 
       context.drawImage(
         _img,
-        -_left,
-        -_top,
+        -_left / scaleDown,
+        -_top / scaleDown,
+        _img.width / scaleDown,
+        _img.height / scaleDown,
       )
 
       return canvas.toDataURL('image/jpeg')

@@ -27,7 +27,7 @@ defineExpose({
       throw new Error(`Invalid video dimensions ${_w}x${_h}`)
 
     const _s: number = Math.min(_w, _h)
-    const img: StudioImage = useStudioImage(recordImage(), 'center')
+    const img: StudioImage = useStudioImage(recordImage(), { crop: 'center', maxSize: 1024 })
 
     emit('new-image', img)
     return img

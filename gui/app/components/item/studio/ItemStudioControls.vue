@@ -36,7 +36,7 @@ function emitImageFromFile(file: File) {
     if (typeof fileReader.result !== 'string')
       throw new Error('File reader result is not a string')
 
-    const img: StudioImage = useStudioImage(fileReader.result, 'center')
+    const img: StudioImage = useStudioImage(fileReader.result, { crop: 'center', maxSize: 1024 })
     emit('new-image', img)
   }
   fileReader.readAsDataURL(file)
