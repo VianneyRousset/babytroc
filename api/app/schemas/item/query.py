@@ -1,4 +1,3 @@
-
 from pydantic import field_validator
 from sqlalchemy import BooleanClauseList, Integer, Select, and_, func, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range

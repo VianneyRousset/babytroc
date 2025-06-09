@@ -1,4 +1,3 @@
-
 from app.schemas.base import CreateBase
 
 from .base import RegionBase

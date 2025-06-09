@@ -1,31 +1,37 @@
 import json
 import logging
-from collections.abc import Iterable
 from pathlib import Path
 from typing import Annotated
-
 
 from cyclopts import App, Parameter
 
 from .database import shared_session
 from .items import (
-    populate_items as _populate_items,
     check_items as _check_items,
+)
+from .items import (
+    populate_items as _populate_items,
 )
 from .regions import (
     Region,
-    populate_regions as _populate_regions,
+)
+from .regions import (
     check_regions as _check_regions,
+)
+from .regions import (
+    populate_regions as _populate_regions,
 )
 from .users import (
     User,
-    populate_users as _populate_users,
+)
+from .users import (
     check_users as _check_users,
+)
+from .users import (
+    populate_users as _populate_users,
 )
 from .validators import (
     validate_file_exists,
-    validate_names_no_leading_or_trailing_whitespace,
-    validate_names_not_empty,
 )
 
 
@@ -183,7 +189,7 @@ def populate_items(
             name=["--items-count", "-n"],
             help="Number of items per user..",
         ),
-    ] = 10,
+    ] = 100,
     force: Annotated[
         bool,
         Parameter(
@@ -204,7 +210,11 @@ def populate_items(
                 raise RuntimeError(msg)
 
         # populate
-        _populate_items(db, n_items)
+        _populate_items(
+            db=db,
+            images_dir=Path("seed/data/images"),
+            n=n_items,
+        )
 
 
 if __name__ == "__main__":

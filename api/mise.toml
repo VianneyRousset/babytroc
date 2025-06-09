@@ -37,12 +37,12 @@ run = "alembic upgrade head"
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
 depends = ["deps", "deps-dev"]
-run = "ruff check app/ tests/"
+run = "ruff check ."
 
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
 depends = ["deps", "deps-dev"]
-run = "mypy app/ tests/"
+run = "mypy stubs app seed tests"
 
 [tasks.lint]
 description = "Lint the code"

@@ -2,9 +2,9 @@ import logging
 from collections.abc import Iterable
 
 import sqlalchemy
+from tqdm import tqdm
 
 import app
-from tqdm import tqdm
 from app.schemas.user.create import UserCreate as User
 
 logger = logging.getLogger(__name__)

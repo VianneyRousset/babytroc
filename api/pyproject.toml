@@ -38,9 +38,10 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-exclude = ["alembic"]
+exclude = ["alembic", "stubs"]
 
 [tool.ruff]
+exclude = ["stubs"]
 lint.extend-select = [
   "ASYNC",
   "B",

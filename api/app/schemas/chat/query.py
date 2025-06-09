@@ -1,4 +1,3 @@
-
 from sqlalchemy import Select
 
 from app.models.chat import Chat, ChatMessage
