@@ -17,6 +17,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+  "cyclopts>=3.17.0",
   "mypy>=1.15.0",
   "pylsp-mypy>=0.7.0",
   "pylyzer>=0.0.82",
@@ -30,6 +31,7 @@ dev = [
   "types-psycopg2>=2.9.21.20250318",
   "types-requests>=2.32.0.20250328",
   "types-sqlalchemy-utils>=1.1.0",
+  "wonderwords>=2.2.0",
 ]
 
 [tool.setuptools.packages.find]
