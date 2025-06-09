@@ -9,6 +9,8 @@ import {
 
 const route = useRoute()
 
+const { loggedIn } = useAuth()
+
 const { hasNewMessages } = useChats()
 </script>
 
@@ -44,10 +46,12 @@ const { hasNewMessages } = useChats()
 
       <li>
         <NuxtLink
-          active
-          to="/newitem"
+          :to="loggedIn === true ? '/newitem' : undefined"
         >
-          <div class="plus">
+          <div
+            class="plus"
+            :class="{ enable: loggedIn === true }"
+          >
             <Plus
               :size="44"
               :stroke-width="2"
@@ -148,9 +152,17 @@ nav {
         position: relative;
 
         &.plus {
+          background: $neutral-200;
+          border: 2px solid $neutral-300;
 
-          background: $primary-200;
-          border: 2px solid $primary-300;
+          &.enable {
+            background: $primary-200;
+            border-color: $primary-300;
+
+            svg {
+              stroke: $primary-300;
+            }
+          }
 
           width: 64px;
           height: 64px;
@@ -159,7 +171,7 @@ nav {
           bottom: 20px;
 
           svg {
-            stroke: $primary-300;
+            stroke: $neutral-300;
           }
         }
 
