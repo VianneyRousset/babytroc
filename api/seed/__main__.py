@@ -18,13 +18,14 @@ from .regions import (
     check_regions as _check_regions,
 )
 from .users import (
+    User,
     populate_users as _populate_users,
     check_users as _check_users,
 )
 from .validators import (
     validate_file_exists,
-    validate_name_no_leading_or_trailing_whitespace,
-    validate_name_not_empty,
+    validate_names_no_leading_or_trailing_whitespace,
+    validate_names_not_empty,
 )
 
 
@@ -61,9 +62,7 @@ class CustomFormatter(logging.Formatter):
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-
 ch.setFormatter(CustomFormatter("%(levelname)s - %(message)s"))
-
 logger.addHandler(ch)
 
 app = App(
@@ -101,7 +100,7 @@ def populate_regions(
     fp: Annotated[
         Path,
         Parameter(
-            name="--regions-file",
+            name="--data-file",
             help="File containing all regions.",
             validator=[validate_file_exists],
         ),
@@ -118,7 +117,7 @@ def populate_regions(
 
     # read regions
     regions = read_regions(fp)
-    logger.info("%i regions regions found in %s", len(regions), fp)
+    logger.info("%i regions found in %s", len(regions), fp)
 
     with shared_session as db:
         # check state
@@ -133,19 +132,22 @@ def populate_regions(
         _populate_regions(db, regions)
 
 
+def read_users(file: Path) -> list[User]:
+    with file.open() as f:
+        data = json.load(f)
+        return [User.model_validate(reg) for reg in data["users"]]
+
+
 @populate.command(name="users")
 def populate_users(
-    users: Annotated[
-        Iterable[str],
+    fp: Annotated[
+        Path,
         Parameter(
-            name=["--user", "-u"],
-            help="User name (can be specified mulitple times).",
-            validator=[
-                validate_name_not_empty,
-                validate_name_no_leading_or_trailing_whitespace,
-            ],
+            name="--data-file",
+            help="File containing all users.",
+            validator=[validate_file_exists],
         ),
-    ] = ("alice", "bob"),
+    ] = Path("seed/data/data.json"),
     force: Annotated[
         bool,
         Parameter(
@@ -155,6 +157,10 @@ def populate_users(
     ] = False,
 ):
     """Populate users."""
+
+    # read users
+    users = read_users(fp)
+    logger.info("%i users found in %s", len(users), fp)
 
     with shared_session as db:
         # check state

@@ -16,7 +16,9 @@ def check_regions(
     """Returns True if some regions are present in the database."""
 
     logger.debug("Checking regions: started")
-    res = len(app.services.region.list_regions(db)) > 0
+    regions = app.services.region.list_regions(db)
+    logger.debug("%i regions found", len(regions))
+    res = len(regions) > 0
     logger.debug("Checking regions: done")
 
     return res

@@ -68,5 +68,17 @@
       "id": 17,
       "name": "Beaulieu / Grey / Boisy"
     }
+  ],
+  "users": [
+    {
+      "email": "alice@babytroc.ch",
+      "name": "Alice Bouchard",
+      "password": "xxx"
+    },
+    {
+      "email": "bob@babytroc.ch",
+      "name": "Bob Vans",
+      "password": "xxx"
+    }
   ]
 }
