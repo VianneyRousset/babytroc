@@ -4,6 +4,7 @@ const { loggedIn } = useAuth()
 let websocket: WebSocket | null = null
 
 const { setMessage } = useChats()
+const route = useRoute()
 
 watch(loggedIn, (state) => {
   if (state === true) {
@@ -37,7 +38,7 @@ watch(loggedIn, (state) => {
 <template>
   <div>
     <NuxtPage />
-    <AppFooterBar />
+    <AppFooterBar v-if="!route.path.startsWith('/newitem')" />
   </div>
 </template>
 
