@@ -10,6 +10,7 @@
 - check alembic check constraint "loan_request_executed_or_not". Looks wrong
 - add test on full loan creation chain
 - improve targeted_age_months serialization/deserialization with a new pydantic type
+- check missing index. Should item_image_association table be better indexed ?
 
 # GUI
 
