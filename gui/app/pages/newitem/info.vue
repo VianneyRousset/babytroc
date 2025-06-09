@@ -8,6 +8,13 @@ const { height: headerHeight } = useElementSize(
 
 const itemEditStore = useItemEditStore('new-item')
 
+const { loggedIn, loginRoute } = useAuth()
+
+watch(loggedIn, (_loggedIn) => {
+  if (_loggedIn === false)
+    navigateTo(unref(loginRoute))
+}, { immediate: true })
+
 if (itemEditStore.studioImages.images.length === 0) navigateTo('/newitem')
 
 const { mutateAsync: mutate, asyncStatus: createItemAsyncStatus } = useCreateItemMutation()

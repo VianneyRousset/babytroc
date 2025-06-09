@@ -7,7 +7,7 @@ const { loggedIn, loginRoute } = useAuth()
 watch(loggedIn, (_loggedIn) => {
   if (_loggedIn === false)
     navigateTo(unref(loginRoute))
-})
+}, { immediate: true })
 
 function done(images: Array<StudioImage>) {
   itemEditStore.studioImages.images = images
