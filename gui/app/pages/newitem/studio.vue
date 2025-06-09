@@ -2,6 +2,12 @@
 import { X } from 'lucide-vue-next'
 
 const itemEditStore = useItemEditStore('new-item')
+const { loggedIn, loginRoute } = useAuth()
+
+watch(loggedIn, (_loggedIn) => {
+  if (_loggedIn === false)
+    navigateTo(unref(loginRoute))
+})
 
 function done(images: Array<StudioImage>) {
   itemEditStore.studioImages.images = images
