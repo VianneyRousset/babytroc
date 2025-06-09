@@ -11,7 +11,7 @@ export const useCreateItemMutation = defineMutation(() => {
     },
     onSettled: (_data, _error, _vars) => {
       // TODO do not invalidate to much
-      queryCache.invalidateQueries({ key: ['items'] })
+      queryCache.invalidateQueries()
     },
   })
 })

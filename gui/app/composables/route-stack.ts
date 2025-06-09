@@ -21,6 +21,11 @@ export const useRouteStack = () => {
     return route
   }
 
+  function reset() {
+    while (stack.length > 0)
+      stack.pop()
+  }
+
   function markBackward() {
     backwardFlag.value = true
     direction.value = 'backward'
@@ -40,6 +45,7 @@ export const useRouteStack = () => {
     push,
     amend,
     pop,
+    reset,
     current,
     previous,
     markBackward,

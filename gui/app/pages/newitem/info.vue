@@ -28,11 +28,14 @@ watch(itemEditStore.regions, () => {
 })
 
 async function createItem() {
+  const router = useRouter()
+  const routeStack = useRouteStack()
+
   if (itemEditStore.studioImages.data == null || itemEditStore.studioImages.data.some(img => img == null))
     throw new Error('Some img are not yet uploaded')
 
   // create object
-  await mutate({
+  const item = await mutate({
     name: itemEditStore.name,
     description: itemEditStore.description,
     images: itemEditStore.studioImages.data as Array<string>,
@@ -45,7 +48,14 @@ async function createItem() {
   itemEditStore.reset()
 
   // exit page
-  navigateTo('/')
+  routeStack.reset()
+  navigateTo(
+    router.resolve({
+      name: 'home-item-item_id',
+      params: {
+        item_id: item.id,
+      },
+    }))
 }
 </script>
 
