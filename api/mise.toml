@@ -37,7 +37,7 @@ run = "alembic upgrade head"
 
 [tasks.seed]
 description = "Seed database"
-depends = ["deps", "deps-dev"]
+depends = ["deps", "deps-dev", "prepare"]
 run = "python -m seed populate all"
 
 [tasks."lint:ruff"]
