@@ -30,6 +30,10 @@ description = "Run the application"
 depends = ["deps"]
 run = "./entrypoint.sh"
 
+[tasks.prepare]
+description = "Prepare database"
+run = "alembic upgrade head"
+
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
 depends = ["deps", "deps-dev"]

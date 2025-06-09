@@ -1,0 +1,72 @@
+{
+  "regions": [
+    {
+      "id": 1,
+      "name": "Centre"
+    },
+    {
+      "id": 2,
+      "name": "Maupas / Valency"
+    },
+    {
+      "id": 3,
+      "name": "S\u00e9beillon / Malley"
+    },
+    {
+      "id": 4,
+      "name": "Montoie / Bourdonnette"
+    },
+    {
+      "id": 5,
+      "name": "Montriond / Cour"
+    },
+    {
+      "id": 6,
+      "name": "Sous-Gare / Ouchy"
+    },
+    {
+      "id": 7,
+      "name": "Montchoisi"
+    },
+    {
+      "id": 8,
+      "name": "Florimont / Chissiez"
+    },
+    {
+      "id": 9,
+      "name": "Mousquines / Bellevue"
+    },
+    {
+      "id": 10,
+      "name": "Vallon / B\u00e9thusy"
+    },
+    {
+      "id": 11,
+      "name": "Chailly / Rov\u00e9r\u00e9az"
+    },
+    {
+      "id": 12,
+      "name": "Sallaz / Vennes / S\u00e9chaud"
+    },
+    {
+      "id": 13,
+      "name": "Sauvabelin"
+    },
+    {
+      "id": 14,
+      "name": "Borde / Bellevaux"
+    },
+    {
+      "id": 15,
+      "name": "Vinet / Pontaise"
+    },
+    {
+      "id": 16,
+      "name": "Bossons / Bl\u00e9cherette"
+    },
+    {
+      "id": 17,
+      "name": "Beaulieu / Grey / Boisy"
+    }
+  ]
+}

@@ -108,10 +108,12 @@ dev = [
     { name = "pytest-xdist" },
     { name = "ruff" },
     { name = "sqlalchemy-utils" },
+    { name = "tqdm" },
     { name = "types-passlib" },
     { name = "types-psycopg2" },
     { name = "types-requests" },
     { name = "types-sqlalchemy-utils" },
+    { name = "types-tqdm" },
     { name = "wonderwords" },
 ]
 
@@ -141,10 +143,12 @@ dev = [
     { name = "pytest-xdist", specifier = ">=3.6.1" },
     { name = "ruff", specifier = ">=0.11.6" },
     { name = "sqlalchemy-utils", specifier = ">=0.41.2" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "types-passlib", specifier = ">=1.7.7.20250408" },
     { name = "types-psycopg2", specifier = ">=2.9.21.20250318" },
     { name = "types-requests", specifier = ">=2.32.0.20250328" },
     { name = "types-sqlalchemy-utils", specifier = ">=1.1.0" },
+    { name = "types-tqdm", specifier = ">=4.67.0.20250516" },
     { name = "wonderwords", specifier = ">=2.2.0" },
 ]
 
@@ -1407,6 +1411,18 @@ wheels = [
 ]
 
 [[package]]
+name = "tqdm"
+version = "4.67.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2", size = 78540 },
+]
+
+[[package]]
 name = "typer"
 version = "0.15.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1458,6 +1474,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a5/5d/747310a5b105facc74c5b466e3e234f187df6bd5168dba6e28884f9be4d8/types_sqlalchemy_utils-1.1.0.tar.gz", hash = "sha256:af9d92992687c9e7c920b9a1b814fd10915b9b3a7b1f731b7fd2fff8ce2f3bfb", size = 22676 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/82/ff6cd783b288130577cb516d1f65d8efb650bcd7723d0e7774f632b3df16/types_sqlalchemy_utils-1.1.0-py3-none-any.whl", hash = "sha256:60b28fe3453f67fc90bb0a106063025cffc1efa6eedb59a7ea5b043644c3d16a", size = 38415 },
+]
+
+[[package]]
+name = "types-tqdm"
+version = "4.67.0.20250516"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bd/07/eb40de2dc2ff2d1a53180330981b1bdb42313ab4e1b11195d8d64c878b3c/types_tqdm-4.67.0.20250516.tar.gz", hash = "sha256:230ccab8a332d34f193fc007eb132a6ef54b4512452e718bf21ae0a7caeb5a6b", size = 17232 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/92/df621429f098fc573a63a8ba348e731c3051b397df0cff278f8887f28d24/types_tqdm-4.67.0.20250516-py3-none-any.whl", hash = "sha256:1dd9b2c65273f2342f37e5179bc6982df86b6669b3376efc12aef0a29e35d36d", size = 24032 },
 ]
 
 [[package]]

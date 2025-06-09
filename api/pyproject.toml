@@ -27,10 +27,12 @@ dev = [
   "pytest-xdist>=3.6.1",
   "ruff>=0.11.6",
   "sqlalchemy-utils>=0.41.2",
+  "tqdm>=4.67.1",
   "types-passlib>=1.7.7.20250408",
   "types-psycopg2>=2.9.21.20250318",
   "types-requests>=2.32.0.20250328",
   "types-sqlalchemy-utils>=1.1.0",
+  "types-tqdm>=4.67.0.20250516",
   "wonderwords>=2.2.0",
 ]
 
