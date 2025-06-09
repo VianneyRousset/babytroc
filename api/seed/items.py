@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Sequence
 from pathlib import Path
-from random import randint, sample
+from random import choice, randint, sample
 
 import sqlalchemy
 from tqdm import tqdm
@@ -16,7 +16,7 @@ from app.schemas.item.create import ItemCreate as Item
 
 from .config import get_config
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("seed")
 
 word_generator = RandomWord()
 sentence_generator = RandomSentence()
@@ -102,7 +102,7 @@ def random_item_regions(regions: Sequence[int]) -> list[int]:
 def populate_items(
     db: sqlalchemy.orm.Session,
     images_dir: Path,
-    n: int,
+    count: int,
 ) -> None:
     """Populate items."""
 
@@ -114,10 +114,14 @@ def populate_items(
 
     images_fp = list(images_dir.iterdir())
 
+    images = {}
+
+    # upload images
+    logger.info("Uploading all images.")
     for user in tqdm(users, leave=False):
         # upload images
-        logger.debug("Upload images for user %i", user.id)
-        images = [
+        logger.info("Uploading images for user %i (%s).", user.id, user.name)
+        images[user.id] = [
             upload_image(
                 db=db,
                 config=config,
@@ -127,20 +131,22 @@ def populate_items(
             for fp in tqdm(images_fp)
         ]
 
-        # create items
-        logger.debug("Populating user %i items", user.id)
-        for _ in tqdm(list(range(n))):
-            app.services.item.create_item(
-                db=db,
-                owner_id=user.id,
-                item_create=Item(
-                    name=random_item_name(),
-                    description=random_item_description(),
-                    images=random_item_images(images),
-                    targeted_age_months=random_item_targeted_age_months(),
-                    regions=random_item_regions([reg.id for reg in regions]),
-                    blocked=False,
-                ),
-            )
+    # create items
+    logger.debug("Generating %i items", count)
+    for _ in tqdm(list(range(count))):
+        user = choice(users)  # noqa: S311
+
+        app.services.item.create_item(
+            db=db,
+            owner_id=user.id,
+            item_create=Item(
+                name=random_item_name(),
+                description=random_item_description(),
+                images=random_item_images(images[user.id]),
+                targeted_age_months=random_item_targeted_age_months(),
+                regions=random_item_regions([reg.id for reg in regions]),
+                blocked=False,
+            ),
+        )
 
     logger.debug("Populating items: done")

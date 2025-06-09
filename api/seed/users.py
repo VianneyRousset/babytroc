@@ -7,7 +7,7 @@ from tqdm import tqdm
 import app
 from app.schemas.user.create import UserCreate as User
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("seed")
 
 
 def check_users(db: sqlalchemy.orm.Session) -> bool:

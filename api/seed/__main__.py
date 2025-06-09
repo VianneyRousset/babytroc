@@ -53,7 +53,7 @@ class CustomFormatter(logging.Formatter):
         self.fmt = fmt
         self.FORMATS = {
             logging.DEBUG: self.grey + self.fmt + self.reset,
-            logging.INFO: self.blue + self.fmt + self.reset,
+            logging.INFO: self.fmt,
             logging.WARNING: self.yellow + self.fmt + self.reset,
             logging.ERROR: self.red + self.fmt + self.reset,
             logging.CRITICAL: self.bold_red + self.fmt + self.reset,
@@ -65,11 +65,12 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("seed")
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 ch.setFormatter(CustomFormatter("%(levelname)s - %(message)s"))
 logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
 
 app = App(
     name="seed",
@@ -85,8 +86,33 @@ app.command(populate)
 
 
 @populate.command(name="all")
-def populate_all():
+def populate_all(
+    fp: Annotated[
+        Path,
+        Parameter(
+            name="--data-file",
+            help="File containing all regions and users data.",
+            validator=[validate_file_exists],
+        ),
+    ] = Path("seed/data/data.json"),
+    items_count: Annotated[
+        int,
+        Parameter(
+            name=["--items-count", "-n"],
+            help="Total number of generated items.",
+        ),
+    ] = 50,
+    force: Annotated[
+        bool,
+        Parameter(
+            name=["--force", "-f"],
+            help="Try to populate even if already populated",
+        ),
+    ] = False,
+):
     """Populate regions, users and items."""
+
+    logger.info("Starting populate all")
 
     # open shared session here to ensure a rollback on all changes if any step fails
     with shared_session:
@@ -107,7 +133,7 @@ def populate_regions(
         Path,
         Parameter(
             name="--data-file",
-            help="File containing all regions.",
+            help="File containing all regions data.",
             validator=[validate_file_exists],
         ),
     ] = Path("seed/data/data.json"),
@@ -120,6 +146,8 @@ def populate_regions(
     ] = False,
 ):
     """Populate regions."""
+
+    logger.info("Starting populate regions")
 
     # read regions
     regions = read_regions(fp)
@@ -164,6 +192,8 @@ def populate_users(
 ):
     """Populate users."""
 
+    logger.info("Starting populate users")
+
     # read users
     users = read_users(fp)
     logger.info("%i users found in %s", len(users), fp)
@@ -183,13 +213,13 @@ def populate_users(
 
 @populate.command(name="items")
 def populate_items(
-    n_items: Annotated[
+    items_count: Annotated[
         int,
         Parameter(
             name=["--items-count", "-n"],
-            help="Number of items per user..",
+            help="Total number of generated items.",
         ),
-    ] = 100,
+    ] = 20,
     force: Annotated[
         bool,
         Parameter(
@@ -199,6 +229,9 @@ def populate_items(
     ] = False,
 ):
     """Populate items."""
+
+    logger.info("Starting populate items")
+    logger.info("%i items will be generated", items_count)
 
     with shared_session as db:
         # check state
@@ -213,7 +246,7 @@ def populate_items(
         _populate_items(
             db=db,
             images_dir=Path("seed/data/images"),
-            n=n_items,
+            count=items_count,
         )
 
 

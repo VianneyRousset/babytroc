@@ -7,7 +7,7 @@ from tqdm import tqdm
 import app
 from app.schemas.region.create import RegionCreate as Region
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("seed")
 
 
 def check_regions(
