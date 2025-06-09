@@ -1,3 +1,5 @@
+import logging
+
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
@@ -5,6 +7,11 @@ from app.clients import database
 from app.errors.auth import IncorrectUsernameOrPasswordError
 from app.errors.base import NotFoundError
 from app.schemas.user.read import UserRead
+
+# silent passlib warning "module 'bcrypt' has no attribute '__about__'"
+# https://github.com/pyca/bcrypt/issues/684
+logging.getLogger("passlib").setLevel(logging.ERROR)
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
