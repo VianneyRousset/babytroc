@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     Identity,
     Integer,
@@ -17,6 +18,7 @@ from sqlalchemy.orm import (
     relationship,
     validates,
 )
+from sqlalchemy.types import UUID
 
 from .base import Base, CreationDate
 from .item import Item, ItemLike
@@ -43,6 +45,11 @@ class User(CreationDate, Base):
         unique=True,
         index=True,
     )
+    validated: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+    )
+    validation_code: Mapped[UUID] = mapped_column(UUID)
     name: Mapped[str] = mapped_column(
         String,
     )

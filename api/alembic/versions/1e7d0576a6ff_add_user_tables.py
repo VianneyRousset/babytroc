@@ -38,6 +38,8 @@ def create_user_table():
         ),
         sa.Column("email", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
+        sa.Column("validated", sa.Boolean(), nullable=False),
+        sa.Column("validation_code", sa.UUID(), nullable=False),
         sa.Column("password_hash", sa.String(), nullable=False),
         sa.Column(
             "avatar_seed",
