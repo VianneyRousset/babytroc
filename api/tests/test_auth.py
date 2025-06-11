@@ -1,7 +1,9 @@
 import pytest
+import sqlalchemy
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from app.clients.database.user import get_user_by_email
 from tests.fixtures.users import UserData
 
 
@@ -100,4 +102,65 @@ class TestAuth:
 
         # test access is not working anymore
         resp = alice_client.get("/v1/me")
+        assert not resp.is_success
+
+    def test_new_account(
+        self,
+        client: TestClient,
+        database: sqlalchemy.URL,
+    ):
+        """Check that a new account can be created and validated."""
+
+        email = "ojownlydifctujhohfzresasqaxe@hcycjxybfvvnfkbapireyezpxnt.com"
+        password = "xxx"  # noqa: S105
+
+        # check forbidden access
+        resp = client.get("/v1/me")
+        assert not resp.is_success
+
+        # create account
+        resp = client.post(
+            "/v1/auth/new",
+            json={
+                "name": "newaccount",
+                "email": email,
+                "password": password,
+            },
+        )
+        print(resp.text)
+        resp.raise_for_status()
+
+        # login
+        client.post(
+            "/v1/auth/login",
+            data={
+                "grant_type": "password",
+                "username": email,
+                "password": password,
+            },
+        ).raise_for_status()
+
+        # check still forbidden access
+        resp = client.get("/v1/me")
+        assert not resp.is_success
+
+        # check can resend email
+        client.post("/v1/auth/resend-validation-email").raise_for_status()
+
+        # get validation code
+        engine = sqlalchemy.create_engine(database)
+        with sqlalchemy.orm.Session(engine) as db, db.begin():
+            validation_code = get_user_by_email(
+                db=db,
+                email=email,
+            )
+
+        # validate
+        client.post(f"/v1/auth/validate/{validation_code}").raise_for_status()
+
+        # refresh token
+        client.post("/v1/auth/refresh").raise_for_status()
+
+        # check access granted
+        resp = client.get("/v1/me")
         assert not resp.is_success
