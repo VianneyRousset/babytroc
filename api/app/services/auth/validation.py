@@ -1,8 +1,8 @@
 import logging
+from uuid import UUID
 
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from sqlalchemy.types import UUID
 
 from app.clients import database
 from app.errors.auth import IncorrectUsernameOrPasswordError
