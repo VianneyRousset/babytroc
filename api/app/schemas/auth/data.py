@@ -7,3 +7,4 @@ class TokenData(AuthBase):
 
 class UserAccessTokenData(TokenData):
     sub: int
+    validated: bool

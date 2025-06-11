@@ -12,6 +12,7 @@ from app.schemas.auth.data import UserAccessTokenData
 def create_access_token(
     *,
     user_id: int,
+    validated: bool,
     config: AuthConfig,
 ) -> str:
     """Create a new access token."""

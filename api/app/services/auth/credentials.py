@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.clients import database
 from app.config import AuthConfig
 from app.schemas.auth.credentials import UserCredentials
 
@@ -29,6 +30,7 @@ def login_user(
     return create_user_credentials(
         db=db,
         user_id=user.id,
+        validated=user.validated,
         config=config,
     )
 
@@ -46,9 +48,15 @@ def refresh_user_credentials(
         config=config,
     )
 
+    user = database.user.get_user(
+        db=db,
+        user_id=refresh_token_read.user_id,
+    )
+
     return create_user_credentials(
         db=db,
         user_id=refresh_token_read.user_id,
+        validated=user.validated,
         config=config,
         refresh_token=refresh_token,
     )
@@ -58,6 +66,7 @@ def create_user_credentials(
     db: Session,
     user_id: int,
     *,
+    validated: bool,
     config: AuthConfig,
     refresh_token: str | None = None,
     access_token: str | None = None,
@@ -81,6 +90,7 @@ def create_user_credentials(
         access_token = create_access_token(
             user_id=user_id,
             config=config,
+            validated=validated,
         )
 
     clean_user_refresh_tokens(

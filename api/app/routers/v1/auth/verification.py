@@ -20,6 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 def verify_request_credentials(
     request: Request,
     token: Annotated[str | None, Depends(oauth2_scheme)],
+    skip_validated: bool = False,
 ) -> int:
     """Verify access token and return client user id."""
 
@@ -38,11 +39,15 @@ def verify_request_credentials(
         config=request.app.state.config.auth,
     )
 
+    if not skip_validated and not token_data.validated:
+        raise InvalidCredentialError()
+
     return token_data.sub
 
 
 def verify_websocket_credentials(
     websocket: WebSocket,
+    skip_validated: bool = False,
 ) -> int:
     """Verify access token and return client user id."""
 
@@ -56,5 +61,8 @@ def verify_websocket_credentials(
         token=token,
         config=websocket.app.state.config.auth,
     )
+
+    if not skip_validated and not token_data.validated:
+        raise InvalidCredentialError()
 
     return token_data.sub

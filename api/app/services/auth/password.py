@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.errors.auth import IncorrectUsernameOrPasswordError
 from app.errors.base import NotFoundError
-from app.schemas.user.read import UserRead
+from app.models.user import User
 
 # silent passlib warning "module 'bcrypt' has no attribute '__about__'"
 # https://github.com/pyca/bcrypt/issues/684
@@ -20,7 +20,7 @@ def verify_user_password(
     db: Session,
     email: str,
     password: str,
-) -> UserRead:
+) -> User:
     """Verify username and password.
 
     Raises IncorrectUsernameOrPasswordError if no user with `email` exist or
@@ -43,7 +43,7 @@ def verify_user_password(
     ):
         raise IncorrectUsernameOrPasswordError()
 
-    return UserRead.model_validate(user)
+    return user
 
 
 def verify_password_hash(plain_password: str, password_hash: str) -> bool:
