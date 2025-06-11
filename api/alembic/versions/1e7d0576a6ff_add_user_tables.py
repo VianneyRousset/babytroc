@@ -66,6 +66,14 @@ def create_user_table():
         unique=True,
     )
 
+    # index of the name
+    op.create_index(
+        op.f("ix_user_name"),
+        "user",
+        ["name"],
+        unique=True,
+    )
+
     # index of the id
     op.create_index(
         op.f("ix_user_id"),
@@ -86,5 +94,6 @@ def create_user_table():
 def drop_user_table():
     op.drop_index(op.f("ix_user_validation_code"), table_name="user")
     op.drop_index(op.f("ix_user_id"), table_name="user")
+    op.drop_index(op.f("ix_user_name"), table_name="user")
     op.drop_index(op.f("ix_user_email"), table_name="user")
     op.drop_table("user")

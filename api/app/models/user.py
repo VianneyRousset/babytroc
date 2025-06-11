@@ -58,6 +58,8 @@ class User(CreationDate, Base):
     )
     name: Mapped[str] = mapped_column(
         String,
+        unique=True,
+        index=True,
     )
     password_hash: Mapped[str] = mapped_column(
         String,
