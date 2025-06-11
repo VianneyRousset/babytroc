@@ -6,7 +6,11 @@ from .new import create_user
 from .refresh import refresh_credentials
 from .router import router
 from .validation import validate_user_account
-from .verification import verify_request_credentials, verify_websocket_credentials
+from .verification import (
+    oauth2_scheme,
+    verify_request_credentials,
+    verify_websocket_credentials,
+)
 
 __all__ = [
     "client_id_annotation",
@@ -14,6 +18,7 @@ __all__ = [
     "create_user",
     "login",
     "logout",
+    "oauth2_scheme",
     "refresh_credentials",
     "router",
     "validate_user_account",

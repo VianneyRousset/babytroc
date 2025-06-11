@@ -41,3 +41,13 @@ class AuthRefreshTokenNotFoundError(AuthError, NotFoundError):
             key=key,
             **kwargs,
         )
+
+
+class AuthAccountAlreadyValidatedError(AuthError):
+    """Exception raised when an account is already validated but shouldn't be."""
+
+    def __init__(self):
+        super().__init__(
+            message="Account already validated.",
+            status_code=HTTPStatus.CONFLICT,
+        )
