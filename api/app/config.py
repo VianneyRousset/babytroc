@@ -77,6 +77,47 @@ class PubsubConfig(NamedTuple):
         return cls(url=url)
 
 
+class EmailConfig(NamedTuple):
+    server: str
+    port: int
+    username: str
+    password: str
+    from_email: str
+    from_name: str
+
+    @classmethod
+    def from_env(
+        cls,
+        server: str | None = None,
+        port: int | None = None,
+        username: str | None = None,
+        password: str | None = None,
+        from_email: str | None = None,
+        from_name: str | None = None,
+    ) -> Self:
+        if server is None:
+            server = os.environ["EMAIL_SERVER"]
+        if port is None:
+            port = int(os.environ["EMAIL_PORT"])
+        if username is None:
+            username = os.environ["EMAIL_USERNAME"]
+        if password is None:
+            password = os.environ["EMAIL_PASSWORD"]
+        if from_email is None:
+            from_email = os.environ["EMAIL_FROM_EMAIL"]
+        if from_name is None:
+            from_name = os.environ["EMAIL_FROM_NAME"]
+
+        return cls(
+            server=server,
+            port=port,
+            username=username,
+            password=password,
+            from_email=from_email,
+            from_name=from_name,
+        )
+
+
 class ImgpushConfig(NamedTuple):
     url: str
 
@@ -129,9 +170,11 @@ class AuthConfig(NamedTuple):
 
 
 class Config(NamedTuple):
+    app_name: str
     test: bool
     database: DatabaseConfig
     pubsub: PubsubConfig
+    email: EmailConfig
     imgpush: ImgpushConfig
     auth: AuthConfig
 
@@ -139,12 +182,17 @@ class Config(NamedTuple):
     def from_env(
         cls,
         *,
+        app_name: str | None = None,
         test: bool | None = None,
         database: DatabaseConfig | None = None,
         pubsub: PubsubConfig | None = None,
+        email: EmailConfig | None = None,
         imgpush: ImgpushConfig | None = None,
         auth: AuthConfig | None = None,
     ) -> Self:
+        if app_name is None:
+            app_name = os.environ["APP_NAME"]
+
         if test is None:
             test = "PYTEST_CURRENT_TEST" in os.environ
 
@@ -154,6 +202,9 @@ class Config(NamedTuple):
         if pubsub is None:
             pubsub = PubsubConfig.from_env()
 
+        if email is None:
+            email = EmailConfig.from_env()
+
         if imgpush is None:
             imgpush = ImgpushConfig.from_env()
 
@@ -161,9 +212,11 @@ class Config(NamedTuple):
             auth = AuthConfig.from_env()
 
         return cls(
+            app_name=app_name,
             test=test,
             database=database,
             pubsub=pubsub,
+            email=email,
             imgpush=imgpush,
             auth=auth,
         )

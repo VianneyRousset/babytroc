@@ -27,7 +27,7 @@ run = "uv sync --group dev"
 
 [tasks.dev]
 description = "Run the application"
-depends = ["deps"]
+depends = ["deps", "deps-dev", "prepare"]
 run = "./entrypoint.sh"
 
 [tasks.prepare]

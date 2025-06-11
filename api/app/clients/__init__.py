@@ -1,3 +1,3 @@
-from . import database, networking
+from . import database, email, networking
 
-__all__ = ["database", "networking"]
+__all__ = ["database", "email", "networking"]

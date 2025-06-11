@@ -31,9 +31,10 @@ def populate_users(
     logger.debug("Populating users: started")
 
     for user in tqdm(users):
-        app.services.user.create_user(
+        app.services.user.create_user_without_validation(
             db=db,
             user_create=user,
+            validated=True,
         )
 
     logger.debug("Populating users: done")

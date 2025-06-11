@@ -4,6 +4,9 @@ from broadcaster import Broadcast
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi_mail import ConnectionConfig as EmailConnectionConfig
+from fastapi_mail import FastMail
+from pydantic import SecretStr
 
 from app.errors import ApiError
 
@@ -29,9 +32,30 @@ def create_app(config: Config) -> FastAPI:
     app.state.db_async_session_maker = create_async_session_maker(
         config.database.async_url
     )
+
+    # database session maker
     app.state.db_session_maker = create_session_maker(config.database.url)
+
+    # broadcaster
     app.state.broadcast = Broadcast(
         config.pubsub.url.render_as_string(hide_password=False)
+    )
+
+    # email_client
+    app.state.email_client = FastMail(
+        EmailConnectionConfig(
+            MAIL_USERNAME=config.email.username,
+            MAIL_PASSWORD=SecretStr(config.email.password),
+            MAIL_PORT=config.email.port,
+            MAIL_SERVER=config.email.server,
+            MAIL_FROM=config.email.from_email,
+            MAIL_FROM_NAME=config.email.from_name,
+            MAIL_STARTTLS=False,
+            MAIL_SSL_TLS=True,
+            USE_CREDENTIALS=True,
+            VALIDATE_CERTS=True,
+            SUPPRESS_SEND=1 if config.test else 0,
+        )
     )
 
     @app.get("/")
