@@ -86,10 +86,10 @@ source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
     { name = "broadcaster", extra = ["postgres"] },
-    { name = "email-validator" },
     { name = "fastapi", extra = ["standard"] },
     { name = "passlib", extra = ["bcrypt"] },
     { name = "pillow" },
+    { name = "pydantic", extra = ["email"] },
     { name = "pyjwt" },
     { name = "requests" },
     { name = "sqlalchemy", extra = ["postgresql-psycopg2binary", "postgresql-psycopgbinary"] },
@@ -122,10 +122,10 @@ dev = [
 requires-dist = [
     { name = "alembic", specifier = ">=1.15.2" },
     { name = "broadcaster", extras = ["postgres"], git = "https://github.com/encode/broadcaster.git?rev=6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d#6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d" },
-    { name = "email-validator", specifier = ">=2.2.0" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.*" },
     { name = "passlib", extras = ["bcrypt"] },
     { name = "pillow", specifier = ">=11.2.1" },
+    { name = "pydantic", extras = ["email"] },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "sqlalchemy", extras = ["postgresql-psycopg2binary", "postgresql-psycopgbinary"], specifier = "==2.*" },
@@ -991,6 +991,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/10/2e/ca897f093ee6c5f3b0bee123ee4465c50e75431c3d5b6a3b44a47134e891/pydantic-2.11.3.tar.gz", hash = "sha256:7471657138c16adad9322fe3070c0116dd6c3ad8d649300e3cbdfe91f4db4ec3", size = 785513 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b0/1d/407b29780a289868ed696d1616f4aad49d6388e5a77f567dcd2629dcd7b8/pydantic-2.11.3-py3-none-any.whl", hash = "sha256:a082753436a07f9ba1289c6ffa01cd93db3548776088aa917cc43b63f68fa60f", size = 443591 },
+]
+
+[package.optional-dependencies]
+email = [
+    { name = "email-validator" },
 ]
 
 [[package]]
