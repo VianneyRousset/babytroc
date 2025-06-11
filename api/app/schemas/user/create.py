@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import Field
+from pydantic import EmailStr, Field
 
 from app.schemas.base import CreateBase
 
@@ -16,7 +16,7 @@ class UserCreate(UserBase, CreateBase):
             max_length=NAME_LENGTH.stop,
         ),
     ]
-    email: str
+    email: EmailStr
     password: str
     avatar_seed: Annotated[
         str | None,

@@ -13,6 +13,7 @@ dependencies = [
   "uvicorn>=0.34.2",
   "websocket>=0.2.1",
   "broadcaster[postgres] @ git+https://github.com/encode/broadcaster.git@6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d",
+  "pydantic[email]",
 ]
 
 [dependency-groups]
