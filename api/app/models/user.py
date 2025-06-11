@@ -1,3 +1,4 @@
+import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
@@ -49,7 +50,12 @@ class User(CreationDate, Base):
         Boolean,
         default=False,
     )
-    validation_code: Mapped[UUID] = mapped_column(UUID)
+    validation_code: Mapped[uuid.UUID] = mapped_column(
+        UUID,
+        index=True,
+        unique=True,
+        default=uuid.uuid4,
+    )
     name: Mapped[str] = mapped_column(
         String,
     )

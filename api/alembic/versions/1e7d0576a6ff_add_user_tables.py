@@ -57,11 +57,34 @@ def create_user_table():
         sa.CheckConstraint("stars_count >= 0", name="positive_stars_count"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_user_email"), "user", ["email"], unique=True)
-    op.create_index(op.f("ix_user_id"), "user", ["id"], unique=False)
+
+    # index of the email
+    op.create_index(
+        op.f("ix_user_email"),
+        "user",
+        ["email"],
+        unique=True,
+    )
+
+    # index of the id
+    op.create_index(
+        op.f("ix_user_id"),
+        "user",
+        ["id"],
+        unique=False,
+    )
+
+    # index of the validation_code
+    op.create_index(
+        op.f("ix_user_validation_code"),
+        "user",
+        ["validation_code"],
+        unique=True,
+    )
 
 
 def drop_user_table():
+    op.drop_index(op.f("ix_user_validation_code"), table_name="user")
     op.drop_index(op.f("ix_user_id"), table_name="user")
     op.drop_index(op.f("ix_user_email"), table_name="user")
     op.drop_table("user")
