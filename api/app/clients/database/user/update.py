@@ -22,6 +22,19 @@ def update_user(
     return user
 
 
+def mark_user_as_validated(
+    db: Session,
+    user: User,
+) -> User:
+    """Set user `validated` flag to True."""
+
+    user.validated = True
+    db.flush()
+    db.refresh(user)
+
+    return user
+
+
 def add_stars_to_user(
     db: Session,
     user: User,
