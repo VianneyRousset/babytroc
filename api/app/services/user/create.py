@@ -9,6 +9,8 @@ from app.services.auth import hash_password
 def create_user(
     db: Session,
     user_create: UserCreate,
+    validated: bool = False,
+    send_validation_email: bool = True,
 ) -> UserPrivateRead:
     """Create a user."""
 
@@ -19,6 +21,9 @@ def create_user(
         name=user_create.name,
         password_hash=hash_password(user_create.password),
         avatar_seed=user_create.avatar_seed,
+        validated=False,
     )
+
+    print("user validation_code", user.validation_code)
 
     return UserPrivateRead.model_validate(user)

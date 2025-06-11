@@ -10,6 +10,7 @@ def create_user(
     name: str,
     password_hash: str,
     avatar_seed: str | None = None,
+    validated: bool = False,
 ) -> User:
     """Create and insert user into database."""
 
@@ -18,6 +19,7 @@ def create_user(
         name=name,
         password_hash=password_hash,
         avatar_seed=avatar_seed,
+        validated=validated,
     )
 
     return insert_user(
