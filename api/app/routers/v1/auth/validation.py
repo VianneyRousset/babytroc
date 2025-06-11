@@ -6,9 +6,14 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.auth.validation import AuthValidation
+from app.schemas.auth.validation import AuthValidation, AuthValidationResendEmail
 
 from .router import router
+
+
+@router.post("/resend-validation-email")
+def resend_validation_email() -> AuthValidationResendEmail:
+    return AuthValidationResendEmail(result="ok")
 
 
 @router.post("/validate/{validation_code}")
