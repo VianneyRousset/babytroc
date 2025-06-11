@@ -24,6 +24,4 @@ def create_user(
         validated=False,
     )
 
-    print("user validation_code", user.validation_code)
-
     return UserPrivateRead.model_validate(user)

@@ -7,6 +7,7 @@ from .refresh_token import (
     is_refresh_token_expired,
     verify_refresh_token,
 )
+from .validation import validate_user_account
 
 __all__ = [
     "clean_user_refresh_tokens",
@@ -17,6 +18,7 @@ __all__ = [
     "is_refresh_token_expired",
     "login_user",
     "refresh_user_credentials",
+    "validate_user_account",
     "verify_access_token",
     "verify_password_hash",
     "verify_refresh_token",
