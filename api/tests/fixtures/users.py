@@ -48,7 +48,12 @@ def alice(
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
         return UserPrivateRead.model_validate(
-            services.user.create_user(session, UserCreate(**alice_user_data))
+            services.user.create_user(
+                session,
+                UserCreate(**alice_user_data),
+                validated=True,
+                send_validation_email=False,
+            )
         )
 
 
@@ -62,5 +67,10 @@ def bob(
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
         return UserPrivateRead.model_validate(
-            services.user.create_user(session, UserCreate(**bob_user_data))
+            services.user.create_user(
+                session,
+                UserCreate(**bob_user_data),
+                validated=True,
+                send_validation_email=False,
+            )
         )

@@ -24,6 +24,7 @@ def create_access_token(
             "iat": iat,
             "exp": iat + config.access_token_duration,
             "sub": str(user_id),
+            "validated": validated,
         },
         key=config.secret_key,
         algorithm=config.algorithm,

@@ -150,10 +150,11 @@ class TestAuth:
         # get validation code
         engine = sqlalchemy.create_engine(database)
         with sqlalchemy.orm.Session(engine) as db, db.begin():
-            validation_code = get_user_by_email(
+            user = get_user_by_email(
                 db=db,
                 email=email,
             )
+            validation_code = user.validation_code
 
         # validate
         client.post(f"/v1/auth/validate/{validation_code}").raise_for_status()
@@ -163,4 +164,5 @@ class TestAuth:
 
         # check access granted
         resp = client.get("/v1/me")
-        assert not resp.is_success
+        print(resp.text)
+        resp.raise_for_status()

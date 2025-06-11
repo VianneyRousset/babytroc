@@ -21,7 +21,7 @@ def create_user(
         name=user_create.name,
         password_hash=hash_password(user_create.password),
         avatar_seed=user_create.avatar_seed,
-        validated=False,
+        validated=validated,
     )
 
     return UserPrivateRead.model_validate(user)
