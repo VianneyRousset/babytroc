@@ -3,14 +3,16 @@ import sqlalchemy
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from app.clients.database.auth import list_account_password_reset_authorizations
 from app.clients.database.user import get_user_by_email
 from app.schemas.auth.availability import AuthAccountAvailability
+from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.users import UserData
 
 
 @pytest.mark.usefixtures("alice")
-class TestAuth:
-    """Test auth endpoints."""
+class TestAuthLogin:
+    """Test auth endpoints related to login and logout."""
 
     def test_access_denied(
         self,
@@ -104,6 +106,11 @@ class TestAuth:
         # test access is not working anymore
         resp = alice_client.get("/v1/me")
         assert not resp.is_success
+
+
+@pytest.mark.usefixtures("alice")
+class TestAuthNewAccount:
+    """Test auth endpoints related to account creation."""
 
     def test_new_account(
         self,
@@ -201,3 +208,79 @@ class TestAuth:
         resp.raise_for_status()
         availability = AuthAccountAvailability.model_validate(resp.json())
         assert availability.available == expected_result
+
+
+@pytest.mark.usefixtures("alice")
+class TestAuthPasswordReset:
+    """Test auth endpoints related to account password reset."""
+
+    def test_password_reset(
+        self,
+        database: sqlalchemy.URL,
+        client: TestClient,
+        alice_user_data: UserData,
+        alice: UserPrivateRead,
+    ):
+        """Check that a new account can be created and validated."""
+
+        new_password = "new_password"  # noqa: S105
+
+        # login should fail
+        resp = client.post(
+            "/v1/auth/login",
+            data={
+                "grant_type": "password",
+                "username": alice_user_data["email"],
+                "password": new_password,
+            },
+        )
+        assert not resp.is_success
+
+        # create account password reset authorization
+        resp = client.post(
+            "/v1/auth/reset-password",
+            json={"email": alice_user_data["email"]},
+        )
+        print(resp.text)
+        resp.raise_for_status()
+
+        # get authorization code manually
+        engine = sqlalchemy.create_engine(database)
+        with sqlalchemy.orm.Session(engine) as db, db.begin():
+            authorizations = list_account_password_reset_authorizations(db)
+            authorization_code = authorizations[0].authorization_code
+
+        # apply account password reset
+        client.post(
+            f"/v1/auth/reset-password/{authorization_code}",
+            json={"password": new_password},
+        ).raise_for_status()
+
+        # shouldn't be able to reuse account password reset authorization_code
+        resp = client.post(
+            f"/v1/auth/reset-password/{authorization_code}",
+            json={"password": "mxgahflnggmfujas"},
+        )
+        assert not resp.is_success
+
+        # login should now succeed
+        client.post(
+            "/v1/auth/login",
+            data={
+                "grant_type": "password",
+                "username": alice_user_data["email"],
+                "password": new_password,
+            },
+        ).raise_for_status()
+
+    def test_password_reset_wrong_email(
+        self,
+        client: TestClient,
+    ):
+        """Password reset on an inexisting email should return 404."""
+
+        resp = client.post(
+            "/v1/auth/reset-password",
+            json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com"},
+        )
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
