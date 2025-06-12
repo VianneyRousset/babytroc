@@ -41,6 +41,22 @@ def create_auth_table():
         sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("token"),
     )
+
+    op.create_table(
+        "auth_account_password_reset_authorization",
+        sa.Column("authorization_code", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("invalidated", sa.Boolean(), nullable=False),
+        sa.Column(
+            "creation_date",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("authorization_code"),
+    )
+
     op.create_index(
         op.f("ix_auth_refresh_token_token"),
         "auth_refresh_token",
@@ -48,7 +64,19 @@ def create_auth_table():
         unique=True,
     )
 
+    op.create_index(
+        op.f("ix_auth_account_password_reset_authorization_authorization_code"),
+        "auth_account_password_reset_authorization",
+        ["authorization_code"],
+        unique=True,
+    )
+
 
 def drop_auth_table():
     op.drop_index(op.f("ix_auth_refresh_token_token"), table_name="auth_refresh_token")
+    op.drop_index(
+        op.f("ix_auth_account_password_reset_authorization_authorization_code"),
+        table_name="auth_account_password_reset_authorization",
+    )
     op.drop_table("auth_refresh_token")
+    op.drop_table("auth_account_password_reset_authorization")
