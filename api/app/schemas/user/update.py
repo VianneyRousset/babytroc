@@ -23,3 +23,7 @@ class UserUpdate(UserBase, UpdateBase):
             max_length=AVATAR_SEED_LENGTH.stop,
         ),
     ] = None
+
+
+class UserPasswordUpdate(UserBase, UpdateBase):
+    password: str

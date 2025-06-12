@@ -10,14 +10,13 @@ from app.config import AuthConfig
 from app.errors.auth import AuthUnauthorizedAccountPasswordResetError
 from app.errors.base import NotFoundError
 from app.models.auth import AuthAccountPasswordResetAuthorization
-from app.models.user import User
 
 from .password import hash_password
 
 
 def create_account_password_reset_authrorization(
     db: Session,
-    user: User,
+    user_email: str,
     email_client: FastMail,
     background_tasks: BackgroundTasks,
     app_name: str,
@@ -25,7 +24,9 @@ def create_account_password_reset_authrorization(
 ) -> None:
     """Create a password reset authrorization."""
 
-    authorization_code = database.auth.create_account_password_reset_authorization(
+    user = database.user.get_user_by_email(db, user_email)
+
+    authorization = database.auth.create_account_password_reset_authorization(
         db=db,
         user_id=user.id,
     )
@@ -37,7 +38,7 @@ def create_account_password_reset_authrorization(
             app_name=app_name,
             username=user.name,
             email=user.email,
-            authorization_code=authorization_code,
+            authorization_code=authorization.authorization_code,
         )
 
 
@@ -81,7 +82,7 @@ def verify_account_password_reset_authorization(
         raise AuthUnauthorizedAccountPasswordResetError() from error
 
 
-def use_account_password_reset_authorization(
+def apply_account_password_reset(
     db: Session,
     authorization_code: UUID,
     new_password: str,

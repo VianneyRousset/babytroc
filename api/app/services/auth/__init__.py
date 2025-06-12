@@ -7,19 +7,29 @@ from .refresh_token import (
     is_refresh_token_expired,
     verify_refresh_token,
 )
+from .reset import (
+    apply_account_password_reset,
+    create_account_password_reset_authrorization,
+    is_account_password_reset_authorization_expired,
+    verify_account_password_reset_authorization,
+)
 from .validation import validate_user_account
 
 __all__ = [
+    "apply_account_password_reset",
     "clean_user_refresh_tokens",
     "create_access_token",
+    "create_account_password_reset_authrorization",
     "create_refresh_token",
     "create_user_credentials",
     "hash_password",
+    "is_account_password_reset_authorization_expired",
     "is_refresh_token_expired",
     "login_user",
     "refresh_user_credentials",
     "validate_user_account",
     "verify_access_token",
+    "verify_account_password_reset_authorization",
     "verify_password_hash",
     "verify_refresh_token",
     "verify_user_password",
