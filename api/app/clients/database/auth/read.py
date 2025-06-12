@@ -1,9 +1,14 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.errors.auth import AuthRefreshTokenNotFoundError
-from app.models.auth import AuthRefreshToken
+from app.errors.auth import (
+    AuthAccountPasswordResetAuthorizationNotFoundError,
+    AuthRefreshTokenNotFoundError,
+)
+from app.models.auth import AuthAccountPasswordResetAuthorization, AuthRefreshToken
 from app.schemas.auth.query import AuthRefreshTokenQueryFilter
 
 
@@ -47,3 +52,22 @@ def list_refresh_tokens(
     stmt = query_filter.apply(stmt)
 
     return list(db.scalars(stmt).all())
+
+
+def get_account_password_reset_authorization(
+    db: Session,
+    authorization_code: UUID,
+) -> AuthAccountPasswordResetAuthorization:
+    """Get account password reset authorization from database."""
+
+    stmt = select(AuthAccountPasswordResetAuthorization).where(
+        AuthAccountPasswordResetAuthorization.authorization_code == authorization_code
+    )
+
+    try:
+        return db.execute(stmt).scalars().one()
+
+    except NoResultFound as error:
+        raise AuthAccountPasswordResetAuthorizationNotFoundError(
+            {"authorization_code": authorization_code}
+        ) from error

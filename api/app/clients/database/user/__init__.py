@@ -7,7 +7,12 @@ from .read import (
     get_user_exists,
     list_users,
 )
-from .update import add_stars_to_user, mark_user_as_validated, update_user
+from .update import (
+    add_stars_to_user,
+    mark_user_as_validated,
+    update_user,
+    update_user_password,
+)
 
 __all__ = [
     "add_stars_to_user",
@@ -21,4 +26,5 @@ __all__ = [
     "list_users",
     "mark_user_as_validated",
     "update_user",
+    "update_user_password",
 ]

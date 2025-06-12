@@ -136,6 +136,7 @@ class AuthConfig(NamedTuple):
     secret_key: str
     refresh_token_duration: timedelta
     access_token_duration: timedelta
+    account_password_reset_authorization_duration: timedelta
 
     @classmethod
     def from_env(
@@ -144,6 +145,7 @@ class AuthConfig(NamedTuple):
         secret_key: str | None = None,
         refresh_token_duration: timedelta | None = None,
         access_token_duration: timedelta | None = None,
+        account_password_reset_authorization_duration: timedelta | None = None,
     ) -> Self:
         if algorithm is None:
             algorithm = os.environ["JWT_ALGORITHM"]
@@ -161,11 +163,18 @@ class AuthConfig(NamedTuple):
                 minutes=int(os.environ["JWT_ACCESS_TOKEN_DURATION_MINUTES"])
             )
 
+        if account_password_reset_authorization_duration is None:
+            account_password_reset_authorization_duration = timedelta(
+                minutes=int(
+                    os.environ["ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES"]
+                )
+            )
         return cls(
             algorithm=algorithm,
             secret_key=secret_key,
             refresh_token_duration=refresh_token_duration,
             access_token_duration=access_token_duration,
+            account_password_reset_authorization_duration=account_password_reset_authorization_duration,
         )
 
 

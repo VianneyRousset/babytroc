@@ -46,7 +46,7 @@ def create_user_without_validation(
     db: Session,
     user_create: UserCreate,
     validated: bool = False,
-):
+) -> UserPrivateRead:
     # insert new user in database
     user = database.user.create_user(
         db=db,

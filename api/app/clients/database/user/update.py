@@ -22,6 +22,21 @@ def update_user(
     return user
 
 
+def update_user_password(
+    db: Session,
+    user: User,
+    password_hash: str,
+) -> User:
+    """Update `password_hash` in `user`."""
+
+    user.password_hash = password_hash
+
+    db.flush()
+    db.refresh(user)
+
+    return user
+
+
 def mark_user_as_validated(
     db: Session,
     user: User,

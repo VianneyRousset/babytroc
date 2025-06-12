@@ -51,3 +51,24 @@ class AuthAccountAlreadyValidatedError(AuthError):
             message="Account already validated.",
             status_code=HTTPStatus.CONFLICT,
         )
+
+
+class AuthUnauthorizedAccountPasswordResetError(AuthError):
+    """Exception raised when an account password reset is unauthorized."""
+
+    def __init__(self):
+        super().__init__(
+            message="Unauthorized account password reset.",
+            status_code=HTTPStatus.UNAUTHORIZED,
+        )
+
+
+class AuthAccountPasswordResetAuthorizationNotFoundError(AuthError, NotFoundError):
+    """Exception raised when a account password reset authorization is not found."""
+
+    def __init__(self, key: Mapping[str, Any], **kwargs):
+        super().__init__(
+            datatype="auth_account_password_reset_authorization",
+            key=key,
+            **kwargs,
+        )
