@@ -54,6 +54,16 @@ def list_refresh_tokens(
     return list(db.scalars(stmt).all())
 
 
+def list_account_password_reset_authorizations(
+    db: Session,
+) -> list[AuthAccountPasswordResetAuthorization]:
+    """List account password reset authorizations from database."""
+
+    stmt = select(AuthAccountPasswordResetAuthorization)
+
+    return list(db.scalars(stmt).all())
+
+
 def get_account_password_reset_authorization(
     db: Session,
     authorization_code: UUID,

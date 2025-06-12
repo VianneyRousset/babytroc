@@ -5,6 +5,10 @@ from .login import login
 from .logout import logout
 from .new import create_user
 from .refresh import refresh_credentials
+from .reset import (
+    apply_account_password_reset,
+    create_account_password_reset_authorization,
+)
 from .router import router
 from .validation import validate_user_account
 from .verification import (
@@ -14,8 +18,10 @@ from .verification import (
 )
 
 __all__ = [
+    "apply_account_password_reset",
     "client_id_annotation",
     "cookies",
+    "create_account_password_reset_authorization",
     "create_user",
     "get_account_availability",
     "login",

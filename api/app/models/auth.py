@@ -37,6 +37,8 @@ class AuthAccountPasswordResetAuthorization(CreationDate, Base):
     authorization_code: Mapped[uuid.UUID] = mapped_column(
         UUID,
         primary_key=True,
+        index=True,
+        unique=True,
         default=uuid.uuid4,
     )
 

@@ -40,7 +40,7 @@ def create_account_password_reset_authorization(
 
 
 @router.post("/reset-password/{authorization_code}")
-def validate_user_account(
+def apply_account_password_reset(
     request: Request,
     db: Annotated[Session, Depends(get_db_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
