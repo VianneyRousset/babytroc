@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.user.private import UserPrivateRead
+from app.schemas.user.query import UserQueryFilter
 from app.schemas.user.read import UserRead
 
 
@@ -45,3 +46,12 @@ def list_users(
     users = database.user.list_users(db=db)
 
     return [UserPreviewRead.model_validate(user) for user in users]
+
+
+def get_user_exists(
+    db: Session,
+    query_filter: UserQueryFilter,
+) -> bool:
+    """Returns True if a user matching the `query_filter` exists."""
+
+    return database.user.get_user_exists(db, query_filter)

@@ -1,5 +1,6 @@
 from . import cookies
 from .annotations import client_id_annotation
+from .availability import get_account_availability
 from .login import login
 from .logout import logout
 from .new import create_user
@@ -16,6 +17,7 @@ __all__ = [
     "client_id_annotation",
     "cookies",
     "create_user",
+    "get_account_availability",
     "login",
     "logout",
     "oauth2_scheme",

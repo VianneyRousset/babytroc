@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.errors.user import UserNotFoundError
 from app.models.user import User
+from app.schemas.user.query import UserQueryFilter
 
 
 def get_user(
@@ -57,3 +58,13 @@ def list_users(
 
     stmt = select(User)
     return list(db.scalars(stmt).all())
+
+
+def get_user_exists(
+    db: Session,
+    query_filter: UserQueryFilter,
+) -> bool:
+    """Returns True if a user matching the `query_filter` exists."""
+
+    stmt = query_filter.apply(select(User)).exists()
+    return db.execute(select(stmt)).scalar_one()

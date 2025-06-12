@@ -4,6 +4,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.clients.database.user import get_user_by_email
+from app.schemas.auth.availability import AuthAccountAvailability
 from tests.fixtures.users import UserData
 
 
@@ -166,3 +167,37 @@ class TestAuth:
         resp = client.get("/v1/me")
         print(resp.text)
         resp.raise_for_status()
+
+    @pytest.mark.parametrize(
+        ("name", "email", "expected_result"),
+        [
+            ("alice", None, False),
+            (None, "alice@babytroc.ch", False),
+            ("uicwdntnjrdscndphwspcskgjxoduwyq", None, True),
+            (None, "qeuupfnlbombnsmk@lzlgzoynvwwaiwnz.com", True),
+        ],
+    )
+    def test_account_availability(
+        self,
+        client: TestClient,
+        alice_user_data: UserData,
+        name: str | None,
+        email: str | None,
+        expected_result: bool,
+    ):
+        """Check if account availability is correct."""
+
+        params = {}
+        if name:
+            params["name"] = name
+        if email:
+            params["email"] = email
+
+        # check alice's name is not available
+        resp = client.get(
+            "v1/auth/available",
+            params=params,
+        )
+        resp.raise_for_status()
+        availability = AuthAccountAvailability.model_validate(resp.json())
+        assert availability.available == expected_result
