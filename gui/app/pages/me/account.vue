@@ -101,6 +101,17 @@ const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(
             Valider
           </TextButton>
         </div>
+        <div class="hr-container">
+          <hr>
+          <div>Ou</div>
+          <hr>
+        </div>
+        <NuxtLink
+          to="/me/account/new"
+          class="create-account-button"
+        >
+          Créer un compte
+        </NuxtLink>
       </div>
 
       <div
@@ -155,5 +166,27 @@ main {
     padding: 0.6rem 1.5rem;
     font-size: 1.5rem;
   }
+}
+
+.hr-container {
+  @include flex-row;
+  gap: 1rem;
+  padding:  1rem;
+  color: $neutral-400;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid $neutral-400;
+  }
+}
+
+.create-account-button {
+  @include reset-link;
+  text-align: center;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  color: $neutral-400;
 }
 </style>
