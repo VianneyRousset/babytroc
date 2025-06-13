@@ -1,10 +1,5 @@
-from contextlib import AbstractContextManager
-from time import sleep
-from types import TracebackType
-
 from fastapi.testclient import TestClient
 from starlette.testclient import WebSocketTestSession
-from starlette.websockets import WebSocketDisconnect
 
 from app.enums import ChatMessageType
 from app.schemas.chat.read import ChatMessageRead
@@ -12,70 +7,10 @@ from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import (
-    WebSocketMessage,
     WebSocketMessageNewChatMessage,
-    WebSocketMessageTypeAdapter,
     WebSocketMessageUpdatedChatMessage,
 )
-
-
-class WebSocketsRecorder(AbstractContextManager):
-    """Helper to record one message from websockets."""
-
-    WEBSOCKET_PATH = "/v1/me/websocket"
-
-    def __init__(
-        self,
-        *,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
-    ):
-        self.alice_websocket = alice_websocket
-        self.bob_websocket = bob_websocket
-
-        self.alice_websocket_message: WebSocketMessage | None = None
-        self.bob_websocket_message: WebSocketMessage | None = None
-
-    def __enter__(self):
-        self.alice_websocket.__enter__()
-        self.bob_websocket.__enter__()
-
-        # trying to avoid some concurrency issues
-        sleep(0.2)
-
-    def __exit__(
-        self,
-        type_: type[BaseException] | None,
-        value: BaseException | None,
-        traceback: TracebackType | None,
-    ) -> bool | None:
-        # record alice message and close websocket
-        content = self.alice_websocket.receive_text()
-        self.alice_websocket_message = WebSocketMessageTypeAdapter.validate_json(
-            content
-        )
-        self.alice_websocket.close()
-
-        # record alice message and close websocket
-        content = self.bob_websocket.receive_text()
-        self.bob_websocket_message = WebSocketMessageTypeAdapter.validate_json(content)
-        self.bob_websocket.close()
-
-        # wait for websocket close message
-        try:
-            self.alice_websocket.receive_text()
-        except WebSocketDisconnect:
-            pass
-
-        try:
-            self.bob_websocket.receive_text()
-        except WebSocketDisconnect:
-            pass
-
-        self.alice_websocket.__exit__(None, None, None)
-        self.bob_websocket.__exit__(None, None, None)
-
-        return None
+from tests.fixtures.websockets import WebSocketRecorder
 
 
 class TestChatMessage:
@@ -97,11 +32,9 @@ class TestChatMessage:
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
         text = "hello"
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # send text message
             resp = alice_client.post(
                 f"/v1/me/chats/{chat_id}/messages",
@@ -110,14 +43,14 @@ class TestChatMessage:
             resp.raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -142,11 +75,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -174,25 +107,23 @@ class TestChatMessage:
     ):
         """Check that creating a loan request sends a chat message."""
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # request item
             resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
             resp.raise_for_status()
             loan_request = LoanRequestRead.model_validate_json(resp.text)
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -217,11 +148,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -252,25 +183,23 @@ class TestChatMessage:
 
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # cancel loan request
             bob_client.delete(
                 f"/v1/items/{alice_new_item.id}/request"
             ).raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -295,11 +224,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -331,26 +260,23 @@ class TestChatMessage:
         loan_request_id = bob_new_loan_request_for_alice_new_item.id
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # reject loan request
             alice_client.post(
                 f"/v1/me/items/{alice_new_item.id}/requests/{loan_request_id}/reject"
             ).raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -375,11 +301,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -411,25 +337,23 @@ class TestChatMessage:
         loan_request_id = bob_new_loan_request_for_alice_new_item.id
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # accept loan request
             alice_client.post(
                 f"/v1/me/items/{alice_new_item.id}/requests/{loan_request_id}/accept"
             ).raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -454,11 +378,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -490,31 +414,28 @@ class TestChatMessage:
         loan_request_id = bob_new_loan_request_for_alice_new_item.id
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-
         # accept loan request
         alice_client.post(
             f"/v1/me/items/{alice_new_item.id}/requests/{loan_request_id}/accept"
         ).raise_for_status()
 
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # execute loan request
             bob_client.post(
                 f"/v1/me/borrowings/requests/{loan_request_id}/execute"
             ).raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -539,11 +460,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -576,26 +497,23 @@ class TestChatMessage:
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
         loan_id = bob_new_loan_of_alice_new_item.id
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             # end loan
             alice_client.post(
                 f"/v1/me/loans/{loan_id}/end",
             ).raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageNewChatMessage
+            alice_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageNewChatMessage
+            bob_websocket_recorder.message, WebSocketMessageNewChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -620,11 +538,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 
@@ -664,24 +582,21 @@ class TestChatMessage:
         resp.raise_for_status()
         message = ChatMessageRead.model_validate_json(resp.text)
 
-        recorder = WebSocketsRecorder(
-            alice_websocket=alice_websocket,
-            bob_websocket=bob_websocket,
-        )
-
-        with recorder:
+        alice_websocket_recorder = WebSocketRecorder(alice_websocket)
+        bob_websocket_recorder = WebSocketRecorder(bob_websocket)
+        with alice_websocket_recorder, bob_websocket_recorder:
             resp = bob_client.post(f"/v1/me/chats/{chat_id}/messages/{message.id}/see")
             resp.raise_for_status()
 
         assert isinstance(
-            recorder.alice_websocket_message, WebSocketMessageUpdatedChatMessage
+            alice_websocket_recorder.message, WebSocketMessageUpdatedChatMessage
         )
 
         assert isinstance(
-            recorder.bob_websocket_message, WebSocketMessageUpdatedChatMessage
+            bob_websocket_recorder.message, WebSocketMessageUpdatedChatMessage
         )
 
-        alice_chat_message = recorder.alice_websocket_message.message
+        alice_chat_message = alice_websocket_recorder.message.message
 
         # construct expected chat message
         expected_chat_message = ChatMessageRead(
@@ -706,11 +621,11 @@ class TestChatMessage:
 
         # check websocket messages
         assert (
-            recorder.alice_websocket_message.model_dump()
+            alice_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
         assert (
-            recorder.bob_websocket_message.model_dump()
+            bob_websocket_recorder.message.model_dump()
             == expected_websocket_message.model_dump()
         )
 

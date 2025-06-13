@@ -6,4 +6,5 @@ pytest_plugins = [
     "tests.fixtures.clients",
     "tests.fixtures.items",
     "tests.fixtures.loans",
+    "tests.fixtures.websockets",
 ]
