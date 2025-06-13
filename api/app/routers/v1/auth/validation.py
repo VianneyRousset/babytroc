@@ -29,7 +29,7 @@ def resend_validation_email(
     user_id = verify_request_credentials(
         request=request,
         token=token,
-        skip_validated=True,
+        check_validated=False,
     )
 
     user = database.user.get_user(db, user_id)

@@ -19,7 +19,16 @@ class PubsubMessageUpdatedChatMessage(PubsubBase):
     chat_message_id: int
 
 
-PubsubMessage = PubsubMessageNewChatMessage | PubsubMessageUpdatedChatMessage
+class PubsubMessageUpdatedAccountValidation(PubsubBase):
+    type: Literal["updated_account_validation"] = "updated_account_validation"
+    validated: bool
+
+
+PubsubMessage = (
+    PubsubMessageNewChatMessage
+    | PubsubMessageUpdatedChatMessage
+    | PubsubMessageUpdatedAccountValidation
+)
 
 PubsubMessageTypeAdapter: TypeAdapter[PubsubMessage] = TypeAdapter(
     Annotated[PubsubMessage, Field(discriminator="type")]

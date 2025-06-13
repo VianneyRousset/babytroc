@@ -6,21 +6,30 @@ from .base import BaseModel
 from .chat.read import ChatMessageRead
 
 
-class WebSocketBase(BaseModel):
+class WebSocketMessageBase(BaseModel):
     pass
 
 
-class WebSocketMessageNewChatMessage(WebSocketBase):
+class WebSocketMessageNewChatMessage(WebSocketMessageBase):
     type: Literal["new_chat_message"] = "new_chat_message"
     message: ChatMessageRead
 
 
-class WebSocketMessageUpdatedChatMessage(WebSocketBase):
+class WebSocketMessageUpdatedChatMessage(WebSocketMessageBase):
     type: Literal["updated_chat_message"] = "updated_chat_message"
     message: ChatMessageRead
 
 
-WebSocketMessage = WebSocketMessageNewChatMessage | WebSocketMessageUpdatedChatMessage
+class WebsocketMessageUpdatedAccountValidation(WebSocketMessageBase):
+    type: Literal["updated_account_validation"] = "updated_account_validation"
+    validated: bool
+
+
+WebSocketMessage = (
+    WebSocketMessageNewChatMessage
+    | WebSocketMessageUpdatedChatMessage
+    | WebsocketMessageUpdatedAccountValidation
+)
 
 
 WebSocketMessageTypeAdapter: TypeAdapter[WebSocketMessage] = TypeAdapter(

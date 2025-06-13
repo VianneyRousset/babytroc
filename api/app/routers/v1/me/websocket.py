@@ -11,10 +11,12 @@ from app.schemas.chat.query import ChatMessageQueryFilter
 from app.schemas.pubsub import (
     PubsubMessageNewChatMessage,
     PubsubMessageTypeAdapter,
+    PubsubMessageUpdatedAccountValidation,
     PubsubMessageUpdatedChatMessage,
 )
 from app.schemas.websocket import (
     WebSocketMessageNewChatMessage,
+    WebsocketMessageUpdatedAccountValidation,
     WebSocketMessageUpdatedChatMessage,
 )
 
@@ -85,6 +87,13 @@ async def relay_broacast_events_to_websocket(
                     ).model_dump_json()
                 )
 
+            elif isinstance(pubsub_message, PubsubMessageUpdatedAccountValidation):
+                await websocket.send_text(
+                    WebsocketMessageUpdatedAccountValidation(
+                        validated=pubsub_message.validated,
+                    ).model_dump_json()
+                )
+
             else:
                 msg = f"Unhandled pubsub message type {pubsub_message}"
                 raise TypeError(msg)
@@ -95,7 +104,10 @@ async def open_websocket(
     websocket: WebSocket,
     broadcast: Annotated[Broadcast, Depends(get_broadcast)],
 ):
-    client_id = verify_websocket_credentials(websocket)
+    client_id = verify_websocket_credentials(
+        websocket,
+        check_validated=False,
+    )
 
     try:
         await websocket.accept()

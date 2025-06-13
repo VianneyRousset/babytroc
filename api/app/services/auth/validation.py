@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.errors.auth import AuthAccountAlreadyValidatedError
+from app.pubsub import notify_user
+from app.schemas.pubsub import PubsubMessageUpdatedAccountValidation
 
 
 def validate_user_account(
@@ -18,3 +20,11 @@ def validate_user_account(
         raise AuthAccountAlreadyValidatedError()
 
     database.user.mark_user_as_validated(db, user)
+
+    notify_user(
+        db=db,
+        user_id=user.id,
+        message=PubsubMessageUpdatedAccountValidation(
+            validated=True,
+        ),
+    )
