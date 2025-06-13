@@ -6,7 +6,7 @@ from fastapi import Depends, WebSocket
 
 from app import services
 from app.pubsub import get_broadcast
-from app.routers.v1.auth import verify_websocket_credentials
+from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
 from app.schemas.chat.query import ChatMessageQueryFilter
 from app.schemas.pubsub import (
     PubsubMessageNewChatMessage,
@@ -104,9 +104,8 @@ async def open_websocket(
     websocket: WebSocket,
     broadcast: Annotated[Broadcast, Depends(get_broadcast)],
 ):
-    client_id = verify_websocket_credentials(
+    client_id = verify_websocket_credentials_no_validation_check(
         websocket,
-        check_validated=False,
     )
 
     try:

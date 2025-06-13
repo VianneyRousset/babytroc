@@ -14,7 +14,9 @@ from .validation import validate_user_account
 from .verification import (
     oauth2_scheme,
     verify_request_credentials,
+    verify_request_credentials_no_validation_check,
     verify_websocket_credentials,
+    verify_websocket_credentials_no_validation_check,
 )
 
 __all__ = [
@@ -31,5 +33,7 @@ __all__ = [
     "router",
     "validate_user_account",
     "verify_request_credentials",
+    "verify_request_credentials_no_validation_check",
     "verify_websocket_credentials",
+    "verify_websocket_credentials_no_validation_check",
 ]

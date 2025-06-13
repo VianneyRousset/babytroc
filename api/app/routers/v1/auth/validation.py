@@ -13,7 +13,7 @@ from app.errors.auth import AuthAccountAlreadyValidatedError
 from app.schemas.auth.validation import AuthValidation, AuthValidationResendEmail
 
 from .router import router
-from .verification import oauth2_scheme, verify_request_credentials
+from .verification import oauth2_scheme, verify_request_credentials_no_validation_check
 
 
 @router.post("/resend-validation-email")
@@ -26,10 +26,9 @@ def resend_validation_email(
 ) -> AuthValidationResendEmail:
     """Send a new account validation email."""
 
-    user_id = verify_request_credentials(
+    user_id = verify_request_credentials_no_validation_check(
         request=request,
         token=token,
-        check_validated=False,
     )
 
     user = database.user.get_user(db, user_id)
