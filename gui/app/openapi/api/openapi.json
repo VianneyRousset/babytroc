@@ -15,6 +15,56 @@
 				}
 			}
 		},
+		"/v1/auth/available": {
+			"get": {
+				"summary": "Get Account Availability",
+				"description": "Get account availability to be created.",
+				"operationId": "get_account_availability_v1_auth_available_get",
+				"parameters": [
+					{
+						"name": "name",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "string" }, { "type": "null" }],
+							"title": "Name"
+						}
+					},
+					{
+						"name": "email",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "type": "string", "format": "email" },
+								{ "type": "null" }
+							],
+							"title": "Email"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthAccountAvailability"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
 		"/v1/auth/login": {
 			"post": {
 				"summary": "Login",
@@ -24,6 +74,52 @@
 					"content": {
 						"application/x-www-form-urlencoded": {
 							"schema": { "$ref": "#/components/schemas/AuthPasswordForm" }
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/UserCredentialsInfo" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/auth/logout": {
+			"post": {
+				"summary": "Logout",
+				"description": "Remove credentials cookies.",
+				"operationId": "logout_v1_auth_logout_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					}
+				}
+			}
+		},
+		"/v1/auth/new": {
+			"post": {
+				"summary": "Create User",
+				"description": "Create a new user.",
+				"operationId": "create_user_v1_auth_new_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/UserCreate" }
 						}
 					},
 					"required": true
@@ -65,15 +161,143 @@
 				}
 			}
 		},
-		"/v1/auth/logout": {
+		"/v1/auth/reset-password": {
 			"post": {
-				"summary": "Logout",
-				"description": "Remove credentials cookies.",
-				"operationId": "logout_v1_auth_logout_post",
+				"summary": "Create Account Password Reset Authorization",
+				"description": "Send a account password reset authorization by email.",
+				"operationId": "create_account_password_reset_authorization_v1_auth_reset_password_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AuthAccountPasswordResetAuthorizationCreate"
+							}
+						}
+					},
+					"required": true
+				},
 				"responses": {
 					"200": {
 						"description": "Successful Response",
-						"content": { "application/json": { "schema": {} } }
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthAccountPasswordResetAuthorizationCreated"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/auth/reset-password/{authorization_code}": {
+			"post": {
+				"summary": "Apply Account Password Reset",
+				"description": "Apply the account password reset with `authorization_code`.",
+				"operationId": "apply_account_password_reset_v1_auth_reset_password__authorization_code__post",
+				"parameters": [
+					{
+						"name": "authorization_code",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Authorization Code"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "#/components/schemas/UserPasswordUpdate" }
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthAccountPasswordResetDone"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/auth/resend-validation-email": {
+			"post": {
+				"summary": "Resend Validation Email",
+				"description": "Send a new account validation email.",
+				"operationId": "resend_validation_email_v1_auth_resend_validation_email_post",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthValidationResendEmail"
+								}
+							}
+						}
+					}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
+			}
+		},
+		"/v1/auth/validate/{validation_code}": {
+			"post": {
+				"summary": "Validate User Account",
+				"description": "Validate user account.",
+				"operationId": "validate_user_account_v1_auth_validate__validation_code__post",
+				"parameters": [
+					{
+						"name": "validation_code",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid",
+							"title": "Validation Code"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/AuthValidation" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
 					}
 				}
 			}
@@ -717,7 +941,7 @@
 		"/v1/me/loans/{loan_id}/end": {
 			"post": {
 				"summary": "End Client Loan",
-				"description": "Put an end to the loan where the client is the owner.",
+				"description": "End the loan where the client is the owner.",
 				"operationId": "end_client_loan_v1_me_loans__loan_id__end_post",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
@@ -2373,6 +2597,47 @@
 	},
 	"components": {
 		"schemas": {
+			"AuthAccountAvailability": {
+				"properties": {
+					"available": { "type": "boolean", "title": "Available" }
+				},
+				"type": "object",
+				"required": ["available"],
+				"title": "AuthAccountAvailability"
+			},
+			"AuthAccountPasswordResetAuthorizationCreate": {
+				"properties": {
+					"email": { "type": "string", "format": "email", "title": "Email" }
+				},
+				"additionalProperties": false,
+				"type": "object",
+				"required": ["email"],
+				"title": "AuthAccountPasswordResetAuthorizationCreate"
+			},
+			"AuthAccountPasswordResetAuthorizationCreated": {
+				"properties": {
+					"result": {
+						"type": "string",
+						"const": "ok",
+						"title": "Result",
+						"default": "ok"
+					}
+				},
+				"type": "object",
+				"title": "AuthAccountPasswordResetAuthorizationCreated"
+			},
+			"AuthAccountPasswordResetDone": {
+				"properties": {
+					"result": {
+						"type": "string",
+						"const": "ok",
+						"title": "Result",
+						"default": "ok"
+					}
+				},
+				"type": "object",
+				"title": "AuthAccountPasswordResetDone"
+			},
 			"AuthPasswordForm": {
 				"properties": {
 					"grant_type": {
@@ -2387,6 +2652,22 @@
 				"required": ["grant_type", "username", "password"],
 				"title": "AuthPasswordForm",
 				"description": "Authentication form with username and password"
+			},
+			"AuthValidation": {
+				"properties": {
+					"result": { "type": "string", "const": "ok", "title": "Result" }
+				},
+				"type": "object",
+				"required": ["result"],
+				"title": "AuthValidation"
+			},
+			"AuthValidationResendEmail": {
+				"properties": {
+					"result": { "type": "string", "const": "ok", "title": "Result" }
+				},
+				"type": "object",
+				"required": ["result"],
+				"title": "AuthValidationResendEmail"
 			},
 			"Body_upload_image_v1_images_post": {
 				"properties": {
@@ -2544,7 +2825,6 @@
 			"ItemImageRead": {
 				"properties": {
 					"name": { "type": "string", "title": "Name" },
-					"order": { "type": "integer", "title": "Order" },
 					"owner_id": { "type": "integer", "title": "Owner Id" },
 					"creation_date": {
 						"type": "string",
@@ -2553,7 +2833,7 @@
 					}
 				},
 				"type": "object",
-				"required": ["name", "order", "owner_id", "creation_date"],
+				"required": ["name", "owner_id", "creation_date"],
 				"title": "ItemImageRead"
 			},
 			"ItemPreviewRead": {
@@ -2827,6 +3107,29 @@
 				"required": ["message", "context"],
 				"title": "ReportCreate"
 			},
+			"UserCreate": {
+				"properties": {
+					"name": {
+						"type": "string",
+						"maxLength": 30,
+						"minLength": 3,
+						"title": "Name"
+					},
+					"email": { "type": "string", "format": "email", "title": "Email" },
+					"password": { "type": "string", "title": "Password" },
+					"avatar_seed": {
+						"anyOf": [
+							{ "type": "string", "maxLength": 10, "minLength": 5 },
+							{ "type": "null" }
+						],
+						"title": "Avatar Seed"
+					}
+				},
+				"additionalProperties": false,
+				"type": "object",
+				"required": ["name", "email", "password"],
+				"title": "UserCreate"
+			},
 			"UserCredentialsInfo": {
 				"properties": {
 					"expires_in": { "type": "integer", "title": "Expires In" }
@@ -2835,6 +3138,13 @@
 				"required": ["expires_in"],
 				"title": "UserCredentialsInfo",
 				"description": "Info about the user credentials.\n\nDoes not contain any token as the latters are given via cookies."
+			},
+			"UserPasswordUpdate": {
+				"properties": { "password": { "type": "string", "title": "Password" } },
+				"additionalProperties": false,
+				"type": "object",
+				"required": ["password"],
+				"title": "UserPasswordUpdate"
 			},
 			"UserPreviewRead": {
 				"properties": {
@@ -2850,7 +3160,7 @@
 				"properties": {
 					"id": { "type": "integer", "title": "Id" },
 					"name": { "type": "string", "title": "Name" },
-					"email": { "type": "string", "title": "Email" },
+					"email": { "type": "string", "format": "email", "title": "Email" },
 					"avatar_seed": { "type": "string", "title": "Avatar Seed" },
 					"stars_count": { "type": "integer", "title": "Stars Count" },
 					"likes_count": { "type": "integer", "title": "Likes Count" },
