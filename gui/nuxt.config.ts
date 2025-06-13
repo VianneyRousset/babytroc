@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     'radix-vue/nuxt',
     '@pinia/colada-nuxt',
     '@nuxt/eslint',
+    'floating-vue/nuxt',
   ],
 
   // disable server-side rendering
@@ -51,7 +52,7 @@ export default defineNuxtConfig({
   },
 
   // inject SCSS code (colors definition)
-  css: ['assets/styles/main.scss', 'assets/styles/animations.scss'],
+  css: ['assets/styles/main.scss', 'assets/styles/animations.scss', 'assets/styles/floating-vue.scss'],
 
   runtimeConfig: {
     public: {

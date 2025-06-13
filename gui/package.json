@@ -23,6 +23,7 @@
 		"@web3-storage/parse-link-header": "^3.1.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"floating-vue": "^5.2.2",
 		"http-status-codes": "^2.3.0",
 		"lodash": "^4.17.21",
 		"lucide-vue-next": "^0.469.0",
