@@ -20,7 +20,6 @@ const {
 
 const touched = ref(false)
 const { value: showMsg, synced: showMsgSynced } = useThrottle(touched, 2000)
-const isNameAvailable = computed<boolean | undefined>(() => unref(nameAvailability)?.available)
 const validCharactersRegex = /^(?![_.-])(?!.*[_.]{2})[a-zA-Z0-9._ -]+(?<![_.-])$/
 
 watchEffect(() => {
@@ -44,10 +43,12 @@ const error = computed<string | false>(() => {
     return 'Pseudonyme est déjà utilisé'
 
   if (!validCharactersRegex.test(unref(name)))
-    return 'Pseudonymeom invalid'
+    return 'Pseudonyme non valide'
 
   return false
 })
+
+const valid = computed<boolean>(() => unref(error) === false && unref(showMsgSynced) === true && unref(throttledNameSynced) === true)
 </script>
 
 <template>
@@ -69,10 +70,10 @@ const error = computed<string | false>(() => {
       size="large"
       color="primary"
       tabindex="2"
-      :disabled="isNameAvailable === false || !showMsgSynced || !throttledNameSynced"
-      @click="emit('next')"
+      :disabled="!valid"
+      @click="valid && emit('next')"
     >
-    Continuer
+      Continuer
     </TextButton>
   </div>
 </template>
