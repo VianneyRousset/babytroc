@@ -68,15 +68,19 @@ class WebSocketRecorder(AbstractContextManager):
         # trying to avoid some concurrency issues
         sleep(0.2)
 
+        return self
+
     def __exit__(
         self,
-        type_: type[BaseException] | None,
+        type: type[BaseException] | None,
         value: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool | None:
         # record  message and close websocket
-        content = self.websocket.receive_text()
-        self.message = WebSocketMessageTypeAdapter.validate_json(content)
+        if type is None:
+            content = self.websocket.receive_text()
+            self.message = WebSocketMessageTypeAdapter.validate_json(content)
+
         self.websocket.close()
 
         # wait for websocket close message

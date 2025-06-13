@@ -2,12 +2,16 @@ import pytest
 import sqlalchemy
 from fastapi import status
 from fastapi.testclient import TestClient
+from app.config import Config
 
 from app.clients.database.auth import list_account_password_reset_authorizations
 from app.clients.database.user import get_user_by_email
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.user.private import UserPrivateRead
+from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
 from tests.fixtures.users import UserData
+from tests.fixtures.websockets import WebSocketRecorder
+from tests.fixtures.clients import create_client, login_as_user
 
 
 @pytest.mark.usefixtures("alice")
@@ -114,6 +118,7 @@ class TestAuthNewAccount:
 
     def test_new_account(
         self,
+        app_config: Config,
         client: TestClient,
         database: sqlalchemy.URL,
     ):
@@ -138,16 +143,6 @@ class TestAuthNewAccount:
         print(resp.text)
         resp.raise_for_status()
 
-        # login
-        client.post(
-            "/v1/auth/login",
-            data={
-                "grant_type": "password",
-                "username": email,
-                "password": password,
-            },
-        ).raise_for_status()
-
         # check still forbidden access
         resp = client.get("/v1/me")
         assert not resp.is_success
@@ -164,8 +159,24 @@ class TestAuthNewAccount:
             )
             validation_code = user.validation_code
 
-        # validate
-        client.post(f"/v1/auth/validate/{validation_code}").raise_for_status()
+        # should be logged into the invalidated account and thus access
+        # the websocket
+
+        websocket = client.websocket_connect("/v1/me/websocket")
+        websocket_recorder = WebSocketRecorder(websocket)
+
+        with websocket_recorder:
+            # validate for validation
+            with create_client(app_config) as client_for_validation:
+                client_for_validation.post(
+                    f"/v1/auth/validate/{validation_code}"
+                ).raise_for_status()
+
+        # check received a notification
+        assert isinstance(
+            websocket_recorder.message, WebsocketMessageUpdatedAccountValidation
+        )
+        assert websocket_recorder.message.validated
 
         # refresh token
         client.post("/v1/auth/refresh").raise_for_status()
