@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import EmailStr, Field
+from pydantic import EmailStr, Field, field_validator
 
 from app.schemas.base import CreateBase
 
@@ -12,6 +12,7 @@ class UserCreate(UserBase, CreateBase):
     name: Annotated[
         str,
         Field(
+            pattern=r"^\p{L}[\p{L} -]+\p{L}$",
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
@@ -21,7 +22,41 @@ class UserCreate(UserBase, CreateBase):
     avatar_seed: Annotated[
         str | None,
         Field(
+            pattern="^[0-9a-f]+$",
             min_length=AVATAR_SEED_LENGTH.start,
             max_length=AVATAR_SEED_LENGTH.stop,
         ),
     ] = None
+
+    @field_validator("name", mode="before")
+    def validate_name(
+        cls,  # noqa: N805
+        v: str,
+    ) -> str:
+        """Remove leading and trailing whitespace."""
+
+        if isinstance(v, str):
+            return v.strip()
+        return v
+
+    @field_validator("email", mode="before")
+    def validate_email(
+        cls,  # noqa: N805
+        v: str,
+    ) -> str:
+        """Remove leading and trailing whitespace and switch to lowercase."""
+
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
+
+    @field_validator("avatar_seed", mode="before")
+    def validate_avatar_seed(
+        cls,  # noqa: N805
+        v: str,
+    ) -> str:
+        """Remove leading and trailing whitespace and switch to lowercase."""
+
+        if isinstance(v, str):
+            return v.strip().lower()
+        return v
