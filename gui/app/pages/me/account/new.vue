@@ -1,14 +1,31 @@
 <script setup lang="ts">
-import { UserRound } from 'lucide-vue-next'
+import { UserRound, AtSign, KeyRound } from 'lucide-vue-next'
+import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 const { height: mainHeaderHeight } = useElementSize(
   useTemplateRef('main-header'),
 )
 
-const name = ref("")
-const email = ref("")
-const password = ref("")
-const passwordConfirm = ref("")
+const name = ref('')
+const nameStatus = ref<AsyncStatus>('idle')
+
+const email = ref('')
+const emailStatus = ref<AsyncStatus>('idle')
+
+const password = ref('')
+const passwordStatus = ref<AsyncStatus>('idle')
+
+const mode = ref<'name' | 'email' | 'password'>('name')
+
+function next() {
+  const _mode = unref(mode)
+
+  if (_mode === 'name' && unref(nameStatus) === 'success')
+    mode.value = 'email'
+
+  else if (_mode === 'email' && unref(emailStatus) === 'success')
+    mode.value = 'password'
+}
 </script>
 
 <template>
@@ -23,11 +40,90 @@ const passwordConfirm = ref("")
     <main>
       <!-- Not logged in: show login form -->
       <div class="app-content page">
-        <UserRound
-          :size="48"
-          :stroke-width="2"
-        />
-        <MeAccountName v-model="name" />
+        <transition
+          name="slide-right-left"
+          mode="out-in"
+          appear
+        >
+          <!-- name input -->
+          <div
+            v-if="mode === 'name'"
+            class="vbox"
+          >
+            <PageDecoration>
+              <UserRound
+                :size="64"
+                :stroke-width="1.33"
+              />
+            </PageDecoration>
+            <AccountNameInput
+              v-model="name"
+              @update:status="_status => (nameStatus = _status)"
+              @enter="next"
+            />
+            <TextButton
+              aspect="flat"
+              size="large"
+              color="primary"
+              :disabled="nameStatus !== 'success'"
+              @click="next"
+            >
+              Continuer
+            </TextButton>
+          </div>
+          <!-- email input -->
+          <div
+            v-else-if="mode === 'email'"
+            class="vbox"
+          >
+            <PageDecoration>
+              <AtSign
+                :size="64"
+                :stroke-width="1.33"
+              />
+            </PageDecoration>
+            <AccountEmailInput
+              v-model="email"
+              @update:status="_status => (emailStatus = _status)"
+              @enter="next"
+            />
+            <TextButton
+              aspect="flat"
+              size="large"
+              color="primary"
+              :disabled="emailStatus !== 'success'"
+              @click="next"
+            >
+              Continuer
+            </TextButton>
+          </div>
+          <!-- password input -->
+          <div
+            v-else-if="mode === 'password'"
+            class="vbox"
+          >
+            <PageDecoration>
+              <KeyRound
+                :size="64"
+                :stroke-width="1.33"
+              />
+            </PageDecoration>
+            <AccountPasswordInput
+              v-model="password"
+              @update:status="_status => (passwordStatus = _status)"
+              @enter="next"
+            />
+            <TextButton
+              aspect="bezel"
+              size="large"
+              color="primary"
+              :disabled="passwordStatus !== 'success'"
+              @click="next"
+            >
+              Enregistrer
+            </TextButton>
+          </div>
+        </transition>
       </div>
     </main>
   </div>
@@ -38,49 +134,9 @@ main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
 
-.lock {
-  @include flex-column-center;
-  gap: 1rem;
-  height: 8rem;
-  width: 100%;
-  color: $neutral-800;
-
-  &.red {
-    color: $red-800;
-  }
-}
-
-.form {
+.vbox {
   @include flex-column;
   align-items: stretch;
   gap: 1rem;
-
-  input {
-    border-radius: 0.5rem;
-    padding: 0.6rem 1.5rem;
-    font-size: 1.5rem;
-  }
-}
-
-.hr-container {
-  @include flex-row;
-  gap: 1rem;
-  padding:  1rem;
-  color: $neutral-400;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  hr {
-    flex: 1;
-    border: none;
-    border-top: 1px solid $neutral-400;
-  }
-}
-
-.create-account-button {
-  @include reset-link;
-  text-align: center;
-  cursor: pointer;
-  font-size: 1.5rem;
-  padding: 0.6rem 1.5rem;
-  color: $neutral-400;
 }
 </style>
