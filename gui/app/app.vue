@@ -38,7 +38,7 @@ watch(loggedIn, (state) => {
 <template>
   <div>
     <NuxtPage />
-    <AppFooterBar v-if="!route.path.startsWith('/newitem')" />
+    <AppFooterBar v-if="!route.path.startsWith('/newitem') && !route.path.startsWith('/me/account/pending-validation')" />
   </div>
 </template>
 

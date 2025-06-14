@@ -26,6 +26,17 @@ function next() {
   else if (_mode === 'email' && unref(emailStatus) === 'success')
     mode.value = 'password'
 }
+
+const { mutateAsync: submit, asyncStatus: submitAsyncStatus } = useCreateAccountMutation()
+
+async function create() {
+  await submit({
+    name: unref(name),
+    email: unref(email),
+    password: unref(password),
+  })
+  navigateTo('/me/account/pending-validation')
+}
 </script>
 
 <template>
@@ -118,7 +129,8 @@ function next() {
               size="large"
               color="primary"
               :disabled="passwordStatus !== 'success'"
-              @click="next"
+              :loading="submitAsyncStatus === 'loading'"
+              @click="create"
             >
               Enregistrer
             </TextButton>
