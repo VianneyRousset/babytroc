@@ -1,4 +1,4 @@
-export function useAuthAccountNameAvailable(name: MaybeRefOrGetter<string>) {
+export function useAuthAccountNameAvailableQuery(name: MaybeRefOrGetter<string>) {
   const { $api } = useNuxtApp()
 
   return useQuery({
@@ -11,7 +11,7 @@ export function useAuthAccountNameAvailable(name: MaybeRefOrGetter<string>) {
   })
 }
 
-export function useAuthAccountEmailAvailable(email: MaybeRefOrGetter<string>) {
+export function useAuthAccountEmailAvailableQuery(email: MaybeRefOrGetter<string>) {
   const { $api } = useNuxtApp()
 
   return useQuery({

@@ -84,7 +84,7 @@ watch(
   border-radius: 0.4rem;
   padding: 0.3rem 0.8rem;
 
-  transition: transform 200ms ease-out, opacity 200ms ease-out;
+  transition: all 200ms ease-out;
 
   --color-50: #{$neutral-50};
   --color-100: #{$neutral-100};

@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { Check, TriangleAlert } from 'lucide-vue-next'
+import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 const model = defineModel<string>()
+const emit = defineEmits(['blur'])
 
 const props = withDefaults(defineProps<{
   placeholder?: string
   type?: 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week'
   autofocus?: boolean
   tabindex?: number
-  loading?: boolean
-  error?: string | boolean
-  success?: string | boolean
+  status?: AsyncStatus
+  msgError?: string
+  msgSuccess?: string
   msgPlacement?:
     'auto'
     | 'auto-start'
@@ -27,24 +29,21 @@ const props = withDefaults(defineProps<{
     | 'left'
     | 'left-start'
     | 'left-end' }>(), {
-  loading: false,
-  error: false,
-  success: false,
+  status: 'idle',
   msgPlacement: 'auto',
 })
 
-const { placeholder, type, autofocus, tabindex, msgPlacement } = toRefs(props)
-
-const mode = computed<'loading' | 'error' | 'success' | undefined>(() => {
-  if (props.loading) return 'loading'
-  if (props.error) return 'error'
-  if (props.success) return 'success'
-  return undefined
-})
 const message = computed<string | undefined>(() => {
-  const _mode = unref(mode)
-  if (_mode === 'error' && typeof props.error === 'string') return props.error
-  if (_mode === 'success' && typeof props.success === 'string') return props.success
+  switch (props.status) {
+    case 'idle':
+    case 'pending':
+      return undefined
+    case 'error':
+      return props.msgError
+    case 'success':
+      return props.msgSuccess
+  }
+
   return undefined
 })
 </script>
@@ -56,7 +55,7 @@ const message = computed<string | undefined>(() => {
     :shown="message != null"
     :auto-hide="false"
     :placement="msgPlacement"
-    :theme="`dropdown-${mode}`"
+    :theme="`dropdown-${status}`"
     class="TextInput"
   >
     <input
@@ -65,6 +64,7 @@ const message = computed<string | undefined>(() => {
       :type="type"
       :tabindex="tabindex"
       :autofocus="autofocus"
+      @blur="emit('blur')"
     >
 
     <transition
@@ -73,18 +73,18 @@ const message = computed<string | undefined>(() => {
       appear
     >
       <LoadingAnimation
-        v-if="mode === 'loading'"
+        v-if="status === 'pending'"
         :small="true"
         class="icon"
       />
       <TriangleAlert
-        v-else-if="mode === 'error'"
+        v-else-if="status === 'error'"
         class="icon error"
         :size="28"
         :stroke-width="1.5"
       />
       <Check
-        v-else-if="mode === 'success'"
+        v-else-if="status === 'success'"
         class="icon success"
         :size="28"
         :stroke-width="1.5"
