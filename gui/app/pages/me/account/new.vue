@@ -122,7 +122,7 @@ async function create() {
             <AccountPasswordInput
               v-model="password"
               @update:status="_status => (passwordStatus = _status)"
-              @enter="next"
+              @enter="create"
             />
             <TextButton
               aspect="bezel"
@@ -130,6 +130,7 @@ async function create() {
               color="primary"
               :disabled="passwordStatus !== 'success'"
               :loading="submitAsyncStatus === 'loading'"
+              :timeout="0"
               @click="create"
             >
               Enregistrer

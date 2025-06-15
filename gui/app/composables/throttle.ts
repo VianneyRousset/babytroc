@@ -1,4 +1,7 @@
-export function useThrottle<T>(value: Ref<T>, time: MaybeRefOrGetter<number>): { value: Ref<T>, synced: Ref<boolean> } {
+export function useThrottle<T>(
+  value: Ref<T>,
+  time: MaybeRefOrGetter<number>,
+): { value: Ref<T>, synced: Ref<boolean> } {
   const synced = ref(true)
   const result = ref<T>(unref(value)) as Ref<T>
 

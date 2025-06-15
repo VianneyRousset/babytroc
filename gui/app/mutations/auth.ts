@@ -64,3 +64,15 @@ export const useCreateAccountMutation = defineMutation(() => {
     },
   })
 })
+
+export const useResendValidationEmailMutation = defineMutation(() => {
+  const { $api } = useNuxtApp()
+
+  return useMutation({
+    mutation: () => {
+      return $api('/v1/auth/resend-validation-email', {
+        method: 'POST',
+      })
+    },
+  })
+})

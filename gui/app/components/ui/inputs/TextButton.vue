@@ -13,14 +13,13 @@ const props = withDefaults(
     size: 'normal',
     color: 'neutral',
     loading: false,
-    timeout: 1000,
+    timeout: 500,
     disabled: false,
   },
 )
 const { aspect, size, color, loading, timeout, disabled } = toRefs(props)
 
-const loadingTimeout = ref(null as null | ReturnType<typeof setTimeout>)
-const showLoader = ref(false)
+const { value: longLoading } = useThrottle(loading, timeout)
 
 const classes = computed(() => ({
   large: unref(size) === 'large',
@@ -34,28 +33,8 @@ const classes = computed(() => ({
   primary: unref(color) === 'primary',
   red: unref(color) === 'red',
 
-  loading: unref(showLoader),
+  loading: unref(loading),
 }))
-
-watch(
-  loading,
-  (v) => {
-    if (v) {
-      clearTimeout(loadingTimeout.value ?? undefined)
-
-      loadingTimeout.value = setTimeout(() => {
-        showLoader.value = true
-      }, unref(timeout))
-    }
-    else {
-      clearTimeout(unref(loadingTimeout.value) ?? undefined)
-      loadingTimeout.value = null
-
-      showLoader.value = false
-    }
-  },
-  { immediate: true },
-)
 </script>
 
 <template>
@@ -64,7 +43,7 @@ watch(
     :class="classes"
   >
     <div
-      v-if="showLoader"
+      v-if="loading && longLoading"
       class="loader"
     >
       <LoadingAnimation :small="true" />
@@ -158,7 +137,7 @@ watch(
       background: var(--color-700);
     }
 
-    &.disabled {
+    &.disabled, &.loading {
       background: var(--color-100);
       color: var(--color-400);
       cursor: default;
@@ -186,7 +165,7 @@ watch(
       border-color: var(--color-700);
     }
 
-    &.disabled {
+    &.disabled, &.loading {
       color: var(--color-200);
       border-color: var(--color-200);
       cursor: default;
@@ -205,7 +184,7 @@ watch(
       background: linear-gradient(var(--color-700) 0%, var(--color-800) 100%);
     }
 
-    &.disabled {
+    &.disabled, &.loading {
       background: var(--color-100);
       color: var(--color-300);
       box-shadow: none;
