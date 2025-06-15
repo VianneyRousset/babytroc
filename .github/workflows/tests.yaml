@@ -1,27 +1,20 @@
 name: Tests
 run-name: Testing commit "${{ github.event.head_commit.message }}" in "${{ github.ref_name }}"
-
 on:
-
   workflow_dispatch:
   pull_request:
   push:
     tags: ["*"]
     branches: ["dev", "rc", "main"]
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 env:
   MISE_EXPERIMENTAL: true
-
 jobs:
-
   api-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     services:
       postgres:
         image: postgres:latest
@@ -38,13 +31,14 @@ jobs:
           MAX_UPLOADS_PER_DAY: 10000
         ports:
           - 5000:5000
-
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
       - run: mise run test
         working-directory: ./api
         env:
+          HOST_NAME: test
+          APP_NAME: test
           POSTGRES_PASSWORD: xxx
           JWT_ALGORITHM: "HS256"
           JWT_SECRET_KEY: "1234"
