@@ -3113,13 +3113,19 @@
 						"type": "string",
 						"maxLength": 30,
 						"minLength": 3,
+						"pattern": "^\\p{L}[\\p{L} -]+\\p{L}$",
 						"title": "Name"
 					},
 					"email": { "type": "string", "format": "email", "title": "Email" },
 					"password": { "type": "string", "title": "Password" },
 					"avatar_seed": {
 						"anyOf": [
-							{ "type": "string", "maxLength": 10, "minLength": 5 },
+							{
+								"type": "string",
+								"maxLength": 10,
+								"minLength": 5,
+								"pattern": "^[0-9a-f]+$"
+							},
 							{ "type": "null" }
 						],
 						"title": "Avatar Seed"
@@ -3132,10 +3138,11 @@
 			},
 			"UserCredentialsInfo": {
 				"properties": {
-					"expires_in": { "type": "integer", "title": "Expires In" }
+					"expires_in": { "type": "integer", "title": "Expires In" },
+					"validated": { "type": "boolean", "title": "Validated" }
 				},
 				"type": "object",
-				"required": ["expires_in"],
+				"required": ["expires_in", "validated"],
 				"title": "UserCredentialsInfo",
 				"description": "Info about the user credentials.\n\nDoes not contain any token as the latters are given via cookies."
 			},
