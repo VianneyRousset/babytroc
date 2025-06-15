@@ -179,7 +179,7 @@ class AuthConfig(NamedTuple):
 
 
 class Config(NamedTuple):
-    hostname: str
+    host_name: str
     app_name: str
     test: bool
     database: DatabaseConfig
@@ -192,7 +192,7 @@ class Config(NamedTuple):
     def from_env(
         cls,
         *,
-        hostname: str | None = None,
+        host_name: str | None = None,
         app_name: str | None = None,
         test: bool | None = None,
         database: DatabaseConfig | None = None,
@@ -201,8 +201,8 @@ class Config(NamedTuple):
         imgpush: ImgpushConfig | None = None,
         auth: AuthConfig | None = None,
     ) -> Self:
-        if hostname is None:
-            hostname = os.environ["HOSTNAME"]
+        if host_name is None:
+            host_name = os.environ["HOST_NAME"]
 
         if app_name is None:
             app_name = os.environ["APP_NAME"]
@@ -226,7 +226,7 @@ class Config(NamedTuple):
             auth = AuthConfig.from_env()
 
         return cls(
-            hostname=hostname,
+            host_name=host_name,
             app_name=app_name,
             test=test,
             database=database,
