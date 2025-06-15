@@ -14,6 +14,7 @@ class UserCredentials(Credentials):
     refresh_token: str
     refresh_token_duration: timedelta
     access_token_duration: timedelta
+    validated: bool
 
 
 class UserCredentialsInfo(Credentials):
@@ -23,3 +24,4 @@ class UserCredentialsInfo(Credentials):
     """
 
     expires_in: int
+    validated: bool

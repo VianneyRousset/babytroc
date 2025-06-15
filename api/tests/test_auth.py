@@ -73,14 +73,16 @@ class TestAuthLogin:
         """Check that login returns a valid access token."""
 
         # login
-        client.post(
+        resp = client.post(
             "/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": alice_user_data["email"],
                 "password": alice_user_data["password"],
             },
-        ).raise_for_status()
+        )
+        resp.raise_for_status()
+        assert resp.json()["validated"]
 
         client.get("/v1/me").raise_for_status()
 
@@ -93,6 +95,7 @@ class TestAuthLogin:
         # refresh
         resp = alice_client.post("/v1/auth/refresh")
         resp.raise_for_status()
+        assert resp.json()["validated"]
 
         # test access is wokring
         alice_client.get("/v1/me").raise_for_status()
@@ -143,6 +146,9 @@ class TestAuthNewAccount:
         print(resp.text)
         resp.raise_for_status()
 
+        # check the account is not validated yet
+        assert not resp.json()["validated"]
+
         # check still forbidden access
         resp = client.get("/v1/me")
         assert not resp.is_success
@@ -179,7 +185,11 @@ class TestAuthNewAccount:
         assert websocket_recorder.message.validated
 
         # refresh token
-        client.post("/v1/auth/refresh").raise_for_status()
+        resp = client.post("/v1/auth/refresh")
+        resp.raise_for_status()
+
+        # check the account is now validated
+        assert resp.json()["validated"]
 
         # check access granted
         resp = client.get("/v1/me")

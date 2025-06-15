@@ -48,4 +48,5 @@ def create_user(
 
     return UserCredentialsInfo(
         expires_in=round(credentials.access_token_duration.total_seconds()),
+        validated=credentials.validated,
     )

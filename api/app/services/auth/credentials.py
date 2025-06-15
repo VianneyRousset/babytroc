@@ -104,4 +104,5 @@ def create_user_credentials(
         access_token=access_token,
         refresh_token_duration=config.refresh_token_duration,
         access_token_duration=config.access_token_duration,
+        validated=validated,
     )
