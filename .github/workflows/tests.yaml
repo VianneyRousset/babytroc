@@ -49,5 +49,5 @@ jobs:
           EMAIL_PORT: "465"
           EMAIL_USERNAME: "test"
           EMAIL_PASSWORD: "test"
-          EMAIL_FROM_EMAIL: "fake@server.test"
+          EMAIL_FROM_EMAIL: "pqhyhijbblvtncgj@cbnfukghppneopdz.com"
           EMAIL_FROM_NAME: "test"
