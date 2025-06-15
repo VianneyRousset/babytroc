@@ -26,7 +26,7 @@ export function useAuth() {
 
   // login
   const {
-    mutate: loginRaw,
+    mutateAsync: loginRaw,
     status: loginStatus,
     asyncStatus: loginAsyncStatus,
   } = useLoginMutation()
@@ -34,11 +34,10 @@ export function useAuth() {
   const username = ref('')
   const password = ref('')
 
-  const login = async () =>
-    loginRaw({
-      username: unref(username),
-      password: unref(password),
-    })
+  const login = async () => await loginRaw({
+    username: unref(username),
+    password: unref(password),
+  })
 
   // logout
   const {

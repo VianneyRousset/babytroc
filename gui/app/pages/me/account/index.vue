@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { LockKeyhole, LockKeyholeOpen } from 'lucide-vue-next'
 
+const router = useRouter()
+
 const { height: mainHeaderHeight } = useElementSize(
   useTemplateRef('main-header'),
 )
@@ -10,7 +12,7 @@ const {
   loggedInStatus,
   username,
   password,
-  login,
+  login: _login,
   loginStatus,
   loginAsyncStatus,
   logout,
@@ -28,6 +30,18 @@ watch(loggedIn, (newState, oldState) => {
 })
 
 const enableLogin = computed<boolean>(() => unref(username).length > 0 && unref(password).length > 0)
+
+async function login() {
+  const credentials_info = await _login()
+  if (credentials_info.validated === false) {
+    navigateTo(router.resolve({
+      name: 'me-account-pending-validation',
+      query: {
+        sendEmail: null,
+      },
+    }))
+  }
+}
 </script>
 
 <template>

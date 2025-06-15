@@ -23,6 +23,14 @@ watch(loggedIn, (state) => {
   }, 750)
 })
 
+// resend validation email if specified
+const route = useRoute()
+const router = useRouter()
+if (route.query.sendEmail !== undefined) {
+  resendValidationEmail()
+  router.replace({ query: {} })
+}
+
 try {
   const queryCache = useQueryCache()
 
