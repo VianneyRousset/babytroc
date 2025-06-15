@@ -11,6 +11,7 @@
 - add test on full loan creation chain
 - improve targeted_age_months serialization/deserialization with a new pydantic type
 - check missing index. Should item_image_association table be better indexed ?
+- add more constraints to any API inputs (mostly str inputs)
 
 # GUI
 
