@@ -33,12 +33,19 @@ watch(loggedIn, (state) => {
     }
   }
 })
+
+const visible = !([
+  '/newitem',
+  '/me/account/pending-validation',
+  '/me/account/reset-password',
+  '/me/account/validate-account',
+].some(r => route.path.startsWith(r)))
 </script>
 
 <template>
   <div>
     <NuxtPage />
-    <AppFooterBar v-if="!route.path.startsWith('/newitem') && !route.path.startsWith('/me/account/pending-validation')" />
+    <AppFooterBar v-if="visible" />
   </div>
 </template>
 

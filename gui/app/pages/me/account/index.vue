@@ -131,8 +131,8 @@ async function login() {
           </TextButton>
         </div>
         <NuxtLink
-          class="reset"
-          to="/me/account/reset-password"
+          class="forgotten-password"
+          to="/me/account/forgotten-password"
         >
           Mot de pass oublié
         </NuxtLink>
@@ -189,7 +189,7 @@ main {
   }
 }
 
-a.reset {
+a.forgotten-password {
   @include reset-link;
   font-family: "Plus Jakarta Sans", sans-serif;
   padding-top: 0.3rem;
