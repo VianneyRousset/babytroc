@@ -88,3 +88,15 @@ export const useAskPasswordResetMutation = defineMutation(() => {
     },
   })
 })
+
+export const useValidateAccountMutation = defineMutation(() => {
+  const { $api } = useNuxtApp()
+  return useMutation({
+    mutation: (context: { authorization_code: string }) => {
+      return $api('/v1/auth/validate', {
+        method: 'POST',
+        body: context,
+      })
+    },
+  })
+})
