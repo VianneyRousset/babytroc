@@ -22,7 +22,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="MeAccountPasswordInput vbox">
+  <div class="AccountPasswordInput vbox">
     <TextInput
       v-model="password"
       type="password"
@@ -39,7 +39,7 @@ watchEffect(() => {
 </template>
 
 <style scoped lang="scss">
-.MeAccountPasswordInput {
+.AccountPasswordInput {
   @include flex-column;
   align-items: stretch;
   gap: 1rem;

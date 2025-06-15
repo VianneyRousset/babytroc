@@ -154,14 +154,20 @@ async function login() {
         class="app-content page"
       >
         <PageDecoration>
-          <LockKeyhole
-            :size="48"
-            :stroke-width="2"
-          />
+          <transition
+            name="pop"
+            mode="out-in"
+            appear
+          >
+            <LockKeyhole
+              :size="64"
+              :stroke-width="1.33"
+            />
+          </transition>
           <div>{{ me?.email }}</div>
         </PageDecoration>
         <TextButton
-          aspect="bezel"
+          aspect="outline"
           size="large"
           @click="logout"
         >

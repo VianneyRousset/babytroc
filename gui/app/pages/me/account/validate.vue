@@ -13,7 +13,6 @@ async function validate() {
   const code = Array.isArray(route.query.code) ? route.query.code[0] ?? '' : route.query.code ?? ''
 
   await validateAccount({ validation_code: code })
-  setTimeout(window.close, 500)
 }
 </script>
 

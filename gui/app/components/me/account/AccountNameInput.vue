@@ -31,7 +31,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="MeAccountName vbox">
+  <div class="AccountName vbox">
     <TextInput
       v-model="name"
       type="text"
@@ -48,7 +48,7 @@ watchEffect(() => {
 </template>
 
 <style scoped lang="scss">
-.MeAccountName {
+.AccountName {
   @include flex-column;
   align-items: stretch;
   gap: 1rem;
