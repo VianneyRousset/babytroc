@@ -5,6 +5,7 @@
 **/__pycache__/
 api/build
 *.egg-info
+*.mypy_cache
 
 # Data
 api/seed/data/images/*
