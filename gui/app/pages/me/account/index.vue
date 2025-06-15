@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LockKeyhole, LockKeyholeOpen } from 'lucide-vue-next'
+import { Check, OctagonAlert, LockKeyhole, LockKeyholeOpen } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -67,23 +67,38 @@ async function login() {
         v-else-if="loggedIn === false"
         class="app-content page"
       >
-        <div
-          class="lock"
-          :class="{ red: loginStatus === 'error' }"
-        >
-          <div>
+        <PageDecoration>
+          <transition
+            name="pop"
+            mode="out-in"
+            appear
+          >
+            <div
+              v-if="loginStatus === 'success'"
+              class="success"
+            >
+              <Check
+                :size="64"
+                :stroke-width="1.33"
+              />
+            </div>
+            <div
+              v-else-if="loginStatus === 'error'"
+              class="error"
+            >
+              <OctagonAlert
+                :size="64"
+                :stroke-width="1.33"
+              />
+              <div>Email ou mot de passe invalid</div>
+            </div>
             <LockKeyholeOpen
-              :size="48"
-              :stroke-width="2"
+              v-else
+              :size="64"
+              :stroke-width="1.33"
             />
-          </div>
-          <div v-if="loginStatus !== 'error'">
-            Vous n'êtes pas connecté
-          </div>
-          <div v-else>
-            Email ou mot de passe invalide
-          </div>
-        </div>
+          </transition>
+        </PageDecoration>
         <h2>Se connecter</h2>
         <div class="form">
           <input
@@ -115,6 +130,12 @@ async function login() {
             Valider
           </TextButton>
         </div>
+        <NuxtLink
+          class="reset"
+          to="/me/account/reset-password"
+        >
+          Mot de pass oublié
+        </NuxtLink>
         <div class="hr-container">
           <hr>
           <div>Ou</div>
@@ -132,15 +153,13 @@ async function login() {
         v-else-if="loggedIn === true"
         class="app-content page"
       >
-        <div class="lock">
-          <div>
-            <LockKeyhole
-              :size="48"
-              :stroke-width="2"
-            />
-          </div>
+        <PageDecoration>
+          <LockKeyhole
+            :size="48"
+            :stroke-width="2"
+          />
           <div>{{ me?.email }}</div>
-        </div>
+        </PageDecoration>
         <TextButton
           aspect="bezel"
           size="large"
@@ -158,18 +177,6 @@ main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
 
-.lock {
-  @include flex-column-center;
-  gap: 1rem;
-  height: 8rem;
-  width: 100%;
-  color: $neutral-800;
-
-  &.red {
-    color: $red-800;
-  }
-}
-
 .form {
   @include flex-column;
   align-items: stretch;
@@ -180,6 +187,14 @@ main {
     padding: 0.6rem 1.5rem;
     font-size: 1.5rem;
   }
+}
+
+a.reset {
+  @include reset-link;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  padding-top: 0.3rem;
+  text-align: center;
+  color: $neutral-300;
 }
 
 .hr-container {
@@ -202,5 +217,17 @@ main {
   font-size: 1.5rem;
   padding: 0.6rem 1.5rem;
   color: $neutral-400;
+}
+
+.success {
+  @include flex-column;
+  gap: 1rem;
+  color: $primary-400;
+}
+
+.error {
+  @include flex-column;
+  gap: 1rem;
+  color: $red-800;
 }
 </style>

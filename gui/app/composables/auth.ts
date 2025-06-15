@@ -5,6 +5,7 @@ import type {
   UseQueryReturn,
 } from '@pinia/colada'
 import { StatusCodes } from 'http-status-codes'
+import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 export function useAuth() {
   const { $api } = useNuxtApp()
@@ -111,5 +112,60 @@ export function useQueryWithAuth<
     error: computed(() => unref(modifiedState).error),
 
     isPending: computed(() => unref(modifiedState).status === 'pending'),
+  }
+}
+
+export function useAuthPasswordResetValidation(
+  email: MaybeRefOrGetter<string>,
+  touched?: MaybeRefOrGetter<boolean>,
+) {
+  const _touched: MaybeRefOrGetter<boolean> = touched === undefined ? true : touched
+
+  // email trimmed and without consecutive whitespaces
+  const cleanedEmail = computed(() => avoidConsecutiveWhitespaces(toValue(email).trim()))
+
+  // delayed propagation of the cleaned email
+  const { value: throttledEmail, synced: throttledEmailSynced } = useThrottle(cleanedEmail, 500)
+
+  // retrieve user email avAsyncDataRequestStatusailability from API
+  const {
+    data: emailAvailability,
+    status: emailAvailabilityStatus,
+    asyncStatus: emailAvailabilityAsyncStatus,
+  } = useAuthAccountEmailAvailableQuery(throttledEmail)
+
+  // compute error message
+  const error = computed<string | undefined>(() => {
+    const _email = unref(cleanedEmail)
+
+    if (_email === '')
+      return 'Veuillez spécifier une adresse email'
+
+    if (unref(emailAvailabilityStatus) === 'error')
+      return 'Adresse email invalide'
+
+    if (unref(emailAvailability)?.available === true)
+      return 'Cette adresse n\'existe pas'
+
+    return undefined
+  })
+
+  const status = computed<AsyncStatus>(() => {
+    if (toValue(_touched) === false)
+      return 'idle'
+
+    if (unref(throttledEmailSynced) === false || unref(emailAvailabilityAsyncStatus) === 'loading')
+      return 'pending'
+
+    if (unref(error) != null)
+      return 'error'
+
+    return 'success'
+  })
+
+  return {
+    email: cleanedEmail,
+    status,
+    error,
   }
 }
