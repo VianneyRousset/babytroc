@@ -19,6 +19,7 @@ def create_account_password_reset_authrorization(
     user_email: str,
     email_client: FastMail,
     background_tasks: BackgroundTasks,
+    host_name: str,
     app_name: str,
     send_email: bool = True,
 ) -> None:
@@ -35,6 +36,7 @@ def create_account_password_reset_authrorization(
         email.send_account_password_reset_authorization(
             email_client=email_client,
             background_tasks=background_tasks,
+            host_name=host_name,
             app_name=app_name,
             username=user.name,
             email=user.email,

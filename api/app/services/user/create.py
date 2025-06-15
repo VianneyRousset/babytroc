@@ -12,6 +12,7 @@ def create_user(
     db: Session,
     email_client: FastMail,
     background_tasks: BackgroundTasks,
+    host_name: str,
     app_name: str,
     user_create: UserCreate,
     validated: bool = False,
@@ -33,6 +34,7 @@ def create_user(
         email.send_account_validation_email(
             email_client=email_client,
             background_tasks=background_tasks,
+            host_name=host_name,
             app_name=app_name,
             username=user.name,
             email=user.email,

@@ -39,6 +39,7 @@ def resend_validation_email(
     email.send_account_validation_email(
         email_client=email_client,
         background_tasks=background_tasks,
+        host_name=request.app.state.config.host_name,
         app_name=request.app.state.config.app_name,
         username=user.name,
         email=user.email,

@@ -33,6 +33,7 @@ def create_account_password_reset_authorization(
         user_email=authorization_create.email,
         email_client=email_client,
         background_tasks=background_tasks,
+        host_name=request.app.state.config.host_name,
         app_name=request.app.state.config.app_name,
     )
 

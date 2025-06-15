@@ -28,6 +28,7 @@ def create_user(
     services.user.create_user(
         db=db,
         email_client=email_client,
+        host_name=request.app.state.config.host_name,
         app_name=request.app.state.config.app_name,
         background_tasks=background_tasks,
         user_create=user_create,

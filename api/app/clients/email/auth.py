@@ -9,6 +9,7 @@ def send_account_validation_email(
     email_client: FastMail,
     background_tasks: BackgroundTasks,
     *,
+    host_name: str,
     app_name: str,
     username: str,
     email: EmailStr,
@@ -17,8 +18,12 @@ def send_account_validation_email(
     message = MessageSchema(
         subject=f"{app_name} - Confirmer votre nouveau compte",
         recipients=[email],
-        body=f"Confirm ton compte avec le validation code: {validation_code}",
-        subtype=MessageType.plain,
+        body=(
+            "Confirmez votre compte <b>Babytroc</b> en "
+            f'<a href="https://{host_name}/me/account/validate'
+            f'?code={validation_code}">cliquant ici</a>.'
+        ),
+        subtype=MessageType.html,
     )
 
     background_tasks.add_task(email_client.send_message, message)
@@ -28,6 +33,7 @@ def send_account_password_reset_authorization(
     email_client: FastMail,
     background_tasks: BackgroundTasks,
     *,
+    host_name: str,
     app_name: str,
     username: str,
     email: EmailStr,
@@ -37,8 +43,9 @@ def send_account_password_reset_authorization(
         subject=f"{app_name} - Réinitialiser votre mot de passe",
         recipients=[email],
         body=(
-            "Réinitialiser votre mot de passe avec le code suivant: "
-            f"{authorization_code}"
+            "Réinitialisez votre mot de passe <b>Babytroc</b> en "
+            f'<a href="https://{host_name}/me/account/reset-password'
+            f'?code={authorization_code}">cliquant ici</a>.'
         ),
         subtype=MessageType.plain,
     )
