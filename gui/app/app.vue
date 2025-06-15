@@ -38,7 +38,7 @@ const visible = !([
   '/newitem',
   '/me/account/pending-validation',
   '/me/account/reset-password',
-  '/me/account/validate-account',
+  '/me/account/validate',
 ].some(r => route.path.startsWith(r)))
 </script>
 

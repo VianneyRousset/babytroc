@@ -10,6 +10,7 @@ const error = ref<boolean>(false)
 const { loggedIn } = useAuth()
 const routeStack = useRouteStack()
 const { data: me } = useMeQuery()
+const { $api } = useNuxtApp()
 
 watch(loggedIn, (state) => {
   if (state !== true)
@@ -42,12 +43,16 @@ try {
   // open websocket and attach event listener
   const websocket = new WebSocket(uri)
 
-  websocket.addEventListener('message', (event) => {
+  websocket.addEventListener('message', async (event) => {
     try {
       const wsMessage = JSON.parse(event.data)
 
-      if (wsMessage.type === 'updated_account_validation')
+      if (wsMessage.type === 'updated_account_validation') {
+        console.log('updated validation')
+        await $api('/v1/auth/refresh', { method: 'POST' })
+        console.log('refresh')
         queryCache.invalidateQueries({ key: ['auth'] })
+      }
     }
     catch (err) {
       error.value = true
