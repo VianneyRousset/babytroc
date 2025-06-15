@@ -1,7 +1,10 @@
+import type { RouteLocationAsRelativeGeneric, RouteLocationAsPathGeneric } from 'vue-router'
+
 export const useRouteStack = () => {
   const stack = useNuxtApp().$routeStack
   const backwardFlag = useNuxtApp().$routeStackBackwardFlag
   const direction = useNuxtApp().$routeStackDirection
+  const { currentTabRoot } = useTab()
 
   function push(fullPath: string) {
     if (stack.length === 0) return stack.push(fullPath)
@@ -39,12 +42,20 @@ export const useRouteStack = () => {
     return stack[stack.length - 2]
   })
 
+  function goBack(fallback?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric | null) {
+    markBackward()
+    pop()
+    pop()
+    navigateTo(unref(current) ?? fallback ?? currentTabRoot)
+  }
+
   return {
     stack,
     direction,
     push,
     amend,
     pop,
+    goBack,
     reset,
     current,
     previous,
