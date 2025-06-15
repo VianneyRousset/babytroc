@@ -129,7 +129,7 @@ def create_item_image_association_table():
         "item_image_association",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("image_name", sa.String(), nullable=False),
-        sa.Column("order", sa.Integer(), nullable=True),
+        sa.Column("order", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["image_name"], ["item_image.name"], ondelete="CASCADE"
         ),
