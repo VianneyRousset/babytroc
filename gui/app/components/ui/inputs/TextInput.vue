@@ -67,6 +67,7 @@ const message = computed<string | undefined>(() => {
     <input
       ref="input"
       v-model="model"
+      :size="1"
       :placeholder="props.placeholder"
       :type="type"
       :tabindex="props.tabindex"
@@ -130,6 +131,7 @@ const message = computed<string | undefined>(() => {
   position: relative;
 
   input {
+    display: flex;
     flex: 1;
     font-size: 1.5rem;
     padding: 0.3rem 0.8rem;
