@@ -29,7 +29,12 @@ function next() {
 
 const { mutateAsync: submit, asyncStatus: submitAsyncStatus } = useCreateAccountMutation()
 
+const isValid = computed(() => unref(nameStatus) === 'success' && unref(emailStatus) === 'success' && unref(passwordStatus) === 'success')
+
 async function create() {
+  if (!unref(isValid))
+    return
+
   await submit({
     name: unref(name),
     email: unref(email),
@@ -131,7 +136,7 @@ async function create() {
               aspect="bezel"
               size="large"
               color="primary"
-              :disabled="passwordStatus !== 'success'"
+              :disabled="!isValid"
               :loading="submitAsyncStatus === 'loading'"
               :timeout="0"
               @click="create"
