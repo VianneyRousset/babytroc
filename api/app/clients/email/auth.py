@@ -47,7 +47,7 @@ def send_account_password_reset_authorization(
             f'<a href="https://{host_name}/me/account/reset-password'
             f'?code={authorization_code}">cliquant ici</a>.'
         ),
-        subtype=MessageType.plain,
+        subtype=MessageType.html,
     )
 
     background_tasks.add_task(email_client.send_message, message)
