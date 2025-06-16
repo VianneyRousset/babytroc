@@ -62,6 +62,8 @@ async function createItem() {
   const router = useRouter()
   const routeStack = useRouteStack()
 
+  const { $toast } = useNuxtApp()
+
   if (itemEditStore.studioImages.data == null || itemEditStore.studioImages.data.some(img => img == null))
     throw new Error('Some img are not yet uploaded')
 
@@ -73,6 +75,9 @@ async function createItem() {
     targeted_age_months: itemEditStore.targetedAge,
     regions: Array.from(itemEditStore.regions),
     blocked: itemEditStore.blocked,
+  }).catch((err) => {
+    $toast.error('Une erreur est survenue.')
+    throw err
   })
 
   // reset store
