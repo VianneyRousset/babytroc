@@ -55,7 +55,7 @@ def alice_new_item_data(
     """Alice new item data."""
 
     return {
-        "name": "new_item",
+        "name": "new-item",
         "description": "This is the latest new item created by alice.",
         "targeted_age_months": (7, None),
         "regions": [regions[1].id],
