@@ -108,7 +108,7 @@ async function createItem() {
       >
         <TextInput
           v-model="itemEditStore.name"
-          :status="nameValidityStatus"
+          :status="nameValidityStatus === 'success' ? 'idle' : nameValidityStatus"
           placeholder="Nom"
           @blur="isNameTouched = true"
         />
