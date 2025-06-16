@@ -72,7 +72,7 @@ watch(y, (newY: number, oldY: number) => {
     box-shadow: none;
   }
 
-  :deep(svg) {
+  :deep(&>svg) {
     stroke: $neutral-700;
   }
 

@@ -1,22 +1,24 @@
 import { defineStore } from 'pinia'
+import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
-export function useItemEditStore(name: string) {
-  const definition = defineStore(`item-edit-${name}`, () => {
-    const studioImages = useStudioImagesUploadStore(name)
+export function useItemEditStore(storeName: string) {
+  const definition = defineStore(`item-edit-${storeName}`, () => {
+    const studioImages = useStudioImagesUploadStore(storeName)
 
-    const itemName = ref('')
+    // name
+    const name = ref('')
     const description = ref('')
     const targetedAge = ref<AgeRange>([null, null])
     const regions = ref(new Set<number>())
     const blocked = ref(false)
 
-    const isNameValid = computed(() => unref(itemName).trim().length >= 5 && unref(itemName).trim().length <= 30)
+    const isNameValid = computed(() => unref(name).trim().length >= 5 && unref(name).trim().length <= 30)
     const isDescriptionValid = computed(() => unref(description).trim().length >= 20 && unref(description).trim().length <= 600)
     const isRegionsValid = computed(() => unref(regions).size > 0)
     const isValid = computed(() => [unref(isNameValid), unref(isDescriptionValid), unref(isRegionsValid)].every(cond => cond === true))
 
     function reset() {
-      itemName.value = ''
+      name.value = ''
       description.value = ''
       targetedAge.value = [null, null]
       unref(regions).clear()
@@ -24,7 +26,7 @@ export function useItemEditStore(name: string) {
     }
 
     return {
-      name: itemName,
+      name,
       isNameValid,
       description,
       isDescriptionValid,

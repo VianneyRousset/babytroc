@@ -6,20 +6,31 @@ const { height: headerHeight } = useElementSize(
   useTemplateRef('header'),
 )
 
-const itemEditStore = useItemEditStore('new-item')
-
+// exit if not logged-in
 const { loggedIn, loginRoute } = useAuth()
-
 watch(loggedIn, (_loggedIn) => {
   if (_loggedIn === false)
     navigateTo(unref(loginRoute))
 }, { immediate: true })
 
+// item data store
+const itemEditStore = useItemEditStore('new-item')
+
+// back to studio if no images
 if (itemEditStore.studioImages.images.length === 0) navigateTo('/newitem')
 
-const { mutateAsync: mutate, asyncStatus: createItemAsyncStatus } = useCreateItemMutation()
-
+// item name validitty
 const isNameTouched = ref(false)
+const {
+  name: cleanedName,
+  status: nameValidityStatus,
+  error: nameValidityError,
+} = useItemNameValidity(() => itemEditStore.name, useThrottle(isNameTouched, 1000).value)
+watchEffect(() => {
+  if (itemEditStore.name.length > 0)
+    isNameTouched.value = true
+})
+
 const isDescriptionTouched = ref(false)
 const isRegionsTouched = ref(false)
 
@@ -27,6 +38,7 @@ watch(itemEditStore.regions, () => {
   isRegionsTouched.value = true
 })
 
+const { mutateAsync: mutate, asyncStatus: createItemAsyncStatus } = useCreateItemMutation()
 async function createItem() {
   const router = useRouter()
   const routeStack = useRouteStack()
@@ -34,9 +46,9 @@ async function createItem() {
   if (itemEditStore.studioImages.data == null || itemEditStore.studioImages.data.some(img => img == null))
     throw new Error('Some img are not yet uploaded')
 
-  // create object
+  // create item
   const item = await mutate({
-    name: itemEditStore.name,
+    name: unref(cleanedName),
     description: itemEditStore.description,
     images: itemEditStore.studioImages.data as Array<string>,
     targeted_age_months: itemEditStore.targetedAge,
@@ -64,12 +76,19 @@ async function createItem() {
     <!-- Header bar -->
     <AppHeaderBar ref="header">
       <AppBack />
-      <input
-        v-model="itemEditStore.name"
-        :class="{ invalid: isNameTouched && !itemEditStore.isNameValid }"
-        placeholder="Nom"
-        @blur="isNameTouched = true"
+      <DropdownMessage
+        :status="nameValidityStatus"
+        :msg-error="nameValidityError"
+        msg-placement="bottom"
+        :distance="20"
       >
+        <TextInput
+          v-model="itemEditStore.name"
+          :status="nameValidityStatus"
+          placeholder="Nom"
+          @blur="isNameTouched = true"
+        />
+      </DropdownMessage>
     </AppHeaderBar>
 
     <!-- Filters main -->
@@ -147,7 +166,14 @@ async function createItem() {
 
 <style scoped lang="scss">
 .AppHeaderBar {
-  input {
+
+  @include flex-row;
+
+  &>:not(.AppBack) {
+    flex: 1;
+  }
+
+  :deep(input) {
     all: inherit;
     border:none;
     padding: 0;
@@ -160,18 +186,10 @@ async function createItem() {
     @include ellipsis-overflow;
     position: relative;
     top: -0.1rem;
-    color: $neutral-700;
     flex-grow: 1;
     margin: 0;
     font-weight: 500;
     font-size: 1.6rem;
-
-    &.invalid {
-      color: $red-700;
-      &::placeholder {
-        color: $red-700;
-      }
-    }
 
   }
 }

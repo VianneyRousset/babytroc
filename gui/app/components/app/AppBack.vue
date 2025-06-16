@@ -25,6 +25,7 @@ async function onclick() {
   <NuxtLink
     :to="targetRoute"
     @click="onclick"
+    class="AppBack"
   >
     <ArrowLeft
       style="cursor: pointer;"
