@@ -128,7 +128,7 @@ export function useUserPasswordValidity(
   const digitPattern = /[0-9]/
 
   // delayed propagation of the cleaned email
-  const { synced: throttledPasswordSynced } = useThrottle(computed(() => password), 500)
+  const { synced: throttledPasswordSynced } = useThrottle(computed(() => toValue(password)), 500)
 
   // compute error message
   const error = computed<string | undefined>(() => {

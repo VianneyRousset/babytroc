@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
+const props = withDefaults(defineProps<{
+  msgPlacement?: MsgPlacement
+}>(), {
+  msgPlacement: 'auto',
+})
+
+const { msgPlacement } = toRefs(props)
+
 const password = defineModel<string>({ required: true })
 
 const emit = defineEmits<{
@@ -23,18 +31,22 @@ watchEffect(() => {
 
 <template>
   <div class="AccountPasswordInput vbox">
-    <TextInput
-      v-model="password"
-      type="password"
-      placeholder="Mot de passe"
-      msg-placement="top"
-      autofocus
-      :tabindex="1"
+    <DropdownMessage
       :status="status"
       :msg-error="error"
-      @blur="touched = true"
-      @keyup.enter="emit('enter')"
-    />
+      :msg-placement="msgPlacement"
+    >
+      <TextInput
+        v-model="password"
+        type="password"
+        placeholder="Mot de passe"
+        autofocus
+        :tabindex="1"
+        :status="status"
+        @blur="touched = true"
+        @keyup.enter="emit('enter')"
+      />
+    </DropdownMessage>
   </div>
 </template>
 

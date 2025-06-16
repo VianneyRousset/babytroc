@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: string
-}>()
+  msgPlacement?: MsgPlacement
+}>(), {
+  msgPlacement: 'auto',
+})
+const { msgPlacement } = toRefs(props)
+
 const emit = defineEmits<{
   (event: 'update:modelValue', modelValue: string): void
   (event: 'update:status', valid: AsyncStatus): void
@@ -32,18 +37,22 @@ watchEffect(() => {
 
 <template>
   <div class="AccountName vbox">
-    <TextInput
-      v-model="name"
-      type="text"
-      placeholder="Pseudonyme"
-      msg-placement="top"
-      autofocus
-      :tabindex="1"
+    <DropdownMessage
       :status="status"
       :msg-error="error"
-      @blur="touched = true"
-      @keyup.enter="emit('enter')"
-    />
+      :msg-placement="msgPlacement"
+    >
+      <TextInput
+        v-model="name"
+        type="text"
+        placeholder="Pseudonyme"
+        autofocus
+        :tabindex="1"
+        :status="status"
+        @blur="touched = true"
+        @keyup.enter="emit('enter')"
+      />
+    </DropdownMessage>
   </div>
 </template>
 
