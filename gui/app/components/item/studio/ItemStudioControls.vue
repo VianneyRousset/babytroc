@@ -68,11 +68,11 @@ function emitImageFromFile(file: File) {
     <IconButton
       class="done"
       :disabled="disableDone"
+      @click="!disableDone && emit('done')"
     >
       <ArrowRight
         :size="32"
         :stroke-width="1.5"
-        @click="!disableDone && emit('done')"
       />
     </IconButton>
   </div>
