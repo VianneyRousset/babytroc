@@ -246,3 +246,41 @@ export function useItemDescriptionValidity(
     error,
   }
 }
+
+export function useItemRegionsValidity(
+  regions: MaybeRefOrGetter<Set<number>>,
+  touched?: MaybeRefOrGetter<boolean>,
+) {
+  const _touched: MaybeRefOrGetter<boolean> = touched === undefined ? true : touched
+
+  // delayed propagation of the cleaned description
+  const { synced: throttledRegionsSynced } = useThrottle(computed(() => toValue(regions)), 500)
+
+  // compute error message
+  const error = computed<string | undefined>(() => {
+    const _regions = toValue(regions)
+
+    if (_regions.size < 1)
+      return 'Veuillez spécifier une région'
+
+    return undefined
+  })
+
+  const status = computed<AsyncStatus>(() => {
+    if (toValue(_touched) === false)
+      return 'idle'
+
+    if (unref(throttledRegionsSynced) === false)
+      return 'pending'
+
+    if (unref(error) != null)
+      return 'error'
+
+    return 'success'
+  })
+
+  return {
+    status,
+    error,
+  }
+}

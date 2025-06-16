@@ -43,11 +43,19 @@ watchEffect(() => {
     isDescriptionTouched.value = true
 })
 
+// item regions validity
 const isRegionsTouched = ref(false)
-
-watch(itemEditStore.regions, () => {
-  isRegionsTouched.value = true
+const {
+  status: regionsValidityStatus,
+  error: regionsValidityError,
+} = useItemRegionsValidity(() => itemEditStore.regions, useThrottle(isRegionsTouched, 1000).value)
+watchEffect(() => {
+  if (itemEditStore.regions.size > 0)
+    isRegionsTouched.value = true
 })
+
+// overall validity
+const isValid = computed(() => unref(nameValidityStatus) === 'success' && unref(descriptionValidityStatus) === 'success' && unref(regionsValidityStatus) === 'success')
 
 const { mutateAsync: mutate, asyncStatus: createItemAsyncStatus } = useCreateItemMutation()
 async function createItem() {
@@ -60,7 +68,7 @@ async function createItem() {
   // create item
   const item = await mutate({
     name: unref(cleanedName),
-    description: itemEditStore.description,
+    description: unref(cleanedDescription),
     images: itemEditStore.studioImages.data as Array<string>,
     targeted_age_months: itemEditStore.targetedAge,
     regions: Array.from(itemEditStore.regions),
@@ -161,18 +169,25 @@ async function createItem() {
         </div>
 
         <h2>Régions</h2>
-        <RegionsMap
-          v-model="itemEditStore.regions"
-          :class="{ invalid: isRegionsTouched && !itemEditStore.isRegionsValid }"
-        />
+        <DropdownMessage
+          :status="regionsValidityStatus"
+          :msg-error="regionsValidityError"
+          msg-placement="top"
+          :distance="20"
+        >
+          <RegionsMap
+            v-model="itemEditStore.regions"
+            @blur="isRegionsTouched = true"
+          />
+        </DropdownMessage>
         <RegionsCheckboxes v-model="itemEditStore.regions" />
         <TextButton
           aspect="bezel"
           size="large"
           color="primary"
           :loading="createItemAsyncStatus === 'loading'"
-          :disabled="!itemEditStore.isValid || itemEditStore.studioImages.status !== 'success'"
-          @click="itemEditStore.isValid && createItem()"
+          :disabled="!isValid"
+          @click="isValid && createItem()"
         >
           Créer l'objet
         </TextButton>
@@ -245,12 +260,6 @@ main {
 
     &::-webkit-scrollbar {
       display: none;
-    }
-  }
-
-  .RegionsMap {
-    &.invalid {
-      filter: drop-shadow(0 0 3px $red-700);
     }
   }
 
