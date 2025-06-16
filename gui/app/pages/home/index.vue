@@ -83,7 +83,7 @@ useInfiniteScroll(
     await loadMore()
   },
   {
-    canLoadMore: () => !unref(itemsPages).end,
+    canLoadMore: () => !unref(itemsPages).end && unref(itemsStatus) !== 'error',
     distance: 1800,
   },
 )
@@ -179,7 +179,7 @@ useInfiniteScroll(
         <ListError v-if="itemsStatus === 'error'">
           Une erreur est survenue.
         </ListError>
-        <ListLoader v-if="itemsAsyncStatus === 'loading'" />
+        <ListLoader v-else-if="itemsAsyncStatus === 'loading'" />
         <ListEmpty v-else-if="itemsPages.data.length === 0">
           Aucun résultat
         </ListEmpty>
