@@ -34,12 +34,12 @@ watch(loggedIn, (state) => {
   }
 })
 
-const visible = !([
+const visible = computed(() => !([
   '/newitem',
   '/me/account/pending-validation',
   '/me/account/reset-password',
   '/me/account/validate',
-].some(r => route.path.startsWith(r)))
+].some(r => route.path.startsWith(r))))
 </script>
 
 <template>
