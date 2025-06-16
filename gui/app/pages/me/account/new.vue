@@ -69,6 +69,7 @@ async function create() {
             </PageDecoration>
             <AccountNameInput
               v-model="name"
+              msg-placement="top"
               @update:status="_status => (nameStatus = _status)"
               @enter="next"
             />
@@ -95,6 +96,7 @@ async function create() {
             </PageDecoration>
             <AccountEmailInput
               v-model="email"
+              msg-placement="top"
               @update:status="_status => (emailStatus = _status)"
               @enter="next"
             />
@@ -121,6 +123,7 @@ async function create() {
             </PageDecoration>
             <AccountPasswordInput
               v-model="password"
+              msg-placement="top"
               @update:status="_status => (passwordStatus = _status)"
               @enter="create"
             />

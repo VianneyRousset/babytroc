@@ -32,7 +32,7 @@ const message = computed<string | undefined>(() => {
     :triggers="[]"
     :shown="message != null"
     :auto-hide="false"
-    placement="top"
+    :placement="msgPlacement"
     :theme="`dropdown-${status}`"
   >
     <slot />
