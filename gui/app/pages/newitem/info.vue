@@ -19,7 +19,7 @@ const itemEditStore = useItemEditStore('new-item')
 // back to studio if no images
 if (itemEditStore.studioImages.images.length === 0) navigateTo('/newitem')
 
-// item name validitty
+// item name validity
 const isNameTouched = ref(false)
 const {
   name: cleanedName,
@@ -31,7 +31,18 @@ watchEffect(() => {
     isNameTouched.value = true
 })
 
+// item description validity
 const isDescriptionTouched = ref(false)
+const {
+  description: cleanedDescription,
+  status: descriptionValidityStatus,
+  error: descriptionValidityError,
+} = useItemDescriptionValidity(() => itemEditStore.description, useThrottle(isDescriptionTouched, 1000).value)
+watchEffect(() => {
+  if (itemEditStore.description.length > 0)
+    isDescriptionTouched.value = true
+})
+
 const isRegionsTouched = ref(false)
 
 watch(itemEditStore.regions, () => {
@@ -123,15 +134,21 @@ async function createItem() {
         </div>
 
         <h2>Description</h2>
-        <div class="textarea-wrapper">
-          <textarea
-            ref="textarea"
-            v-model="itemEditStore.description"
-            placeholder="Description"
-            :class="{ invalid: isDescriptionTouched && !itemEditStore.isDescriptionValid }"
-            @blur="isDescriptionTouched = true"
-          />
-        </div>
+        <DropdownMessage
+          :status="descriptionValidityStatus"
+          :msg-error="descriptionValidityError"
+          msg-placement="top"
+          :distance="20"
+        >
+          <div class="textarea-wrapper">
+            <textarea
+              ref="textarea"
+              v-model="itemEditStore.description"
+              placeholder="Description"
+              @blur="isDescriptionTouched = true"
+            />
+          </div>
+        </DropdownMessage>
 
         <h2>Age</h2>
         <AgeRangeInput v-model="itemEditStore.targetedAge" />
@@ -228,14 +245,6 @@ main {
 
     &::-webkit-scrollbar {
       display: none;
-    }
-
-    &.invalid {
-      color: $red-700;
-      box-shadow: 0 0 8px $red-700;
-      &::placeholder {
-        color: $red-700;
-      }
     }
   }
 

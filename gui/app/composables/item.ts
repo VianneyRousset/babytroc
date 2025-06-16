@@ -198,3 +198,51 @@ export function useItemNameValidity(
     error,
   }
 }
+
+export function useItemDescriptionValidity(
+  description: MaybeRefOrGetter<string>,
+  touched?: MaybeRefOrGetter<boolean>,
+) {
+  const _touched: MaybeRefOrGetter<boolean> = touched === undefined ? true : touched
+
+  // description trimmed and without consecutive whitespaces
+  const cleanedDescription = computed(() => avoidConsecutiveWhitespaces(toValue(description).trim()))
+
+  // delayed propagation of the cleaned description
+  const { synced: throttledDescriptionSynced } = useThrottle(cleanedDescription, 500)
+
+  // compute error message
+  const error = computed<string | undefined>(() => {
+    const _description = unref(cleanedDescription)
+
+    if (_description === '')
+      return 'Veuillez spécifier une description'
+
+    if (_description.length < 20)
+      return 'Description trop court'
+
+    if (_description.length > 600)
+      return 'Description trop long'
+
+    return undefined
+  })
+
+  const status = computed<AsyncStatus>(() => {
+    if (toValue(_touched) === false)
+      return 'idle'
+
+    if (unref(throttledDescriptionSynced) === false)
+      return 'pending'
+
+    if (unref(error) != null)
+      return 'error'
+
+    return 'success'
+  })
+
+  return {
+    description: cleanedDescription,
+    status,
+    error,
+  }
+}
