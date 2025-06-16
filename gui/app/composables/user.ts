@@ -15,7 +15,7 @@ export function useUserNameValidity(
   // delayed propagation of the cleaned name
   const { value: throttledName, synced: throttledNameSynced } = useThrottle(cleanedName, 500)
 
-  // retrieve user name avAsyncDataRequestStatusailability from API
+  // retrieve user name avability from API
   const {
     data: nameAvailability,
     asyncStatus: nameAvailabilityAsyncStatus,
