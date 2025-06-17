@@ -1,3 +1,7 @@
+from itertools import zip_longest
+from typing import Any
+from urllib.parse import parse_qsl, urlparse
+
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -256,3 +260,41 @@ class TestItemsFiltering:
 
         print(a, b, "->", res)
         return res
+
+
+@pytest.mark.usefixtures("many_items")
+class TestItemsPagination:
+    """Test items read pagination."""
+
+    @pytest.mark.parametrize("count", [16, 7])
+    def test_read_pages(
+        self,
+        client: TestClient,
+        many_items: list[ItemRead],
+        count: int | None,
+    ):
+        cursor: dict[str, Any] = {}
+
+        for i, expected_items in enumerate(self.grouper(many_items[::-1], count)):
+            print(f"page #{i} cursor:", cursor)
+
+            # get next page
+            resp = client.get(
+                url="/v1/items",
+                params={
+                    "n": count,
+                    **cursor,
+                },
+            )
+            resp.raise_for_status()
+            cursor = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            assert [item["id"] for item in resp.json()] == [
+                item.id for item in expected_items
+            ]
+
+    @staticmethod
+    def grouper(iterable, count):
+        "grouper(3, 'abcdefgh') --> ('a','b','c'), ('d','e','f'), ('g','h')"
+        groups = zip_longest(*[iter(iterable)] * count)
+        return [filter(lambda v: v is not None, group) for group in groups]
