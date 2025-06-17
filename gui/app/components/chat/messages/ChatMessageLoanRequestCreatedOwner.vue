@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MessageCircleQuestion, CircleOff, Check } from 'lucide-vue-next'
+import { MessageCircleQuestion, X, Check } from 'lucide-vue-next'
 import { LoanRequestState } from '#build/types/open-fetch/schemas/api'
 
 const props = defineProps<{
@@ -81,7 +81,7 @@ async function accept() {
 
     <Overlay v-model="showRejectPopup">
       <Popup v-model="showRejectPopup">
-        <CircleOff
+        <X
           :size="128"
           :stroke-width="1"
         />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MessageCircleQuestion, CircleOff } from 'lucide-vue-next'
+import { MessageCircleQuestion, X } from 'lucide-vue-next'
 import { LoanRequestState } from '#build/types/open-fetch/schemas/api'
 
 const props = defineProps<{
@@ -46,7 +46,7 @@ const showPopup = ref(false)
     </template>
     <Overlay v-model="showPopup">
       <Popup v-model="showPopup">
-        <CircleOff
+        <X
           :size="128"
           :stroke-width="1"
         />

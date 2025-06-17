@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleOff } from 'lucide-vue-next'
+import { X } from 'lucide-vue-next'
 
 const props = defineProps<{
   msg: ChatMessage
@@ -15,7 +15,7 @@ const { me, msg } = toRefs(props)
     :me="me"
     :msg="msg"
   >
-    <CircleOff
+    <X
       :size="24"
       :stroke-width="1.33"
     />
