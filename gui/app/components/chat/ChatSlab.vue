@@ -8,7 +8,7 @@ const props = defineProps<{
 const { chat, me } = toRefs(props)
 
 // interlocutor
-const { interlocutor } = useChatRoles(chat, me)
+const { isUserBorrowing, interlocutor } = useChatRoles(chat, me)
 
 // item image
 const { firstImagePath: itemImage } = useItemFirstImage(
@@ -21,7 +21,7 @@ const { hasNewMessages } = useChatHasNewMessages(chat, me)
 
 <template>
   <Slab>
-    {{ interlocutor.name }}
+    {{ chat.item.name }}
 
     <template #image>
       <ImageAndAvatar
@@ -31,7 +31,7 @@ const { hasNewMessages } = useChatHasNewMessages(chat, me)
     </template>
 
     <template #sub>
-      {{ chat.item.name }}
+      {{ isUserBorrowing ? `Pour emprunter à ${interlocutor.name}` : `Pour prêter à ${interlocutor.name}` }}
     </template>
 
     <template
