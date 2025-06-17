@@ -73,12 +73,12 @@
     {
       "email": "alice@babytroc.ch",
       "name": "Alice Bouchard",
-      "password": "xxx"
+      "password": "alicePassword1"
     },
     {
       "email": "bob@babytroc.ch",
       "name": "Bob Vans",
-      "password": "xxx"
+      "password": "bobPassword1"
     }
   ]
 }
