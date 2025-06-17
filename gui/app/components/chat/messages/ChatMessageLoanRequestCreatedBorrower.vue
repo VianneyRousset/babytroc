@@ -51,15 +51,25 @@ const showPopup = ref(false)
           :stroke-width="1"
         />
         <div>Êtes-vous sûr de supprimer votre demande d'emprunt ?</div>
-        <TextButton
-          aspect="flat"
-          size="large"
-          color="red"
-          :loading="unrequestItemAsyncStatus === 'loading'"
-          @click="unrequestItem(chat.item.id)"
-        >
-          Supprimer
-        </TextButton>
+        <template #actions>
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="red"
+            :loading="unrequestItemAsyncStatus === 'loading'"
+            @click="unrequestItem(chat.item.id)"
+          >
+            Supprimer
+          </TextButton>
+          <TextButton
+            aspect="outline"
+            size="large"
+            color="neutral"
+            @click="showPopup = false"
+          >
+            Annuler
+          </TextButton>
+        </template>
       </Popup>
     </Overlay>
   </ChatMessage>

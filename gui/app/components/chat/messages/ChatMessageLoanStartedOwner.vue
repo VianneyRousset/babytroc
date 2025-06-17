@@ -59,15 +59,25 @@ async function end() {
           <b>{{ chat.borrower.name }}</b> a accepté de vous prêter de l'objet <b>{{ chat.item.name }}</b> vous a-t'il
           bien rendu l'objet <b>{{ chat.item.name }}</b> ? Une fois confirmé, l'emprunt sera officiellement terminé.
         </div>
-        <TextButton
-          aspect="flat"
-          size="large"
-          color="primary"
-          :loading="endLoanAsyncStatus === 'loading'"
-          @click="end"
-        >
-          Objet rendu
-        </TextButton>
+        <template #actions>
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="primary"
+            :loading="endLoanAsyncStatus === 'loading'"
+            @click="end"
+          >
+            Objet rendu
+          </TextButton>
+          <TextButton
+            aspect="outline"
+            size="large"
+            color="neutral"
+            @click="showPopup = false"
+          >
+            Annuler
+          </TextButton>
+        </template>
       </Popup>
     </Overlay>
   </ChatMessage>

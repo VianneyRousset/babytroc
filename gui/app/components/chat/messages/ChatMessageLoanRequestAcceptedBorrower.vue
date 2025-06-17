@@ -63,15 +63,25 @@ async function execute() {
           Avez-vous bien reçu l'objet <b>{{ chat.item.name }}</b> ? Une fois confirmé, l'emprunt commencera
           officiellement.
         </div>
-        <TextButton
-          aspect="flat"
-          size="large"
-          color="primary"
-          :loading="executeLoanRequestAsyncStatus === 'loading'"
-          @click="execute"
-        >
-          Objet reçu
-        </TextButton>
+        <template #actions>
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="primary"
+            :loading="executeLoanRequestAsyncStatus === 'loading'"
+            @click="execute"
+          >
+            Objet reçu
+          </TextButton>
+          <TextButton
+            aspect="outline"
+            size="large"
+            color="neutral"
+            @click="showPopup = false"
+          >
+            Annuler
+          </TextButton>
+        </template>
       </Popup>
     </Overlay>
   </ChatMessage>
