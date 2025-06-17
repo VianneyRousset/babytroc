@@ -7,7 +7,6 @@ from app.clients.database.auth import list_account_password_reset_authorizations
 from app.clients.database.user import get_user_by_email
 from app.config import Config
 from app.schemas.auth.availability import AuthAccountAvailability
-from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
 from tests.fixtures.clients import create_client
 from tests.fixtures.users import UserData
