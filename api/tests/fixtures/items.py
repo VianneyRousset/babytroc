@@ -1,5 +1,7 @@
+import random
 from io import BytesIO
-from typing import TypedDict
+from string import ascii_letters
+from typing import TypedDict, TypeVar
 
 import pytest
 import sqlalchemy
@@ -218,3 +220,77 @@ def items(
         *alice_items,
         *bob_items,
     ]
+
+
+def random_str(length: int) -> str:
+    return "".join(random.choices(ascii_letters, k=length))
+
+
+def random_targeted_age_months() -> tuple[int | None, int | None]:
+    lower = random.randint(0, 32)
+    upper = random.randint(lower, 33)
+    return None if lower == 0 else lower, None if upper > 32 else upper
+
+
+T = TypeVar("T")
+
+
+def random_sample(population: list[T]) -> list[T]:
+    return random.sample(population, k=random.randint(1, len(population)))
+
+
+def create_random_item(
+    db: sqlalchemy.orm.Session,
+    alice: UserPrivateRead,
+    bob: UserPrivateRead,
+    alice_items_image: ItemImageRead,
+    bob_items_image: ItemImageRead,
+    regions: list[RegionRead],
+) -> ItemRead:
+    owner, image = random.choice(
+        [
+            (alice, alice_items_image),
+            (bob, bob_items_image),
+        ]
+    )
+
+    return services.item.create_item(
+        db=db,
+        owner_id=owner.id,
+        item_create=ItemCreate(
+            name=random_str(8),
+            description=random_str(50),
+            targeted_age_months=random_targeted_age_months(),
+            regions=random_sample([reg.id for reg in regions]),
+            images=[image.name],
+        ),
+    )
+
+
+@pytest.fixture(scope="class")
+def many_items(
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    bob: UserPrivateRead,
+    alice_items_image: ItemImageRead,
+    bob_items_image: ItemImageRead,
+    regions: list[RegionRead],
+) -> list[ItemRead]:
+    """Many items."""
+
+    n = 256
+    random.seed(0xBDF81829)
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return [
+            create_random_item(
+                db=session,
+                alice=alice,
+                bob=bob,
+                alice_items_image=alice_items_image,
+                bob_items_image=bob_items_image,
+                regions=regions,
+            )
+            for _ in range(n)
+        ]
