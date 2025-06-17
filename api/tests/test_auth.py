@@ -119,7 +119,7 @@ class TestAuthLogin:
 class TestAuthNewAccount:
     """Test auth endpoints related to account creation."""
 
-    def test_new_account(
+    def test_create_account(
         self,
         app_config: Config,
         client: TestClient,
@@ -128,7 +128,7 @@ class TestAuthNewAccount:
         """Check that a new account can be created and validated."""
 
         email = "ojownlydifctujhohfzresasqaxe@hcycjxybfvvnfkbapireyezpxnt.com"
-        password = "xxx"  # noqa: S105
+        password = "xxxXXX42"  # noqa: S105
 
         # check forbidden access
         resp = client.get("/v1/me")
@@ -230,8 +230,44 @@ class TestAuthNewAccount:
         availability = AuthAccountAvailability.model_validate(resp.json())
         assert availability.available == expected_result
 
+    @pytest.mark.parametrize(
+        ("name", "email", "password"),
+        [
+            ("", "alice@babytroc.ch", "xxxXXX42"),
+            ("a" * 2, "alice@babytroc.ch", "xxxXXX42"),
+            ("w.w", "alice@babytroc.ch", "xxxXXX42"),
+            ("-alice-", "alice@babytroc.ch", "xxxXXX42"),
+            ("a" * 31, "alice@babytroc.ch", "xxxXXX42"),
+            ("alice", "ali@woij", "xxxXXX42"),
+            ("alice", "alice@babytroc.ch", "xX1"),
+            ("alice", "alice@babytroc.ch", "abcabc1"),
+            ("alice", "alice@babytroc.ch", "ABCABC1"),
+            ("alice", "alice@babytroc.ch", "abcABCD"),
+        ],
+    )
+    def test_create_account_invalid(
+        self,
+        client: TestClient,
+        name: str,
+        email: str,
+        password: str,
+    ):
+        """Check that a new account cannot be created if a field is invalid."""
 
-@pytest.mark.usefixtures("alice")
+        # create account
+        resp = client.post(
+            "/v1/auth/new",
+            json={
+                "name": name,
+                "email": email,
+                "password": password,
+            },
+        )
+        print(resp.text)
+        assert not resp.is_success
+
+
+@pytest.mark.usefixtures("alice", "bob")
 class TestAuthPasswordReset:
     """Test auth endpoints related to account password reset."""
 
@@ -240,11 +276,10 @@ class TestAuthPasswordReset:
         database: sqlalchemy.URL,
         client: TestClient,
         alice_user_data: UserData,
-        alice: UserPrivateRead,
     ):
         """Check that a new account can be created and validated."""
 
-        new_password = "new_password"  # noqa: S105
+        new_password = "newPassword42"  # noqa: S105
 
         # login should fail
         resp = client.post(
@@ -298,10 +333,41 @@ class TestAuthPasswordReset:
         self,
         client: TestClient,
     ):
-        """Password reset on an inexisting email should return 404."""
+        """Password reset on an non-existing email should return 404."""
 
         resp = client.post(
             "/v1/auth/reset-password",
             json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com"},
         )
         assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.parametrize("new_password", ["xX1", "abcabc1", "ABCABC1", "abcABCD"])
+    def test_password_reset_invalid(
+        self,
+        database: sqlalchemy.URL,
+        client: TestClient,
+        bob_user_data: UserData,
+        new_password: str,
+    ):
+        """Password reset with invalid password should fail."""
+
+        # create account password reset authorization
+        resp = client.post(
+            "/v1/auth/reset-password",
+            json={"email": bob_user_data["email"]},
+        )
+        print(resp.text)
+        resp.raise_for_status()
+
+        # get authorization code manually
+        engine = sqlalchemy.create_engine(database)
+        with sqlalchemy.orm.Session(engine) as db, db.begin():
+            authorizations = list_account_password_reset_authorizations(db)
+            authorization_code = authorizations[0].authorization_code
+
+        # apply account password reset
+        resp = client.post(
+            f"/v1/auth/reset-password/{authorization_code}",
+            json={"password": new_password},
+        )
+        assert not resp.is_success

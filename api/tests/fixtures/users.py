@@ -23,7 +23,7 @@ def alice_user_data() -> UserData:
     return {
         "name": "alice",
         "email": "alice@babytroc.ch",
-        "password": "password-alice",
+        "password": "password-Alice-42",
     }
 
 
@@ -34,7 +34,7 @@ def bob_user_data() -> UserData:
     return {
         "name": "bob",
         "email": "bob@babytroc.ch",
-        "password": "password-bob",
+        "password": "password-Bob-42",
     }
 
 

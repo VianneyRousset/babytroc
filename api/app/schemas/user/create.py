@@ -21,6 +21,7 @@ class UserCreate(UserBase, CreateBase):
     password: Annotated[
         str,
         Field(
+            pattern="[0-9]",
             min_length=PASSWORD_MIN_LENGTH,
         ),
     ]
@@ -53,6 +54,20 @@ class UserCreate(UserBase, CreateBase):
 
         if isinstance(v, str):
             return v.strip().lower()
+        return v
+
+    @field_validator("password", mode="before")
+    def validate_password(
+        cls,  # noqa: N805
+        v: str,
+    ) -> str:
+        """Check containing lower and upper case characters."""
+
+        if isinstance(v, str):
+            if v.lower() == v or v.upper() == v:
+                msg = "The password must contain lowercase and uppercase letters."
+                raise ValueError(msg)
+
         return v
 
     @field_validator("avatar_seed", mode="before")
