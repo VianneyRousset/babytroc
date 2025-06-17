@@ -5,7 +5,7 @@ from pydantic import EmailStr, Field, field_validator
 from app.schemas.base import CreateBase
 
 from .base import UserBase
-from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH
+from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH, PASSWORD_MIN_LENGTH
 
 
 class UserCreate(UserBase, CreateBase):
@@ -18,7 +18,12 @@ class UserCreate(UserBase, CreateBase):
         ),
     ]
     email: EmailStr
-    password: str
+    password: Annotated[
+        str,
+        Field(
+            min_length=PASSWORD_MIN_LENGTH,
+        ),
+    ]
     avatar_seed: Annotated[
         str | None,
         Field(
