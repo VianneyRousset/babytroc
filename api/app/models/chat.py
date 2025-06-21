@@ -60,7 +60,7 @@ class Chat(Base):
 
     @hybrid_property
     def id(self) -> ChatId:
-        return ChatId(
+        return ChatId.from_values(
             item_id=self.item_id,
             borrower_id=self.borrower_id,
         )
@@ -161,7 +161,7 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
 
     @hybrid_property
     def chat_id(self) -> ChatId:
-        return ChatId(
+        return ChatId.from_values(
             item_id=self.item_id,
             borrower_id=self.borrower_id,
         )

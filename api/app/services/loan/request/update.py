@@ -2,12 +2,11 @@ from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.enums import LoanRequestState
-from app.errors.loan import LoanAlreadyInactiveError, LoanRequestStateError
+from app.errors.loan import LoanRequestStateError
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanQueryFilter, LoanRequestQueryFilter
-from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.read import LoanRequestRead
 from app.services.chat import (
-    send_message_loan_ended,
     send_message_loan_request_accepted,
     send_message_loan_request_cancelled,
     send_message_loan_request_rejected,
@@ -77,7 +76,7 @@ def cancel_loan_request(
     # create chat message
     send_message_loan_request_cancelled(
         db=db,
-        chat_id=ChatId(
+        chat_id=ChatId.from_values(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
@@ -122,7 +121,7 @@ def accept_loan_request(
     # create chat message
     send_message_loan_request_accepted(
         db=db,
-        chat_id=ChatId(
+        chat_id=ChatId.from_values(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
@@ -171,7 +170,7 @@ def reject_loan_request(
     # create chat message
     send_message_loan_request_rejected(
         db=db,
-        chat_id=ChatId(
+        chat_id=ChatId.from_values(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),
@@ -179,43 +178,3 @@ def reject_loan_request(
     )
 
     return LoanRequestRead.model_validate(loan_request)
-
-
-def end_loan(
-    db: Session,
-    loan_id: int,
-    query_filter: LoanQueryFilter | None = None,
-):
-    """Set loan end date to now.
-
-    The loan must be active.
-    """
-
-    # get loan from database
-    loan = database.loan.get_loan(
-        db=db,
-        loan_id=loan_id,
-        query_filter=query_filter,
-    )
-
-    # check loan state
-    if loan.during.upper is not None:
-        raise LoanAlreadyInactiveError()
-
-    # create chat message
-    send_message_loan_ended(
-        db=db,
-        chat_id=ChatId(
-            item_id=loan.item_id,
-            borrower_id=loan.borrower_id,
-        ),
-        loan_id=loan.id,
-    )
-
-    # set loan.during upper bound to now()
-    loan = database.loan.end_loan(
-        db=db,
-        loan=loan,
-    )
-
-    return LoanRead.model_validate(loan)

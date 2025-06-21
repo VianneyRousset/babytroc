@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.private import ItemPrivateRead
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import (
+    ItemMatchingWordsQueryPageCursor,
+    ItemQueryFilter,
+    ItemQueryPageCursor,
+)
 from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
@@ -49,17 +53,41 @@ def list_items(
     *,
     query_filter: ItemQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
-) -> QueryPageResult[ItemPreviewRead]:
-    """List items matchings criteria in the database."""
+) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]:
+    """List items."""
 
     # search items in database
-    # TODO discard words shorter than 3 characters ?
     result = database.item.list_items(
         db=db,
         query_filter=query_filter,
         page_options=page_options,
     )
 
-    result.data = [ItemPreviewRead.model_validate(item) for item in result.data]
+    return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
+        data=[ItemPreviewRead.model_validate(item) for item in result.data],
+        next_page_cursor=result.next_page_cursor,
+    )
 
-    return QueryPageResult[ItemPreviewRead].model_validate(result)
+
+def list_items_matching_words(
+    db: Session,
+    words: list[str],
+    *,
+    query_filter: ItemQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
+) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]:
+    """List items matching given words."""
+
+    # search items in database
+    # TODO discard words shorter than 3 characters ?
+    result = database.item.list_items_matching_words(
+        db=db,
+        words=words,
+        query_filter=query_filter,
+        page_options=page_options,
+    )
+
+    return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
+        data=[ItemPreviewRead.model_validate(item) for item in result.data],
+        next_page_cursor=result.next_page_cursor,
+    )

@@ -1,13 +1,10 @@
-from .create import (
-    create_chat,
-    create_message,
-    ensure_chat,
-    insert_chat,
-    insert_message,
-)
-from .delete import delete_chat
-from .read import get_chat, get_message, get_message_async, list_chats, list_messages
-from .update import update_chat, update_message
+from .chat.create import create_chat, ensure_chat, insert_chat
+from .chat.delete import delete_chat
+from .chat.read import get_chat, list_chats
+from .chat.update import update_chat
+from .message.create import create_message, insert_message
+from .message.read import get_message, get_message_async, list_messages
+from .message.update import update_message
 
 __all__ = [
     "create_chat",

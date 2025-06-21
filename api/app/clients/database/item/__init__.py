@@ -1,6 +1,6 @@
 from .create import create_item
 from .delete import delete_item
-from .read import get_item, list_items
+from .read import get_item, list_items, list_items_matching_words
 from .update import update_item
 
 __all__ = [
@@ -8,5 +8,6 @@ __all__ = [
     "delete_item",
     "get_item",
     "list_items",
+    "list_items_matching_words",
     "update_item",
 ]

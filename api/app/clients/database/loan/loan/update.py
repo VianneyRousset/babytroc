@@ -5,23 +5,7 @@ from psycopg2.extensions import AsIs
 from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
 
-from app.models.loan import Loan, LoanRequest
-
-
-def update_loan_request(
-    db: Session,
-    loan_request: LoanRequest,
-    attributes: Mapping[str, Any],
-) -> LoanRequest:
-    """Update given `attributes` of the loan request `loan_request`."""
-
-    for key, value in attributes.items():
-        setattr(loan_request, key, value)
-
-    db.flush()
-    db.refresh(loan_request)
-
-    return loan_request
+from app.models.loan import Loan
 
 
 def update_loan(

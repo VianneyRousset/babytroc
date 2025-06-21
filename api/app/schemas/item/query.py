@@ -1,16 +1,18 @@
-from pydantic import field_validator
-from sqlalchemy import BooleanClauseList, Integer, Select, and_, func, not_, or_
+from typing import Annotated
+
+from pydantic import AliasChoices, Field, field_validator
+from sqlalchemy import Select, and_, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
 from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
 from app.schemas.base import QueryFilterBase
+from app.schemas.query import QueryPageCursor
 
 
 class ItemQueryFilter(QueryFilterBase):
     """Filters of the items query."""
 
-    words: list[str] | None = None
     targeted_age_months: tuple[int | None, int | None] | None = None
     regions: list[int] | None = None
     availability: ItemQueryAvailability | None = None
@@ -30,19 +32,6 @@ class ItemQueryFilter(QueryFilterBase):
         return v
 
     def apply(self, stmt: Select) -> Select:
-        # if words is provided, apply filtering based on words matchings
-        if self.words:
-            op = BooleanClauseList.or_(
-                *(
-                    Item.searchable_text.op("%>", return_type=Integer)(
-                        func.normalize_text(self.words[0])
-                    )
-                    for word in self.words
-                )
-            )
-
-            stmt = stmt.where(op)
-
         # if targeted_age_months is provided, apply filtering based on range overlap
         if self.targeted_age_months is not None:
             targeted_age_months = Range(*self.targeted_age_months, bounds="[]")
@@ -87,3 +76,30 @@ class ItemQueryFilter(QueryFilterBase):
             stmt = stmt.join(ItemLike).where(ItemLike.user_id == self.liked_by_user_id)
 
         return stmt
+
+
+class ItemQueryPageCursor(QueryPageCursor):
+    item_id: Annotated[
+        int | None,
+        Field(
+            validation_alias=AliasChoices("item_id", "cid"),
+            serialization_alias="cid",
+        ),
+    ] = None
+
+
+class ItemMatchingWordsQueryPageCursor(QueryPageCursor):
+    words_match: Annotated[
+        int | None,
+        Field(
+            validation_alias=AliasChoices("words_match", "cwm"),
+            serialization_alias="cwm",
+        ),
+    ] = None
+    item_id: Annotated[
+        int | None,
+        Field(
+            validation_alias=AliasChoices("item_id", "cid"),
+            serialization_alias="cid",
+        ),
+    ] = None

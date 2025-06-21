@@ -1,13 +1,11 @@
 import abc
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Select
 
-ResultType = TypeVar("ResultType")
 
-
-class Base(BaseModel, Generic[ResultType], abc.ABC):
+class Base(BaseModel, abc.ABC):
     model_config = ConfigDict(
         from_attributes=True,
     )
@@ -30,10 +28,6 @@ class DeleteBase(Base, extra="forbid"):
 
 
 class NetworkingBase(Base):
-    pass
-
-
-class QueryPageBase(Base, extra="forbid"):
     pass
 
 

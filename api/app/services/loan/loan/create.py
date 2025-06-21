@@ -5,38 +5,8 @@ from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
 from app.schemas.chat.base import ChatId
 from app.schemas.loan.query import LoanRequestQueryFilter
-from app.schemas.loan.read import LoanRead, LoanRequestRead
-from app.services.chat import (
-    send_message_loan_request_created,
-    send_message_loan_started,
-)
-
-
-def create_loan_request(
-    db: Session,
-    *,
-    item_id: int,
-    borrower_id: int,
-) -> LoanRequestRead:
-    """Create a loan request."""
-
-    loan_request = database.loan.create_loan_request(
-        db=db,
-        borrower_id=borrower_id,
-        item_id=item_id,
-    )
-
-    # create messages
-    send_message_loan_request_created(
-        db=db,
-        chat_id=ChatId(
-            item_id=item_id,
-            borrower_id=borrower_id,
-        ),
-        loan_request_id=loan_request.id,
-    )
-
-    return LoanRequestRead.model_validate(loan_request)
+from app.schemas.loan.read import LoanRead
+from app.services.chat import send_message_loan_started
 
 
 def execute_loan_request(
@@ -89,7 +59,7 @@ def execute_loan_request(
     # create messages
     send_message_loan_started(
         db=db,
-        chat_id=ChatId(
+        chat_id=ChatId.from_values(
             item_id=loan_request.item_id,
             borrower_id=loan_request.borrower_id,
         ),

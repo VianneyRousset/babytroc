@@ -20,5 +20,8 @@ def report_chat(
     The chat must have `user_id` as member.
     """
 
+    msg = "report_chat"
+    raise NotImplementedError(msg)
+
     # TODO create report
     # TODO send an email to moderators
