@@ -58,6 +58,3 @@ class ChatId(RootModel):
         borrower_id: int,
     ) -> str:
         return f"{item_id}-{borrower_id}"
-
-    def __str__(self):
-        return f"{self.item_id}-{self.borrower_id}"

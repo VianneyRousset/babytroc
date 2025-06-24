@@ -11,7 +11,6 @@ from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation
 from .me import router
@@ -61,20 +60,7 @@ def list_items_saved_by_client(
         ),
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "words_match": "cwm",
-            "save_id": "sid",
-            "item_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 

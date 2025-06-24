@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field
 
 from app.schemas.base import UpdateBase
 from app.schemas.item.base import ItemBase
 
+from .base import MonthRange
 from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
 
 
@@ -24,15 +25,6 @@ class ItemUpdate(ItemBase, UpdateBase):
         ),
     ] = None
     images: list[str] | None = None
-    targeted_age_months: tuple[int | None, int | None] | None = None
+    targeted_age_months: MonthRange | None = None
     regions: list[int] | None = None
     blocked: bool | None = None
-
-    # TODO global field validator for targeted_age_months ?
-    @field_validator("targeted_age_months")
-    def validate_targeted_age_months(cls, v):  # noqa: N805
-        if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age_months values must be in order"
-            raise ValueError(msg)
-
-        return v

@@ -11,7 +11,6 @@ from app.schemas.loan.api import LoanRequestApiQuery
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
@@ -53,18 +52,7 @@ def list_client_item_loan_requests(
         ),
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "loan_request_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 

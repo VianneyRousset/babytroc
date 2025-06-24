@@ -5,6 +5,7 @@ from app.clients.database.region import get_region
 from app.clients.database.user import get_user
 from app.models.item import Item
 from app.models.item.image import ItemImageAssociation
+from app.schemas.item.base import MonthRange
 
 
 def create_item(
@@ -12,7 +13,7 @@ def create_item(
     *,
     name: str,
     description: str,
-    targeted_age_months: tuple[int | None, int | None],
+    targeted_age_months: MonthRange,
     owner_id: int,
     images: list[str],
     regions: list[int],

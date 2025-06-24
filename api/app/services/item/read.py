@@ -52,7 +52,7 @@ def list_items(
     db: Session,
     *,
     query_filter: ItemQueryFilter | None = None,
-    page_options: QueryPageOptions | None = None,
+    page_options: QueryPageOptions[ItemQueryPageCursor] | None = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]:
     """List items."""
 
@@ -74,7 +74,7 @@ def list_items_matching_words(
     words: list[str],
     *,
     query_filter: ItemQueryFilter | None = None,
-    page_options: QueryPageOptions | None = None,
+    page_options: QueryPageOptions[ItemMatchingWordsQueryPageCursor] | None = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]:
     """List items matching given words."""
 

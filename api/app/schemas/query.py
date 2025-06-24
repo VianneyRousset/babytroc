@@ -17,14 +17,16 @@ class QueryPageCursor(QueryPageBase):
     def query_params_from_request(self, request: Request) -> QueryParams:
         """Return a merge of the request query params and the cursor."""
 
+        params = self.model_dump(by_alias=True)
+
         return QueryParams(
             [
                 *(
                     (k, v)
                     for k, v in request.query_params.multi_items()
-                    if k not in self.model_fields_set
+                    if k not in params
                 ),
-                *self.model_dump().items(),
+                *params.items(),
             ]
         )
 

@@ -1,40 +1,31 @@
 from typing import Annotated
 
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import Field
 from sqlalchemy import Select, and_, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 
 from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
-from app.schemas.base import QueryFilterBase
+from app.schemas.base import FieldWithAlias, QueryFilterBase
 from app.schemas.query import QueryPageCursor
+
+from .base import MonthRange
 
 
 class ItemQueryFilter(QueryFilterBase):
     """Filters of the items query."""
 
-    targeted_age_months: tuple[int | None, int | None] | None = None
+    targeted_age_months: MonthRange | None = None
     regions: list[int] | None = None
     availability: ItemQueryAvailability | None = None
     owner_id: int | None = None
     liked_by_user_id: int | None = None
     saved_by_user_id: int | None = None
 
-    @field_validator("targeted_age_months")
-    def validate_targeted_age_months(cls, v):  # noqa: N805
-        if v is None:
-            return None
-
-        if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age_months values must be in order"
-            raise ValueError(msg)
-
-        return v
-
     def apply(self, stmt: Select) -> Select:
         # if targeted_age_months is provided, apply filtering based on range overlap
         if self.targeted_age_months is not None:
-            targeted_age_months = Range(*self.targeted_age_months, bounds="[]")
+            targeted_age_months = Range(*self.targeted_age_months.range, bounds="[]")
             stmt = stmt.where(
                 Item.targeted_age_months.op("&&", return_type=INT4RANGE)(
                     targeted_age_months
@@ -81,9 +72,9 @@ class ItemQueryFilter(QueryFilterBase):
 class ItemQueryPageCursor(QueryPageCursor):
     item_id: Annotated[
         int | None,
-        Field(
-            validation_alias=AliasChoices("item_id", "cid"),
-            serialization_alias="cid",
+        FieldWithAlias(
+            name="item_id",
+            alias="cid",
         ),
     ] = None
 
@@ -91,15 +82,15 @@ class ItemQueryPageCursor(QueryPageCursor):
 class ItemMatchingWordsQueryPageCursor(QueryPageCursor):
     words_match: Annotated[
         int | None,
-        Field(
-            validation_alias=AliasChoices("words_match", "cwm"),
-            serialization_alias="cwm",
+        FieldWithAlias(
+            name="words_match",
+            alias="cwm",
         ),
     ] = None
     item_id: Annotated[
         int | None,
         Field(
-            validation_alias=AliasChoices("item_id", "cid"),
-            serialization_alias="cid",
+            name="item_id",
+            alias="cid",
         ),
     ] = None

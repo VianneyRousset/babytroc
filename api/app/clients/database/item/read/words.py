@@ -57,7 +57,19 @@ def list_items_matching_words(
         stmt = stmt.where(words_match <= page_options.cursor.words_match)
         stmt = stmt.where(Item.id < page_options.cursor.item_id)
 
-    items, words_matches = zip(*db.execute(stmt).scalars().all(), strict=True)
+    rows = db.execute(stmt).all()
+
+    # no item found
+    if not rows:
+        return QueryPageResult[Item, ItemMatchingWordsQueryPageCursor](
+            data=[],
+            next_page_cursor=ItemMatchingWordsQueryPageCursor(
+                words_match=None,
+                item_id=None,
+            ),
+        )
+
+    items, words_matches = zip(*rows, strict=True)
 
     # find next cursor
     return QueryPageResult[Item, ItemMatchingWordsQueryPageCursor](

@@ -5,6 +5,7 @@ from pydantic import Field, field_validator
 from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase
 
+from .base import MonthRange
 from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
 
 
@@ -28,7 +29,7 @@ class ItemCreate(ItemBase, CreateBase):
         list[str],
         Field(min_length=1),
     ]
-    targeted_age_months: tuple[int | None, int | None]
+    targeted_age_months: MonthRange
     regions: list[int]
     blocked: bool | None = False
 

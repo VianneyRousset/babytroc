@@ -7,13 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.schemas.item.api import ItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.query import (
-    ItemMatchingWordsQueryPageCursor,
-    ItemQueryFilter,
-    ItemQueryPageCursor,
-)
 from app.schemas.item.read import ItemRead
-from app.schemas.query import QueryPageOptions
 
 from .annotations import item_id_annotation
 from .router import router
@@ -24,22 +18,28 @@ def list_items(
     request: Request,
     response: Response,
     query: Annotated[ItemApiQuery, Query()],
-    query_cursor: Annotated[ItemMatchingWordsQueryPageCursor, Query()],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items."""
 
-    words = query.q
-
-    if not words:
-        result = services.item.list_items(
+    # words fuzzy search
+    if query.words:
+        fuzzy_search_result = services.item.list_items_matching_words(
             db=db,
-            query_filter=ItemQueryFilter.model_validate(query),
-            page_options=QueryPageOptions(
-                limit=query.n,
-                cursor=ItemQueryPageCursor.model_validate(query_cursor),
-            ),
+            words=query.words,
+            query_filter=query.item_query_filter,
+            page_options=query.item_matching_words_query_page_options,
         )
+
+        fuzzy_search_result.set_response_headers(response, request)
+
+        return fuzzy_search_result.data
+
+    result = services.item.list_items(
+        db=db,
+        query_filter=query.item_query_filter,
+        page_options=query.item_query_page_options,
+    )
 
     result.set_response_headers(response, request)
 

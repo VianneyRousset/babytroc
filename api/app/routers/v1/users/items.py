@@ -10,7 +10,6 @@ from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation, user_id_annotation
 from .router import router
@@ -30,7 +29,6 @@ def list_items_owned_by_user(
         db=db,
         query_filter=ItemQueryFilter(
             owner_id=user_id,
-            words=query.q,
             targeted_age_months=query.parsed_mo,
             regions=query.reg,
         ),
@@ -42,19 +40,7 @@ def list_items_owned_by_user(
         ),
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "words_match": "cwm",
-            "item_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 
