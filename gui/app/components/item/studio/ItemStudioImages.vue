@@ -21,6 +21,8 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
     :animation="200"
     ghost-class="ghost"
     item-key="id"
+    @choose="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
+    @start="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
   >
     <template #item="{ element }">
       <transition
@@ -31,7 +33,7 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
         <li
           class="list-group-item"
           :class="{ selected: selected === element.id }"
-          @click="emit('select', element.id)"
+          :element-id="element.id"
         >
           <img :src="element.cropped">
         </li>
