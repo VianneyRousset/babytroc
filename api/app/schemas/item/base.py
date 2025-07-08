@@ -1,7 +1,7 @@
 from typing import Self
 
 from pydantic import RootModel, model_validator
-from sqlalchemy.dialects.postgresql import Range
+from sqlalchemy.dialects.postgresql import Range as SQLRange
 
 from app.schemas.base import Base
 
@@ -15,11 +15,11 @@ class MonthRange(RootModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_root(cls, range: str | tuple[int | None, int | None] | Range[int]):
+    def validate_root(cls, range: str | tuple[int | None, int | None] | SQLRange[int]):
         if isinstance(range, tuple):
             return cls.values_as_str(*range)
 
-        if isinstance(range, Range):
+        if isinstance(range, SQLRange):
             return cls.values_as_str(
                 lower=range.lower,
                 upper=range.upper,
@@ -43,8 +43,12 @@ class MonthRange(RootModel):
         return self.extract_upper_from_str(self.model_dump())
 
     @property
-    def range(self) -> tuple[int | None, int | None]:
+    def as_tuple(self) -> tuple[int | None, int | None]:
         return (self.lower, self.upper)
+
+    @property
+    def as_sql_range(self) -> SQLRange[int]:
+        return SQLRange(self.lower, self.upper, bounds="[]")
 
     @staticmethod
     def extract_lower_from_str(string: str) -> int | None:

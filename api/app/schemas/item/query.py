@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Field
 from sqlalchemy import Select, and_, not_, or_
-from sqlalchemy.dialects.postgresql import INT4RANGE, Range
+from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
@@ -25,10 +25,9 @@ class ItemQueryFilter(QueryFilterBase):
     def apply(self, stmt: Select) -> Select:
         # if targeted_age_months is provided, apply filtering based on range overlap
         if self.targeted_age_months is not None:
-            targeted_age_months = Range(*self.targeted_age_months.range, bounds="[]")
             stmt = stmt.where(
                 Item.targeted_age_months.op("&&", return_type=INT4RANGE)(
-                    targeted_age_months
+                    self.targeted_age_months.as_sql_range
                 )
             )
 
@@ -89,7 +88,7 @@ class ItemMatchingWordsQueryPageCursor(QueryPageCursor):
     ] = None
     item_id: Annotated[
         int | None,
-        Field(
+        FieldWithAlias(
             name="item_id",
             alias="cid",
         ),

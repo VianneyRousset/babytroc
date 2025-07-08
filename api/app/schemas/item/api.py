@@ -1,7 +1,5 @@
 from typing import Annotated
 
-from pydantic import AliasChoices
-
 from app.enums import ItemQueryAvailability
 from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
 from app.schemas.query import QueryPageOptions

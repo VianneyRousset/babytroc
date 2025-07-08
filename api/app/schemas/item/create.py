@@ -54,11 +54,3 @@ class ItemCreate(ItemBase, CreateBase):
         if isinstance(v, str):
             return v.strip()
         return v
-
-    @field_validator("targeted_age_months")
-    def validate_targeted_age_months(cls, v):  # noqa: N805
-        if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age_months values must be in order"
-            raise ValueError(msg)
-
-        return v

@@ -11,12 +11,12 @@ const { data: loans } = useBorrowingsListQuery()
     <!-- Header bar -->
     <AppHeaderBar ref="main-header">
       <AppBack />
-      <h1>Mes emprunts</h1>
+      <h1>Mes anciens emprunts</h1>
     </AppHeaderBar>
 
     <!-- Main content -->
     <main class="app-content">
-      <h2>Actifs</h2>
+      <!-- Borrowing requests -->
       <SlabList>
         <NuxtLink
           v-for="loan in loans"

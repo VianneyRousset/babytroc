@@ -4,6 +4,7 @@
 - pydantic schematics should be think as interfaces (services-routes, routes, ...)
 - Should services and clients return HTTP errors. I don't think so. Generic errors could be interpreted by FastAPI to return the proper HTTP status (e.g. a NotFoundError treated as a 404)
 - https://github.com/Kludex/fastapi-tips
+- libvips (pyvips for python binding) can be good for image processing
 
 ## TODO
 - check alembic version files for proper indices creation

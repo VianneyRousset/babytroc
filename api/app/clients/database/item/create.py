@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.postgresql import Range
 from sqlalchemy.orm import Session
 
 from app.clients.database.region import get_region
@@ -30,7 +29,7 @@ def create_item(
     item = Item(
         name=name,
         description=description,
-        targeted_age_months=Range(*targeted_age_months, bounds="[]"),
+        targeted_age_months=targeted_age_months.as_sql_range,
         blocked=blocked,
         owner_id=owner.id,
     )
