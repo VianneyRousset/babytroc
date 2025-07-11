@@ -84,7 +84,7 @@ def list_client_chat_messages(
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),

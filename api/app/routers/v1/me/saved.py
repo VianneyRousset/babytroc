@@ -10,7 +10,6 @@ from app.schemas.item.api import SavedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.query import QueryPageOptions
 
 from .annotations import item_id_annotation
 from .me import router
@@ -49,14 +48,11 @@ def list_items_saved_by_client(
 
     result = services.item.list_items(
         db=db,
-        query_filter=ItemQueryFilter(
-            words=query.q,
-            targeted_age_months=query.parsed_mo,
-            saved_by_user_id=client_id,
-        ),
-        page_options=QueryPageOptions(
-            order=["save_id", "item_id"],
-            desc=True,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "saved_by_user_id": client_id,
+            }
         ),
     )
 

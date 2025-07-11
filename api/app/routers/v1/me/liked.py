@@ -10,7 +10,6 @@ from app.schemas.item.api import LikedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.query import QueryPageOptions
 
 from .annotations import item_id_annotation
 from .me import router
@@ -39,6 +38,7 @@ async def add_item_to_client_liked_items(
 @router.get("/liked", status_code=status.HTTP_200_OK)
 def list_items_liked_by_client(
     client_id: client_id_annotation,
+    request: Request,
     response: Response,
     query: Annotated[LikedItemApiQuery, Query()],
     db: Annotated[Session, Depends(get_db_session)],
@@ -47,16 +47,15 @@ def list_items_liked_by_client(
 
     result = services.item.list_items(
         db=db,
-        query_filter=ItemQueryFilter(
-            words=query.q,
-            targeted_age_months=query.parsed_mo,
-            liked_by_user_id=client_id,
-        ),
-        page_options=QueryPageOptions(
-            order=["words_match", "like_id", "item_id"],
-            desc=True,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "liked_by_user_id": client_id,
+            }
         ),
     )
+
+    result.set_response_headers(response, request)
 
     return result.data
 
