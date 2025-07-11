@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from pydantic import Field
 from sqlalchemy import Select, and_, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE
 

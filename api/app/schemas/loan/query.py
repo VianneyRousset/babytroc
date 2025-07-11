@@ -3,6 +3,7 @@ from typing import Annotated
 from pydantic import AliasChoices, Field
 from sqlalchemy import Select, func
 
+from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
 from app.enums import LoanRequestState
 from app.models.item import Item
 from app.models.loan import Loan, LoanRequest
@@ -76,9 +77,9 @@ class LoanQueryFilter(QueryFilterBase):
 class LoanRequestQueryPageCursor(QueryPageCursor):
     loan_request_id: Annotated[
         int | None,
-        Field(
-            validation_alias=AliasChoices("loan_request_id", "cid"),
-            serialization_alias="cid",
+        FieldWithAlias(
+            name="loan_request_id",
+            alias="cid",
         ),
     ] = None
 
@@ -86,8 +87,8 @@ class LoanRequestQueryPageCursor(QueryPageCursor):
 class LoanQueryPageCursor(QueryPageCursor):
     loan_id: Annotated[
         int | None,
-        Field(
-            validation_alias=AliasChoices("loan_id", "cid"),
-            serialization_alias="cid",
+        FieldWithAlias(
+            name="loan_id",
+            alias="cid",
         ),
     ] = None

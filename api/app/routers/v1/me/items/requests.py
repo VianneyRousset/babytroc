@@ -10,7 +10,6 @@ from app.schemas.item.query import ItemQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRequestRead
-from app.schemas.query import QueryPageOptions
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
@@ -42,14 +41,8 @@ def list_client_item_loan_requests(
     # get list of loan requests of the item
     result = services.loan.list_loan_requests(
         db=db,
-        query_filter=LoanRequestQueryFilter(
-            item_id=item.id,
-            states=query.states,
-        ),
-        page_options=QueryPageOptions(
-            order=["loan_request_id"],
-            desc=True,
-        ),
+        query_filter=query.loan_query_filter,
+        page_options=query.loan_query_page_options,
     )
 
     result.set_response_headers(response, request)
