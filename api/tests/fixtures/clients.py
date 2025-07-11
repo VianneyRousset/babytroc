@@ -87,7 +87,6 @@ def bob_websocket(
         yield bob_client.websocket_connect("/v1/me/websocket")
 
 
-# TODO share app ?
 def create_client(
     app_config: Config,
 ) -> TestClient:

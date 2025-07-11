@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.config import Config
 from app.schemas.image.read import ItemImageRead
+from app.schemas.item.base import MonthRange
 from app.schemas.item.create import ItemCreate
 from app.schemas.item.read import ItemRead
 from app.schemas.region.read import RegionRead
@@ -26,7 +27,7 @@ class UserData(TypedDict):
 class ItemData(TypedDict):
     name: str
     description: str
-    targeted_age_months: tuple[int | None, int | None]
+    targeted_age_months: MonthRange
     regions: list[int]
     images: list[str]
 
@@ -42,7 +43,7 @@ def alice_items_data(
         {
             "name": "candle",
             "description": "dwell into a flowerbed",
-            "targeted_age_months": (4, 10),
+            "targeted_age_months": MonthRange("4-10"),
             "regions": [regions[0].id],
             "images": [alice_items_image.name],
         },
@@ -59,7 +60,7 @@ def alice_new_item_data(
     return {
         "name": "new-item",
         "description": "This is the latest new item created by alice.",
-        "targeted_age_months": (7, None),
+        "targeted_age_months": MonthRange("7-"),
         "regions": [regions[1].id],
         "images": [alice_items_image.name],
     }
@@ -76,7 +77,7 @@ def bob_items_data(
         {
             "name": "Dark side",
             "description": "Breathe, breathe in the air. Don't be afraid to care",
-            "targeted_age_months": (16, None),
+            "targeted_age_months": MonthRange("16-"),
             "regions": [regions[0].id, regions[1].id],
             "images": [bob_items_image.name],
         },
@@ -226,10 +227,13 @@ def random_str(length: int) -> str:
     return "".join(random.choices(ascii_letters, k=length))
 
 
-def random_targeted_age_months() -> tuple[int | None, int | None]:
+def random_targeted_age_months() -> MonthRange:
     lower = random.randint(0, 32)
     upper = random.randint(lower, 33)
-    return None if lower == 0 else lower, None if upper > 32 else upper
+    return MonthRange.from_values(
+        lower=None if lower == 0 else lower,
+        upper=None if upper > 32 else upper,
+    )
 
 
 T = TypeVar("T")
