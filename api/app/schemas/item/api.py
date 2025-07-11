@@ -12,27 +12,7 @@ from .query import (
 )
 
 
-class ItemApiQueryBase(ApiQueryBase):
-    # words
-    words: Annotated[
-        list[str] | None,
-        FieldWithAlias(
-            name="words",
-            alias="q",
-            title="Words used for fuzzy search",
-            description=(
-                "An item is returned if any word in this list fuzzy-matches a word in "
-                "the item's name or description. However, the more given words that do "
-                "not match any word in the item's name or description, the higher the "
-                "word matching distance is."
-            ),
-            examples=[
-                ["chair"],
-                ["dog", "cat"],
-            ],
-        ),
-    ] = None
-
+class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
     # targeted_age_months
     targeted_age_months: Annotated[
         MonthRange | None,
@@ -81,8 +61,6 @@ class ItemApiQueryBase(ApiQueryBase):
 
     limit: Annotated[int, PageLimitField()] = 32
 
-
-class ItemApiQuery(ItemApiQueryBase, ItemMatchingWordsQueryPageCursor):
     @property
     def item_query_filter(self) -> ItemQueryFilter:
         return ItemQueryFilter(
@@ -98,17 +76,39 @@ class ItemApiQuery(ItemApiQueryBase, ItemMatchingWordsQueryPageCursor):
         )
 
     @property
-    def item_matching_words_query_page_cursor(self) -> ItemMatchingWordsQueryPageCursor:
-        return ItemMatchingWordsQueryPageCursor(
-            item_id=self.item_id,
-            words_match=self.words_match,
-        )
-
-    @property
     def item_query_page_options(self) -> QueryPageOptions[ItemQueryPageCursor]:
         return QueryPageOptions[ItemQueryPageCursor](
             limit=self.limit,
             cursor=self.item_query_page_cursor,
+        )
+
+
+class ItemMatchinWordsApiQuery(ItemApiQuery, ItemMatchingWordsQueryPageCursor):
+    # words
+    words: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="words",
+            alias="q",
+            title="Words used for fuzzy search",
+            description=(
+                "An item is returned if any word in this list fuzzy-matches a word in "
+                "the item's name or description. However, the more given words that do "
+                "not match any word in the item's name or description, the higher the "
+                "word matching distance is."
+            ),
+            examples=[
+                ["chair"],
+                ["dog", "cat"],
+            ],
+        ),
+    ] = None
+
+    @property
+    def item_matching_words_query_page_cursor(self) -> ItemMatchingWordsQueryPageCursor:
+        return ItemMatchingWordsQueryPageCursor(
+            item_id=self.item_id,
+            words_match=self.words_match,
         )
 
     @property

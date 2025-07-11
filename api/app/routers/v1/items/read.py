@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
-from app.schemas.item.api import ItemApiQuery
+from app.schemas.item.api import ItemMatchinWordsApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.read import ItemRead
 
@@ -17,7 +17,7 @@ from .router import router
 def list_items(
     request: Request,
     response: Response,
-    query: Annotated[ItemApiQuery, Query()],
+    query: Annotated[ItemMatchinWordsApiQuery, Query()],
     db: Annotated[Session, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items."""

@@ -9,7 +9,6 @@ from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.api import LoanApiQuery
 from app.schemas.loan.query import LoanQueryFilter
 from app.schemas.loan.read import LoanRead
-from app.schemas.query import QueryPageOptions
 
 from .router import router
 
@@ -28,17 +27,15 @@ def list_client_borrowings(
 
     result = services.loan.list_loans(
         db=db,
-        query_filter=LoanQueryFilter(
-            borrower_id=client_id,
-            item_id=query.item,
-            active=query.active,
+        query_filter=LoanQueryFilter.model_validate(
+            {
+                **query.loan_query_filter.model_dump(),
+                "borrower_id": client_id,
+            }
         ),
-        page_options=QueryPageOptions(
-            order=["loan_id"],
-            desc=True,
-        ),
+        page_options=query.loan_query_page_options,
     )
 
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
