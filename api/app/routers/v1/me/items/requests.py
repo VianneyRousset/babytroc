@@ -17,7 +17,6 @@ from .router import router
 # READ
 
 
-# TODO fix this endpoint
 @router.get("/{item_id}/requests", status_code=status.HTTP_200_OK)
 def list_client_item_loan_requests(
     client_id: client_id_annotation,
@@ -41,8 +40,13 @@ def list_client_item_loan_requests(
     # get list of loan requests of the item
     result = services.loan.list_loan_requests(
         db=db,
-        query_filter=query.loan_query_filter,
-        page_options=query.loan_query_page_options,
+        query_filter=LoanRequestQueryFilter.model_validate(
+            {
+                **query.loan_request_query_filter.model_dump(),
+                "item_id": item.id,
+            }
+        ),
+        page_options=query.loan_request_query_page_options,
     )
 
     result.set_response_headers(response, request)

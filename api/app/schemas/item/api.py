@@ -79,7 +79,7 @@ class ItemApiQueryBase(ApiQueryBase):
         ),
     ] = None
 
-    limit: Annotated[int | None, PageLimitField()] = None
+    limit: Annotated[int, PageLimitField()] = 32
 
 
 class ItemApiQuery(ItemApiQueryBase, ItemMatchingWordsQueryPageCursor):

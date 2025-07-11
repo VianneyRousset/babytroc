@@ -1,13 +1,11 @@
 from typing import Annotated
 
-from pydantic import AliasChoices, Field
 from sqlalchemy import Select, func
 
-from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
 from app.enums import LoanRequestState
 from app.models.item import Item
 from app.models.loan import Loan, LoanRequest
-from app.schemas.base import QueryFilterBase
+from app.schemas.base import FieldWithAlias, QueryFilterBase
 from app.schemas.query import QueryPageCursor
 
 
