@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.chat.base import ChatId
 from app.schemas.chat.create import ChatMessageCreate
 from app.schemas.chat.read import ChatMessageRead
 
@@ -32,7 +31,7 @@ def send_message_to_chat(
 
     return services.chat.send_message_text(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=chat_id,
         sender_id=client_id,
         text=chat_message_create.text,
     )
