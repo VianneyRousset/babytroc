@@ -8,6 +8,7 @@ from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
 import app
+from app.schemas.item.base import MonthRange
 from app.schemas.item.constants import (
     DESCRIPTION_LENGTH,
     NAME_LENGTH,
@@ -85,14 +86,17 @@ def random_item_images(names: Sequence[str]) -> list[str]:
     return sample(names, k=randint(1, 5))  # noqa: S311
 
 
-def random_item_targeted_age_months() -> tuple[int | None, int | None]:
+def random_item_targeted_age_months() -> MonthRange:
     _lower = randint(0, 10)  # noqa: S311
     lower = None if _lower == 0 else _lower
 
     _upper = randint(10, 30)  # noqa: S311
     upper = None if _upper == 30 else _upper
 
-    return lower, upper
+    return MonthRange.from_values(
+        lower=lower,
+        upper=upper,
+    )
 
 
 def random_item_regions(regions: Sequence[int]) -> list[int]:
