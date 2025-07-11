@@ -1,84 +1,71 @@
-from pydantic import Field
+from typing import Annotated
 
-from app.schemas.base import ApiQueryBase
+from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
+from app.schemas.query import QueryPageOptions
+
+from .query import (
+    ChatMessageQueryFilter,
+    ChatMessageQueryPageCursor,
+    ChatQueryFilter,
+    ChatQueryPageCursor,
+)
 
 
-class ChatApiQuery(ApiQueryBase):
-    # item_id
-    item: int | None = Field(
-        title="Item",
-        description=("Only select chats about the item with this ID."),
-        examples=[42],
-        default=None,
-    )
-
-    # borrower_id
-    borrower: int | None = Field(
-        title="Borrower",
-        description=("Only select chats with the borrower with this ID."),
-        examples=[42],
-        default=None,
-    )
-
-    # borrower_id
-    owner: int | None = Field(
-        title="Owner",
-        description=("Only select chats with the owner with this ID."),
-        examples=[42],
-        default=None,
-    )
-
+class ChatApiQuery(ApiQueryBase, ChatQueryPageCursor):
     # limit
-    n: int | None = Field(
-        title="Limit returned chats count",
-        description="Limit the number of chats returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
-    )
+    limit: Annotated[int, PageLimitField()] = 32
 
-    # cursor last_message_id
-    clm: int | None = Field(
-        title="Page cursor for last message ID",
-        ge=0,
-        default=None,
-    )
+    @property
+    def chat_query_filter(self) -> ChatQueryFilter:
+        return ChatQueryFilter()
 
-    # cursor chat_id
-    cid: str | None = Field(
-        title="Page cursor for item ID",
-        pattern=r"\d+-\d+",
-        default=None,
-    )
+    @property
+    def chat_query_page_cursor(self) -> ChatQueryPageCursor:
+        return ChatQueryPageCursor(
+            last_message_id=self.last_message_id,
+        )
+
+    @property
+    def chat_query_page_options(
+        self,
+    ) -> QueryPageOptions[ChatQueryPageCursor]:
+        return QueryPageOptions[ChatQueryPageCursor](
+            limit=self.limit,
+            cursor=self.chat_query_page_cursor,
+        )
 
 
-class ChatMessageApiQuery(ApiQueryBase):
+class ChatMessageApiQuery(ApiQueryBase, ChatMessageQueryPageCursor):
     # seen
-    seen: bool | None = Field(
-        title="Seen",
+    seen: bool | None = FieldWithAlias(
+        name="seen",
+        alias="s",
+        title="Seen messages",
         description=("Only select messages that have been seen."),
         examples=[True, False],
         default=None,
     )
 
     # limit
-    n: int | None = Field(
-        title="Limit returned messages count",
-        description="Limit the number of messages returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
-    )
+    limit: Annotated[int, PageLimitField()] = 32
 
-    # cursor message_id
-    cid: int | None = Field(
-        title="Page cursor for chat message ID",
-        ge=0,
-        default=None,
-    )
+    @property
+    def chat_message_query_filter(self) -> ChatMessageQueryFilter:
+        return ChatMessageQueryFilter(
+            seen=self.seen,
+        )
+
+    @property
+    def chat_message_query_page_cursor(self) -> ChatMessageQueryPageCursor:
+        return ChatMessageQueryPageCursor(
+            message_id=self.message_id,
+        )
+
+    @property
+    def chat_message_query_page_options(
+        self,
+    ) -> QueryPageOptions[ChatMessageQueryPageCursor]:
+        return QueryPageOptions[ChatMessageQueryPageCursor](
+            limit=self.limit,
+            cursor=self.chat_message_query_page_cursor,
+        )
