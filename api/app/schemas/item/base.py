@@ -10,7 +10,7 @@ class ItemBase(Base):
     pass
 
 
-class MonthRange(RootModel):
+class MonthRange(RootModel[str]):
     root: str
 
     @model_validator(mode="before")
@@ -74,3 +74,6 @@ class MonthRange(RootModel):
         upper: int | None,
     ) -> str:
         return f"{'' if lower is None else lower}-{'' if upper is None else upper}"
+
+    def __str__(self) -> str:
+        return self.model_dump()

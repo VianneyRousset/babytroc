@@ -27,7 +27,7 @@ class UserData(TypedDict):
 class ItemData(TypedDict):
     name: str
     description: str
-    targeted_age_months: MonthRange
+    targeted_age_months: str
     regions: list[int]
     images: list[str]
 
@@ -43,7 +43,7 @@ def alice_items_data(
         {
             "name": "candle",
             "description": "dwell into a flowerbed",
-            "targeted_age_months": MonthRange("4-10"),
+            "targeted_age_months": "4-10",
             "regions": [regions[0].id],
             "images": [alice_items_image.name],
         },
@@ -60,7 +60,7 @@ def alice_new_item_data(
     return {
         "name": "new-item",
         "description": "This is the latest new item created by alice.",
-        "targeted_age_months": MonthRange("7-"),
+        "targeted_age_months": "7-",
         "regions": [regions[1].id],
         "images": [alice_items_image.name],
     }
@@ -77,7 +77,7 @@ def bob_items_data(
         {
             "name": "Dark side",
             "description": "Breathe, breathe in the air. Don't be afraid to care",
-            "targeted_age_months": MonthRange("16-"),
+            "targeted_age_months": "16-",
             "regions": [regions[0].id, regions[1].id],
             "images": [bob_items_image.name],
         },
@@ -267,6 +267,7 @@ def create_random_item(
             targeted_age_months=random_targeted_age_months(),
             regions=random_sample([reg.id for reg in regions]),
             images=[image.name],
+            blocked=random.choice([False] * 4 + [True]),
         ),
     )
 

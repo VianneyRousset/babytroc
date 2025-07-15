@@ -34,13 +34,13 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
 
     # availability
     availability: Annotated[
-        ItemQueryAvailability | None,
+        ItemQueryAvailability,
         FieldWithAlias(
             name="availability",
             alias="av",
             title="Availability",
         ),
-    ] = None
+    ] = ItemQueryAvailability.all
 
     # regions
     regions: Annotated[

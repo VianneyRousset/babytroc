@@ -13,7 +13,7 @@ class ChatMessageBase(Base):
     pass
 
 
-class ChatId(RootModel):
+class ChatId(RootModel[str]):
     root: str
 
     @model_validator(mode="before")
@@ -58,3 +58,6 @@ class ChatId(RootModel):
         borrower_id: int,
     ) -> str:
         return f"{item_id}-{borrower_id}"
+
+    def __str__(self) -> str:
+        return self.model_dump()

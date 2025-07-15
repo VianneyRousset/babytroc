@@ -7,6 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
+from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 
@@ -48,9 +49,11 @@ def get_client_chat(
 ) -> ChatRead:
     """Get client chat info by chat id."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     return services.chat.get_chat(
         db=db,
-        chat_id=chat_id,
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),
@@ -68,10 +71,12 @@ def list_client_chat_messages(
 ) -> list[ChatMessageRead]:
     """List messages in the chat."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=chat_id,
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),
@@ -106,10 +111,12 @@ def get_client_chat_message_by_id(
 ) -> ChatMessageRead:
     """Get client's chat message by id."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=chat_id,
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),

@@ -47,7 +47,7 @@ class TestItemsRead:
         return [filter(lambda v: v is not None, group) for group in groups]
 
 
-@pytest.mark.usefixtures("items")
+@pytest.mark.usefixtures("many_items")
 class TestItemsReadFilterTargetedAgeMonth:
     """Test item read with targeted_age_month filtering."""
 
@@ -68,14 +68,19 @@ class TestItemsReadFilterTargetedAgeMonth:
         expected_items = {
             item.id
             for item in many_items
+            if item.available
             if self.intersect(item.targeted_age_months.as_tuple, (lower, upper))
         }
+
+        assert len(expected_items) >= 5, "poor data for testing"
 
         # get client items list
         resp = client.get(
             url="/v1/items",
             params={
                 "mo": self.format_range((lower, upper)),
+                "n": 2 * len(expected_items),
+                "av": "y",
             },
         )
         resp.raise_for_status()
@@ -111,5 +116,4 @@ class TestItemsReadFilterTargetedAgeMonth:
 
         res = a_lower <= b_upper and a_upper >= b_lower
 
-        print(a, b, "->", res)
         return res

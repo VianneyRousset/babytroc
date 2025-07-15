@@ -2,13 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path
 
-from app.schemas.chat.base import ChatId
-
 router = APIRouter()
 
 
+# unfortunately, RootModel cannnot be used as route parameter yet
+# https://github.com/fastapi/fastapi/issues/11134
 chat_id_annotation = Annotated[
-    ChatId,
+    str,
     Path(
         title="The ID of the chat.",
         pattern=r"\d+-\d+",

@@ -32,7 +32,10 @@ class TestItemsUpdate:
 
         assert read["name"] == "forest"
         assert read["description"] == alice_new_item.description
-        assert tuple(read["targeted_age_months"]) == alice_new_item.targeted_age_months
+        assert (
+            read["targeted_age_months"]
+            == alice_new_item.targeted_age_months.model_dump()
+        )
         assert read["owner_id"] == alice_new_item.owner_id
 
     def test_item_cannot_be_updated(
@@ -66,5 +69,8 @@ class TestItemsUpdate:
         # check data hasn't change
         assert read["name"] == alice_new_item.name
         assert read["description"] == alice_new_item.description
-        assert tuple(read["targeted_age_months"]) == alice_new_item.targeted_age_months
+        assert (
+            read["targeted_age_months"]
+            == alice_new_item.targeted_age_months.model_dump()
+        )
         assert read["owner_id"] == alice_new_item.owner_id

@@ -36,10 +36,7 @@ class TestItemCreate:
 
         assert read["name"] == alice_new_item_data["name"]
         assert read["description"] == alice_new_item_data["description"]
-        assert (
-            tuple(read["targeted_age_months"])
-            == alice_new_item_data["targeted_age_months"]
-        )
+        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
 
         # get item in alice's list of items
@@ -50,10 +47,7 @@ class TestItemCreate:
 
         assert read["name"] == alice_new_item_data["name"]
         assert read["description"] == alice_new_item_data["description"]
-        assert (
-            tuple(read["targeted_age_months"])
-            == alice_new_item_data["targeted_age_months"]
-        )
+        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
 
         # get item by id from client list
@@ -64,8 +58,5 @@ class TestItemCreate:
 
         assert read["name"] == alice_new_item_data["name"]
         assert read["description"] == alice_new_item_data["description"]
-        assert (
-            tuple(read["targeted_age_months"])
-            == alice_new_item_data["targeted_age_months"]
-        )
+        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
