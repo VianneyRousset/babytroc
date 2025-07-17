@@ -166,7 +166,13 @@ def alice_items(
             services.item.create_item(
                 db=session,
                 owner_id=alice.id,
-                item_create=ItemCreate(**item),
+                item_create=ItemCreate(
+                    name=item["name"],
+                    description=item["description"],
+                    images=item["images"],
+                    targeted_age_months=MonthRange(item["targeted_age_months"]),
+                    regions=item["regions"],
+                ),
             )
             for item in alice_items_data
         ]
@@ -186,7 +192,15 @@ def alice_new_item(
         return services.item.create_item(
             db=session,
             owner_id=alice.id,
-            item_create=ItemCreate(**alice_new_item_data),
+            item_create=ItemCreate(
+                name=alice_new_item_data["name"],
+                description=alice_new_item_data["description"],
+                images=alice_new_item_data["images"],
+                targeted_age_months=MonthRange(
+                    alice_new_item_data["targeted_age_months"]
+                ),
+                regions=alice_new_item_data["regions"],
+            ),
         )
 
 
@@ -204,7 +218,13 @@ def bob_items(
             services.item.create_item(
                 db=session,
                 owner_id=bob.id,
-                item_create=ItemCreate(**item),
+                item_create=ItemCreate(
+                    name=item["name"],
+                    description=item["description"],
+                    images=item["images"],
+                    targeted_age_months=MonthRange(item["targeted_age_months"]),
+                    regions=item["regions"],
+                ),
             )
             for item in bob_items_data
         ]
@@ -243,35 +263,6 @@ def random_sample(population: list[T]) -> list[T]:
     return random.sample(population, k=random.randint(1, len(population)))
 
 
-def create_random_item(
-    db: sqlalchemy.orm.Session,
-    alice: UserPrivateRead,
-    bob: UserPrivateRead,
-    alice_items_image: ItemImageRead,
-    bob_items_image: ItemImageRead,
-    regions: list[RegionRead],
-) -> ItemRead:
-    owner, image = random.choice(
-        [
-            (alice, alice_items_image),
-            (bob, bob_items_image),
-        ]
-    )
-
-    return services.item.create_item(
-        db=db,
-        owner_id=owner.id,
-        item_create=ItemCreate(
-            name=random_str(8),
-            description=random_str(50),
-            targeted_age_months=random_targeted_age_months(),
-            regions=random_sample([reg.id for reg in regions]),
-            images=[image.name],
-            blocked=random.choice([False] * 4 + [True]),
-        ),
-    )
-
-
 @pytest.fixture(scope="class")
 def many_items(
     database: sqlalchemy.URL,
@@ -287,15 +278,34 @@ def many_items(
     random.seed(0xBDF81829)
 
     engine = create_engine(database)
+
+    owner_ids, images = [
+        list(column)
+        for column in zip(
+            *random.choices(
+                [
+                    (alice.id, alice_items_image),
+                    (bob.id, bob_items_image),
+                ],
+                k=n,
+            ),
+            strict=True,
+        )
+    ]
+
     with Session(engine) as session, session.begin():
-        return [
-            create_random_item(
-                db=session,
-                alice=alice,
-                bob=bob,
-                alice_items_image=alice_items_image,
-                bob_items_image=bob_items_image,
-                regions=regions,
-            )
-            for _ in range(n)
-        ]
+        return services.item.create_many_items(
+            db=session,
+            owner_ids=owner_ids,
+            item_creates=[
+                ItemCreate(
+                    name=random_str(8),
+                    description=random_str(50),
+                    targeted_age_months=random_targeted_age_months(),
+                    regions=random_sample([reg.id for reg in regions]),
+                    images=[image.name],
+                    blocked=random.choice([False] * 4 + [True]),
+                )
+                for image in images
+            ],
+        )
