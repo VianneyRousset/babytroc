@@ -5,6 +5,7 @@ from urllib.parse import parse_qsl, urlparse
 import pytest
 from fastapi.testclient import TestClient
 
+from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
 
 
@@ -12,7 +13,7 @@ from app.schemas.item.read import ItemRead
 class TestItemsRead:
     """Test items read with no filtering."""
 
-    @pytest.mark.parametrize("count", [16, 7])
+    @pytest.mark.parametrize("count", [None, 16, 7])
     def test_read_pages(
         self,
         client: TestClient,
@@ -21,16 +22,21 @@ class TestItemsRead:
     ):
         cursor: dict[str, Any] = {}
 
-        for i, expected_items in enumerate(self.grouper(many_items[::-1], count)):
+        for i, expected_items in enumerate(self.grouper(many_items[::-1], count or 32)):
             print(f"page #{i} cursor:", cursor)
+
+            params = cursor
+
+            if count is not None:
+                params = {
+                    **params,
+                    "n": count,
+                }
 
             # get next page
             resp = client.get(
                 url="/v1/items",
-                params={
-                    "n": count,
-                    **cursor,
-                },
+                params=params,
             )
             print(resp.json())
             resp.raise_for_status()
@@ -87,6 +93,15 @@ class TestItemsReadFilterTargetedAgeMonth:
 
         assert {item["id"] for item in resp.json()} == expected_items
 
+    @pytest.mark.parametrize("availability", [None, "a", "y", "n"])
+    def test_list_item_filter_availability(
+        self,
+        client: TestClient,
+        many_items: list[ItemRead],
+        availability: str | None,
+    ):
+        """Filter items list by availability (av)."""
+
     @staticmethod
     def format_range(r: tuple[int | None, int | None]) -> str:
         """Format range into string."""
@@ -97,6 +112,21 @@ class TestItemsReadFilterTargetedAgeMonth:
         upper_str = "" if upper is None else f"{upper:d}"
 
         return f"{lower_str}-{upper_str}"
+
+    @staticmethod
+    def check_availability(
+        item: ItemRead,
+        availability: ItemQueryAvailability | None,
+    ) -> bool:
+        """Return True if `item` respects `availability`."""
+
+        if availability is None or availability == ItemQueryAvailability.all:
+            return True
+
+        if availability == ItemQueryAvailability.yes:
+            return not item.available
+
+        return item.available
 
     @staticmethod
     def intersect(
