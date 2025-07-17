@@ -1,6 +1,7 @@
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from app.clients import database
+from app.models.item import Item
 from app.schemas.item.query import ItemQueryFilter
 
 
@@ -9,15 +10,14 @@ def delete_item(
     item_id: int,
     *,
     query_filter: ItemQueryFilter | None = None,
-):
+) -> None:
     """Delete the item with ID `item_id`."""
 
-    # find item in databas3
-    item = database.item.get_item(
-        db=db,
-        item_id=item_id,
-        query_filter=query_filter,
-    )
+    # default empty query filter
+    query_filter = query_filter or ItemQueryFilter()
 
-    # delete item
-    database.item.delete_item(db=db, item=item)
+    stmt = delete(Item).where(Item.id == item_id)
+
+    stmt = query_filter.apply(stmt)
+
+    db.execute(stmt)

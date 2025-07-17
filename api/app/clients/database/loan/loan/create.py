@@ -1,7 +1,6 @@
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
-from app.clients.database.item import get_item
-from app.clients.database.user import get_user
 from app.models.loan import Loan
 
 
@@ -13,16 +12,18 @@ def create_loan(
 ) -> Loan:
     """Create and insert a loan."""
 
-    borrower = get_user(db=db, user_id=borrower_id)
-    item = get_item(db=db, item_id=item_id)
+    # TODO add reference to loan request
+    stmt = (
+        insert(Loan)
+        .values(
+            item_id=item_id,
+            borrower_id=borrower_id,
+        )
+        .returning(Loan)
+    )
 
-    loan = Loan()
-    db.add(loan)
-
-    loan.borrower = borrower
-    loan.item = item
-
-    db.flush()
-    db.refresh(loan)
+    # execute
+    # TODO handle constraint violations
+    loan = db.execute(stmt).unique().scalars().one()
 
     return loan

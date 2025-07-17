@@ -37,6 +37,24 @@ def verify_request_credentials(
     return token_data.sub
 
 
+def maybe_verify_request_credentials(
+    request: Request,
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> int | None:
+    """Verify access token and return client user id.
+
+    Returns None instead of raising `InvalidCredentialError`.
+    """
+
+    try:
+        return verify_request_credentials(
+            request=request,
+            token=token,
+        )
+    except InvalidCredentialError:
+        return None
+
+
 def verify_request_credentials_no_validation_check(
     request: Request,
     token: Annotated[str | None, Depends(oauth2_scheme)],

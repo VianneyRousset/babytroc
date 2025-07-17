@@ -1,20 +1,23 @@
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
-from app.clients import database
-from app.schemas.item.read import ItemRead
+from app.models.item.like import ItemLike
 
 
 def add_item_to_user_liked_items(
     db: Session,
-    user_id: int,
+    *,
     item_id: int,
-) -> ItemRead:
+    user_id: int,
+) -> None:
     """Add the item with `item_id` to items liked by user with `user_id`."""
 
-    item = database.like.create_item_like(
-        db=db,
-        user_id=user_id,
+    # insertion
+    stmt = insert(ItemLike).values(
         item_id=item_id,
+        user_id=user_id,
     )
 
-    return ItemRead.model_validate(item)
+    # execute
+    # TODO handle foreign key violation
+    db.execute(stmt)

@@ -18,3 +18,11 @@ class ItemRead(ItemBase, ReadBase):
     owner: UserPreviewRead
     regions: list[RegionRead]
     likes_count: int
+
+    # only given logged in
+    owned: bool | None = None
+    liked: bool | None = None
+    saved: bool | None = None
+
+    # only given if owned
+    blocked: bool | None = None

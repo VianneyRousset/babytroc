@@ -1,6 +1,6 @@
-from .all import list_items
 from .get import get_item
-from .words import list_items_matching_words
+from .list import list_items
+from .list_words import list_items_matching_words
 
 __all__ = [
     "get_item",

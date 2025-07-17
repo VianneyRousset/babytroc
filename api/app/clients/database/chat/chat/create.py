@@ -1,7 +1,6 @@
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
-from app.clients.database.item import get_item
-from app.clients.database.user import get_user
 from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat
 from app.models.item import Item
@@ -36,25 +35,18 @@ def create_chat(
 ) -> Chat:
     """Create and insert a chat."""
 
-    borrower = get_user(
-        db=db,
-        user_id=chat_id.borrower_id,
+    stmt = (
+        insert(Chat)
+        .values(
+            item_id=chat_id.item_id,
+            borrower_id=chat_id.borrower_id,
+        )
+        .returning(Chat)
     )
 
-    item = get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    chat = db.execute(stmt).unique().scalars().one()
 
-    chat = Chat(
-        borrower=borrower,
-    )
-
-    return insert_chat(
-        db=db,
-        chat=chat,
-        item=item,
-    )
+    return chat
 
 
 def insert_chat(

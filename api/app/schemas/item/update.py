@@ -28,3 +28,15 @@ class ItemUpdate(ItemBase, UpdateBase):
     targeted_age_months: MonthRange | None = None
     regions: list[int] | None = None
     blocked: bool | None = None
+
+    @property
+    def as_sql_values(self):
+        values = self.model_dump(
+            exclude_unset=True,
+            exclude={"targeted_age_months"},
+        )
+
+        if self.targeted_age_months:
+            values["targeted_age_months"] = self.targeted_age_months.as_sql_range
+
+        return values

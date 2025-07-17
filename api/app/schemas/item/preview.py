@@ -11,3 +11,8 @@ class ItemPreviewRead(ItemBase, ReadBase):
     first_image_name: str
     available: bool
     owner_id: int
+
+    # only given logged in
+    liked: bool | None = None
+    saved: bool | None = None
+    owned: bool | None = None

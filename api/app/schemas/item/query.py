@@ -1,6 +1,6 @@
-from typing import Annotated
+from typing import Annotated, TypeVar
 
-from sqlalchemy import Select, and_, not_, or_
+from sqlalchemy import Delete, Select, Update, and_, not_, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability
@@ -9,6 +9,8 @@ from app.schemas.base import FieldWithAlias, QueryFilterBase
 from app.schemas.query import QueryPageCursor
 
 from .base import MonthRange
+
+T = TypeVar("T", Select, Update, Delete)
 
 
 class ItemQueryFilter(QueryFilterBase):
@@ -21,7 +23,7 @@ class ItemQueryFilter(QueryFilterBase):
     liked_by_user_id: int | None = None
     saved_by_user_id: int | None = None
 
-    def apply(self, stmt: Select) -> Select:
+    def apply(self, stmt: T) -> T:
         # if targeted_age_months is provided, apply filtering based on range overlap
         if self.targeted_age_months is not None:
             stmt = stmt.where(
@@ -58,11 +60,11 @@ class ItemQueryFilter(QueryFilterBase):
 
         # if saved_by_user_id is provided, select items saved by the given user ID.
         if self.saved_by_user_id is not None:
-            stmt = stmt.join(ItemSave).where(ItemSave.user_id == self.saved_by_user_id)
+            stmt = stmt.where(ItemSave.user_id == self.saved_by_user_id)
 
         # if liked_by_user_id is provided, select items liked by the given user ID.
         if self.liked_by_user_id is not None:
-            stmt = stmt.join(ItemLike).where(ItemLike.user_id == self.liked_by_user_id)
+            stmt = stmt.where(ItemLike.user_id == self.liked_by_user_id)
 
         return stmt
 

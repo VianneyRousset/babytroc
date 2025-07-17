@@ -23,10 +23,10 @@ def add_item_to_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-) -> ItemRead:
+) -> None:
     """Add item to client saved items."""
 
-    return services.item.save.add_item_to_user_saved_items(
+    services.item.save.add_item_to_user_saved_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
@@ -86,7 +86,7 @@ def remove_item_from_client_saved_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-) -> ItemRead:
+) -> None:
     """Remove the specified item from client saved items."""
 
     return services.item.save.remove_item_from_user_saved_items(

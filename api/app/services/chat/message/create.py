@@ -1,7 +1,9 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.enums import ChatMessageType
+from app.models.item import Item
 from app.pubsub import notify_user
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatMessageRead
@@ -87,17 +89,13 @@ def send_message_loan_request_accepted(
     The message is sent from the item owner.
     """
 
-    # get item from database
-    item = database.item.get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    owner_id = _get_item_owner_id(db, chat_id.item_id)
 
     return send_message(
         db=db,
         chat_id=chat_id,
         message_type=ChatMessageType.loan_request_accepted,
-        sender_id=item.owner_id,
+        sender_id=owner_id,
         loan_request_id=loan_request_id,
     )
 
@@ -115,17 +113,13 @@ def send_message_loan_request_rejected(
     The message is sent from the item owner.
     """
 
-    # get item from database
-    item = database.item.get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    owner_id = _get_item_owner_id(db, chat_id.item_id)
 
     return send_message(
         db=db,
         chat_id=chat_id,
         message_type=ChatMessageType.loan_request_rejected,
-        sender_id=item.owner_id,
+        sender_id=owner_id,
         loan_request_id=loan_request_id,
     )
 
@@ -165,17 +159,13 @@ def send_message_loan_ended(
     The message is sent from the item owner.
     """
 
-    # get item from database
-    item = database.item.get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    owner_id = _get_item_owner_id(db, chat_id.item_id)
 
     return send_message(
         db=db,
         chat_id=chat_id,
         message_type=ChatMessageType.loan_ended,
-        sender_id=item.owner_id,
+        sender_id=owner_id,
         loan_id=loan_id,
     )
 
@@ -192,17 +182,13 @@ def send_message_item_not_available(
     The message is sent from the item owner.
     """
 
-    # get item from database
-    item = database.item.get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    owner_id = _get_item_owner_id(db, chat_id.item_id)
 
     return send_message(
         db=db,
         chat_id=chat_id,
         message_type=ChatMessageType.item_not_available,
-        sender_id=item.owner_id,
+        sender_id=owner_id,
     )
 
 
@@ -218,17 +204,13 @@ def send_message_item_available(
     The message is sent from the item owner.
     """
 
-    # get item from database
-    item = database.item.get_item(
-        db=db,
-        item_id=chat_id.item_id,
-    )
+    owner_id = _get_item_owner_id(db, chat_id.item_id)
 
     return send_message(
         db=db,
         chat_id=chat_id,
         message_type=ChatMessageType.item_available,
-        sender_id=item.owner_id,
+        sender_id=owner_id,
     )
 
 
@@ -279,3 +261,18 @@ def send_message(
     )
 
     return ChatMessageRead.model_validate(message)
+
+
+def _get_item_owner_id(
+    db: Session,
+    item_id: int,
+) -> int:
+    """Get the user_id of the owner of the item with `item_id`."""
+
+    stmt = select(Item.owner_id).where(Item.id == item_id)
+
+    # execute
+    # TODO handle not found
+    owner_id = db.execute(stmt).unique().scalars().one()
+
+    return owner_id

@@ -22,10 +22,10 @@ async def add_item_to_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-):
+) -> None:
     """Add the specified item to client liked items."""
 
-    return services.item.like.add_item_to_user_liked_items(
+    services.item.like.add_item_to_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
@@ -86,10 +86,10 @@ def remove_item_from_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-) -> ItemRead:
+) -> None:
     """Remove the specified item from client liked items."""
 
-    return services.item.like.remove_item_from_user_liked_items(
+    services.item.like.remove_item_from_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,

@@ -54,3 +54,14 @@ class ItemCreate(ItemBase, CreateBase):
         if isinstance(v, str):
             return v.strip()
         return v
+
+    @property
+    def as_sql_values(self):
+        values = self.model_dump(
+            exclude={"targeted_age_months"},
+        )
+
+        if self.targeted_age_months:
+            values["targeted_age_months"] = self.targeted_age_months.as_sql_range
+
+        return values
