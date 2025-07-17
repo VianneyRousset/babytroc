@@ -19,14 +19,22 @@ class ItemLike(IntegerIdentifier, Base):
     # the item
     item_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("item.id"),
+        ForeignKey(
+            "item.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         primary_key=True,
     )
 
     # the user that liked the item
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         primary_key=True,
     )
 

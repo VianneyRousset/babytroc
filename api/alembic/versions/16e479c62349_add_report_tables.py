@@ -36,7 +36,7 @@ def create_report_table():
             sa.Enum("user", "item", "chat", name="reporttype"),
             nullable=False,
         ),
-        sa.Column("created_by", sa.Integer(), nullable=False),
+        sa.Column("created_by", sa.Integer(), nullable=True),
         sa.Column(
             "creation_date",
             sa.DateTime(),
@@ -55,6 +55,8 @@ def create_report_table():
         sa.ForeignKeyConstraint(
             ["created_by"],
             ["user.id"],
+            onupdate="CASCADE",
+            ondelete="SET NULL",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

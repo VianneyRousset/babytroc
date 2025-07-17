@@ -34,6 +34,7 @@ class ItemImage(Base, CreationDate):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -55,6 +56,7 @@ class ItemImageAssociation(Base):
         ForeignKey(
             "item.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         primary_key=True,
     )
@@ -64,6 +66,7 @@ class ItemImageAssociation(Base):
         ForeignKey(
             "item_image.name",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         primary_key=True,
     )

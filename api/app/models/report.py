@@ -31,7 +31,12 @@ class Report(IntegerIdentifier, CreationDate, Base):
 
     created_by: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("user.id"),
+        ForeignKey(
+            "user.id",
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+        ),
+        nullable=True,
     )
 
     creation_date: Mapped[datetime] = mapped_column(

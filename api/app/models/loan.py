@@ -36,14 +36,16 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",  # TODO is this correct ?
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "user.id",
-            ondelete="CASCADE",  # TODO is this correct ?
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
     state: Mapped[LoanRequestState] = mapped_column(
@@ -61,11 +63,13 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    # once executed, referes to the create loan
+    # once executed, referes to the created loan
     loan_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "loan.id",
+            ondelete="SET NULL",
+            onupdate="CASCADE",
         ),
         nullable=True,
         server_default=None,
@@ -114,15 +118,18 @@ class Loan(IntegerIdentifier, Base):
         Integer,
         ForeignKey(
             "item.id",
-            ondelete="CASCADE",  # TODO is this correct ?
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         index=True,
     )
+    # TODO it should be impossible to delete borrower when a loan is still active
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "user.id",
-            ondelete="SET NULL",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         nullable=True,
     )

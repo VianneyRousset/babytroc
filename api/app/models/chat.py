@@ -30,6 +30,7 @@ class Chat(Base):
         ForeignKey(
             "item.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -38,6 +39,7 @@ class Chat(Base):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -122,6 +124,7 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -140,7 +143,8 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         Integer,
         ForeignKey(
             "loan_request.id",
-            ondelete="CASCADE",  # TODO is this correct ?
+            ondelete="SET NULL",
+            onupdate="CASCADE",
         ),
         nullable=True,
     )
@@ -149,7 +153,8 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         Integer,
         ForeignKey(
             "loan.id",
-            ondelete="CASCADE",  # TODO is this correct ?
+            ondelete="SET NULL",
+            onupdate="CASCADE",
         ),
         nullable=True,
     )
@@ -171,5 +176,6 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
             columns=[item_id, borrower_id],
             refcolumns=[Chat.item_id, Chat.borrower_id],
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )

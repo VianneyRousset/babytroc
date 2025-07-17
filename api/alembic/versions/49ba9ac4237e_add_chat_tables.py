@@ -35,8 +35,18 @@ def create_chat_table():
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("borrower_id", sa.Integer(), nullable=False),
         sa.Column("last_message_id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["borrower_id"], ["user.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["item_id"], ["item.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["borrower_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("item_id", "borrower_id"),
     )
 
@@ -87,12 +97,26 @@ def create_chat_message_table():
             ["item_id", "borrower_id"],
             ["chat.item_id", "chat.borrower_id"],
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
-        sa.ForeignKeyConstraint(["sender_id"], ["user.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
-            ["loan_request_id"], ["loan_request.id"], ondelete="CASCADE"
+            ["sender_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
-        sa.ForeignKeyConstraint(["loan_id"], ["loan.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["loan_request_id"],
+            ["loan_request.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["loan_id"],
+            ["loan.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_chat_message_id"), "chat_message", ["id"], unique=False)

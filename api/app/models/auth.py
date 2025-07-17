@@ -22,6 +22,7 @@ class AuthRefreshToken(CreationDate, Base):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -47,6 +48,7 @@ class AuthAccountPasswordResetAuthorization(CreationDate, Base):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
