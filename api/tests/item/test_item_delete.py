@@ -14,6 +14,7 @@ class TestItemDelete:
         client: TestClient,
         alice_client: TestClient,
         alice_new_item: ItemRead,
+        bob_client: TestClient,
     ):
         """Create an item and delete it."""
 
@@ -21,6 +22,10 @@ class TestItemDelete:
         resp = client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
+
+        # like and save item (check if the item can be deleted even if liked and saved)
+        bob_client.post(f"/v1/me/liked/{alice_new_item.id}").raise_for_status()
+        bob_client.post(f"/v1/me/saved/{alice_new_item.id}").raise_for_status()
 
         # delete item by id
         resp = alice_client.delete(f"/v1/me/items/{alice_new_item.id}")
