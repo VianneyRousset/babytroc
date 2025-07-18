@@ -13,7 +13,7 @@ class ItemCreate(ItemBase, CreateBase):
     name: Annotated[
         str,
         Field(
-            pattern=r"^\p{L}[\p{L} -]+\p{L}$",
+            pattern=r"^\p{L}[\p{L} -']+\p{L}$",
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
