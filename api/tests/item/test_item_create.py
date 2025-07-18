@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from app.schemas.image.read import ItemImageRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.items import ItemData
 
@@ -38,6 +39,10 @@ class TestItemCreate:
         assert read["description"] == alice_new_item_data["description"]
         assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
+        assert read["images_names"] == alice_new_item_data["images"]
+        assert {reg["id"] for reg in read["regions"]} == set(
+            alice_new_item_data["regions"]
+        )
 
         # get item in alice's list of items
         resp = client.get(f"/v1/users/{alice.id}/items/{item_id}")
@@ -49,6 +54,10 @@ class TestItemCreate:
         assert read["description"] == alice_new_item_data["description"]
         assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
+        assert read["images_names"] == alice_new_item_data["images"]
+        assert {reg["id"] for reg in read["regions"]} == set(
+            alice_new_item_data["regions"]
+        )
 
         # get item by id from client list
         resp = alice_client.get(f"/v1/me/items/{item_id}")
@@ -60,3 +69,72 @@ class TestItemCreate:
         assert read["description"] == alice_new_item_data["description"]
         assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
         assert read["owner_id"] == alice.id
+        assert read["images_names"] == alice_new_item_data["images"]
+        assert {reg["id"] for reg in read["regions"]} == set(
+            alice_new_item_data["regions"]
+        )
+
+
+class TestItemCreateInvalid:
+    """Test invalid item creation."""
+
+    def test_item_no_region(
+        self,
+        alice_client: TestClient,
+        alice_new_item_data: ItemData,
+    ):
+        """Check an item without region cannot be created."""
+
+        # remove images
+        alice_new_item_data = {
+            **alice_new_item_data,
+            "regions": [],
+        }
+
+        # create item
+        resp = alice_client.post(
+            "/v1/me/items",
+            json=alice_new_item_data,
+        )
+        assert resp.is_error
+
+    def test_item_no_image(
+        self,
+        alice_client: TestClient,
+        alice_new_item_data: ItemData,
+    ):
+        """Check an item without image cannot be created."""
+
+        # remove images
+        alice_new_item_data = {
+            **alice_new_item_data,
+            "images": [],
+        }
+
+        # create item
+        resp = alice_client.post(
+            "/v1/me/items",
+            json=alice_new_item_data,
+        )
+        assert resp.is_error
+
+    def test_item_images_not_owned_by_user(
+        self,
+        alice_client: TestClient,
+        alice_new_item_data: ItemData,
+        bob_items_image: ItemImageRead,
+    ):
+        """Check an item with an image not owned by the user cannot be created."""
+
+        # remove images
+        alice_new_item_data = {
+            **alice_new_item_data,
+            "images": [*alice_new_item_data["images"], bob_items_image.name],
+        }
+
+        # create item
+        resp = alice_client.post(
+            "/v1/me/items",
+            json=alice_new_item_data,
+        )
+        assert resp.is_error
