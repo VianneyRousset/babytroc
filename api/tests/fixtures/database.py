@@ -4,6 +4,7 @@ import string
 import warnings
 from collections.abc import Generator
 from pathlib import Path
+from threading import get_ident
 
 import pytest
 import sqlalchemy
@@ -67,7 +68,7 @@ def database(primary_database: sqlalchemy.URL) -> Generator[sqlalchemy.URL]:
         password=primary_database.password,
         host=primary_database.host,
         port=primary_database.port,
-        database=random_string(8),
+        database=random_string(8) + f"-{get_ident()}",
     )
 
     # create database
