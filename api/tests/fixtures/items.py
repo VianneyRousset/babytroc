@@ -52,7 +52,7 @@ def alice_items_data(
 
 @pytest.fixture(scope="class")
 def alice_new_item_data(
-    alice_items_image: ItemImageRead,
+    alice_new_item_images: list[ItemImageRead],
     regions: list[RegionRead],
 ) -> ItemData:
     """Alice new item data."""
@@ -62,7 +62,7 @@ def alice_new_item_data(
         "description": "This is the latest new item created by alice.",
         "targeted_age_months": "7-",
         "regions": [regions[1].id],
-        "images": [alice_items_image.name],
+        "images": [image.name for image in alice_new_item_images],
     }
 
 
@@ -100,6 +100,21 @@ def alice_items_image_data() -> bytes:
 
 
 @pytest.fixture(scope="class")
+def alice_new_item_image_data() -> bytes:
+    """Basic PBM image."""
+
+    return "\n".join(
+        [
+            "P1",
+            "3 3",
+            "000",
+            "111",
+            "000",
+        ]
+    ).encode()
+
+
+@pytest.fixture(scope="class")
 def bob_items_image_data() -> bytes:
     """Basic PBM image."""
 
@@ -131,6 +146,28 @@ def alice_items_image(
             owner_id=alice.id,
             fp=BytesIO(alice_items_image_data),
         )
+
+
+@pytest.fixture(scope="class")
+def alice_new_item_images(
+    app_config: Config,
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    alice_new_item_image_data: bytes,
+) -> list[ItemImageRead]:
+    """Ensure Alice's item image exists."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return [
+            services.image.upload_image(
+                db=session,
+                config=app_config,
+                owner_id=alice.id,
+                fp=BytesIO(image_data),
+            )
+            for image_data in [alice_new_item_image_data] * 3
+        ]
 
 
 @pytest.fixture(scope="class")
