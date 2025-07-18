@@ -6,13 +6,14 @@ from app.schemas.base import UpdateBase
 from app.schemas.item.base import ItemBase
 
 from .base import MonthRange
-from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
+from .constants import DESCRIPTION_LENGTH, NAME_LENGTH, NAME_PATTERN
 
 
 class ItemUpdate(ItemBase, UpdateBase):
     name: Annotated[
         str | None,
         Field(
+            pattern=NAME_PATTERN,
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
@@ -24,10 +25,16 @@ class ItemUpdate(ItemBase, UpdateBase):
             max_length=DESCRIPTION_LENGTH.stop,
         ),
     ] = None
-    images: list[str] | None = None
+    images: Annotated[
+        list[str] | None,
+        Field(min_length=1),
+    ] = None
     targeted_age_months: MonthRange | None = None
-    regions: list[int] | None = None
-    blocked: bool | None = None
+    regions: Annotated[
+        list[int] | None,
+        Field(min_length=1),
+    ] = None
+    blocked: bool | None = False
 
     @property
     def as_sql_values(self):

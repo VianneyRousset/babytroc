@@ -6,14 +6,14 @@ from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase
 
 from .base import MonthRange
-from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
+from .constants import DESCRIPTION_LENGTH, NAME_LENGTH, NAME_PATTERN
 
 
 class ItemCreate(ItemBase, CreateBase):
     name: Annotated[
         str,
         Field(
-            pattern=r"^\p{L}[\p{L} -']+\p{L}$",
+            pattern=NAME_PATTERN,
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
@@ -30,7 +30,10 @@ class ItemCreate(ItemBase, CreateBase):
         Field(min_length=1),
     ]
     targeted_age_months: MonthRange
-    regions: list[int]
+    regions: Annotated[
+        list[int],
+        Field(min_length=1),
+    ]
     blocked: bool | None = False
 
     @field_validator("name", mode="before")
