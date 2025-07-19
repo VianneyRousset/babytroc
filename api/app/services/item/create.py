@@ -1,8 +1,10 @@
+from itertools import groupby
+
 from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from sqlalchemy import database
 
+from app.domain.star import stars_gain_when_adding_item
 from app.errors.image import ItemImageNotFoundError
 from app.errors.region import RegionNotFoundError
 from app.errors.user import UserNotFoundError
@@ -11,6 +13,7 @@ from app.models.item.image import ItemImageAssociation
 from app.models.item.region import ItemRegionAssociation
 from app.schemas.item.create import ItemCreate
 from app.schemas.item.read import ItemRead
+from app.services.user.star import add_stars_to_user
 
 
 def create_item(
@@ -124,10 +127,11 @@ def create_many_items(
         ) from error
 
     # add stars to owner for adding an item
-    # TODO add stars to owners
-    database.user.add_stars_to_user(
-        db=db,
-        user=item.owner,
-        count=domain.star.stars_gain_when_adding_item(1),
-    )
+    for owner_id, group in groupby(owner_ids):
+        add_stars_to_user(
+            db=db,
+            user_id=owner_id,
+            count=stars_gain_when_adding_item(len(list(group))),
+        )
+
     return [ItemRead.model_validate(item) for item in items]

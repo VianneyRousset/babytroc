@@ -1,8 +1,7 @@
 import pytest
-from fastapi.testclient import TestClient
 from fastapi import status
+from fastapi.testclient import TestClient
 
-from app.schemas.image.read import ItemImageRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.items import ItemData
 
@@ -19,6 +18,11 @@ class TestItemCreate:
         alice_new_item_data: ItemData,
     ):
         """Check created item is then accessible in various lists."""
+
+        # get current number of stars for alice
+        resp = alice_client.get("/v1/me")
+        resp.raise_for_status()
+        old_stars_count = resp.json()["stars_count"]
 
         # create item
         resp = alice_client.post(
@@ -74,6 +78,12 @@ class TestItemCreate:
         assert {reg["id"] for reg in read["regions"]} == set(
             alice_new_item_data["regions"]
         )
+
+        # check number of stars increment
+        resp = alice_client.get("/v1/me")
+        resp.raise_for_status()
+        new_stars_count = resp.json()["stars_count"]
+        assert new_stars_count == old_stars_count + 20
 
 
 class TestItemCreateInvalid:

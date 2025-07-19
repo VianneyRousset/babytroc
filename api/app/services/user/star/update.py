@@ -1,28 +1,25 @@
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from app.clients import database
-from app.schemas.user.private import UserPrivateRead
-from app.schemas.user.update import UserUpdate
+from app.errors.user import UserNotFoundError
+from app.models.user import User
 
 
 def add_stars_to_user(
     db: Session,
     user_id: int,
     count: int,
-) -> UserPrivateRead:
-    """Update user with `user_id`."""
+) -> None:
+    """Add `count` stars to user with `user_id`."""
 
-    # get user from database
-    user = database.user.get_user(
-        db=db,
-        user_id=user_id,
+    stmt = (
+        update(User)
+        .values(stars_count=User.stars_count + count)
+        .where(User.id == user_id)
     )
 
-    # update user in database
-    user = database.user.update_user(
-        db=db,
-        user=user,
-        attributes=user_update.model_dump(exclude_none=True),
-    )
+    # execute
+    res = db.execute(stmt)
 
-    return UserPrivateRead.model_validate(user)
+    if res.rowcount == 0:
+        raise UserNotFoundError({"id": user_id})

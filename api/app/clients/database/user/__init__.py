@@ -8,14 +8,12 @@ from .read import (
     list_users,
 )
 from .update import (
-    add_stars_to_user,
     mark_user_as_validated,
     update_user,
     update_user_password,
 )
 
 __all__ = [
-    "add_stars_to_user",
     "create_user",
     "delete_user",
     "get_user",

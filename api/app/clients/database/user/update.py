@@ -48,18 +48,3 @@ def mark_user_as_validated(
     db.refresh(user)
 
     return user
-
-
-def add_stars_to_user(
-    db: Session,
-    user: User,
-    count: int,
-) -> User:
-    """Add `count` stars to `user`'s `stars_count`."""
-
-    user.stars_count += count
-
-    db.flush()
-    db.refresh(user)
-
-    return user

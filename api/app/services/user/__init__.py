@@ -1,3 +1,4 @@
+from . import star
 from .create import create_user, create_user_without_validation
 from .delete import delete_user
 from .read import get_user, get_user_exists, get_user_private, list_users
@@ -13,5 +14,6 @@ __all__ = [
     "get_user_private",
     "list_users",
     "report_user",
+    "star",
     "update_user",
 ]
