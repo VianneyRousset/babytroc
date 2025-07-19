@@ -1,6 +1,11 @@
 from sqlalchemy import insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy import database
 
+from app.errors.image import ItemImageNotFoundError
+from app.errors.region import RegionNotFoundError
+from app.errors.user import UserNotFoundError
 from app.models.item import Item
 from app.models.item.image import ItemImageAssociation
 from app.models.item.region import ItemRegionAssociation
@@ -55,7 +60,11 @@ def create_many_items(
     )
 
     # execute
-    items = db.execute(insert_item_stmt).unique().scalars().all()
+    try:
+        items = db.execute(insert_item_stmt).unique().scalars().all()
+
+    except IntegrityError as error:
+        raise UserNotFoundError({"id": owner_ids}) from error
 
     # insert item regions association
     insert_item_region_stmt = insert(ItemRegionAssociation).values(
@@ -70,10 +79,23 @@ def create_many_items(
     )
 
     # execute
-    db.execute(insert_item_region_stmt)
+    try:
+        db.execute(insert_item_region_stmt)
+
+    except IntegrityError as error:
+        raise RegionNotFoundError(
+            {
+                "id": [
+                    region_id
+                    for item_create in item_creates
+                    for region_id in item_create.regions
+                ]
+            }
+        ) from error
+
+    # TODO check all images are owned by the user
 
     # insert item_images
-    # TODO handle foreign key violation
     insert_item_image_association_stmt = insert(ItemImageAssociation).values(
         [
             {
@@ -87,9 +109,25 @@ def create_many_items(
     )
 
     # execute
-    db.execute(insert_item_image_association_stmt)
+    try:
+        db.execute(insert_item_image_association_stmt)
+
+    except IntegrityError as error:
+        raise ItemImageNotFoundError(
+            {
+                "name": [
+                    image_name
+                    for item_create in item_creates
+                    for image_name in item_create.images
+                ]
+            }
+        ) from error
 
     # add stars to owner for adding an item
     # TODO add stars to owners
-
+    database.user.add_stars_to_user(
+        db=db,
+        user=item.owner,
+        count=domain.star.stars_gain_when_adding_item(1),
+    )
     return [ItemRead.model_validate(item) for item in items]

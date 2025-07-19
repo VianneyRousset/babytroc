@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from fastapi import status
 
 from app.schemas.image.read import ItemImageRead
 from app.schemas.user.private import UserPrivateRead
@@ -97,6 +98,7 @@ class TestItemCreateInvalid:
             json=alice_new_item_data,
         )
         assert resp.is_error
+        assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_item_no_image(
         self,
@@ -117,19 +119,17 @@ class TestItemCreateInvalid:
             json=alice_new_item_data,
         )
         assert resp.is_error
+        assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_item_images_not_owned_by_user(
+    def test_item_non_existing_image(
         self,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
-        bob_items_image: ItemImageRead,
     ):
-        """Check an item with an image not owned by the user cannot be created."""
-
         # remove images
         alice_new_item_data = {
             **alice_new_item_data,
-            "images": [*alice_new_item_data["images"], bob_items_image.name],
+            "images": [*alice_new_item_data["images"], "xxxxxxxxxxxxxxxxxxxxx"],
         }
 
         # create item
@@ -137,4 +137,26 @@ class TestItemCreateInvalid:
             "/v1/me/items",
             json=alice_new_item_data,
         )
+
         assert resp.is_error
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_item_non_existing_region(
+        self,
+        alice_client: TestClient,
+        alice_new_item_data: ItemData,
+    ):
+        # remove images
+        alice_new_item_data = {
+            **alice_new_item_data,
+            "regions": [*alice_new_item_data["regions"], 99999],
+        }
+
+        # create item
+        resp = alice_client.post(
+            "/v1/me/items",
+            json=alice_new_item_data,
+        )
+
+        assert resp.is_error
+        assert resp.status_code == status.HTTP_404_NOT_FOUND
