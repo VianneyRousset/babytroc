@@ -44,7 +44,6 @@ def create_many_items(
         raise ValueError(msg)
 
     # insert item
-    # TODO handle constraint violations
     insert_item_stmt = (
         insert(Item)
         .values(
@@ -69,8 +68,8 @@ def create_many_items(
     except IntegrityError as error:
         raise UserNotFoundError({"id": owner_ids}) from error
 
-    # insert item regions association
-    insert_item_region_stmt = insert(ItemRegionAssociation).values(
+    # insert item-region association
+    insert_item_region_associations_stmt = insert(ItemRegionAssociation).values(
         [
             {
                 "item_id": item.id,
@@ -83,7 +82,7 @@ def create_many_items(
 
     # execute
     try:
-        db.execute(insert_item_region_stmt)
+        db.execute(insert_item_region_associations_stmt)
 
     except IntegrityError as error:
         raise RegionNotFoundError(
@@ -98,8 +97,8 @@ def create_many_items(
 
     # TODO check all images are owned by the user
 
-    # insert item_images
-    insert_item_image_association_stmt = insert(ItemImageAssociation).values(
+    # insert item-image associations
+    insert_item_image_associations_stmt = insert(ItemImageAssociation).values(
         [
             {
                 "item_id": item.id,
@@ -113,7 +112,7 @@ def create_many_items(
 
     # execute
     try:
-        db.execute(insert_item_image_association_stmt)
+        db.execute(insert_item_image_associations_stmt)
 
     except IntegrityError as error:
         raise ItemImageNotFoundError(
