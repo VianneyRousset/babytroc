@@ -4,7 +4,9 @@ from urllib.parse import parse_qsl, urlparse
 
 import pytest
 from fastapi.testclient import TestClient
+from unidecode import unidecode
 
+from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
 
@@ -271,6 +273,153 @@ class TestItemsReadFilterRegions:
                 return items
 
             items = items.union(item["id"] for item in new_items)
+
+        msg = "Max iteration reached"
+        raise RuntimeError(msg)
+
+
+@pytest.mark.usefixtures("some_items_with_french_names")
+class TestItemsReadFilterWords:
+    """Test item read with words filtering."""
+
+    @pytest.mark.parametrize(
+        "words", [["senat"], ["sénat"], ["Sénats"], ["senat", "xxxyyyzzz"]]
+    )
+    def test_list_item_with_french_word_senat(
+        self,
+        client: TestClient,
+        words: list[str],
+        some_items_with_french_names: list[ItemRead],
+    ):
+        """Filter item with words like 'senat'."""
+
+        expected_items = {
+            item.id: item.name
+            for item in some_items_with_french_names
+            if "senat" in unidecode(item.name.lower())
+        }
+
+        # get client items list
+        items = self.accumulate_all_item_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 256,
+                "q": words,
+            },
+        )
+
+        assert {item.id: item.name for item in items} == expected_items
+
+    @pytest.mark.parametrize(
+        "words", [["lecon"], ["leçon"], ["Leçon"], ["Lecon", "xxxyyyzzz"]]
+    )
+    def test_list_item_with_french_word_lecon(
+        self,
+        client: TestClient,
+        words: list[str],
+        some_items_with_french_names: list[ItemRead],
+    ):
+        """Filter item with words like 'lecon'."""
+
+        expected_items = {
+            item.id: item.name
+            for item in some_items_with_french_names
+            if "lecon" in unidecode(item.name.lower())
+        }
+
+        # get client items list
+        items = self.accumulate_all_item_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 256,
+                "q": words,
+            },
+        )
+
+        assert {item.id: item.name for item in items} == expected_items
+
+    def test_list_item_with_french_word_bleu(
+        self,
+        client: TestClient,
+        some_items_with_french_names: list[ItemRead],
+    ):
+        """Filter many item with words like 'bleu' to test pagination."""
+
+        expected_items = {
+            item.id: item.name
+            for item in some_items_with_french_names
+            if "bleu" in unidecode(item.name.lower())
+        }
+
+        # get client items list
+        items = self.accumulate_all_item_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 4,
+                "q": ["bleu"],
+            },
+        )
+
+        assert {item.id: item.name for item in items} == expected_items
+
+    def test_order_of_list_item_with_french_word_senat_and_bleu(
+        self,
+        client: TestClient,
+        some_items_with_french_names: list[ItemRead],
+    ):
+        """Check words matching order."""
+
+        expected_item_names_order = [
+            "Le sénat bleu",
+            "Le senat bleus",
+            "Les sénats bleus",
+            "Le sénat du bien-être",
+        ]
+
+        # get client items list
+        items = self.accumulate_all_item_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 256,
+                "q": ["senat", "bleu"],
+            },
+        )
+
+        assert [items[i].name for i in range(4)] == expected_item_names_order
+
+    @staticmethod
+    def accumulate_all_item_pages(
+        url: str,
+        client: TestClient,
+        params=None,
+    ) -> list[ItemPreviewRead]:
+        params = params or {}
+
+        items = list[ItemPreviewRead]()
+
+        maxn = 100
+
+        for _ in range(maxn):
+            # get next page
+            resp = client.get(
+                url=url,
+                params=params,
+            )
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            print("page", resp.json())
+
+            new_items = resp.json()
+
+            if len(new_items) == 0:
+                return items
+
+            items = items + [ItemPreviewRead.model_validate(item) for item in new_items]
 
         msg = "Max iteration reached"
         raise RuntimeError(msg)

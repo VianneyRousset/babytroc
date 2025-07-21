@@ -35,6 +35,7 @@ dev = [
   "types-requests>=2.32.0.20250328",
   "types-sqlalchemy-utils>=1.1.0",
   "types-tqdm>=4.67.0.20250516",
+  "unidecode>=1.4.0",
   "wonderwords>=2.2.0",
 ]
 

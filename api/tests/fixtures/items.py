@@ -348,3 +348,77 @@ def many_items(
         )
 
         return items
+
+
+@pytest.fixture(scope="class")
+def some_item_french_names() -> list[str]:
+    """Some item French names."""
+
+    random.seed(0xA19F)
+
+    return [
+        "Le sénat du bien-être",
+        "Le senat bleus",
+        "Les sénats bleus",
+        "L'importance du Bien être",
+        "La Lettre bleu",
+        "Les lettres bleus",
+        "Les mots bleus",
+        "Le sénat bleu",
+        "Les leçons données",
+        "La lecon de mon ami",
+        "La caravane bleue",
+        "L'écriture bleue",
+        "La cerise bleue",
+        *(f"{random_str(5)} bleu {random_str(5)}" for _ in range(40)),
+    ]
+
+
+@pytest.fixture(scope="class")
+def some_items_with_french_names(
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    bob: UserPrivateRead,
+    alice_items_image: ItemImageRead,
+    bob_items_image: ItemImageRead,
+    regions: list[RegionRead],
+    some_item_french_names: list[str],
+) -> list[ItemRead]:
+    """Many items."""
+
+    random.seed(0x15976)
+
+    engine = create_engine(database)
+
+    owner_ids, images = [
+        list(column)
+        for column in zip(
+            *random.choices(
+                [
+                    (alice.id, alice_items_image),
+                    (bob.id, bob_items_image),
+                ],
+                k=len(some_item_french_names),
+            ),
+            strict=True,
+        )
+    ]
+
+    with Session(engine) as session, session.begin():
+        items = services.item.create_many_items(
+            db=session,
+            owner_ids=owner_ids,
+            item_creates=[
+                ItemCreate(
+                    name=name,
+                    description=random_str(50),
+                    targeted_age_months=random_targeted_age_months(),
+                    regions=random_sample([reg.id for reg in regions]),
+                    images=[image.name],
+                    blocked=random.choice([False] * 3 + [True]),
+                )
+                for name, image in zip(some_item_french_names, images, strict=True)
+            ],
+        )
+
+        return items
