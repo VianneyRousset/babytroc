@@ -93,15 +93,6 @@ class TestItemsReadFilterTargetedAgeMonth:
 
         assert {item["id"] for item in resp.json()} == expected_items
 
-    @pytest.mark.parametrize("availability", [None, "a", "y", "n"])
-    def test_list_item_filter_availability(
-        self,
-        client: TestClient,
-        many_items: list[ItemRead],
-        availability: str | None,
-    ):
-        """Filter items list by availability (av)."""
-
     @staticmethod
     def format_range(r: tuple[int | None, int | None]) -> str:
         """Format range into string."""
@@ -112,21 +103,6 @@ class TestItemsReadFilterTargetedAgeMonth:
         upper_str = "" if upper is None else f"{upper:d}"
 
         return f"{lower_str}-{upper_str}"
-
-    @staticmethod
-    def check_availability(
-        item: ItemRead,
-        availability: ItemQueryAvailability | None,
-    ) -> bool:
-        """Return True if `item` respects `availability`."""
-
-        if availability is None or availability == ItemQueryAvailability.all:
-            return True
-
-        if availability == ItemQueryAvailability.yes:
-            return not item.available
-
-        return item.available
 
     @staticmethod
     def intersect(
@@ -147,3 +123,88 @@ class TestItemsReadFilterTargetedAgeMonth:
         res = a_lower <= b_upper and a_upper >= b_lower
 
         return res
+
+
+@pytest.mark.usefixtures("many_items")
+class TestItemsReadFilterAvailability:
+    """Test item read with availability filtering."""
+
+    @pytest.mark.parametrize("availability", [None, "a", "y", "n"])
+    def test_list_item_filter_availability(
+        self,
+        client: TestClient,
+        many_items: list[ItemRead],
+        availability: ItemQueryAvailability | None,
+    ):
+        """Filter items list by availability (av)."""
+
+        expected_item_ids = {
+            item.id
+            for item in many_items
+            if self.check_availability(item, availability)
+        }
+
+        assert len(expected_item_ids) >= 5, "poor data for testing"
+
+        # get client items list
+        item_ids = self.accumulate_all_item_ids_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 256,
+                **{k: availability for k in ["av"] if availability is not None},
+            },
+        )
+
+        assert item_ids == expected_item_ids
+
+    @staticmethod
+    def check_availability(
+        item: ItemRead,
+        availability: ItemQueryAvailability | None,
+    ) -> bool:
+        """Return True if `item` respects `availability`."""
+
+        # default availability
+        availability = (
+            ItemQueryAvailability.all if availability is None else availability
+        )
+
+        if availability == ItemQueryAvailability.all:
+            return True
+
+        if availability == ItemQueryAvailability.yes:
+            return item.available
+
+        return not item.available
+
+    @staticmethod
+    def accumulate_all_item_ids_pages(
+        url: str,
+        client: TestClient,
+        params=None,
+    ) -> set[int]:
+        params = params or {}
+
+        items = set[int]()
+
+        maxn = 100
+
+        for _ in range(maxn):
+            # get next page
+            resp = client.get(
+                url=url,
+                params=params,
+            )
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            new_items = resp.json()
+
+            if len(new_items) == 0:
+                return items
+
+            items = items.union(item["id"] for item in new_items)
+
+        msg = "Max iteration reached"
+        raise RuntimeError(msg)

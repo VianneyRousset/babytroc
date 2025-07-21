@@ -331,7 +331,7 @@ def many_items(
     ]
 
     with Session(engine) as session, session.begin():
-        return services.item.create_many_items(
+        items = services.item.create_many_items(
             db=session,
             owner_ids=owner_ids,
             item_creates=[
@@ -341,8 +341,10 @@ def many_items(
                     targeted_age_months=random_targeted_age_months(),
                     regions=random_sample([reg.id for reg in regions]),
                     images=[image.name],
-                    blocked=random.choice([False] * 4 + [True]),
+                    blocked=random.choice([False] * 3 + [True]),
                 )
                 for image in images
             ],
         )
+
+        return items
