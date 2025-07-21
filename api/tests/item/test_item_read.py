@@ -208,3 +208,69 @@ class TestItemsReadFilterAvailability:
 
         msg = "Max iteration reached"
         raise RuntimeError(msg)
+
+
+@pytest.mark.usefixtures("many_items")
+class TestItemsReadFilterRegions:
+    """Test item read with availability filtering."""
+
+    @pytest.mark.parametrize("filter_regions", [None, [1], [2], [1, 2]])
+    def test_list_item_filter_regions(
+        self,
+        client: TestClient,
+        many_items: list[ItemRead],
+        filter_regions: set[int] | None,
+    ):
+        """Filter items list by availability (av)."""
+
+        expected_item_ids = {
+            item.id
+            for item in many_items
+            if filter_regions is None
+            or {reg.id for reg in item.regions}.intersection(filter_regions)
+        }
+
+        assert len(expected_item_ids) >= 5, "poor data for testing"
+
+        # get client items list
+        item_ids = self.accumulate_all_item_ids_pages(
+            url="/v1/items",
+            client=client,
+            params={
+                "n": 256,
+                **{k: filter_regions for k in ["reg"] if filter_regions is not None},
+            },
+        )
+
+        assert item_ids == expected_item_ids
+
+    @staticmethod
+    def accumulate_all_item_ids_pages(
+        url: str,
+        client: TestClient,
+        params=None,
+    ) -> set[int]:
+        params = params or {}
+
+        items = set[int]()
+
+        maxn = 100
+
+        for _ in range(maxn):
+            # get next page
+            resp = client.get(
+                url=url,
+                params=params,
+            )
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            new_items = resp.json()
+
+            if len(new_items) == 0:
+                return items
+
+            items = items.union(item["id"] for item in new_items)
+
+        msg = "Max iteration reached"
+        raise RuntimeError(msg)
