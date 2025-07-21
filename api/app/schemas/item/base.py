@@ -4,6 +4,7 @@ from pydantic import RootModel, model_validator
 from sqlalchemy.dialects.postgresql import Range as SQLRange
 
 from app.schemas.base import Base
+from app.schemas.utils import integer_range_to_inclusive
 
 
 class ItemBase(Base):
@@ -20,6 +21,7 @@ class MonthRange(RootModel[str]):
             return cls.values_as_str(*range)
 
         if isinstance(range, SQLRange):
+            range = integer_range_to_inclusive(range)
             return cls.values_as_str(
                 lower=range.lower,
                 upper=range.upper,

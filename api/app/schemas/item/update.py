@@ -36,11 +36,12 @@ class ItemUpdate(ItemBase, UpdateBase):
     ] = None
     blocked: bool | None = False
 
-    @property
-    def as_sql_values(self):
+    def as_sql_values(self, *, exclude=None):
+        exclude = exclude or {}
+
         values = self.model_dump(
             exclude_unset=True,
-            exclude={"targeted_age_months"},
+            exclude={"targeted_age_months", *exclude},
         )
 
         if self.targeted_age_months:

@@ -89,7 +89,7 @@ class TestItemCreate:
 class TestItemCreateInvalid:
     """Test invalid item creation."""
 
-    def test_item_no_region(
+    def test_no_region(
         self,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
@@ -110,7 +110,7 @@ class TestItemCreateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_item_no_image(
+    def test_no_image(
         self,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
@@ -131,7 +131,7 @@ class TestItemCreateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_item_non_existing_image(
+    def test_non_existing_image(
         self,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
@@ -151,7 +151,7 @@ class TestItemCreateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_item_non_existing_region(
+    def test_non_existing_region(
         self,
         alice_client: TestClient,
         alice_new_item_data: ItemData,
