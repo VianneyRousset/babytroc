@@ -40,7 +40,7 @@ class ItemUpdate(ItemBase, UpdateBase):
         exclude = exclude or {}
 
         values = self.model_dump(
-            exclude_unset=True,
+            exclude_none=True,
             exclude={"targeted_age_months", *exclude},
         )
 

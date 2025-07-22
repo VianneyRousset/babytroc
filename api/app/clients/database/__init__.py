@@ -1,4 +1,4 @@
-from . import auth, chat, image, loan, region, user
+from . import auth, chat, image, loan, region
 
 __all__ = [
     "auth",
@@ -6,5 +6,4 @@ __all__ = [
     "image",
     "loan",
     "region",
-    "user",
 ]

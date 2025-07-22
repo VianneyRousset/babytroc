@@ -1,6 +1,8 @@
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from app.clients import database
+from app.errors.user import UserNotFoundError
+from app.models.user import User
 
 
 def delete_user(
@@ -9,14 +11,9 @@ def delete_user(
 ) -> None:
     """Delete user with `user_id`."""
 
-    # get user from database
-    user = database.user.get_user(
-        db=db,
-        user_id=user_id,
-    )
+    stmt = delete(User).where(User.id == user_id)
 
-    # delete user from database
-    database.user.delete_user(
-        db=db,
-        user=user,
-    )
+    res = db.execute(stmt)
+
+    if res.rowcount == 0:
+        raise UserNotFoundError({"id": user_id})
