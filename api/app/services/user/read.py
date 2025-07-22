@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -53,6 +54,22 @@ def get_user_by_email(
         raise UserNotFoundError({"email": email}) from error
 
     return UserRead.model_validate(user)
+
+
+def get_user_validation_code_by_email(
+    db: Session,
+    email: str,
+) -> UUID:
+    """Get validation code for user with `email`."""
+
+    stmt = select(User.validation_code).where(User.email == email)
+
+    try:
+        # execute
+        return db.execute(stmt).unique().scalar().one()
+
+    except NoResultFound as error:
+        raise UserNotFoundError({"email": email}) from error
 
 
 def list_users(
