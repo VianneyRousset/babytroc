@@ -62,3 +62,7 @@ run = "pytest -n auto --dist loadscope"
 [tasks.build]
 description = "Build docker image"
 run = "docker build . --tag=vianneyrousset/babytroc-api"
+
+[tasks.clear-mypy-cache]
+description = "Clear mypy cache"
+run = "rm -rf `find -iname '.mypy_cache'`"
