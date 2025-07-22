@@ -83,7 +83,9 @@ def _list_items_without_client_specific_fields(
         data=[ItemPreviewRead.model_validate(item) for item in items],
         next_page_cursor=ItemQueryPageCursor(
             item_id=items[-1].id,
-        ),
+        )
+        if items
+        else None,
     )
 
 
@@ -145,5 +147,7 @@ def _list_items_with_client_specific_fields(
         ],
         next_page_cursor=ItemQueryPageCursor(
             item_id=rows[-1][0].id,
-        ),
+        )
+        if rows
+        else None,
     )

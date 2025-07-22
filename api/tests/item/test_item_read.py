@@ -22,18 +22,14 @@ class TestItemsRead:
         many_items: list[ItemRead],
         count: int | None,
     ):
-        cursor: dict[str, Any] = {}
+        params: dict[str, Any] = {
+            **({"n": count} if count is not None else {}),
+        }
+
+        assert len(many_items) >= 5, "poor data for testing"
 
         for i, expected_items in enumerate(self.grouper(many_items[::-1], count or 32)):
-            print(f"page #{i} cursor:", cursor)
-
-            params = cursor
-
-            if count is not None:
-                params = {
-                    **params,
-                    "n": count,
-                }
+            print(f"page #{i} cursor:", params)
 
             # get next page
             resp = client.get(
@@ -42,11 +38,20 @@ class TestItemsRead:
             )
             print(resp.json())
             resp.raise_for_status()
-            cursor = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
 
             assert [item["id"] for item in resp.json()] == [
                 item.id for item in expected_items
             ]
+
+        # ensure not loan requests are left
+        resp = client.get(
+            url="/v1/items",
+            params=params,
+        )
+        print(resp.json())
+        resp.raise_for_status()
+        assert resp.json() == []
 
     @staticmethod
     def grouper(iterable, count):
