@@ -25,9 +25,7 @@ class TestUserRead:
         assert read["id"] == alice.id
         assert read["name"] == alice.name
         assert read["avatar_seed"] == alice.avatar_seed
-        assert {item["id"] for item in read["items"]} == {
-            item.id for item in alice_items
-        }
+        assert read["items_count"] == len(alice_items)
 
     def test_get_user_me(
         self,
