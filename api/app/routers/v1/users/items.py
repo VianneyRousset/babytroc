@@ -26,13 +26,14 @@ def list_items_owned_by_user(
 
     result = services.item.list_items(
         db=db,
-        query_filter=query.item_query_filter,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "owner_id": user_id,
+            }
+        ),
         page_options=query.item_query_page_options,
     )
-
-    result.set_response_headers(response, request)
-
-    return result.data
 
     result.set_response_headers(response, request)
 

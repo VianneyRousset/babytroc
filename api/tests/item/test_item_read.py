@@ -9,6 +9,7 @@ from unidecode import unidecode
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
+from app.schemas.user.private import UserPrivateRead
 
 
 @pytest.mark.usefixtures("many_items")
@@ -58,6 +59,118 @@ class TestItemsRead:
         "grouper('abcdefgh', 3) --> ('a','b','c'), ('d','e','f'), ('g','h')"
         groups = zip_longest(*[iter(iterable)] * count)
         return [filter(lambda v: v is not None, group) for group in groups]
+
+
+@pytest.mark.usefixtures("many_items")
+class TestItemsReadUserItems:
+    """Test reading list of items owned by a user / the client."""
+
+    def test_list_items_owned_by_alice(
+        self,
+        many_items: list[ItemPreviewRead],
+        client: TestClient,
+        alice: UserPrivateRead,
+    ):
+        """List items owned by Alice."""
+
+        expected_item_ids = {
+            item.id for item in many_items if item.owner_id == alice.id
+        }
+
+        items = self.accumulate_all_item_pages(
+            url=f"/v1/users/{alice.id}/items",
+            client=client,
+        )
+
+        assert {item.id for item in items} == expected_item_ids
+
+    def test_read_single_item_owned_by_alice(
+        self,
+        many_items: list[ItemPreviewRead],
+        client: TestClient,
+        alice: UserPrivateRead,
+    ):
+        """List items owned by Alice."""
+
+        expected_item = next(
+            iter([item for item in many_items if item.owner_id == alice.id])
+        )
+
+        resp = client.get(f"/v1/users/{alice.id}/items/{expected_item.id}")
+        resp.raise_for_status()
+        item = ItemRead.model_validate(resp.json())
+
+        assert item == expected_item
+
+    def test_list_items_owned_by_client(
+        self,
+        many_items: list[ItemPreviewRead],
+        alice_client: TestClient,
+        alice: UserPrivateRead,
+    ):
+        """List items owned by Alice."""
+
+        expected_item_ids = {
+            item.id for item in many_items if item.owner_id == alice.id
+        }
+
+        items = self.accumulate_all_item_pages(
+            url="/v1/me/items",
+            client=alice_client,
+        )
+
+        assert {item.id for item in items} == expected_item_ids
+
+    def test_read_single_item_owned_by_client(
+        self,
+        many_items: list[ItemPreviewRead],
+        alice_client: TestClient,
+        alice: UserPrivateRead,
+    ):
+        """List items owned by Alice."""
+
+        expected_item = next(
+            iter([item for item in many_items if item.owner_id == alice.id])
+        )
+
+        resp = alice_client.get(f"/v1/me/items/{expected_item.id}")
+        resp.raise_for_status()
+        item = ItemRead.model_validate(resp.json())
+
+        assert item == expected_item
+
+    @staticmethod
+    def accumulate_all_item_pages(
+        url: str,
+        client: TestClient,
+        params=None,
+    ) -> list[ItemPreviewRead]:
+        params = params or {}
+
+        items = list[ItemPreviewRead]()
+
+        maxn = 100
+
+        for _ in range(maxn):
+            # get next page
+            resp = client.get(
+                url=url,
+                params=params,
+            )
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            print("page", resp.json())
+
+            new_items = resp.json()
+
+            if len(new_items) == 0:
+                return items
+
+            items = items + [ItemPreviewRead.model_validate(item) for item in new_items]
+
+        msg = "Max iteration reached"
+        raise RuntimeError(msg)
 
 
 @pytest.mark.usefixtures("many_items")

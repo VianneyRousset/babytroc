@@ -27,7 +27,12 @@ def list_items_owned_by_client(
 
     result = services.item.list_items(
         db=db,
-        query_filter=query.item_query_filter,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "owner_id": client_id,
+            }
+        ),
         page_options=query.item_query_page_options,
     )
 
