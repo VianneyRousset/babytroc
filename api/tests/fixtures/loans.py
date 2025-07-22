@@ -57,11 +57,11 @@ def bob_new_loan_of_alice_new_item(
                 owner_id=alice.id,
                 borrower_id=bob.id,
             ),
-            force=True,
+            check_state=False,
         )
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def many_loan_requests_for_alice_items(
     database: sqlalchemy.URL,
     many_items: list[ItemRead],
@@ -117,6 +117,7 @@ def many_loan_requests_for_alice_items(
             services.loan.execute_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
+                check_state=False,
             )
 
             # read updated loan request

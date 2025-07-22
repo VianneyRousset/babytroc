@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from fastapi import status
 
 from app.schemas.item.read import ItemRead
 
@@ -38,34 +39,10 @@ class TestLoanRequestCreate:
             f"/v1/me/items/{alice_new_item.id}/requests/{request['id']}"
         ).raise_for_status()
 
-    def test_cannot_request_item_twice(
-        self,
-        alice_new_item: ItemRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-    ):
-        """Check that a client cannot request the same item twice."""
 
-        # request item
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        resp.raise_for_status()
-
-        # request it again
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        assert not resp.is_success
-
-    def test_cannot_request_own_item(
-        self,
-        alice_new_item: ItemRead,
-        alice_client: TestClient,
-    ):
-        """Check that a client cannot request an item owned by the latter."""
-
-        resp = alice_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        assert not resp.is_success
+@pytest.mark.usefixtures("items")
+class TestLoanRequestCreateRequestAfterCancelled:
+    """Check an item can be requested again after cancelled previous request."""
 
     def test_can_request_after_cancelled(
         self,
@@ -86,3 +63,43 @@ class TestLoanRequestCreate:
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
         resp.raise_for_status()
+
+
+@pytest.mark.usefixtures("items")
+class TestLoanRequestCreateInvalidRequestTwice:
+    """Check that a client cannot request the same item twice."""
+
+    def test_cannot_request_item_twice(
+        self,
+        alice_new_item: ItemRead,
+        alice_client: TestClient,
+        bob_client: TestClient,
+    ):
+        """Check that a client cannot request the same item twice."""
+
+        # request item
+        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
+        print(resp.text)
+        resp.raise_for_status()
+
+        # request it again
+        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
+        print(resp.text)
+        assert resp.is_error
+        assert resp.status_code == status.HTTP_409_CONFLICT
+
+
+@pytest.mark.usefixtures("items")
+class TestLoanRequestCreateInvalidRequestOwnItem:
+    """Check that a client cannot request an item owned by the latter."""
+
+    def test_cannot_request_own_item(
+        self,
+        alice_new_item: ItemRead,
+        alice_client: TestClient,
+    ):
+        """Check that a client cannot request an item owned by the latter."""
+
+        resp = alice_client.post(f"/v1/items/{alice_new_item.id}/request")
+        print(resp.text)
+        assert resp.is_error

@@ -44,11 +44,11 @@ def cancel_loan_request(
     db: Session,
     loan_request_id: int,
     query_filter: LoanRequestQueryFilter | None = None,
-    force: bool = False,
+    check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `cancelled`.
 
-    Loan request state must be `pending` if `force` is `False`.
+    Loan request state must be `pending` if `check_state` is `True` (default).
     """
 
     # get loan request from database
@@ -60,7 +60,7 @@ def cancel_loan_request(
 
     # check loan request state
     active_states = {LoanRequestState.pending, LoanRequestState.accepted}
-    if not force and loan_request.state not in active_states:
+    if check_state and loan_request.state not in active_states:
         raise LoanRequestStateError(
             expected_state=active_states,
             actual_state=loan_request.state,
@@ -90,11 +90,11 @@ def accept_loan_request(
     db: Session,
     loan_request_id: int,
     query_filter: LoanRequestQueryFilter | None = None,
-    force: bool = False,
+    check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
 
-    Loan request state must be `pending` if `force` is `False`.
+    Loan request state must be `pending` if `check_state` is `True` (default).
     """
 
     # get loan request from database
@@ -105,7 +105,7 @@ def accept_loan_request(
     )
 
     # check loan request state
-    if not force and loan_request.state != LoanRequestState.pending:
+    if check_state and loan_request.state != LoanRequestState.pending:
         raise LoanRequestStateError(
             expected_state=LoanRequestState.pending,
             actual_state=loan_request.state,
@@ -135,11 +135,11 @@ def reject_loan_request(
     db: Session,
     loan_request_id: int,
     query_filter: LoanRequestQueryFilter | None = None,
-    force: bool = False,
+    check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `rejected`.
 
-    Loan request state must be `pending` if `force` is `False`.
+    Loan request state must be `pending` if `check_state` is `True` (default).
     """
 
     # get loan request from database
@@ -154,7 +154,7 @@ def reject_loan_request(
         LoanRequestState.pending,
         LoanRequestState.accepted,
     }
-    if not force and loan_request.state not in active_states:
+    if check_state and loan_request.state not in active_states:
         raise LoanRequestStateError(
             expected_state=active_states,
             actual_state=loan_request.state,

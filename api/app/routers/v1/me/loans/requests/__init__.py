@@ -1,9 +1,9 @@
-from . import annotations, read, requests
+from . import annotations, read, update
 from .router import router
 
 __all__ = [
     "annotations",
     "read",
-    "requests",
     "router",
+    "update",
 ]

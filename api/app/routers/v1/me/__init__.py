@@ -12,6 +12,11 @@ router.include_router(
 )
 
 router.include_router(
+    router=loans.router,
+    prefix="/loans",
+)
+
+router.include_router(
     router=borrowings.router,
     prefix="/borrowings",
 )

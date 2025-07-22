@@ -14,11 +14,11 @@ def execute_loan_request(
     *,
     loan_request_id: int,
     query_filter: LoanRequestQueryFilter | None = None,
-    force: bool | None = False,
+    check_state: bool = True,
 ) -> LoanRead:
     """Create a loan from an accepted loan request.
 
-    Loan request state must be `accepted` if `force` is `False`.
+    Loan request state must be `accepted` if `check_state` is `True`.
 
     The loan request state is changed to `executed`.
 
@@ -34,7 +34,7 @@ def execute_loan_request(
     )
 
     # check loan request state
-    if not force and loan_request.state != LoanRequestState.accepted:
+    if check_state and loan_request.state != LoanRequestState.accepted:
         raise LoanRequestStateError(
             expected_state=LoanRequestState.accepted,
             actual_state=loan_request.state,

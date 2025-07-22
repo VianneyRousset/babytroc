@@ -60,7 +60,7 @@ class QueryPageResult[QueryPageDataT, QueryPageCursorT](
     """Info on the result page."""
 
     data: list[QueryPageDataT]
-    next_page_cursor: QueryPageCursorT
+    next_page_cursor: QueryPageCursorT | None
 
     @property
     def total_count(self):
@@ -71,6 +71,8 @@ class QueryPageResult[QueryPageDataT, QueryPageCursorT](
         response: Response,
         request: Request,
     ) -> None:
-        cursor = cast("QueryPageCursor", self.next_page_cursor)
-        response.headers["Link"] = cursor.header_link_from_request(request, "next")
         response.headers["X-Total-Count"] = str(self.total_count)
+
+        if self.next_page_cursor is not None:
+            cursor = cast("QueryPageCursor", self.next_page_cursor)
+            response.headers["Link"] = cursor.header_link_from_request(request, "next")

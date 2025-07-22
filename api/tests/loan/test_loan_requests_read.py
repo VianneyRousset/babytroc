@@ -1,88 +1,142 @@
+from itertools import zip_longest
+from typing import Any
+from urllib.parse import parse_qsl, urlparse
+
 import pytest
 from fastapi.testclient import TestClient
 
+from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
+from app.schemas.loan.read import LoanRequestRead
 
 
 @pytest.mark.usefixtures("many_loan_requests_for_alice_items")
 class TestLoanRequestRead:
     """Tests loan requests read."""
 
-    def test_can_request_item(
-        self,
-        alice_new_item: ItemRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-    ):
-        """Check that a loan request can be created and appears in various lists."""
-
-        # request item
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        resp.raise_for_status()
-        request = resp.json()
-
-        # check loan request appears in borrower's borrowings requests
-        resp = bob_client.get("/v1/me/borrowings/requests")
-        print(resp.text)
-        resp.raise_for_status()
-        assert request["id"] in {req["id"] for req in resp.json()}
-        bob_client.get(f"/v1/me/borrowings/requests/{request['id']}").raise_for_status()
-
-        # check loan request appears in item's borrowings requests
-        resp = alice_client.get(f"/v1/me/items/{alice_new_item.id}/requests")
-        print(resp.text)
-        resp.raise_for_status()
-        assert request["id"] in {item["id"] for item in resp.json()}
-        alice_client.get(
-            f"/v1/me/items/{alice_new_item.id}/requests/{request['id']}"
-        ).raise_for_status()
-
-    def test_cannot_request_item_twice(
-        self,
-        alice_new_item: ItemRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-    ):
-        """Check that a client cannot request the same item twice."""
-
-        # request item
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        resp.raise_for_status()
-
-        # request it again
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        assert not resp.is_success
-
-    def test_cannot_request_own_item(
-        self,
-        alice_new_item: ItemRead,
-        alice_client: TestClient,
-    ):
-        """Check that a client cannot request an item owned by the latter."""
-
-        resp = alice_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
-        assert not resp.is_success
-
-    def test_can_request_after_cancelled(
+    @pytest.mark.parametrize("count", [None, 16, 7])
+    @pytest.mark.parametrize("active", [None, True, False])
+    def test_can_client_borrowing_requests_read_pages(
         self,
         alice_new_item: ItemRead,
         bob_client: TestClient,
+        many_loan_requests_for_alice_items: list[LoanRequestRead],
+        count: int | None,
+        active: bool | None,
     ):
-        """Check an item can be requested again after cancelled previous request."""
+        params: dict[str, Any] = {
+            **({"n": count} if count is not None else {}),
+            **({"a": active} if active is not None else {}),
+        }
 
-        # request item
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
+        all_expected_loan_requests = sorted(
+            [
+                loan_request
+                for loan_request in many_loan_requests_for_alice_items
+                if self.check_loan_request_state_active(loan_request.state, active)
+            ],
+            key=lambda loan_request: loan_request.id,
+        )
+
+        assert len(all_expected_loan_requests) >= 5, "poor data for testing"
+
+        for i, expected_loan_requests in enumerate(
+            self.grouper(all_expected_loan_requests[::-1], count or 32)
+        ):
+            print(f"page #{i} cursor:", params)
+
+            # get next page
+            resp = bob_client.get(
+                url="/v1/me/borrowings/requests",
+                params=params,
+            )
+            print(resp.json())
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            assert [loan_request["id"] for loan_request in resp.json()] == [
+                loan_request.id for loan_request in expected_loan_requests
+            ]
+
+        # ensure not loan requests are left
+        resp = bob_client.get(
+            url="/v1/me/borrowings/requests",
+            params=params,
+        )
+        print(resp.json())
         resp.raise_for_status()
+        assert resp.json() == []
 
-        # cancel loan request
-        bob_client.delete(f"/v1/items/{alice_new_item.id}/request").raise_for_status()
+    @pytest.mark.parametrize("count", [None, 16, 7])
+    @pytest.mark.parametrize("active", [None, True, False])
+    def test_can_client_loan_requests_read_pages(
+        self,
+        alice_new_item: ItemRead,
+        alice_client: TestClient,
+        many_loan_requests_for_alice_items: list[LoanRequestRead],
+        count: int | None,
+        active: bool | None,
+    ):
+        params: dict[str, Any] = {
+            **({"n": count} if count is not None else {}),
+            **({"a": active} if active is not None else {}),
+        }
 
-        # request item
-        resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
-        print(resp.text)
+        all_expected_loan_requests = sorted(
+            [
+                loan_request
+                for loan_request in many_loan_requests_for_alice_items
+                if self.check_loan_request_state_active(loan_request.state, active)
+            ],
+            key=lambda loan_request: loan_request.id,
+        )
+
+        assert len(all_expected_loan_requests) >= 5, "poor data for testing"
+
+        for i, expected_loan_requests in enumerate(
+            self.grouper(all_expected_loan_requests[::-1], count or 32)
+        ):
+            print(f"page #{i} cursor:", params)
+
+            # get next page
+            resp = alice_client.get(
+                url="/v1/me/loans/requests",
+                params=params,
+            )
+            print(resp.json())
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            assert [loan_request["id"] for loan_request in resp.json()] == [
+                loan_request.id for loan_request in expected_loan_requests
+            ]
+
+        # ensure not loan requests are left
+        resp = alice_client.get(
+            url="/v1/me/loans/requests",
+            params=params,
+        )
+        print(resp.json())
         resp.raise_for_status()
+        assert resp.json() == []
+
+    @staticmethod
+    def grouper(iterable, count):
+        "grouper('abcdefgh', 3) --> ('a','b','c'), ('d','e','f'), ('g','h')"
+        groups = zip_longest(*[iter(iterable)] * count)
+        return [filter(lambda v: v is not None, group) for group in groups]
+
+    @staticmethod
+    def check_loan_request_state_active(
+        state: LoanRequestState,
+        active: bool | None,
+    ) -> bool:
+        active_states = {LoanRequestState.pending, LoanRequestState.accepted}
+
+        if active is None:
+            return True
+
+        if active:
+            return state in active_states
+
+        return state not in active_states
