@@ -16,7 +16,7 @@ class TestLoanRequestRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_can_client_borrowing_requests_read_pages(
+    def test_client_borrowing_requests_read_pages(
         self,
         alice_new_item: ItemRead,
         bob_client: TestClient,
@@ -69,7 +69,7 @@ class TestLoanRequestRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_can_client_loan_requests_read_pages(
+    def test_client_loan_requests_read_pages(
         self,
         alice_new_item: ItemRead,
         alice_client: TestClient,
