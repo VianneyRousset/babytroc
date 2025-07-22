@@ -1,3 +1,5 @@
+import random
+from string import ascii_letters
 from typing import TypedDict
 
 import pytest
@@ -47,12 +49,10 @@ def alice(
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return UserPrivateRead.model_validate(
-            services.user.create_user_without_validation(
-                session,
-                UserCreate(**alice_user_data),
-                validated=True,
-            )
+        return services.user.create_user_without_validation(
+            session,
+            UserCreate(**alice_user_data),
+            validated=True,
         )
 
 
@@ -65,10 +65,38 @@ def bob(
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return UserPrivateRead.model_validate(
+        return services.user.create_user_without_validation(
+            session,
+            UserCreate(**bob_user_data),
+            validated=True,
+        )
+
+
+def random_str(length: int) -> str:
+    return "".join(random.choices(ascii_letters, k=length))
+
+
+@pytest.fixture(scope="class")
+def many_users(
+    database: sqlalchemy.URL,
+    bob_user_data: UserData,
+) -> list[UserPrivateRead]:
+    """Many users."""
+
+    n = 256
+    random.seed(0x538D)
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return [
             services.user.create_user_without_validation(
                 session,
-                UserCreate(**bob_user_data),
+                UserCreate(
+                    name=random_str(8),
+                    email=f"{random_str(8)}@{random_str(8)}.com",
+                    password="xyzXYZ123",  # noqa: S106
+                ),
                 validated=True,
             )
-        )
+            for _ in range(n)
+        ]
