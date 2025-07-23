@@ -1,7 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.clients.database.user import get_user
 from app.errors.loan import LoanRequestAlreadyExistsError
 from app.models.loan import LoanRequest
 
@@ -32,9 +31,6 @@ def insert_loan_request(
 ) -> LoanRequest:
     """Insert `loan_request` into the loan request of the item with `item_id`."""
 
-    # check borrower exists
-    get_user(db=db, user_id=loan_request.borrower_id)
-
     # check item is not owned by borrower
     # TODO put back check item exists and is not owned by borrower
 
@@ -43,6 +39,7 @@ def insert_loan_request(
     try:
         db.flush()
 
+    # TODO get item and user to find which is missing
     except IntegrityError as error:
         raise LoanRequestAlreadyExistsError() from error
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.auth import AuthAccountPasswordResetAuthorization, AuthRefreshToken
+from app.models.auth import AuthRefreshToken
 
 
 def create_refresh_token(
@@ -24,21 +24,3 @@ def create_refresh_token(
     db.refresh(db_token)
 
     return db_token
-
-
-def create_account_password_reset_authorization(
-    db: Session,
-    user_id: int,
-) -> AuthAccountPasswordResetAuthorization:
-    """Create and insert a new account password reset authorization into database."""
-
-    authorization = AuthAccountPasswordResetAuthorization(
-        user_id=user_id,
-    )
-
-    db.add(authorization)
-
-    db.flush()
-    db.refresh(authorization)
-
-    return authorization

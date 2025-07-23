@@ -1,7 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.orm import Session
 
 from app.clients import database
+from app.models.chat import ChatMessage
 from app.enums import ChatMessageType
 from app.models.item import Item
 from app.pubsub import notify_user
@@ -230,17 +231,22 @@ def send_message(
         chat_id=chat_id,
     )
 
-    # no need to commit before notify users as notifications are performed
-    # only during commit
-    message = database.chat.create_message(
-        db=db,
-        chat=chat,
-        message_type=message_type,
-        sender_id=sender_id,
-        text=text,
-        loan_request_id=loan_request_id,
-        loan_id=loan_id,
+    stmt = (
+        insert(ChatMessage)
+        .values(
+            item_id=chat_id.item_id,
+            borrower_id=chat_id.borrower_id,
+            message_type=message_type,
+            sender_id=sender_id,
+            text=text,
+            loan_request_id=loan_request_id,
+            loan_id=loan_id,
+        )
+        .returning(ChatMessage)
     )
+
+    # TODO handle constraints violations
+    message = db.execute(stmt).unique().scalars().one()
 
     pubsub_message = PubsubMessageNewChatMessage(
         chat_message_id=message.id,

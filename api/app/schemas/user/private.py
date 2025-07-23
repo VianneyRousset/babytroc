@@ -8,6 +8,7 @@ from .base import UserBase
 
 class UserPrivateRead(UserBase, ReadBase):
     id: int
+    validated: bool
     name: str
     email: EmailStr
     avatar_seed: str

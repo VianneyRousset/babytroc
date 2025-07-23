@@ -2,20 +2,17 @@ from .chat.create import create_chat, ensure_chat, insert_chat
 from .chat.delete import delete_chat
 from .chat.read import get_chat, list_chats
 from .chat.update import update_chat
-from .message.create import create_message, insert_message
 from .message.read import get_message, get_message_async, list_messages
 from .message.update import update_message
 
 __all__ = [
     "create_chat",
-    "create_message",
     "delete_chat",
     "ensure_chat",
     "get_chat",
     "get_message",
     "get_message_async",
     "insert_chat",
-    "insert_message",
     "list_chats",
     "list_messages",
     "update_chat",

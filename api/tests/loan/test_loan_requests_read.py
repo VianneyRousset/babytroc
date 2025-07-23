@@ -18,7 +18,6 @@ class TestLoanRequestRead:
     @pytest.mark.parametrize("active", [None, True, False])
     def test_client_borrowing_requests_read_pages(
         self,
-        alice_new_item: ItemRead,
         bob_client: TestClient,
         many_loan_requests_for_alice_items: list[LoanRequestRead],
         count: int | None,
@@ -71,7 +70,6 @@ class TestLoanRequestRead:
     @pytest.mark.parametrize("active", [None, True, False])
     def test_client_loan_requests_read_pages(
         self,
-        alice_new_item: ItemRead,
         alice_client: TestClient,
         many_loan_requests_for_alice_items: list[LoanRequestRead],
         count: int | None,
@@ -114,6 +112,59 @@ class TestLoanRequestRead:
         # ensure not loan requests are left
         resp = alice_client.get(
             url="/v1/me/loans/requests",
+            params=params,
+        )
+        print(resp.json())
+        resp.raise_for_status()
+        assert resp.json() == []
+
+    @pytest.mark.parametrize("count", [None, 16, 7])
+    @pytest.mark.parametrize("active", [None, True, False])
+    def test_item_loan_requests_read_pages(
+        self,
+        alice_new_item: ItemRead,
+        alice_client: TestClient,
+        many_loan_requests_for_alice_new_item: list[LoanRequestRead],
+        count: int | None,
+        active: bool | None,
+    ):
+        params: dict[str, Any] = {
+            **({"n": count} if count is not None else {}),
+            **({"a": active} if active is not None else {}),
+        }
+
+        all_expected_loan_requests = sorted(
+            [
+                loan_request
+                for loan_request in many_loan_requests_for_alice_new_item
+                if self.check_loan_request_state_active(loan_request.state, active)
+            ],
+            key=lambda loan_request: loan_request.id,
+        )
+
+        assert len(all_expected_loan_requests) >= 5, "poor data for testing"
+
+        for i, expected_loan_requests in enumerate(
+            self.grouper(all_expected_loan_requests[::-1], count or 32)
+        ):
+            print(f"page #{i} cursor:", params)
+
+            # get next page
+            resp = alice_client.get(
+                url=f"/v1/me/items/{alice_new_item.id}/loans/requests",
+                params=params,
+            )
+            print(resp.json())
+            resp.raise_for_status()
+            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
+
+            assert [loan_request["id"] for loan_request in resp.json()] == [
+                loan_request.id for loan_request in expected_loan_requests
+            ]
+
+        # ensure not loan requests are left
+        resp = alice_client.get(
+            url=f"/v1/me/items/{alice_new_item.id}/loans/requests",
             params=params,
         )
         print(resp.json())

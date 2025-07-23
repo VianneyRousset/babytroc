@@ -27,7 +27,10 @@ def create_user(
         insert(User)
         .values(
             **{
-                **user_create.model_dump(exclude={"password"}),
+                **user_create.model_dump(
+                    exclude={"password"},
+                    exclude_none=True,
+                ),
                 "password_hash": hash_password(user_create.password),
             }
         )
@@ -63,8 +66,12 @@ def create_many_users_without_validation(
         .values(
             [
                 {
-                    **user_create.model_dump(exclude={"password"}),
+                    **user_create.model_dump(
+                        exclude={"password"},
+                        exclude_none=True,
+                    ),
                     "password_hash": hash_password(user_create.password),
+                    "validated": validated,
                 }
                 for user_create in user_creates
             ]

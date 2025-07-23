@@ -1,4 +1,5 @@
 from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
@@ -7,6 +8,7 @@ from app.errors.user import UserNotFoundError
 from app.models.user import User
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.user.private import UserPrivateRead
+from app.schemas.user.query import UserQueryFilter
 from app.schemas.user.read import UserRead
 
 
@@ -38,10 +40,10 @@ def get_user_private(
     )
 
 
-def get_user_by_email(
+def get_user_by_email_private(
     db: Session,
     email: str,
-) -> UserRead:
+) -> UserPrivateRead:
     """Get user with `email`."""
 
     stmt = select(User).where(User.email == email)
@@ -53,7 +55,7 @@ def get_user_by_email(
     except NoResultFound as error:
         raise UserNotFoundError({"email": email}) from error
 
-    return UserRead.model_validate(user)
+    return UserPrivateRead.model_validate(user)
 
 
 def get_user_validation_code_by_email(
@@ -66,7 +68,7 @@ def get_user_validation_code_by_email(
 
     try:
         # execute
-        return db.execute(stmt).unique().scalar().one()
+        return db.execute(stmt).unique().scalar_one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"email": email}) from error
@@ -74,10 +76,19 @@ def get_user_validation_code_by_email(
 
 def list_users(
     db: Session,
+    *,
+    query_filter: UserQueryFilter | None,
+    limit: int | None,
 ) -> list[UserPreviewRead]:
     """List all users."""
 
     stmt = select(User)
+
+    if query_filter is not None:
+        stmt = query_filter.apply(stmt)
+
+    if limit is not None:
+        stmt = stmt.limit(limit)
 
     # execute
     users = db.execute(stmt).unique().scalars().all()

@@ -6,10 +6,8 @@ from fastapi_mail import FastMail
 from sqlalchemy.orm import Session
 
 from app import services
-from app.clients import database, email
 from app.database import get_db_session
 from app.email import get_email_client
-from app.errors.auth import AuthAccountAlreadyValidatedError
 from app.schemas.auth.validation import AuthValidation, AuthValidationResendEmail
 
 from .router import router
@@ -26,24 +24,19 @@ def resend_validation_email(
 ) -> AuthValidationResendEmail:
     """Send a new account validation email."""
 
-    user_id = verify_request_credentials_no_validation_check(
+    # get user id from credentials
+    client_id = verify_request_credentials_no_validation_check(
         request=request,
         token=token,
     )
 
-    user = database.user.get_user(db, user_id)
-
-    if user.validated:
-        raise AuthAccountAlreadyValidatedError()
-
-    email.send_account_validation_email(
+    # send email
+    services.auth.send_validation_email(
+        db=db,
+        user_id=client_id,
         email_client=email_client,
         background_tasks=background_tasks,
-        host_name=request.app.state.config.host_name,
-        app_name=request.app.state.config.app_name,
-        username=user.name,
-        email=user.email,
-        validation_code=user.validation_code,
+        config=request.app.state.config,
     )
 
     return AuthValidationResendEmail(result="ok")

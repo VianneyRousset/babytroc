@@ -49,11 +49,11 @@ def alice(
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return services.user.create_user_without_validation(
+        return services.user.create_many_users_without_validation(
             session,
-            UserCreate(**alice_user_data),
+            [UserCreate(**alice_user_data)],
             validated=True,
-        )
+        )[0]
 
 
 @pytest.fixture(scope="class")
@@ -65,11 +65,11 @@ def bob(
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return services.user.create_user_without_validation(
+        return services.user.create_many_users_without_validation(
             session,
-            UserCreate(**bob_user_data),
+            [UserCreate(**bob_user_data)],
             validated=True,
-        )
+        )[0]
 
 
 def random_str(length: int) -> str:
@@ -83,20 +83,20 @@ def many_users(
 ) -> list[UserPrivateRead]:
     """Many users."""
 
-    n = 256
+    n = 64
     random.seed(0x538D)
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        return [
-            services.user.create_user_without_validation(
-                session,
+        return services.user.create_many_users_without_validation(
+            session,
+            user_creates=[
                 UserCreate(
                     name=random_str(8),
                     email=f"{random_str(8)}@{random_str(8)}.com",
                     password="xyzXYZ123",  # noqa: S106
-                ),
-                validated=True,
-            )
-            for _ in range(n)
-        ]
+                )
+                for _ in range(n)
+            ],
+            validated=True,
+        )

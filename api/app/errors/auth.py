@@ -43,6 +43,16 @@ class AuthRefreshTokenNotFoundError(AuthError, NotFoundError):
         )
 
 
+class AuthInvalidValidationCodeError(AuthError):
+    """Exception raise when an invalid validation code is used."""
+
+    def __init__(self):
+        super().__init__(
+            message="Invalid validation code",
+            status_code=HTTPStatus.UNAUTHORIZED,
+        )
+
+
 class AuthAccountAlreadyValidatedError(AuthError):
     """Exception raised when an account is already validated but shouldn't be."""
 

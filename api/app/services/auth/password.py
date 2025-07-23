@@ -1,12 +1,13 @@
 import logging
 
 from passlib.context import CryptContext
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.errors.auth import IncorrectUsernameOrPasswordError
-from app.errors.base import NotFoundError
 from app.models.user import User
+from app.schemas.user.private import UserPrivateRead
 
 # silent passlib warning "module 'bcrypt' has no attribute '__about__'"
 # https://github.com/pyca/bcrypt/issues/684
@@ -20,7 +21,7 @@ def verify_user_password(
     db: Session,
     email: str,
     password: str,
-) -> User:
+) -> UserPrivateRead:
     """Verify username and password.
 
     Raises IncorrectUsernameOrPasswordError if no user with `email` exist or
@@ -29,11 +30,13 @@ def verify_user_password(
     Returns the user.
     """
 
-    # get user from database
+    # get user by email
     try:
-        user = database.user.get_user_by_email(db, email)
+        user = (
+            db.execute(select(User).where(User.email == email)).unique().scalars().one()
+        )
 
-    except NotFoundError as error:
+    except NoResultFound as error:
         raise IncorrectUsernameOrPasswordError() from error
 
     # verify password
@@ -43,7 +46,7 @@ def verify_user_password(
     ):
         raise IncorrectUsernameOrPasswordError()
 
-    return user
+    return UserPrivateRead.model_validate(user)
 
 
 def verify_password_hash(plain_password: str, password_hash: str) -> bool:

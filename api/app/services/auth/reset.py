@@ -1,17 +1,18 @@
-from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import BackgroundTasks
 from fastapi_mail import FastMail
+from sqlalchemy import delete, func, insert, update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.clients import database, email
+from app.clients import email
 from app.config import AuthConfig
 from app.errors.auth import AuthUnauthorizedAccountPasswordResetError
-from app.errors.base import NotFoundError
 from app.models.auth import AuthAccountPasswordResetAuthorization
-
-from .password import hash_password
+from app.models.user import User
+from app.services.auth import hash_password
+from app.services.user import get_user_by_email_private
 
 
 def create_account_password_reset_authrorization(
@@ -25,11 +26,18 @@ def create_account_password_reset_authrorization(
 ) -> None:
     """Create a password reset authrorization."""
 
-    user = database.user.get_user_by_email(db, user_email)
+    # get user
+    user = get_user_by_email_private(db, user_email)
 
-    authorization = database.auth.create_account_password_reset_authorization(
-        db=db,
-        user_id=user.id,
+    # create password reset authorization
+    authorization_code = (
+        db.execute(
+            insert(AuthAccountPasswordResetAuthorization)
+            .values(user_id=user.id)
+            .returning(AuthAccountPasswordResetAuthorization.authorization_code)
+        )
+        .unique()
+        .scalar_one()
     )
 
     if send_email:
@@ -40,48 +48,8 @@ def create_account_password_reset_authrorization(
             app_name=app_name,
             username=user.name,
             email=user.email,
-            authorization_code=authorization.authorization_code,
-        )
-
-
-def is_account_password_reset_authorization_expired(
-    authorization_creation_date: datetime,
-    config: AuthConfig,
-) -> bool:
-    """Returns True if `authorization_creation_date` is expired."""
-
-    now = datetime.now(UTC)
-
-    duration = config.account_password_reset_authorization_duration
-    return now - authorization_creation_date > duration
-
-
-def verify_account_password_reset_authorization(
-    db: Session,
-    authorization_code: UUID,
-    config: AuthConfig,
-) -> AuthAccountPasswordResetAuthorization:
-    """Raise exception if the authorization_code is not valid."""
-
-    try:
-        authorization = database.auth.get_account_password_reset_authorization(
-            db=db,
             authorization_code=authorization_code,
         )
-
-        if authorization.invalidated:
-            raise AuthUnauthorizedAccountPasswordResetError()
-
-        if is_account_password_reset_authorization_expired(
-            authorization_creation_date=authorization.creation_date,
-            config=config,
-        ):
-            raise AuthUnauthorizedAccountPasswordResetError()
-
-        return authorization
-
-    except NotFoundError as error:
-        raise AuthUnauthorizedAccountPasswordResetError() from error
 
 
 def apply_account_password_reset(
@@ -94,28 +62,35 @@ def apply_account_password_reset(
     config: AuthConfig,
     send_email: bool = True,
 ) -> None:
-    # verify authorization code
-    authorization = verify_account_password_reset_authorization(
-        db=db,
-        authorization_code=authorization_code,
-        config=config,
+    """Update account password using password reset authorization."""
+
+    # delete account password reset authorization and get its user id
+    # the authorization must exist, not be invalidated and not expired
+    consume_authorization_stmt = (
+        delete(AuthAccountPasswordResetAuthorization)
+        .where(
+            AuthAccountPasswordResetAuthorization.authorization_code
+            == authorization_code
+        )
+        .where(~AuthAccountPasswordResetAuthorization.invalidated)
+        .where(
+            func.now() - AuthAccountPasswordResetAuthorization.creation_date
+            <= config.account_password_reset_authorization_duration
+        )
+        .returning(AuthAccountPasswordResetAuthorization.user_id)
     )
 
     try:
-        user = database.user.get_user(db, authorization.user_id)
+        # execute
+        user_id = db.execute(consume_authorization_stmt).unique().scalar_one()
 
-    except NotFoundError as error:
+    except NoResultFound as error:
         raise AuthUnauthorizedAccountPasswordResetError() from error
 
     # update user password
-    database.user.update_user_password(
-        db=db,
-        user=user,
-        password_hash=hash_password(new_password),
-    )
-
-    # remove authorization
-    database.auth.delete_account_password_reset_authorization(
-        db=db,
-        authorization=authorization,
-    )
+    db.execute(
+        update(User)
+        .values(password_hash=hash_password(new_password))
+        .where(User.id == user_id)
+        .returning(User)
+    ).unique().one()
