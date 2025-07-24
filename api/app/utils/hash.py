@@ -1,7 +1,9 @@
 import logging
-from typing import Self
+from typing import Any, Self
 
 from passlib.context import CryptContext
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 
 # silent passlib warning "module 'bcrypt' has no attribute '__about__'"
 # https://github.com/pyca/bcrypt/issues/684
@@ -26,3 +28,23 @@ class HashedStr(str):
 
     def verify(self, plain: str):
         return pwd_context.verify(plain, self)
+
+    @classmethod
+    def __get_pydantic_core_schema__(
+        cls,
+        source_type: Any,
+        handler: GetCoreSchemaHandler,
+    ) -> CoreSchema:
+        def validate(value: str | HashedStr):
+            return cls(value)
+
+        def serialize(value: HashedStr):
+            return str(value)
+
+        return core_schema.no_info_plain_validator_function(
+            function=validate,
+            json_schema_input_schema=core_schema.str_schema(),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                serialize, when_used="json"
+            ),
+        )
