@@ -152,7 +152,7 @@ export function useItemNameValidity(
   const _touched: MaybeRefOrGetter<boolean> = touched === undefined ? true : touched
 
   // validity pattern (unicode letters with ' ' and '-' not at the ends)
-  const validCharactersRegex = /^\p{L}[\p{L} -]+\p{L}$/u
+  const validCharactersRegex = /^\p{L}[\p{L} \-']+\p{L}$/u
 
   // name trimmed and without consecutive whitespaces
   const cleanedName = computed(() => avoidConsecutiveWhitespaces(toValue(name).trim()))

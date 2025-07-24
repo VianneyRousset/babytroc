@@ -10,6 +10,7 @@ export function useBorrowingsListQuery() {
 
 
 
+/*
 export const useBorrowingsListQuery = defineQuery(() => {
   const { $api } = useNuxtApp()
 
@@ -79,6 +80,8 @@ export const useBorrowingsListQuery = defineQuery(() => {
     query: queryParams,
   }
 }
+*/
+
 // TODO check paginated
 export function useLoansListQuery() {
   const { $api } = useNuxtApp()
