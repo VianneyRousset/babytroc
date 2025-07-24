@@ -77,8 +77,8 @@ def get_user_validation_code_by_email(
 def list_users(
     db: Session,
     *,
-    query_filter: UserQueryFilter | None,
-    limit: int | None,
+    query_filter: UserQueryFilter | None = None,
+    limit: int | None = None,
 ) -> list[UserPreviewRead]:
     """List all users."""
 
