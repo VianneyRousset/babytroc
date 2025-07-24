@@ -38,13 +38,10 @@ class HashedStr(str):
         def validate(value: str | HashedStr):
             return cls(value)
 
-        def serialize(value: HashedStr):
-            return str(value)
-
         return core_schema.no_info_plain_validator_function(
             function=validate,
             json_schema_input_schema=core_schema.str_schema(),
-            serialization=core_schema.plain_serializer_function_ser_schema(
-                serialize, when_used="json"
-            ),
         )
+
+    def __repr__(self) -> str:
+        return f"HashedStr({str(self)!r})"
