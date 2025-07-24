@@ -1,5 +1,4 @@
 from typing import Any
-from urllib.parse import parse_qsl, urlparse
 
 import pytest
 from fastapi.testclient import TestClient
