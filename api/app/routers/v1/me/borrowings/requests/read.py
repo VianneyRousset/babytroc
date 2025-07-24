@@ -24,17 +24,6 @@ def list_client_borrowing_loan_requests(
 ) -> list[LoanRequestRead]:
     """List loan requests where the client is the borrower."""
 
-    query_filter = (
-        LoanRequestQueryFilter.model_validate(
-            {
-                **query.loan_request_query_filter.model_dump(),
-                "borrower_id": client_id,
-            }
-        ),
-    )
-
-    print("query_filter=", query_filter)
-
     result = services.loan.list_loan_requests(
         db=db,
         query_filter=LoanRequestQueryFilter.model_validate(
