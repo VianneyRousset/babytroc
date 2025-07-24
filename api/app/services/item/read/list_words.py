@@ -96,22 +96,14 @@ def _list_items_matching_words_without_client_specific_fields(
     # execute
     rows = db.execute(stmt).unique().all()
 
-    # no item found
-    if not rows:
-        return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
-            data=[],
-            next_page_cursor=ItemMatchingWordsQueryPageCursor(
-                words_match=None,
-                item_id=None,
-            ),
-        )
-
     return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
         data=[ItemPreviewRead.model_validate(item) for item, _ in rows],
         next_page_cursor=ItemMatchingWordsQueryPageCursor(
             words_match=rows[-1][1],
             item_id=rows[-1][0].id,
-        ),
+        )
+        if rows
+        else None,
     )
 
 
@@ -167,16 +159,6 @@ def _list_items_matching_words_with_client_specific_fields(
     # execute
     rows = db.execute(stmt).unique().all()
 
-    # no item found
-    if not rows:
-        return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
-            data=[],
-            next_page_cursor=ItemMatchingWordsQueryPageCursor(
-                words_match=None,
-                item_id=None,
-            ),
-        )
-
     return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
         data=[
             ItemPreviewRead.model_validate(
@@ -192,7 +174,9 @@ def _list_items_matching_words_with_client_specific_fields(
         next_page_cursor=ItemMatchingWordsQueryPageCursor(
             words_match=rows[-1][1],
             item_id=rows[-1][0].id,
-        ),
+        )
+        if rows
+        else None,
     )
 
 

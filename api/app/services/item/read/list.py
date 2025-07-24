@@ -70,15 +70,6 @@ def _list_items_without_client_specific_fields(
     # execute
     items = db.execute(stmt).unique().scalars().all()
 
-    # no item found
-    if not items:
-        return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
-            data=[ItemPreviewRead.model_validate(item) for item in items],
-            next_page_cursor=ItemQueryPageCursor(
-                item_id=None,
-            ),
-        )
-
     return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
         data=[ItemPreviewRead.model_validate(item) for item in items],
         next_page_cursor=ItemQueryPageCursor(
@@ -123,15 +114,6 @@ def _list_items_with_client_specific_fields(
 
     # execute
     rows = db.execute(stmt).unique().all()
-
-    # no item found
-    if not rows:
-        return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
-            data=[],
-            next_page_cursor=ItemQueryPageCursor(
-                item_id=None,
-            ),
-        )
 
     return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
         data=[

@@ -1,4 +1,3 @@
-from itertools import zip_longest
 from typing import Any
 from urllib.parse import parse_qsl, urlparse
 
@@ -10,6 +9,7 @@ from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
 from app.schemas.user.private import UserPrivateRead
+from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 
 
 @pytest.mark.usefixtures("many_items")
@@ -29,36 +29,23 @@ class TestItemsRead:
 
         assert len(many_items) >= 5, "poor data for testing"
 
-        for i, expected_items in enumerate(self.grouper(many_items[::-1], count or 32)):
-            print(f"page #{i} cursor:", params)
-
-            # get next page
-            resp = client.get(
+        for items, expected_items in zip(
+            iter_paginated_endpoint(
+                client=client,
                 url="/v1/items",
                 params=params,
-            )
-            print(resp.json())
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            assert [item["id"] for item in resp.json()] == [
+            ),
+            iter_chunks(
+                many_items[::-1],
+                count=count or 32,
+                append_empty=True,
+            ),
+            strict=True,
+        ):
+            print("page")
+            assert [item["id"] for item in items] == [
                 item.id for item in expected_items
             ]
-
-        # ensure not loan requests are left
-        resp = client.get(
-            url="/v1/items",
-            params=params,
-        )
-        print(resp.json())
-        resp.raise_for_status()
-        assert resp.json() == []
-
-    @staticmethod
-    def grouper(iterable, count):
-        "grouper('abcdefgh', 3) --> ('a','b','c'), ('d','e','f'), ('g','h')"
-        groups = zip_longest(*[iter(iterable)] * count)
-        return [filter(lambda v: v is not None, group) for group in groups]
 
 
 @pytest.mark.usefixtures("many_items")
@@ -73,16 +60,22 @@ class TestItemsReadUserItems:
     ):
         """List items owned by Alice."""
 
-        expected_item_ids = {
-            item.id for item in many_items if item.owner_id == alice.id
-        }
-
-        items = self.accumulate_all_item_pages(
-            url=f"/v1/users/{alice.id}/items",
-            client=client,
+        expected_item_ids = sorted(
+            (item.id for item in many_items if item.owner_id == alice.id),
+            reverse=True,
         )
 
-        assert {item.id for item in items} == expected_item_ids
+        # get client items list
+        item_ids = [
+            item["id"]
+            for page in iter_paginated_endpoint(
+                url=f"/v1/users/{alice.id}/items",
+                client=client,
+            )
+            for item in page
+        ]
+
+        assert item_ids == expected_item_ids
 
     def test_read_single_item_owned_by_alice(
         self,
@@ -110,16 +103,22 @@ class TestItemsReadUserItems:
     ):
         """List items owned by Alice."""
 
-        expected_item_ids = {
-            item.id for item in many_items if item.owner_id == alice.id
-        }
-
-        items = self.accumulate_all_item_pages(
-            url="/v1/me/items",
-            client=alice_client,
+        expected_item_ids = sorted(
+            (item.id for item in many_items if item.owner_id == alice.id),
+            reverse=True,
         )
 
-        assert {item.id for item in items} == expected_item_ids
+        # get client items list
+        item_ids = [
+            item["id"]
+            for page in iter_paginated_endpoint(
+                url="/v1/me/items",
+                client=alice_client,
+            )
+            for item in page
+        ]
+
+        assert item_ids == expected_item_ids
 
     def test_read_single_item_owned_by_client(
         self,
@@ -138,39 +137,6 @@ class TestItemsReadUserItems:
         item = ItemRead.model_validate(resp.json())
 
         assert item == expected_item
-
-    @staticmethod
-    def accumulate_all_item_pages(
-        url: str,
-        client: TestClient,
-        params=None,
-    ) -> list[ItemPreviewRead]:
-        params = params or {}
-
-        items = list[ItemPreviewRead]()
-
-        maxn = 100
-
-        for _ in range(maxn):
-            # get next page
-            resp = client.get(
-                url=url,
-                params=params,
-            )
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            print("page", resp.json())
-
-            new_items = resp.json()
-
-            if len(new_items) == 0:
-                return items
-
-            items = items + [ItemPreviewRead.model_validate(item) for item in new_items]
-
-        msg = "Max iteration reached"
-        raise RuntimeError(msg)
 
 
 @pytest.mark.usefixtures("many_items")
@@ -191,27 +157,31 @@ class TestItemsReadFilterTargetedAgeMonth:
         lower = None
         upper = 5
 
-        expected_items = {
-            item.id
-            for item in many_items
-            if item.available
-            if self.intersect(item.targeted_age_months.as_tuple, (lower, upper))
-        }
+        expected_item_ids = sorted(
+            (
+                item.id
+                for item in many_items
+                if self.intersect(item.targeted_age_months.as_tuple, (lower, upper))
+            ),
+            reverse=True,
+        )
 
-        assert len(expected_items) >= 5, "poor data for testing"
+        assert len(expected_item_ids) >= 5, "poor data for testing"
 
         # get client items list
-        resp = client.get(
-            url="/v1/items",
-            params={
-                "mo": self.format_range((lower, upper)),
-                "n": 2 * len(expected_items),
-                "av": "y",
-            },
-        )
-        resp.raise_for_status()
+        item_ids = [
+            item["id"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "mo": self.format_range((lower, upper)),
+                },
+            )
+            for item in page
+        ]
 
-        assert {item["id"] for item in resp.json()} == expected_items
+        assert item_ids == expected_item_ids
 
     @staticmethod
     def format_range(r: tuple[int | None, int | None]) -> str:
@@ -258,23 +228,30 @@ class TestItemsReadFilterAvailability:
     ):
         """Filter items list by availability (av)."""
 
-        expected_item_ids = {
-            item.id
-            for item in many_items
-            if self.check_availability(item, availability)
-        }
+        expected_item_ids = sorted(
+            (
+                item.id
+                for item in many_items
+                if self.check_availability(item, availability)
+            ),
+            reverse=True,
+        )
 
         assert len(expected_item_ids) >= 5, "poor data for testing"
 
         # get client items list
-        item_ids = self.accumulate_all_item_ids_pages(
-            url="/v1/items",
-            client=client,
-            params={
-                "n": 256,
-                **{k: availability for k in ["av"] if availability is not None},
-            },
-        )
+        item_ids = [
+            item["id"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "n": 256,
+                    **{k: availability for k in ["av"] if availability is not None},
+                },
+            )
+            for item in page
+        ]
 
         assert item_ids == expected_item_ids
 
@@ -298,37 +275,6 @@ class TestItemsReadFilterAvailability:
 
         return not item.available
 
-    @staticmethod
-    def accumulate_all_item_ids_pages(
-        url: str,
-        client: TestClient,
-        params=None,
-    ) -> set[int]:
-        params = params or {}
-
-        items = set[int]()
-
-        maxn = 100
-
-        for _ in range(maxn):
-            # get next page
-            resp = client.get(
-                url=url,
-                params=params,
-            )
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            new_items = resp.json()
-
-            if len(new_items) == 0:
-                return items
-
-            items = items.union(item["id"] for item in new_items)
-
-        msg = "Max iteration reached"
-        raise RuntimeError(msg)
-
 
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadFilterRegions:
@@ -343,59 +289,38 @@ class TestItemsReadFilterRegions:
     ):
         """Filter items list by availability (av)."""
 
-        expected_item_ids = {
-            item.id
-            for item in many_items
-            if filter_regions is None
-            or {reg.id for reg in item.regions}.intersection(filter_regions)
-        }
+        expected_item_ids = sorted(
+            (
+                item.id
+                for item in many_items
+                if filter_regions is None
+                or {reg.id for reg in item.regions}.intersection(filter_regions)
+            ),
+            reverse=True,
+        )
 
         assert len(expected_item_ids) >= 5, "poor data for testing"
 
         # get client items list
-        item_ids = self.accumulate_all_item_ids_pages(
-            url="/v1/items",
-            client=client,
-            params={
-                "n": 256,
-                **{k: filter_regions for k in ["reg"] if filter_regions is not None},
-            },
-        )
+        item_ids = [
+            item["id"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "n": 256,
+                    **{
+                        k: filter_regions for k in ["reg"] if filter_regions is not None
+                    },
+                },
+            )
+            for item in page
+        ]
 
         assert item_ids == expected_item_ids
 
-    @staticmethod
-    def accumulate_all_item_ids_pages(
-        url: str,
-        client: TestClient,
-        params=None,
-    ) -> set[int]:
-        params = params or {}
 
-        items = set[int]()
-
-        maxn = 100
-
-        for _ in range(maxn):
-            # get next page
-            resp = client.get(
-                url=url,
-                params=params,
-            )
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            new_items = resp.json()
-
-            if len(new_items) == 0:
-                return items
-
-            items = items.union(item["id"] for item in new_items)
-
-        msg = "Max iteration reached"
-        raise RuntimeError(msg)
-
-
+# TODO include search words in the description of the item
 @pytest.mark.usefixtures("some_items_with_french_names")
 class TestItemsReadFilterWords:
     """Test item read with words filtering."""
@@ -411,23 +336,27 @@ class TestItemsReadFilterWords:
     ):
         """Filter item with words like 'senat'."""
 
-        expected_items = {
+        expected_item_ids = {
             item.id: item.name
             for item in some_items_with_french_names
             if "senat" in unidecode(item.name.lower())
         }
 
         # get client items list
-        items = self.accumulate_all_item_pages(
-            url="/v1/items",
-            client=client,
-            params={
-                "n": 256,
-                "q": words,
-            },
-        )
+        item_ids = {
+            item["id"]: item["name"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "n": 256,
+                    "q": words,
+                },
+            )
+            for item in page
+        }
 
-        assert {item.id: item.name for item in items} == expected_items
+        assert item_ids == expected_item_ids
 
     @pytest.mark.parametrize(
         "words", [["lecon"], ["leçon"], ["Leçon"], ["Lecon", "xxxyyyzzz"]]
@@ -440,23 +369,27 @@ class TestItemsReadFilterWords:
     ):
         """Filter item with words like 'lecon'."""
 
-        expected_items = {
+        expected_item_ids = {
             item.id: item.name
             for item in some_items_with_french_names
             if "lecon" in unidecode(item.name.lower())
         }
 
         # get client items list
-        items = self.accumulate_all_item_pages(
-            url="/v1/items",
-            client=client,
-            params={
-                "n": 256,
-                "q": words,
-            },
-        )
+        item_ids = {
+            item["id"]: item["name"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "n": 256,
+                    "q": words,
+                },
+            )
+            for item in page
+        }
 
-        assert {item.id: item.name for item in items} == expected_items
+        assert item_ids == expected_item_ids
 
     def test_list_item_with_french_word_bleu(
         self,
@@ -465,23 +398,27 @@ class TestItemsReadFilterWords:
     ):
         """Filter many item with words like 'bleu' to test pagination."""
 
-        expected_items = {
+        expected_item_ids = {
             item.id: item.name
             for item in some_items_with_french_names
             if "bleu" in unidecode(item.name.lower())
         }
 
         # get client items list
-        items = self.accumulate_all_item_pages(
-            url="/v1/items",
-            client=client,
-            params={
-                "n": 4,
-                "q": ["bleu"],
-            },
-        )
+        item_ids = {
+            item["id"]: item["name"]
+            for page in iter_paginated_endpoint(
+                url="/v1/items",
+                client=client,
+                params={
+                    "n": 4,
+                    "q": ["bleu"],
+                },
+            )
+            for item in page
+        }
 
-        assert {item.id: item.name for item in items} == expected_items
+        assert item_ids == expected_item_ids
 
     def test_order_of_list_item_with_french_word_senat_and_bleu(
         self,
@@ -498,46 +435,14 @@ class TestItemsReadFilterWords:
         ]
 
         # get client items list
-        items = self.accumulate_all_item_pages(
+        resp = client.get(
             url="/v1/items",
-            client=client,
             params={
-                "n": 256,
+                "n": 4,
                 "q": ["senat", "bleu"],
             },
         )
+        resp.raise_for_status()
+        item_names = [item["name"] for item in resp.json()]
 
-        assert [items[i].name for i in range(4)] == expected_item_names_order
-
-    @staticmethod
-    def accumulate_all_item_pages(
-        url: str,
-        client: TestClient,
-        params=None,
-    ) -> list[ItemPreviewRead]:
-        params = params or {}
-
-        items = list[ItemPreviewRead]()
-
-        maxn = 100
-
-        for _ in range(maxn):
-            # get next page
-            resp = client.get(
-                url=url,
-                params=params,
-            )
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            print("page", resp.json())
-
-            new_items = resp.json()
-
-            if len(new_items) == 0:
-                return items
-
-            items = items + [ItemPreviewRead.model_validate(item) for item in new_items]
-
-        msg = "Max iteration reached"
-        raise RuntimeError(msg)
+        assert item_names == expected_item_names_order

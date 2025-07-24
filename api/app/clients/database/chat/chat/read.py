@@ -72,5 +72,7 @@ def list_chats(
         data=chats,
         next_page_cursor=ChatQueryPageCursor(
             last_message_id=chats[-1].last_message_id,
-        ),
+        )
+        if chats
+        else None,
     )

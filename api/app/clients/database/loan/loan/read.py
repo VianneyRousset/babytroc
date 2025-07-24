@@ -67,5 +67,7 @@ def list_loans(
         data=loans,
         next_page_cursor=LoanQueryPageCursor(
             loan_id=loans[-1].id,
-        ),
+        )
+        if loans
+        else None,
     )
