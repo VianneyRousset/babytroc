@@ -1,11 +1,15 @@
-from typing import Annotated
+import re
+from typing import Annotated, TypeVar
 
 from pydantic import EmailStr, Field, field_validator
 
 from app.schemas.base import CreateBase
+from app.utils.hash import HashedStr
 
 from .base import UserBase
 from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH, PASSWORD_MIN_LENGTH
+
+T = TypeVar("T", str, HashedStr)
 
 
 class UserCreate(UserBase, CreateBase):
@@ -18,13 +22,7 @@ class UserCreate(UserBase, CreateBase):
         ),
     ]
     email: EmailStr
-    password: Annotated[
-        str,
-        Field(
-            pattern="[0-9]",
-            min_length=PASSWORD_MIN_LENGTH,
-        ),
-    ]
+    password: str | HashedStr
     avatar_seed: Annotated[
         str | None,
         Field(
@@ -59,13 +57,27 @@ class UserCreate(UserBase, CreateBase):
     @field_validator("password", mode="before")
     def validate_password(
         cls,  # noqa: N805
-        v: str,
-    ) -> str:
+        v: T,
+    ) -> T:
         """Check containing lower and upper case characters."""
 
+        # skip checks if hashed
+        if isinstance(v, HashedStr):
+            return v
+
+        # check length and mandatory characters
         if isinstance(v, str):
             if v.lower() == v or v.upper() == v:
                 msg = "The password must contain lowercase and uppercase letters."
+                raise ValueError(msg)
+            if not re.match(r".*[0-9].*", v):
+                msg = "The password must contain at least one digit."
+                raise ValueError(msg)
+            if len(v) < PASSWORD_MIN_LENGTH:
+                msg = (
+                    f"The password must contain at least {PASSWORD_MIN_LENGTH} "
+                    "characters."
+                )
                 raise ValueError(msg)
 
         return v

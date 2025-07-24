@@ -1,7 +1,10 @@
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.config import AuthConfig
+from app.errors.user import UserNotFoundError
+from app.models.user import User
 from app.schemas.auth.credentials import UserCredentials
 
 from .access_token import create_access_token
@@ -48,10 +51,16 @@ def refresh_user_credentials(
         config=config,
     )
 
-    user = database.user.get_user(
-        db=db,
-        user_id=refresh_token_read.user_id,
-    )
+    try:
+        user = (
+            db.execute(select(User).where(User.id == refresh_token_read.user_id))
+            .unique()
+            .scalars()
+            .one()
+        )
+
+    except NoResultFound as error:
+        raise UserNotFoundError({"id": refresh_token_read.user_id}) from error
 
     return create_user_credentials(
         db=db,

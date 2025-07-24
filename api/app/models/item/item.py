@@ -65,6 +65,7 @@ class Item(CreationDate, UpdateDate, Base):
         ForeignKey(
             "user.id",
             ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
     )
 
@@ -85,7 +86,7 @@ class Item(CreationDate, UpdateDate, Base):
     # regions where the item is available
     regions: Mapped[list[Region]] = relationship(
         Region,
-        secondary="item_region",
+        secondary="item_region_association",
         back_populates="items",
     )
 

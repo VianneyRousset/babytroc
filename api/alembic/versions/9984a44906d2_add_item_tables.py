@@ -25,11 +25,11 @@ def upgrade() -> None:
     create_item_image_association_table()
     create_item_like_table()
     create_item_save_table()
-    create_item_region_table()
+    create_item_region_association_table()
 
 
 def downgrade() -> None:
-    drop_item_region_table()
+    drop_item_region_association_table()
     drop_item_save_table()
     drop_item_like_table()
     drop_item_image_association_table()
@@ -77,7 +77,12 @@ def create_item_table():
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["owner_id"], ["user.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["owner_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
@@ -113,7 +118,12 @@ def create_item_image_table():
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["owner_id"], ["user.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["owner_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("name"),
     )
     op.create_index(op.f("ix_item_image_name"), "item_image", ["name"], unique=True)
@@ -131,9 +141,17 @@ def create_item_image_association_table():
         sa.Column("image_name", sa.String(), nullable=False),
         sa.Column("order", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["image_name"], ["item_image.name"], ondelete="CASCADE"
+            ["image_name"],
+            ["item_image.name"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
-        sa.ForeignKeyConstraint(["item_id"], ["item.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("item_id", "image_name"),
     )
 
@@ -157,10 +175,14 @@ def create_item_like_table():
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("item_id", "user_id", "id"),
         sa.UniqueConstraint("item_id", "user_id"),
@@ -188,10 +210,14 @@ def create_item_save_table():
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("item_id", "user_id", "id"),
         sa.UniqueConstraint("item_id", "user_id"),
@@ -204,22 +230,25 @@ def drop_item_save_table():
     op.drop_table("item_save")
 
 
-def create_item_region_table():
+def create_item_region_association_table():
     op.create_table(
-        "item_region",
+        "item_region_association",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("region_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["region_id"],
             ["region.id"],
+            onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("item_id", "region_id"),
     )
 
 
-def drop_item_region_table():
-    op.drop_table("item_region")
+def drop_item_region_association_table():
+    op.drop_table("item_region_association")

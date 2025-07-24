@@ -10,8 +10,6 @@ from app.schemas.item.api import SavedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation
 from .me import router
@@ -25,10 +23,10 @@ def add_item_to_client_saved_items(
     request: Request,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-) -> ItemRead:
+) -> None:
     """Add item to client saved items."""
 
-    return services.item.save.add_item_to_user_saved_items(
+    services.item.save.add_item_to_user_saved_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
@@ -50,31 +48,15 @@ def list_items_saved_by_client(
 
     result = services.item.list_items(
         db=db,
-        query_filter=ItemQueryFilter(
-            words=query.q,
-            targeted_age_months=query.parsed_mo,
-            saved_by_user_id=client_id,
-        ),
-        page_options=QueryPageOptions(
-            order=["save_id", "item_id"],
-            desc=True,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "saved_by_user_id": client_id,
+            }
         ),
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "words_match": "cwm",
-            "save_id": "sid",
-            "item_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 
@@ -104,7 +86,7 @@ def remove_item_from_client_saved_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
-) -> ItemRead:
+) -> None:
     """Remove the specified item from client saved items."""
 
     return services.item.save.remove_item_from_user_saved_items(

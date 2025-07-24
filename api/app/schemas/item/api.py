@@ -1,125 +1,129 @@
-from pydantic import Field, field_validator
+from typing import Annotated
 
 from app.enums import ItemQueryAvailability
-from app.schemas.base import ApiQueryBase
+from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
+from app.schemas.query import QueryPageOptions
+
+from .base import MonthRange
+from .query import (
+    ItemMatchingWordsQueryPageCursor,
+    ItemQueryFilter,
+    ItemQueryPageCursor,
+)
 
 
-class ItemApiQueryBase(ApiQueryBase):
-    # words
-    q: list[str] | None = Field(
-        title="Words used for fuzzy search",
-        description=(
-            "An item is returned if any word in this list fuzzy-matches a word in the "
-            "item's name or description. However, the more given words that do not "
-            "match any word in the item's name or description, the higher the word "
-            "matching distance is."
-        ),
-        examples=[
-            ["chair"],
-            ["dog", "cat"],
-        ],
-        default=None,
-    )
-
+class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
     # targeted_age_months
-    mo: str | None = Field(
-        alias="mo",
-        title="Targeted age months",
-        description=(
-            "An item is returned if its targeted age months is included in this range. "
-            "The values are the targeted age in months. A null value specify "
-            "an infinite bound."
+    targeted_age_months: Annotated[
+        MonthRange | None,
+        FieldWithAlias(
+            name="targeted_age_months",
+            alias="mo",
+            title="Targeted age months",
+            description=(
+                "An item is returned if its targeted age months is included in this "
+                "range. The values are the targeted age in months. A null value "
+                "specify an infinite bound."
+            ),
+            examples=[
+                "3-12",
+                "8-",
+            ],
         ),
-        examples=[
-            "3-12",
-            "8-",
-        ],
-        default=None,
-        pattern=r"^\d*-\d*$",
-    )
+    ] = None
 
     # availability
-    av: ItemQueryAvailability | None = Field(
-        title="Availability",
-        default=ItemQueryAvailability.yes,
-    )
-
-    @field_validator("mo")
-    def validate_mo(cls, mo: str):  # noqa: N805
-        lower, upper = cls.parse_mo(mo)
-
-        if lower is not None and upper is not None and lower > upper:
-            msg = "mo values must be in order"
-            raise ValueError(msg)
-
-        return mo
-
-    @staticmethod
-    def parse_mo(mo: str) -> tuple[int | None, int | None]:
-        try:
-            lower_str, upper_str = mo.split("-")
-
-        except ValueError as error:
-            msg = "mo must have 2 values"
-            raise ValueError(msg) from error
-
-        lower = int(lower_str) if lower_str else None
-        upper = int(upper_str) if upper_str else None
-
-        return lower, upper
-
-    @property
-    def parsed_mo(self) -> tuple[int | None, int | None] | None:
-        if self.mo is None:
-            return None
-
-        return self.parse_mo(self.mo)
+    availability: Annotated[
+        ItemQueryAvailability,
+        FieldWithAlias(
+            name="availability",
+            alias="av",
+            title="Availability",
+        ),
+    ] = ItemQueryAvailability.all
 
     # regions
-    reg: list[int] | None = Field(
-        title="Regions",
-        description=(
-            "An item is returned if it is available in any of these regions IDs."
+    regions: Annotated[
+        list[int] | None,
+        FieldWithAlias(
+            name="regions",
+            alias="reg",
+            title="Regions",
+            description=(
+                "An item is returned if it is available in any of these regions IDs."
+            ),
+            examples=[
+                [4],
+                [2, 4, 7, 8],
+            ],
         ),
-        examples=[
-            [4],
-            [2, 4, 7, 8],
-        ],
-        default=None,
-    )
+    ] = None
+
+    limit: Annotated[int, PageLimitField()] = 32
+
+    @property
+    def item_query_filter(self) -> ItemQueryFilter:
+        return ItemQueryFilter(
+            targeted_age_months=self.targeted_age_months,
+            regions=self.regions,
+            availability=self.availability,
+        )
+
+    @property
+    def item_query_page_cursor(self) -> ItemQueryPageCursor:
+        return ItemQueryPageCursor(
+            item_id=self.item_id,
+        )
+
+    @property
+    def item_query_page_options(self) -> QueryPageOptions[ItemQueryPageCursor]:
+        return QueryPageOptions[ItemQueryPageCursor](
+            limit=self.limit,
+            cursor=self.item_query_page_cursor,
+        )
 
 
-class ItemApiQuery(ItemApiQueryBase):
-    # limit
-    n: int | None = Field(
-        title="Limit returned items count",
-        description="Limit the number of items returned.",
-        examples=[
-            [42],
-        ],
-        gt=0,
-        le=128,
-        default=64,
-    )
+class ItemMatchinWordsApiQuery(ItemApiQuery, ItemMatchingWordsQueryPageCursor):
+    # words
+    words: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="words",
+            alias="q",
+            title="Words used for fuzzy search",
+            description=(
+                "An item is returned if any word in this list fuzzy-matches a word in "
+                "the item's name or description. However, the more given words that do "
+                "not match any word in the item's name or description, the higher the "
+                "word matching distance is."
+            ),
+            examples=[
+                ["chair"],
+                ["dog", "cat"],
+            ],
+        ),
+    ] = None
 
-    # cursor item_id
-    cid: int | None = Field(
-        title="Page cursor for item ID",
-        gt=0,
-        default=None,
-    )
+    @property
+    def item_matching_words_query_page_cursor(self) -> ItemMatchingWordsQueryPageCursor:
+        return ItemMatchingWordsQueryPageCursor(
+            item_id=self.item_id,
+            words_match=self.words_match,
+        )
 
-    # cursor words_match
-    cwm: int | None = Field(
-        title="Page cursor for words match",
-        le=0,
-        default=None,
-    )
+    @property
+    def item_matching_words_query_page_options(
+        self,
+    ) -> QueryPageOptions[ItemMatchingWordsQueryPageCursor]:
+        return QueryPageOptions[ItemMatchingWordsQueryPageCursor](
+            limit=self.limit,
+            cursor=self.item_matching_words_query_page_cursor,
+        )
 
 
-class SavedItemApiQuery(ItemApiQueryBase):
+class SavedItemApiQuery(ItemApiQuery):
     pass
 
 
-class LikedItemApiQuery(ItemApiQueryBase):
+class LikedItemApiQuery(ItemApiQuery):
     pass

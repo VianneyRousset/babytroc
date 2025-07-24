@@ -1,18 +1,16 @@
-from pydantic import field_validator
-from sqlalchemy.dialects.postgresql import Range
-
 from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
 from app.schemas.region.read import RegionRead
 from app.schemas.user.preview import UserPreviewRead
-from app.schemas.utils import integer_range_to_inclusive
+
+from .base import MonthRange
 
 
 class ItemRead(ItemBase, ReadBase):
     id: int
     name: str
     description: str
-    targeted_age_months: tuple[int | None, int | None]
+    targeted_age_months: MonthRange
     images_names: list[str]
     available: bool
     owner_id: int
@@ -21,17 +19,10 @@ class ItemRead(ItemBase, ReadBase):
     regions: list[RegionRead]
     likes_count: int
 
-    @field_validator("targeted_age_months", mode="before")
-    def validate_targeted_age_months(
-        cls,  # noqa: N805
-        v: tuple[int | None, int | None] | list[int | None] | Range,
-    ) -> tuple[int | None, int | None]:
-        if isinstance(v, tuple):
-            return v
+    # only given logged in
+    owned: bool | None = None
+    liked: bool | None = None
+    saved: bool | None = None
 
-        if isinstance(v, list):
-            lower, upper = v
-            return lower, upper
-
-        v = integer_range_to_inclusive(v)
-        return (v.lower, v.upper)
+    # only given if owned
+    blocked: bool | None = None

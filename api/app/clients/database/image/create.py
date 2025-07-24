@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-from app.clients.database.user import get_user
 from app.models.item import ItemImage
 
 
@@ -26,10 +25,7 @@ def insert_image(
 ) -> ItemImage:
     """Insert image into the database."""
 
-    # check owner exists
-    if image.owner_id is not None:
-        get_user(db, image.owner_id)
-
+    # TODO handle owner does not exists
     db.add(image)
 
     db.flush()

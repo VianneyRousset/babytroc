@@ -1,7 +1,6 @@
-from . import image
-from .query import set_query_param
+from . import hash, image
 
 __all__ = [
+    "hash",
     "image",
-    "set_query_param",
 ]

@@ -31,7 +31,7 @@ class Region(Base):
 
     items: Mapped[list["Item"]] = relationship(
         "Item",
-        secondary="item_region",
+        secondary="item_region_association",
         back_populates="regions",
     )
 
@@ -39,19 +39,26 @@ class Region(Base):
         return f"<{self.__class__.__name__} #{self.id!r} {self.name!r}>"
 
 
-class ItemRegion(Base):
+class ItemRegionAssociation(Base):
     """Items and regions association table"""
 
-    __tablename__ = "item_region"
+    __tablename__ = "item_region_association"
 
     item_id = mapped_column(
         Integer,
-        ForeignKey("item.id"),
+        ForeignKey(
+            "item.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         primary_key=True,
     )
 
     region_id = mapped_column(
         Integer,
-        ForeignKey("region.id"),
+        ForeignKey(
+            "region.id",
+            onupdate="CASCADE",
+        ),
         primary_key=True,
     )

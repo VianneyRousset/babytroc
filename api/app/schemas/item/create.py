@@ -5,14 +5,15 @@ from pydantic import Field, field_validator
 from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase
 
-from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
+from .base import MonthRange
+from .constants import DESCRIPTION_LENGTH, NAME_LENGTH, NAME_PATTERN
 
 
 class ItemCreate(ItemBase, CreateBase):
     name: Annotated[
         str,
         Field(
-            pattern=r"^\p{L}[\p{L} -]+\p{L}$",
+            pattern=NAME_PATTERN,
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
@@ -28,8 +29,11 @@ class ItemCreate(ItemBase, CreateBase):
         list[str],
         Field(min_length=1),
     ]
-    targeted_age_months: tuple[int | None, int | None]
-    regions: list[int]
+    targeted_age_months: MonthRange
+    regions: Annotated[
+        list[int],
+        Field(min_length=1),
+    ]
     blocked: bool | None = False
 
     @field_validator("name", mode="before")
@@ -54,10 +58,13 @@ class ItemCreate(ItemBase, CreateBase):
             return v.strip()
         return v
 
-    @field_validator("targeted_age_months")
-    def validate_targeted_age_months(cls, v):  # noqa: N805
-        if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age_months values must be in order"
-            raise ValueError(msg)
+    @property
+    def as_sql_values(self):
+        values = self.model_dump(
+            exclude={"targeted_age_months"},
+        )
 
-        return v
+        if self.targeted_age_months:
+            values["targeted_age_months"] = self.targeted_age_months.as_sql_range
+
+        return values

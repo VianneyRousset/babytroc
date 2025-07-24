@@ -19,12 +19,13 @@ def get_account_availability(
 ) -> AuthAccountAvailability:
     """Get account availability to be created."""
 
-    user_exists = services.user.get_user_exists(
+    user_exists = services.user.list_users(
         db=db,
         query_filter=UserQueryFilter(
             name=query.name,
             email=query.email,
         ),
+        limit=1,
     )
 
     return AuthAccountAvailability(available=not user_exists)

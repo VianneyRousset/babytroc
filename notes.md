@@ -4,6 +4,7 @@
 - pydantic schematics should be think as interfaces (services-routes, routes, ...)
 - Should services and clients return HTTP errors. I don't think so. Generic errors could be interpreted by FastAPI to return the proper HTTP status (e.g. a NotFoundError treated as a 404)
 - https://github.com/Kludex/fastapi-tips
+- libvips (pyvips for python binding) can be good for image processing
 
 ## TODO
 - check alembic version files for proper indices creation
@@ -13,6 +14,7 @@
 - check missing index. Should item_image_association table be better indexed ?
 - add more constraints to any API inputs (mostly str inputs)
 - add/check delete cascade to foreign key (item-regions is not working)
+- When a loan request is accepted, no other loan requests of the item should be able to be accepted
 
 # GUI
 

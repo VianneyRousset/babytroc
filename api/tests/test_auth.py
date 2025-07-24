@@ -4,10 +4,10 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.clients.database.auth import list_account_password_reset_authorizations
-from app.clients.database.user import get_user_by_email
 from app.config import Config
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
+from app.services.user import get_user_validation_code_by_email
 from tests.fixtures.clients import create_client
 from tests.fixtures.users import UserData
 from tests.fixtures.websockets import WebSocketRecorder
@@ -158,11 +158,10 @@ class TestAuthNewAccount:
         # get validation code
         engine = sqlalchemy.create_engine(database)
         with sqlalchemy.orm.Session(engine) as db, db.begin():
-            user = get_user_by_email(
+            validation_code = get_user_validation_code_by_email(
                 db=db,
                 email=email,
             )
-            validation_code = user.validation_code
 
         # should be logged into the invalidated account and thus access
         # the websocket

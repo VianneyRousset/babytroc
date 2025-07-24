@@ -19,15 +19,6 @@ class LoanRequestRead(LoanRequestBase, ReadBase):
     chat_id: ChatId
     state: LoanRequestState
 
-    @field_validator("chat_id", mode="before")
-    def validate_chat_id(
-        cls,  # noqa: N805
-        v: ChatId | str,
-    ) -> ChatId:
-        if isinstance(v, str):
-            return ChatId.from_str(v)
-        return v
-
 
 class LoanRead(LoanBase, ReadBase):
     id: int
@@ -47,12 +38,3 @@ class LoanRead(LoanBase, ReadBase):
             return v
 
         return v.lower, v.upper
-
-    @field_validator("chat_id", mode="before")
-    def validate_chat_id(
-        cls,  # noqa: N805
-        v: ChatId | str,
-    ) -> ChatId:
-        if isinstance(v, str):
-            return ChatId.from_str(v)
-        return v

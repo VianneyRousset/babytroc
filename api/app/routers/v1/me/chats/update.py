@@ -26,7 +26,7 @@ def mark_client_chat_message_as_seen(
 ) -> ChatMessageRead:
     """Mark client's chat message as seen."""
 
-    parsed_chat_id = ChatId.from_str(chat_id)
+    parsed_chat_id = ChatId.model_validate(chat_id)
 
     return services.chat.mark_message_as_seen(
         db=db,

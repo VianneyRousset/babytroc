@@ -54,8 +54,18 @@ def create_loan_table():
             using="gist",
             name="loan_no_overlapping_date_ranges",
         ),
-        sa.ForeignKeyConstraint(["borrower_id"], ["user.id"], ondelete="SET NULL"),
-        sa.ForeignKeyConstraint(["item_id"], ["item.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["borrower_id"],
+            ["user.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["item.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_loan_during"), "loan", ["during"], unique=False)
@@ -119,11 +129,23 @@ def create_loan_request_table():
             "OR state != 'executed' AND loan_id IS NULL",
             name="loan_request_executed_or_not",
         ),
-        sa.ForeignKeyConstraint(["borrower_id"], ["user.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["item_id"], ["item.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["borrower_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["item.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.ForeignKeyConstraint(
             ["loan_id"],
             ["loan.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

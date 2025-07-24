@@ -9,8 +9,6 @@ from app.schemas.item.api import ItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation, user_id_annotation
 from .router import router
@@ -28,33 +26,16 @@ def list_items_owned_by_user(
 
     result = services.item.list_items(
         db=db,
-        query_filter=ItemQueryFilter(
-            owner_id=user_id,
-            words=query.q,
-            targeted_age_months=query.parsed_mo,
-            regions=query.reg,
+        query_filter=ItemQueryFilter.model_validate(
+            {
+                **query.item_query_filter.model_dump(),
+                "owner_id": user_id,
+            }
         ),
-        page_options=QueryPageOptions(
-            limit=query.n,
-            order=["words_match", "item_id"],
-            cursor={"words_match": query.cwm, "item_id": query.cid},
-            desc=True,
-        ),
+        page_options=query.item_query_page_options,
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "words_match": "cwm",
-            "item_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 

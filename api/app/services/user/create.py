@@ -1,11 +1,13 @@
 from fastapi import BackgroundTasks
 from fastapi_mail import FastMail
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
-from app.clients import database, email
+from app.clients import email
+from app.models.user import User
 from app.schemas.user.create import UserCreate
 from app.schemas.user.private import UserPrivateRead
-from app.services.auth import hash_password
+from app.utils.hash import HashedStr
 
 
 def create_user(
@@ -20,15 +22,22 @@ def create_user(
 ) -> UserPrivateRead:
     """Create a user."""
 
-    # insert new user in database
-    user = database.user.create_user(
-        db=db,
-        email=user_create.email,
-        name=user_create.name,
-        password_hash=hash_password(user_create.password),
-        avatar_seed=user_create.avatar_seed,
-        validated=validated,
+    # insert user
+    stmt = (
+        insert(User)
+        .values(
+            **{
+                **user_create.model_dump(
+                    exclude={"password"},
+                    exclude_none=True,
+                ),
+                "password_hash": HashedStr(user_create.password),
+            }
+        )
+        .returning(User)
     )
+
+    user = db.execute(stmt).unique().scalars().one()
 
     if send_validation_email:
         email.send_account_validation_email(
@@ -44,19 +53,34 @@ def create_user(
     return UserPrivateRead.model_validate(user)
 
 
-def create_user_without_validation(
+def create_many_users_without_validation(
     db: Session,
-    user_create: UserCreate,
+    user_creates: list[UserCreate],
     validated: bool = False,
-) -> UserPrivateRead:
-    # insert new user in database
-    user = database.user.create_user(
-        db=db,
-        email=user_create.email,
-        name=user_create.name,
-        password_hash=hash_password(user_create.password),
-        avatar_seed=user_create.avatar_seed,
-        validated=validated,
+) -> list[UserPrivateRead]:
+    """Create many user without sending a validation email."""
+
+    # insert users
+    stmt = (
+        insert(User)
+        .values(
+            [
+                {
+                    **user_create.model_dump(
+                        exclude={"password"},
+                        exclude_none=True,
+                    ),
+                    "password_hash": HashedStr(user_create.password),
+                    "validated": validated,
+                }
+                for user_create in user_creates
+            ]
+        )
+        .returning(User)
     )
 
-    return UserPrivateRead.model_validate(user)
+    # execute
+    return [
+        UserPrivateRead.model_validate(user)
+        for user in db.execute(stmt).unique().scalars().all()
+    ]

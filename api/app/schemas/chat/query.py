@@ -1,9 +1,12 @@
+from typing import Annotated
+
 from sqlalchemy import Select
 
 from app.models.chat import Chat, ChatMessage
 from app.models.item import Item
-from app.schemas.base import QueryFilterBase
+from app.schemas.base import FieldWithAlias, QueryFilterBase
 from app.schemas.chat.base import ChatId
+from app.schemas.query import QueryPageCursor
 
 
 class ChatQueryFilter(QueryFilterBase):
@@ -107,3 +110,23 @@ class ChatMessageQueryFilter(QueryFilterBase):
             stmt = stmt.where(ChatMessage.seen == self.seen)
 
         return stmt
+
+
+class ChatQueryPageCursor(QueryPageCursor):
+    last_message_id: Annotated[
+        int | None,
+        FieldWithAlias(
+            name="last_message_id",
+            alias="clm",
+        ),
+    ] = None
+
+
+class ChatMessageQueryPageCursor(QueryPageCursor):
+    message_id: Annotated[
+        int | None,
+        FieldWithAlias(
+            name="message_id",
+            alias="cid",
+        ),
+    ] = None

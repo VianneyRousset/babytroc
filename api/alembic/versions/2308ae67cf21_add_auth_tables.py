@@ -38,7 +38,12 @@ def create_auth_table():
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("token"),
     )
 
@@ -53,7 +58,12 @@ def create_auth_table():
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["user.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
         sa.PrimaryKeyConstraint("authorization_code"),
     )
 

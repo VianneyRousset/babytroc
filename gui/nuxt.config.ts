@@ -37,6 +37,7 @@ export default defineNuxtConfig({
 
   /* Client-side Integrations */
   app: {
+    pageTransition: { name: 'fade', mode: 'out-in' },
     head: {
       title: 'Babytroc', // default fallback title
       htmlAttrs: {

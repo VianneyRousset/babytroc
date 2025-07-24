@@ -29,9 +29,11 @@ def report_client_chat(
 ) -> ChatRead:
     """Report client's chat by id."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     return services.chat.report_chat(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=parsed_chat_id,
         reported_by_user_id=client_id,
         report_create=report_create,
     )

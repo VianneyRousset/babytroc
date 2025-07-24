@@ -1,17 +1,19 @@
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field
 
 from app.schemas.base import UpdateBase
 from app.schemas.item.base import ItemBase
 
-from .constants import DESCRIPTION_LENGTH, NAME_LENGTH
+from .base import MonthRange
+from .constants import DESCRIPTION_LENGTH, NAME_LENGTH, NAME_PATTERN
 
 
 class ItemUpdate(ItemBase, UpdateBase):
     name: Annotated[
         str | None,
         Field(
+            pattern=NAME_PATTERN,
             min_length=NAME_LENGTH.start,
             max_length=NAME_LENGTH.stop,
         ),
@@ -23,16 +25,26 @@ class ItemUpdate(ItemBase, UpdateBase):
             max_length=DESCRIPTION_LENGTH.stop,
         ),
     ] = None
-    images: list[str] | None = None
-    targeted_age_months: tuple[int | None, int | None] | None = None
-    regions: list[int] | None = None
-    blocked: bool | None = None
+    images: Annotated[
+        list[str] | None,
+        Field(min_length=1),
+    ] = None
+    targeted_age_months: MonthRange | None = None
+    regions: Annotated[
+        list[int] | None,
+        Field(min_length=1),
+    ] = None
+    blocked: bool | None = False
 
-    # TODO global field validator for targeted_age_months ?
-    @field_validator("targeted_age_months")
-    def validate_targeted_age_months(cls, v):  # noqa: N805
-        if v[0] is not None and v[1] is not None and v[0] > v[1]:
-            msg = "targeted_age_months values must be in order"
-            raise ValueError(msg)
+    def as_sql_values(self, *, exclude=None):
+        exclude = exclude or {}
 
-        return v
+        values = self.model_dump(
+            exclude_none=True,
+            exclude={"targeted_age_months", *exclude},
+        )
+
+        if self.targeted_age_months:
+            values["targeted_age_months"] = self.targeted_age_months.as_sql_range
+
+        return values

@@ -30,9 +30,11 @@ def send_message_to_chat(
 ) -> ChatMessageRead:
     """Send message to chat."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     return services.chat.send_message_text(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=parsed_chat_id,
         sender_id=client_id,
         text=chat_message_create.text,
     )

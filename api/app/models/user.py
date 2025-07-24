@@ -19,13 +19,40 @@ from sqlalchemy.orm import (
     relationship,
     validates,
 )
-from sqlalchemy.types import UUID
+from sqlalchemy.types import UUID, TypeDecorator
+
+from app.utils.hash import HashedStr
 
 from .base import Base, CreationDate
 from .item import Item, ItemLike
 
 if TYPE_CHECKING:
     from .loan import Loan, LoanRequest
+
+
+class HashedString(TypeDecorator):
+    """
+    String representation of a hashed string.
+
+    Returns a HashedStr when reading.
+
+    Ensure the string is converted to HashedStr
+    """
+
+    impl = String
+    cache_ok = True
+
+    def process_bind_param(self, value: str | HashedStr | None, dialect) -> str | None:
+        if value is None:
+            return value
+        else:
+            return str(HashedStr(value))
+
+    def process_result_value(self, value: str | None, dialect) -> HashedStr | None:
+        if value is None:
+            return value
+        else:
+            return HashedStr(hashed=value)
 
 
 class User(CreationDate, Base):
@@ -61,8 +88,8 @@ class User(CreationDate, Base):
         unique=True,
         index=True,
     )
-    password_hash: Mapped[str] = mapped_column(
-        String,
+    password_hash: Mapped[HashedStr] = mapped_column(
+        HashedString,
     )
     avatar_seed: Mapped[str] = mapped_column(
         String,

@@ -10,8 +10,6 @@ from app.schemas.item.query import ItemQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
 from app.schemas.loan.query import LoanRequestQueryFilter
 from app.schemas.loan.read import LoanRequestRead
-from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
@@ -19,7 +17,6 @@ from .router import router
 # READ
 
 
-# TODO fix this endpoint
 @router.get("/{item_id}/requests", status_code=status.HTTP_200_OK)
 def list_client_item_loan_requests(
     client_id: client_id_annotation,
@@ -43,28 +40,16 @@ def list_client_item_loan_requests(
     # get list of loan requests of the item
     result = services.loan.list_loan_requests(
         db=db,
-        query_filter=LoanRequestQueryFilter(
-            item_id=item.id,
-            states=query.states,
+        query_filter=LoanRequestQueryFilter.model_validate(
+            {
+                **query.loan_request_query_filter.model_dump(),
+                "item_id": item.id,
+            }
         ),
-        page_options=QueryPageOptions(
-            order=["loan_request_id"],
-            desc=True,
-        ),
+        page_options=query.loan_request_query_page_options,
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "loan_request_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 

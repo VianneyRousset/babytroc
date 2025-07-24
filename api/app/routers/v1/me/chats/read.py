@@ -10,8 +10,6 @@ from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
-from app.schemas.query import QueryPageOptions
-from app.utils import set_query_param
 
 from .annotations import chat_id_annotation, message_id_annotation
 from .router import router
@@ -27,46 +25,18 @@ def list_client_chats(
 ) -> list[ChatRead]:
     """List all chats where the client is a member."""
 
-    cursor_chat_id = None if query.cid is None else ChatId.from_str(query.cid)
-
     result = services.chat.list_chats(
         db=db,
-        query_filter=ChatQueryFilter(
-            member_id=client_id,
-            item_id=query.item,
-            borrower_id=query.borrower,
-            owner_id=query.owner,
+        query_filter=ChatQueryFilter.model_validate(
+            {
+                **query.chat_query_filter.model_dump(),
+                "member_id": client_id,
+            }
         ),
-        page_options=QueryPageOptions(
-            limit=query.n,
-            order=["last_message_id", "item_id", "borrower_id"],
-            cursor={
-                "last_message_id": query.clm,
-                "item_id": cursor_chat_id.item_id if cursor_chat_id else None,
-                "borrower_id": cursor_chat_id.borrower_id if cursor_chat_id else None,
-            },
-            desc=True,
-        ),
+        page_options=query.chat_query_page_options,
     )
 
-    query_params = request.query_params
-    next_cursor = result.next_cursor()
-
-    if "last_message_id" in next_cursor:
-        query_params = set_query_param(
-            query_params, "clm", next_cursor["last_message_id"]
-        )
-
-    if "item_id" in next_cursor:
-        chat_id = ChatId(
-            item_id=next_cursor["item_id"],
-            borrower_id=next_cursor["borrower_id"],
-        )
-        query_params = set_query_param(query_params, "cid", str(chat_id))
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 
@@ -79,9 +49,11 @@ def get_client_chat(
 ) -> ChatRead:
     """Get client chat info by chat id."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     return services.chat.get_chat(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),
@@ -99,10 +71,12 @@ def list_client_chat_messages(
 ) -> list[ChatMessageRead]:
     """List messages in the chat."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),
@@ -111,32 +85,16 @@ def list_client_chat_messages(
     # get messages in the chat
     result = services.chat.list_messages(
         db=db,
-        query_filter=ChatMessageQueryFilter(
-            chat_id=chat.id,
-            seen=query.seen,
+        query_filter=ChatMessageQueryFilter.model_validate(
+            {
+                **query.chat_message_query_filter.model_dump(),
+                "chat_id": chat.id,
+            }
         ),
-        page_options=QueryPageOptions(
-            limit=query.n,
-            order=["message_id"],
-            cursor={
-                "message_id": query.cid,
-            },
-            desc=True,
-        ),
+        page_options=query.chat_message_query_page_options,
     )
 
-    query_params = request.query_params
-    for k, v in result.next_cursor().items():
-        # rename query parameters
-        k = {
-            "message_id": "cid",
-        }[k]
-
-        query_params = set_query_param(query_params, k, v)
-
-    response.headers["Link"] = f'<{request.url.path}?{query_params}>; rel="next"'
-
-    response.headers["X-Total-Count"] = str(result.total_count)
+    result.set_response_headers(response, request)
 
     return result.data
 
@@ -153,10 +111,12 @@ def get_client_chat_message_by_id(
 ) -> ChatMessageRead:
     """Get client's chat message by id."""
 
+    parsed_chat_id = ChatId.model_validate(chat_id)
+
     # check that client is member of the chat
     chat = services.chat.get_chat(
         db=db,
-        chat_id=ChatId.from_str(chat_id),
+        chat_id=parsed_chat_id,
         query_filter=ChatQueryFilter(
             member_id=client_id,
         ),

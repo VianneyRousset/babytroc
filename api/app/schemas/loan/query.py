@@ -1,9 +1,12 @@
+from typing import Annotated
+
 from sqlalchemy import Select, func
 
 from app.enums import LoanRequestState
 from app.models.item import Item
 from app.models.loan import Loan, LoanRequest
-from app.schemas.base import QueryFilterBase
+from app.schemas.base import FieldWithAlias, QueryFilterBase
+from app.schemas.query import QueryPageCursor
 
 
 class LoanRequestQueryFilter(QueryFilterBase):
@@ -67,3 +70,23 @@ class LoanQueryFilter(QueryFilterBase):
                 stmt = stmt.where(func.upper(Loan.during).is_not(None))
 
         return stmt
+
+
+class LoanRequestQueryPageCursor(QueryPageCursor):
+    loan_request_id: Annotated[
+        int | None,
+        FieldWithAlias(
+            name="loan_request_id",
+            alias="cid",
+        ),
+    ] = None
+
+
+class LoanQueryPageCursor(QueryPageCursor):
+    loan_id: Annotated[
+        int | None,
+        FieldWithAlias(
+            name="loan_id",
+            alias="cid",
+        ),
+    ] = None
