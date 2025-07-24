@@ -14,9 +14,21 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class HashedStr(str):
-    def __new__(cls, o: str | Self, *, hash: bool = True):
+    def __new__(cls, o: str | Self | None = None, *, hashed: str | Self | None = None):
+        # use hashed string
+        if o is None:
+            if hashed is None:
+                msg = "Missing input value"
+                raise ValueError(msg)
+
+            if not isinstance(hashed, str):
+                msg = f"Type of hashed is expected to be str, got {type(hashed)}"
+                raise TypeError(msg)
+
+            return str.__new__(HashedStr, hashed)
+
         # already hashed
-        if isinstance(o, HashedStr) or (not hash and isinstance(o, str)):
+        if isinstance(o, HashedStr):
             return str.__new__(HashedStr, o)
 
         # to be hashed

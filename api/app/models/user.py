@@ -52,7 +52,7 @@ class HashedString(TypeDecorator):
         if value is None:
             return value
         else:
-            return HashedStr(value, hash=False)
+            return HashedStr(hashed=value)
 
 
 class User(CreationDate, Base):
