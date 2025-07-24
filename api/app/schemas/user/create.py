@@ -1,5 +1,5 @@
 import re
-from typing import Annotated
+from typing import Annotated, TypeVar
 
 from pydantic import EmailStr, Field, field_validator
 
@@ -8,6 +8,8 @@ from app.utils.hash import HashedStr
 
 from .base import UserBase
 from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH, PASSWORD_MIN_LENGTH
+
+T = TypeVar("T", str, HashedStr)
 
 
 class UserCreate(UserBase, CreateBase):
@@ -55,8 +57,8 @@ class UserCreate(UserBase, CreateBase):
     @field_validator("password", mode="before")
     def validate_password(
         cls,  # noqa: N805
-        v: str | HashedStr,
-    ) -> HashedStr:
+        v: T,
+    ) -> T:
         """Check containing lower and upper case characters."""
 
         # skip checks if hashed
@@ -78,7 +80,7 @@ class UserCreate(UserBase, CreateBase):
                 )
                 raise ValueError(msg)
 
-        return HashedStr(v)
+        return v
 
     @field_validator("avatar_seed", mode="before")
     def validate_avatar_seed(
