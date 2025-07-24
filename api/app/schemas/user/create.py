@@ -1,3 +1,4 @@
+import re
 from typing import Annotated
 
 from pydantic import EmailStr, Field, field_validator
@@ -19,13 +20,7 @@ class UserCreate(UserBase, CreateBase):
         ),
     ]
     email: EmailStr
-    password: Annotated[
-        str | HashedStr,
-        Field(
-            pattern="[0-9]",
-            min_length=PASSWORD_MIN_LENGTH,
-        ),
-    ]
+    password: str | HashedStr
     avatar_seed: Annotated[
         str | None,
         Field(
@@ -61,18 +56,29 @@ class UserCreate(UserBase, CreateBase):
     def validate_password(
         cls,  # noqa: N805
         v: str | HashedStr,
-    ) -> str | HashedStr:
+    ) -> HashedStr:
         """Check containing lower and upper case characters."""
 
+        # skip checks if hashed
         if isinstance(v, HashedStr):
             return v
 
+        # check length and mandatory characters
         if isinstance(v, str):
             if v.lower() == v or v.upper() == v:
                 msg = "The password must contain lowercase and uppercase letters."
                 raise ValueError(msg)
+            if not re.match(r".*[0-9].*", v):
+                msg = "The password must contain at least one digit."
+                raise ValueError(msg)
+            if len(v) < PASSWORD_MIN_LENGTH:
+                msg = (
+                    f"The password must contain at least {PASSWORD_MIN_LENGTH} "
+                    "characters."
+                )
+                raise ValueError(msg)
 
-        return v
+        return HashedStr(v)
 
     @field_validator("avatar_seed", mode="before")
     def validate_avatar_seed(
