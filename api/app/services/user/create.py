@@ -7,7 +7,7 @@ from app.clients import email
 from app.models.user import User
 from app.schemas.user.create import UserCreate
 from app.schemas.user.private import UserPrivateRead
-from app.services.auth import hash_password
+from app.utils.hash import HashedStr
 
 
 def create_user(
@@ -31,7 +31,7 @@ def create_user(
                     exclude={"password"},
                     exclude_none=True,
                 ),
-                "password_hash": hash_password(user_create.password),
+                "password_hash": HashedStr(user_create.password),
             }
         )
         .returning(User)
@@ -70,7 +70,7 @@ def create_many_users_without_validation(
                         exclude={"password"},
                         exclude_none=True,
                     ),
-                    "password_hash": hash_password(user_create.password),
+                    "password_hash": HashedStr(user_create.password),
                     "validated": validated,
                 }
                 for user_create in user_creates

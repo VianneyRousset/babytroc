@@ -6,7 +6,7 @@ from app.errors.user import UserNotFoundError
 from app.models.user import User
 from app.schemas.user.private import UserPrivateRead
 from app.schemas.user.update import UserUpdate
-from app.services.auth import hash_password
+from app.utils.hash import HashedStr
 
 
 def update_user(
@@ -37,15 +37,17 @@ def update_user(
 def update_user_password(
     db: Session,
     user_id: int,
-    new_password: str,
+    new_password: str | HashedStr,
 ) -> UserPrivateRead:
     """Update password of user with `user_id`."""
+
+    new_password = HashedStr(new_password)
 
     # update user fields
     stmt = (
         update(User)
         .where(User.id == user_id)
-        .values(password=hash_password(new_password))
+        .values(password=new_password)
         .returning(User)
     )
 

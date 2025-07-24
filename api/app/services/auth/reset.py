@@ -11,8 +11,8 @@ from app.config import AuthConfig
 from app.errors.auth import AuthUnauthorizedAccountPasswordResetError
 from app.models.auth import AuthAccountPasswordResetAuthorization
 from app.models.user import User
-from app.services.auth import hash_password
 from app.services.user import get_user_by_email_private
+from app.utils.hash import HashedStr
 
 
 def create_account_password_reset_authrorization(
@@ -55,7 +55,7 @@ def create_account_password_reset_authrorization(
 def apply_account_password_reset(
     db: Session,
     authorization_code: UUID,
-    new_password: str,
+    new_password: str | HashedStr,
     email_client: FastMail,
     background_tasks: BackgroundTasks,
     app_name: str,
@@ -63,6 +63,8 @@ def apply_account_password_reset(
     send_email: bool = True,
 ) -> None:
     """Update account password using password reset authorization."""
+
+    new_password = HashedStr(new_password)
 
     # delete account password reset authorization and get its user id
     # the authorization must exist, not be invalidated and not expired
@@ -90,7 +92,7 @@ def apply_account_password_reset(
     # update user password
     db.execute(
         update(User)
-        .values(password_hash=hash_password(new_password))
+        .values(password_hash=new_password)
         .where(User.id == user_id)
         .returning(User)
     ).unique().one()
