@@ -1,6 +1,4 @@
-from itertools import zip_longest
 from typing import Any
-from urllib.parse import parse_qsl, urlparse
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
+from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 
 
 @pytest.mark.usefixtures("many_loan_requests_for_alice_items")
@@ -39,32 +38,22 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for i, expected_loan_requests in enumerate(
-            self.grouper(all_expected_loan_requests[::-1], count or 32)
-        ):
-            print(f"page #{i} cursor:", params)
-
-            # get next page
-            resp = bob_client.get(
+        for loan_requests, expected_loan_requests in zip(
+            iter_paginated_endpoint(
                 url="/v1/me/borrowings/requests",
+                client=bob_client,
                 params=params,
-            )
-            print(resp.json())
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            assert [loan_request["id"] for loan_request in resp.json()] == [
+            ),
+            iter_chunks(
+                all_expected_loan_requests[::-1],
+                count=count or 32,
+                append_empty=True,
+            ),
+            strict=True,
+        ):
+            assert [loan_request["id"] for loan_request in loan_requests] == [
                 loan_request.id for loan_request in expected_loan_requests
             ]
-
-        # ensure not loan requests are left
-        resp = bob_client.get(
-            url="/v1/me/borrowings/requests",
-            params=params,
-        )
-        print(resp.json())
-        resp.raise_for_status()
-        assert resp.json() == []
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
@@ -91,32 +80,22 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for i, expected_loan_requests in enumerate(
-            self.grouper(all_expected_loan_requests[::-1], count or 32)
-        ):
-            print(f"page #{i} cursor:", params)
-
-            # get next page
-            resp = alice_client.get(
+        for loan_requests, expected_loan_requests in zip(
+            iter_paginated_endpoint(
                 url="/v1/me/loans/requests",
+                client=alice_client,
                 params=params,
-            )
-            print(resp.json())
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            assert [loan_request["id"] for loan_request in resp.json()] == [
+            ),
+            iter_chunks(
+                all_expected_loan_requests[::-1],
+                count=count or 32,
+                append_empty=True,
+            ),
+            strict=True,
+        ):
+            assert [loan_request["id"] for loan_request in loan_requests] == [
                 loan_request.id for loan_request in expected_loan_requests
             ]
-
-        # ensure not loan requests are left
-        resp = alice_client.get(
-            url="/v1/me/loans/requests",
-            params=params,
-        )
-        print(resp.json())
-        resp.raise_for_status()
-        assert resp.json() == []
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
@@ -144,38 +123,22 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for i, expected_loan_requests in enumerate(
-            self.grouper(all_expected_loan_requests[::-1], count or 32)
-        ):
-            print(f"page #{i} cursor:", params)
-
-            # get next page
-            resp = alice_client.get(
+        for loan_requests, expected_loan_requests in zip(
+            iter_paginated_endpoint(
                 url=f"/v1/me/items/{alice_special_item.id}/loans/requests",
+                client=alice_client,
                 params=params,
-            )
-            print(resp.json())
-            resp.raise_for_status()
-            params = dict(parse_qsl(urlparse(resp.links["next"]["url"]).query))
-
-            assert [loan_request["id"] for loan_request in resp.json()] == [
+            ),
+            iter_chunks(
+                all_expected_loan_requests[::-1],
+                count=count or 32,
+                append_empty=True,
+            ),
+            strict=True,
+        ):
+            assert [loan_request["id"] for loan_request in loan_requests] == [
                 loan_request.id for loan_request in expected_loan_requests
             ]
-
-        # ensure not loan requests are left
-        resp = alice_client.get(
-            url=f"/v1/me/items/{alice_special_item.id}/loans/requests",
-            params=params,
-        )
-        print(resp.json())
-        resp.raise_for_status()
-        assert resp.json() == []
-
-    @staticmethod
-    def grouper(iterable, count):
-        "grouper('abcdefgh', 3) --> ('a','b','c'), ('d','e','f'), ('g','h')"
-        groups = zip_longest(*[iter(iterable)] * count)
-        return [filter(lambda v: v is not None, group) for group in groups]
 
     @staticmethod
     def check_loan_request_state_active(

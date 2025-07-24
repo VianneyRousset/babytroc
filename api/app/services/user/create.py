@@ -53,12 +53,26 @@ def create_user(
     return UserPrivateRead.model_validate(user)
 
 
+def create_user_without_validation(
+    db: Session,
+    user_create: UserCreate,
+    validated: bool = False,
+) -> UserPrivateRead:
+    """Create user without sending a validation email."""
+
+    return create_many_users_without_validation(
+        db=db,
+        user_creates=[user_create],
+        validated=validated,
+    )[0]
+
+
 def create_many_users_without_validation(
     db: Session,
     user_creates: list[UserCreate],
     validated: bool = False,
 ) -> list[UserPrivateRead]:
-    """Create many user without sending a validation email."""
+    """Create many users without sending a validation email."""
 
     # insert users
     stmt = (

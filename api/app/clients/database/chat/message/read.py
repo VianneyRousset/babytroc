@@ -91,5 +91,7 @@ def list_messages(
         data=messages,
         next_page_cursor=ChatMessageQueryPageCursor(
             message_id=messages[-1].id,
-        ),
+        )
+        if messages
+        else None,
     )

@@ -1,9 +1,9 @@
-from sqlalchemy import select, insert
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.models.chat import ChatMessage
 from app.enums import ChatMessageType
+from app.models.chat import ChatMessage
 from app.models.item import Item
 from app.pubsub import notify_user
 from app.schemas.chat.base import ChatId
