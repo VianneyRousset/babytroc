@@ -48,8 +48,7 @@ def bob_new_loan_of_alice_new_item(
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
-        # accept loan request
-
+        # execute loan request
         return services.loan.execute_loan_request(
             db=session,
             loan_request_id=bob_new_loan_request_for_alice_new_item.id,
@@ -94,7 +93,7 @@ def many_loan_requests_for_alice_items(
             ]
         }
 
-        # select 20% of the loan request to be either cancelled, rejected or executed
+        # select 20% of the loan request to be either cancelled, rejected or accept
         n = round(0.2 * len(loan_requests))
         loan_request_ids_sample = random.sample(list(loan_requests.keys()), k=n)
 
@@ -112,29 +111,35 @@ def many_loan_requests_for_alice_items(
                 loan_request_id=loan_request_id,
             )
 
-        # reject 1/3 of the selected loan requests
+        # accept 1/3 of the selected loan requests
         for loan_request_id in loan_request_ids_sample[2 * n // 3 :]:
-            services.loan.execute_loan_request(
+            loan_requests[loan_request_id] = services.loan.accept_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
-                check_state=False,
             )
 
-            # read updated loan request
-            loan_requests[loan_request_id] = services.loan.get_loan_request(
-                db=session,
-                loan_request_id=loan_request_id,
-            )
+        # execute one loan request
+        executed_loan_request_id = loan_request_ids_sample[-1]
+        services.loan.execute_loan_request(
+            db=session,
+            loan_request_id=executed_loan_request_id,
+        )
+
+        # read updated loan request
+        loan_requests[executed_loan_request_id] = services.loan.get_loan_request(
+            db=session,
+            loan_request_id=loan_request_id,
+        )
 
         return list(loan_requests.values())
 
 
 @pytest.fixture(scope="class")
-def many_loan_requests_for_alice_new_item(
+def many_loan_requests_for_alice_special_item(
     database: sqlalchemy.URL,
     many_users: list[UserPrivateRead],
     alice: UserPrivateRead,
-    alice_new_item: ItemRead,
+    alice_special_item: ItemRead,
 ) -> list[LoanRequestRead]:
     """Loan requests from many users for Alice new item."""
 
@@ -151,14 +156,14 @@ def many_loan_requests_for_alice_new_item(
             for loan_request in [
                 services.loan.create_loan_request(
                     db=session,
-                    item_id=alice_new_item.id,
-                    borrower_id=requester,
+                    item_id=alice_special_item.id,
+                    borrower_id=requester.id,
                 )
                 for requester in requesters
             ]
         }
 
-        # select 20% of the loan request to be either cancelled, rejected or executed
+        # select 20% of the loan request to be either cancelled, rejected or accepted
         n = round(0.2 * len(loan_requests))
         loan_request_ids_sample = random.sample(list(loan_requests.keys()), k=n)
 
@@ -176,18 +181,24 @@ def many_loan_requests_for_alice_new_item(
                 loan_request_id=loan_request_id,
             )
 
-        # reject 1/3 of the selected loan requests
+        # accept 1/3 of the selected loan requests
         for loan_request_id in loan_request_ids_sample[2 * n // 3 :]:
-            services.loan.execute_loan_request(
+            loan_requests[loan_request_id] = services.loan.accept_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
-                check_state=False,
             )
 
-            # read updated loan request
-            loan_requests[loan_request_id] = services.loan.get_loan_request(
-                db=session,
-                loan_request_id=loan_request_id,
-            )
+        # execute one loan request
+        executed_loan_request_id = loan_request_ids_sample[-1]
+        services.loan.execute_loan_request(
+            db=session,
+            loan_request_id=executed_loan_request_id,
+        )
+
+        # read updated loan request
+        loan_requests[executed_loan_request_id] = services.loan.get_loan_request(
+            db=session,
+            loan_request_id=loan_request_id,
+        )
 
         return list(loan_requests.values())

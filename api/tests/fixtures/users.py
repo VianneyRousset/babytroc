@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.schemas.user.create import UserCreate
 from app.schemas.user.private import UserPrivateRead
+from app.utils.hash import HashedStr
 
 
 class UserData(TypedDict):
@@ -48,6 +49,7 @@ def alice(
     """Ensures Alice exists."""
 
     engine = create_engine(database)
+
     with Session(engine) as session, session.begin():
         return services.user.create_many_users_without_validation(
             session,
@@ -83,20 +85,24 @@ def many_users(
 ) -> list[UserPrivateRead]:
     """Many users."""
 
-    n = 64
+    n = 256
     random.seed(0x538D)
+
+    password_hash = HashedStr("xyzXYZ123")
+
+    user_creates = [
+        UserCreate(
+            name=random_str(8),
+            email=f"{random_str(8)}@{random_str(8)}.com",
+            password=password_hash,
+        )
+        for _ in range(n)
+    ]
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
         return services.user.create_many_users_without_validation(
             session,
-            user_creates=[
-                UserCreate(
-                    name=random_str(8),
-                    email=f"{random_str(8)}@{random_str(8)}.com",
-                    password="xyzXYZ123",  # noqa: S106
-                )
-                for _ in range(n)
-            ],
+            user_creates=user_creates,
             validated=True,
         )

@@ -122,9 +122,9 @@ class TestLoanRequestRead:
     @pytest.mark.parametrize("active", [None, True, False])
     def test_item_loan_requests_read_pages(
         self,
-        alice_new_item: ItemRead,
+        alice_special_item: ItemRead,
         alice_client: TestClient,
-        many_loan_requests_for_alice_new_item: list[LoanRequestRead],
+        many_loan_requests_for_alice_special_item: list[LoanRequestRead],
         count: int | None,
         active: bool | None,
     ):
@@ -136,7 +136,7 @@ class TestLoanRequestRead:
         all_expected_loan_requests = sorted(
             [
                 loan_request
-                for loan_request in many_loan_requests_for_alice_new_item
+                for loan_request in many_loan_requests_for_alice_special_item
                 if self.check_loan_request_state_active(loan_request.state, active)
             ],
             key=lambda loan_request: loan_request.id,
@@ -151,7 +151,7 @@ class TestLoanRequestRead:
 
             # get next page
             resp = alice_client.get(
-                url=f"/v1/me/items/{alice_new_item.id}/loans/requests",
+                url=f"/v1/me/items/{alice_special_item.id}/loans/requests",
                 params=params,
             )
             print(resp.json())
@@ -164,7 +164,7 @@ class TestLoanRequestRead:
 
         # ensure not loan requests are left
         resp = alice_client.get(
-            url=f"/v1/me/items/{alice_new_item.id}/loans/requests",
+            url=f"/v1/me/items/{alice_special_item.id}/loans/requests",
             params=params,
         )
         print(resp.json())

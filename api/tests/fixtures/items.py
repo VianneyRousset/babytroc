@@ -67,6 +67,22 @@ def alice_new_item_data(
 
 
 @pytest.fixture(scope="class")
+def alice_special_item_data(
+    alice_special_item_images: list[ItemImageRead],
+    regions: list[RegionRead],
+) -> ItemData:
+    """Alice special item data."""
+
+    return {
+        "name": "Special item",
+        "description": "This is the special item created by alice.",
+        "targeted_age_months": "2-5",
+        "regions": [regions[0].id],
+        "images": [image.name for image in alice_special_item_images],
+    }
+
+
+@pytest.fixture(scope="class")
 def bob_items_data(
     bob_items_image: ItemImageRead,
     regions: list[RegionRead],
@@ -110,6 +126,21 @@ def alice_new_item_image_data() -> bytes:
             "000",
             "111",
             "000",
+        ]
+    ).encode()
+
+
+@pytest.fixture(scope="class")
+def alice_special_item_image_data() -> bytes:
+    """Basic PBM image."""
+
+    return "\n".join(
+        [
+            "P1",
+            "3 3",
+            "101",
+            "111",
+            "010",
         ]
     ).encode()
 
@@ -171,6 +202,28 @@ def alice_new_item_images(
 
 
 @pytest.fixture(scope="class")
+def alice_special_item_images(
+    app_config: Config,
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    alice_new_item_image_data: bytes,
+) -> list[ItemImageRead]:
+    """Ensure Alice's item image exists."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return [
+            services.image.upload_image(
+                db=session,
+                config=app_config,
+                owner_id=alice.id,
+                fp=BytesIO(image_data),
+            )
+            for image_data in [alice_new_item_image_data] * 2
+        ]
+
+
+@pytest.fixture(scope="class")
 def bob_items_image(
     app_config: Config,
     database: sqlalchemy.URL,
@@ -222,7 +275,7 @@ def alice_new_item(
     alice: UserPrivateRead,
     alice_new_item_data: ItemData,
 ) -> ItemRead:
-    """Alice's new items."""
+    """Alice's new item."""
 
     engine = create_engine(database)
     with Session(engine) as session, session.begin():
@@ -237,6 +290,32 @@ def alice_new_item(
                     alice_new_item_data["targeted_age_months"]
                 ),
                 regions=alice_new_item_data["regions"],
+            ),
+        )
+
+
+# scope function
+@pytest.fixture(scope="class")
+def alice_special_item(
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    alice_special_item_data: ItemData,
+) -> ItemRead:
+    """Alice's special item."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.item.create_item(
+            db=session,
+            owner_id=alice.id,
+            item_create=ItemCreate(
+                name=alice_special_item_data["name"],
+                description=alice_special_item_data["description"],
+                images=alice_special_item_data["images"],
+                targeted_age_months=MonthRange(
+                    alice_special_item_data["targeted_age_months"]
+                ),
+                regions=alice_special_item_data["regions"],
             ),
         )
 
