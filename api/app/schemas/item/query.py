@@ -60,10 +60,19 @@ class ItemQueryFilter(QueryFilterBase):
 
         # if saved_by_user_id is provided, select items saved by the given user ID.
         if self.saved_by_user_id is not None:
+            if isinstance(stmt, Update):
+                msg = "Cannot apply saved_by_user_id filtering on Update statement"
+                raise TypeError(msg)
+
+            stmt = stmt.join(ItemSave)
             stmt = stmt.where(ItemSave.user_id == self.saved_by_user_id)
 
         # if liked_by_user_id is provided, select items liked by the given user ID.
         if self.liked_by_user_id is not None:
+            if isinstance(stmt, Update):
+                msg = "Cannot apply liked_by_user_id filtering on Update statement"
+                raise TypeError(msg)
+            stmt = stmt.join(ItemLike)
             stmt = stmt.where(ItemLike.user_id == self.liked_by_user_id)
 
         return stmt
