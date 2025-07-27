@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
 
 
@@ -12,13 +12,13 @@ def get_item(
     db: Session,
     item_id: int,
     *,
-    query_filter: ItemQueryFilter | None = None,
+    query_filter: ItemReadQueryFilter | None = None,
     client_id: int | None = None,
 ) -> ItemRead:
     """Get item by id."""
 
     # default empty query filter
-    query_filter = query_filter or ItemQueryFilter()
+    query_filter = query_filter or ItemReadQueryFilter()
 
     # no client id
     if client_id is None:
@@ -41,14 +41,14 @@ def _get_item_without_client_specific_fields(
     db: Session,
     item_id: int,
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
 ) -> ItemRead:
     """Get item tuned without client-specific fields."""
 
     stmt = select(Item).where(Item.id == item_id)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     try:
         item = db.execute(stmt).unique().scalars().one()
@@ -64,7 +64,7 @@ def _get_item_with_client_specific_fields(
     db: Session,
     item_id: int,
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
     client_id: int,
 ) -> ItemRead:
     """Get item tuned with client-specific fields."""
@@ -81,7 +81,7 @@ def _get_item_with_client_specific_fields(
     )
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     try:
         item, like_id, save_id = db.execute(stmt).unique().one()

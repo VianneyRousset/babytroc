@@ -8,7 +8,7 @@ from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
 from app.schemas.loan.api import LoanApiQuery
-from app.schemas.loan.query import LoanQueryFilter
+from app.schemas.loan.query import LoanReadQueryFilter
 from app.schemas.loan.read import LoanRead
 
 from .annotations import loan_id_annotation
@@ -28,9 +28,9 @@ def list_item_loans(
 
     result = services.loan.list_loans(
         db=db,
-        query_filter=LoanQueryFilter.model_validate(
+        query_filter=LoanReadQueryFilter.model_validate(
             {
-                **query.loan_query_filter.model_dump(),
+                **query.loan_select_query_filter.model_dump(),
                 "owner_id": client_id,
                 "item_id": item_id,
             }
@@ -55,7 +55,7 @@ def get_client_loan(
     return services.loan.get_loan(
         db=db,
         loan_id=loan_id,
-        query_filter=LoanQueryFilter(
+        query_filter=LoanReadQueryFilter(
             owner_id=client_id,
             item_id=item_id,
         ),

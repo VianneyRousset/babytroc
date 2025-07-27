@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.clients import database
 from app.config import AuthConfig
 from app.errors.auth import InvalidCredentialError
-from app.schemas.auth.query import AuthRefreshTokenQueryFilter
+from app.schemas.auth.query import AuthRefreshTokenReadQueryFilter
 from app.schemas.auth.read import AuthRefreshTokenRead
 
 
@@ -64,7 +64,7 @@ def clean_user_refresh_tokens(
 
     tokens = database.auth.list_refresh_tokens(
         db=db,
-        query_filter=AuthRefreshTokenQueryFilter(
+        query_filter=AuthRefreshTokenReadQueryFilter(
             user_id=user_id,
         ),
     )

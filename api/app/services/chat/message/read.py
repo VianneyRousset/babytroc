@@ -2,7 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.schemas.chat.query import ChatMessageQueryFilter, ChatMessageQueryPageCursor
+from app.schemas.chat.query import (
+    ChatMessageQueryPageCursor,
+    ChatMessageReadQueryFilter,
+)
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
@@ -11,7 +14,7 @@ def get_message(
     db: Session,
     message_id: int,
     *,
-    query_filter: ChatMessageQueryFilter | None = None,
+    query_filter: ChatMessageReadQueryFilter | None = None,
 ) -> ChatMessageRead:
     """Get message with `message_id`."""
 
@@ -29,7 +32,7 @@ async def get_message_async(
     db: AsyncSession,
     message_id: int,
     *,
-    query_filter: ChatMessageQueryFilter | None = None,
+    query_filter: ChatMessageReadQueryFilter | None = None,
 ) -> ChatMessageRead:
     """Get message with `message_id`."""
 
@@ -46,7 +49,7 @@ async def get_message_async(
 def list_messages(
     db: Session,
     *,
-    query_filter: ChatMessageQueryFilter | None = None,
+    query_filter: ChatMessageReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor]:
     """List messages."""

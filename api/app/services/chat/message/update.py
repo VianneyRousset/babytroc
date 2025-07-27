@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.pubsub import notify_user
-from app.schemas.chat.query import ChatMessageQueryFilter
+from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.pubsub import PubsubMessageUpdatedChatMessage
 
@@ -11,7 +11,7 @@ def mark_message_as_seen(
     db: Session,
     message_id: int,
     *,
-    query_filter: ChatMessageQueryFilter | None = None,
+    query_filter: ChatMessageReadQueryFilter | None = None,
 ) -> ChatMessageRead:
     """Mark message with `message_id` as seen."""
 

@@ -9,23 +9,23 @@ from app.errors.auth import (
     AuthRefreshTokenNotFoundError,
 )
 from app.models.auth import AuthAccountPasswordResetAuthorization, AuthRefreshToken
-from app.schemas.auth.query import AuthRefreshTokenQueryFilter
+from app.schemas.auth.query import AuthRefreshTokenReadQueryFilter
 
 
 def get_refresh_token(
     db: Session,
     token: str,
     *,
-    query_filter: AuthRefreshTokenQueryFilter | None = None,
+    query_filter: AuthRefreshTokenReadQueryFilter | None = None,
 ) -> AuthRefreshToken:
     """Get auth refresh_token with `token` from database."""
 
     # default empty query filter
-    query_filter = query_filter or AuthRefreshTokenQueryFilter()
+    query_filter = query_filter or AuthRefreshTokenReadQueryFilter()
 
     stmt = select(AuthRefreshToken).where(AuthRefreshToken.token == token)
 
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     try:
         return db.execute(stmt).unique().scalars().one()
@@ -38,18 +38,18 @@ def get_refresh_token(
 def list_refresh_tokens(
     db: Session,
     *,
-    query_filter: AuthRefreshTokenQueryFilter | None = None,
+    query_filter: AuthRefreshTokenReadQueryFilter | None = None,
 ) -> list[AuthRefreshToken]:
     """List auth refresh_tokens matching criteria in the database."""
 
     # default empty query filter
-    query_filter = query_filter or AuthRefreshTokenQueryFilter()
+    query_filter = query_filter or AuthRefreshTokenReadQueryFilter()
 
     # apply selection
     stmt = select(AuthRefreshToken)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     return list(db.scalars(stmt).all())
 

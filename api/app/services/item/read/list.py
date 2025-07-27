@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import (
-    ItemQueryFilter,
     ItemQueryPageCursor,
+    ItemReadQueryFilter,
 )
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
@@ -13,14 +13,14 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 def list_items(
     db: Session,
     *,
-    query_filter: ItemQueryFilter | None = None,
+    query_filter: ItemReadQueryFilter | None = None,
     page_options: QueryPageOptions[ItemQueryPageCursor] | None = None,
     client_id: int | None = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]:
     """List items."""
 
     # default empty query filter
-    query_filter = query_filter or ItemQueryFilter()
+    query_filter = query_filter or ItemReadQueryFilter()
 
     # default empty query page options
     page_options = page_options or QueryPageOptions[ItemQueryPageCursor](
@@ -47,7 +47,7 @@ def list_items(
 def _list_items_without_client_specific_fields(
     db: Session,
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemQueryPageCursor],
 ) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]:
     """List items without client specific fields."""
@@ -55,7 +55,7 @@ def _list_items_without_client_specific_fields(
     stmt = select(Item)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # apply ordering
     stmt = stmt.order_by(desc(Item.id))
@@ -83,7 +83,7 @@ def _list_items_without_client_specific_fields(
 def _list_items_with_client_specific_fields(
     db: Session,
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemQueryPageCursor],
     client_id: int,
 ) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]:
@@ -100,7 +100,7 @@ def _list_items_with_client_specific_fields(
     )
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # apply ordering
     stmt = stmt.order_by(desc(Item.id))

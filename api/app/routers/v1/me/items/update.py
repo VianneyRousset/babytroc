@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemUpdateQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.item.update import ItemUpdate
 
@@ -30,7 +30,7 @@ def update_client_item(
         db=db,
         item_id=item_id,
         item_update=item_update,
-        query_filter=ItemQueryFilter(
+        query_filter=ItemUpdateQueryFilter(
             owner_id=client_id,
         ),
     )

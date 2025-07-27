@@ -8,7 +8,7 @@ from app.errors.region import RegionNotFoundError
 from app.models.item import Item
 from app.models.item.image import ItemImageAssociation
 from app.models.item.region import ItemRegionAssociation
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemUpdateQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.item.update import ItemUpdate
 
@@ -18,15 +18,15 @@ def update_item(
     *,
     item_id: int,
     item_update: ItemUpdate,
-    query_filter: ItemQueryFilter | None = None,
+    query_filter: ItemUpdateQueryFilter | None = None,
 ) -> ItemRead:
     """Update item with `item_id`."""
 
     # default empty query filter
-    query_filter = query_filter or ItemQueryFilter()
+    query_filter = query_filter or ItemUpdateQueryFilter()
 
     # update item fields
-    update_item_stmt = query_filter.apply(
+    update_item_stmt = query_filter.filter_update(
         update(Item)
         .where(Item.id == item_id)
         .values(item_update.as_sql_values(exclude={"images", "regions"}))

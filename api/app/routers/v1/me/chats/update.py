@@ -7,7 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatMessageQueryFilter
+from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead
 
 from .annotations import chat_id_annotation, message_id_annotation
@@ -31,7 +31,7 @@ def mark_client_chat_message_as_seen(
     return services.chat.mark_message_as_seen(
         db=db,
         message_id=message_id,
-        query_filter=ChatMessageQueryFilter(
+        query_filter=ChatMessageReadQueryFilter(
             item_id=parsed_chat_id.item_id,
             borrower_id=parsed_chat_id.borrower_id,
             member_id=client_id,

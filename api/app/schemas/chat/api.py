@@ -4,10 +4,10 @@ from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
 from app.schemas.query import QueryPageOptions
 
 from .query import (
-    ChatMessageQueryFilter,
     ChatMessageQueryPageCursor,
-    ChatQueryFilter,
+    ChatMessageReadQueryFilter,
     ChatQueryPageCursor,
+    ChatReadQueryFilter,
 )
 
 
@@ -16,8 +16,8 @@ class ChatApiQuery(ApiQueryBase, ChatQueryPageCursor):
     limit: Annotated[int, PageLimitField()] = 32
 
     @property
-    def chat_query_filter(self) -> ChatQueryFilter:
-        return ChatQueryFilter()
+    def chat_select_query_filter(self) -> ChatReadQueryFilter:
+        return ChatReadQueryFilter()
 
     @property
     def chat_query_page_cursor(self) -> ChatQueryPageCursor:
@@ -50,8 +50,8 @@ class ChatMessageApiQuery(ApiQueryBase, ChatMessageQueryPageCursor):
     limit: Annotated[int, PageLimitField()] = 32
 
     @property
-    def chat_message_query_filter(self) -> ChatMessageQueryFilter:
-        return ChatMessageQueryFilter(
+    def chat_message_select_query_filter(self) -> ChatMessageReadQueryFilter:
+        return ChatMessageReadQueryFilter(
             seen=self.seen,
         )
 

@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRequestRead
 
 from .annotations import item_id_annotation, loan_request_id_annotation
@@ -32,7 +32,7 @@ def list_client_item_loan_requests(
     item = services.item.get_item(
         db=db,
         item_id=item_id,
-        query_filter=ItemQueryFilter(
+        query_filter=ItemReadQueryFilter(
             owner_id=client_id,
         ),
     )
@@ -40,9 +40,9 @@ def list_client_item_loan_requests(
     # get list of loan requests of the item
     result = services.loan.list_loan_requests(
         db=db,
-        query_filter=LoanRequestQueryFilter.model_validate(
+        query_filter=LoanRequestReadQueryFilter.model_validate(
             {
-                **query.loan_request_query_filter.model_dump(),
+                **query.loan_request_select_query_filter.model_dump(),
                 "item_id": item.id,
             }
         ),
@@ -70,7 +70,7 @@ def get_client_item_loan_request(
     item = services.item.get_item(
         db=db,
         item_id=item_id,
-        query_filter=ItemQueryFilter(
+        query_filter=ItemReadQueryFilter(
             owner_id=client_id,
         ),
     )
@@ -78,7 +78,7 @@ def get_client_item_loan_request(
     return services.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             item_id=item.id,
         ),
     )
@@ -99,7 +99,7 @@ def accept_client_item_loan_request(
     return services.loan.accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             item_id=item_id,
             owner_id=client_id,
         ),
@@ -121,7 +121,7 @@ def reject_client_item_loan_request(
     return services.loan.reject_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             item_id=item_id,
             owner_id=client_id,
         ),

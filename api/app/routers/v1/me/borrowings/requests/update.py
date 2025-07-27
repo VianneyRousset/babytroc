@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 
 from .annotations import loan_request_id_annotation
@@ -24,7 +24,7 @@ def cancel_borrowing_loan_request(
     return services.loan.cancel_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             borrower_id=client_id,
         ),
     )
@@ -42,7 +42,7 @@ def execute_loan_request(
     return services.loan.execute_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             borrower_id=client_id,
         ),
     )

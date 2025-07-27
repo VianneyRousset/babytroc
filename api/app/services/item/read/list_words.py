@@ -12,7 +12,10 @@ from sqlalchemy.orm import InstrumentedAttribute, Session
 
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.query import ItemMatchingWordsQueryPageCursor, ItemQueryFilter
+from app.schemas.item.query import (
+    ItemMatchingWordsQueryPageCursor,
+    ItemReadQueryFilter,
+)
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
@@ -20,14 +23,14 @@ def list_items_matching_words(
     db: Session,
     words: list[str],
     *,
-    query_filter: ItemQueryFilter | None = None,
+    query_filter: ItemReadQueryFilter | None = None,
     page_options: QueryPageOptions[ItemMatchingWordsQueryPageCursor] | None = None,
     client_id: int | None = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]:
     """List items matching given words."""
 
     # default empty query filter
-    query_filter = query_filter or ItemQueryFilter()
+    query_filter = query_filter or ItemReadQueryFilter()
 
     # default empty query page options
     page_options = page_options or QueryPageOptions[ItemMatchingWordsQueryPageCursor](
@@ -57,7 +60,7 @@ def _list_items_matching_words_without_client_specific_fields(
     db: Session,
     words: list[str],
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemMatchingWordsQueryPageCursor],
 ) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]:
     """List items without client specific fields."""
@@ -67,7 +70,7 @@ def _list_items_matching_words_without_client_specific_fields(
     stmt = select(Item, words_match)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # filter item without matching word
     stmt = stmt.where(
@@ -111,7 +114,7 @@ def _list_items_matching_words_with_client_specific_fields(
     db: Session,
     words: list[str],
     *,
-    query_filter: ItemQueryFilter,
+    query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemMatchingWordsQueryPageCursor],
     client_id: int,
 ) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]:
@@ -130,7 +133,7 @@ def _list_items_matching_words_with_client_specific_fields(
     )
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # filter item without matching word
     stmt = stmt.where(

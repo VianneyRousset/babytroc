@@ -8,7 +8,7 @@ from app.errors.user import UserNotFoundError
 from app.models.user import User
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.user.private import UserPrivateRead
-from app.schemas.user.query import UserQueryFilter
+from app.schemas.user.query import UserReadQueryFilter
 from app.schemas.user.read import UserRead
 
 
@@ -77,7 +77,7 @@ def get_user_validation_code_by_email(
 def list_users(
     db: Session,
     *,
-    query_filter: UserQueryFilter | None = None,
+    query_filter: UserReadQueryFilter | None = None,
     limit: int | None = None,
 ) -> list[UserPreviewRead]:
     """List all users."""
@@ -85,7 +85,7 @@ def list_users(
     stmt = select(User)
 
     if query_filter is not None:
-        stmt = query_filter.apply(stmt)
+        stmt = query_filter.filter_read(stmt)
 
     if limit is not None:
         stmt = stmt.limit(limit)

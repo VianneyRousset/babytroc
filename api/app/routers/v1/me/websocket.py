@@ -7,7 +7,7 @@ from fastapi import Depends, WebSocket
 from app import services
 from app.pubsub import get_broadcast
 from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
-from app.schemas.chat.query import ChatMessageQueryFilter
+from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.pubsub import (
     PubsubMessageNewChatMessage,
     PubsubMessageTypeAdapter,
@@ -62,7 +62,7 @@ async def relay_broacast_events_to_websocket(
                     chat_message = await services.chat.get_message_async(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
-                        query_filter=ChatMessageQueryFilter(
+                        query_filter=ChatMessageReadQueryFilter(
                             member_id=client_id,
                         ),
                     )
@@ -77,7 +77,7 @@ async def relay_broacast_events_to_websocket(
                     chat_message = await services.chat.get_message_async(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
-                        query_filter=ChatMessageQueryFilter(
+                        query_filter=ChatMessageReadQueryFilter(
                             member_id=client_id,
                         ),
                     )

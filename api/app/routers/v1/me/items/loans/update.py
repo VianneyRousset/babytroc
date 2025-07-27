@@ -7,7 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
-from app.schemas.loan.query import LoanQueryFilter
+from app.schemas.loan.query import LoanReadQueryFilter
 from app.schemas.loan.read import LoanRead
 
 from .annotations import loan_id_annotation
@@ -26,7 +26,7 @@ def end_client_loan(
     return services.loan.end_loan(
         db=db,
         loan_id=loan_id,
-        query_filter=LoanQueryFilter(
+        query_filter=LoanReadQueryFilter(
             item_id=item_id,
             owner_id=client_id,
         ),

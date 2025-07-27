@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.errors.loan import LoanNotFoundError
 from app.models.loan import Loan, LoanRequest
-from app.schemas.loan.query import LoanQueryFilter, LoanQueryPageCursor
+from app.schemas.loan.query import LoanQueryPageCursor, LoanReadQueryFilter
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
@@ -12,16 +12,16 @@ def get_loan(
     db: Session,
     loan_id: int,
     *,
-    query_filter: LoanQueryFilter | None = None,
+    query_filter: LoanReadQueryFilter | None = None,
 ) -> Loan:
     """Get loan with ID `loan_id`."""
 
     # if no query filter is provided, use an empty filter
-    query_filter = query_filter or LoanQueryFilter()
+    query_filter = query_filter or LoanReadQueryFilter()
 
     stmt = select(Loan).where(Loan.id == loan_id)
 
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     try:
         return (db.execute(stmt)).unique().scalars().one()
@@ -34,13 +34,13 @@ def get_loan(
 def list_loans(
     db: Session,
     *,
-    query_filter: LoanQueryFilter | None = None,
+    query_filter: LoanReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Loan, LoanQueryPageCursor]:
     """List items matching criteria."""
 
     # if no query filter is provided, use an empty filter
-    query_filter = query_filter or LoanQueryFilter()
+    query_filter = query_filter or LoanReadQueryFilter()
 
     # if no page options are provided, use default page options
     page_options = page_options or QueryPageOptions(
@@ -51,7 +51,7 @@ def list_loans(
     stmt = select(Loan)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # apply ordering
     stmt = stmt.order_by(desc(LoanRequest.id))

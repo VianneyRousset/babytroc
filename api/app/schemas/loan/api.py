@@ -5,10 +5,10 @@ from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
 from app.schemas.query import QueryPageOptions
 
 from .query import (
-    LoanQueryFilter,
     LoanQueryPageCursor,
-    LoanRequestQueryFilter,
+    LoanReadQueryFilter,
     LoanRequestQueryPageCursor,
+    LoanRequestReadQueryFilter,
 )
 
 
@@ -27,8 +27,8 @@ class LoanRequestApiQuery(ApiQueryBase, LoanRequestQueryPageCursor):
     limit: Annotated[int, PageLimitField()] = 32
 
     @property
-    def loan_request_query_filter(self) -> LoanRequestQueryFilter:
-        return LoanRequestQueryFilter(
+    def loan_request_select_query_filter(self) -> LoanRequestReadQueryFilter:
+        return LoanRequestReadQueryFilter(
             states=self.loan_request_query_filter_states,
         )
 
@@ -79,8 +79,8 @@ class LoanApiQuery(LoanQueryPageCursor):
     limit: Annotated[int, PageLimitField()] = 32
 
     @property
-    def loan_query_filter(self) -> LoanQueryFilter:
-        return LoanQueryFilter(
+    def loan_select_query_filter(self) -> LoanReadQueryFilter:
+        return LoanReadQueryFilter(
             active=self.active,
         )
 

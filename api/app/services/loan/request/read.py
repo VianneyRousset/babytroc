@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 
 from app.clients import database
-from app.schemas.loan.query import LoanRequestQueryFilter, LoanRequestQueryPageCursor
+from app.schemas.loan.query import (
+    LoanRequestQueryPageCursor,
+    LoanRequestReadQueryFilter,
+)
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
@@ -9,7 +12,7 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 def get_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
 ) -> LoanRequestRead:
     """Get loan request with `loan_request_id`."""
 
@@ -26,7 +29,7 @@ def get_loan_request(
 def list_loan_requests(
     db: Session,
     *,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor]:
     """List the loan requests matching criteria."""

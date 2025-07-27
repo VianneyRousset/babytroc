@@ -8,7 +8,7 @@ from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.api import SavedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
 
 from .annotations import item_id_annotation
@@ -48,9 +48,9 @@ def list_items_saved_by_client(
 
     result = services.item.list_items(
         db=db,
-        query_filter=ItemQueryFilter.model_validate(
+        query_filter=ItemReadQueryFilter.model_validate(
             {
-                **query.item_query_filter.model_dump(),
+                **query.item_select_query_filter.model_dump(),
                 "saved_by_user_id": client_id,
             }
         ),
@@ -72,7 +72,7 @@ def get_client_saved_item_by_id(
     return services.item.get_item(
         db=db,
         item_id=item_id,
-        query_filter=ItemQueryFilter(
+        query_filter=ItemReadQueryFilter(
             saved_by_user_id=client_id,
         ),
     )

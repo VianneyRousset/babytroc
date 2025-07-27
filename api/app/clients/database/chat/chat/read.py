@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatQueryFilter, ChatQueryPageCursor
+from app.schemas.chat.query import ChatQueryPageCursor, ChatReadQueryFilter
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
@@ -13,12 +13,12 @@ def get_chat(
     db: Session,
     chat_id: ChatId,
     *,
-    query_filter: ChatQueryFilter | None = None,
+    query_filter: ChatReadQueryFilter | None = None,
 ) -> Chat:
     """Get chat with `chat_id`."""
 
     # default query filter
-    query_filter = query_filter or ChatQueryFilter()
+    query_filter = query_filter or ChatReadQueryFilter()
 
     stmt = (
         select(Chat)
@@ -26,7 +26,7 @@ def get_chat(
         .where(Chat.borrower_id == chat_id.borrower_id)
     )
 
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     try:
         return db.execute(stmt).unique().scalars().one()
@@ -39,13 +39,13 @@ def get_chat(
 def list_chats(
     db: Session,
     *,
-    query_filter: ChatQueryFilter | None = None,
+    query_filter: ChatReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[Chat, ChatQueryPageCursor]:
     """List chats matching criteria."""
 
     # if no query filter is provided, use an empty filter
-    query_filter = query_filter or ChatQueryFilter()
+    query_filter = query_filter or ChatReadQueryFilter()
 
     # if no page options are provided, use default page options
     page_options = page_options or QueryPageOptions(
@@ -56,7 +56,7 @@ def list_chats(
     stmt = select(Chat)
 
     # apply filtering
-    stmt = query_filter.apply(stmt)
+    stmt = query_filter.filter_read(stmt)
 
     # apply ordering
     stmt = stmt.order_by(desc(Chat.last_message_id))

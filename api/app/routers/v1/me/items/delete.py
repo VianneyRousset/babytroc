@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemQueryFilter
+from app.schemas.item.query import ItemDeleteQueryFilter
 
 from .annotations import item_id_annotation
 from .router import router
@@ -23,7 +23,7 @@ def delete_client_item(
     return services.item.delete_item(
         db=db,
         item_id=item_id,
-        query_filter=ItemQueryFilter(
+        query_filter=ItemDeleteQueryFilter(
             owner_id=client_id,
         ),
     )

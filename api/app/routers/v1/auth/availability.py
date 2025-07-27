@@ -7,7 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.schemas.auth.api import AuthAccountAvailabilityApiQuery
 from app.schemas.auth.availability import AuthAccountAvailability
-from app.schemas.user.query import UserQueryFilter
+from app.schemas.user.query import UserReadQueryFilter
 
 from .router import router
 
@@ -21,7 +21,7 @@ def get_account_availability(
 
     user_exists = services.user.list_users(
         db=db,
-        query_filter=UserQueryFilter(
+        query_filter=UserReadQueryFilter(
             name=query.name,
             email=query.email,
         ),

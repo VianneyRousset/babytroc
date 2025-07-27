@@ -27,7 +27,7 @@ def list_items(
         fuzzy_search_result = services.item.list_items_matching_words(
             db=db,
             words=query.words,
-            query_filter=query.item_query_filter,
+            query_filter=query.item_select_query_filter,
             page_options=query.item_matching_words_query_page_options,
         )
 
@@ -37,7 +37,7 @@ def list_items(
 
     result = services.item.list_items(
         db=db,
-        query_filter=query.item_query_filter,
+        query_filter=query.item_select_query_filter,
         page_options=query.item_query_page_options,
     )
 

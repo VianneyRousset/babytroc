@@ -8,7 +8,7 @@ from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatMessageQueryFilter, ChatQueryFilter
+from app.schemas.chat.query import ChatMessageReadQueryFilter, ChatReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 
 from .annotations import chat_id_annotation, message_id_annotation
@@ -27,9 +27,9 @@ def list_client_chats(
 
     result = services.chat.list_chats(
         db=db,
-        query_filter=ChatQueryFilter.model_validate(
+        query_filter=ChatReadQueryFilter.model_validate(
             {
-                **query.chat_query_filter.model_dump(),
+                **query.chat_select_query_filter.model_dump(),
                 "member_id": client_id,
             }
         ),
@@ -54,7 +54,7 @@ def get_client_chat(
     return services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
-        query_filter=ChatQueryFilter(
+        query_filter=ChatReadQueryFilter(
             member_id=client_id,
         ),
     )
@@ -77,7 +77,7 @@ def list_client_chat_messages(
     chat = services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
-        query_filter=ChatQueryFilter(
+        query_filter=ChatReadQueryFilter(
             member_id=client_id,
         ),
     )
@@ -85,9 +85,9 @@ def list_client_chat_messages(
     # get messages in the chat
     result = services.chat.list_messages(
         db=db,
-        query_filter=ChatMessageQueryFilter.model_validate(
+        query_filter=ChatMessageReadQueryFilter.model_validate(
             {
-                **query.chat_message_query_filter.model_dump(),
+                **query.chat_message_select_query_filter.model_dump(),
                 "chat_id": chat.id,
             }
         ),
@@ -117,7 +117,7 @@ def get_client_chat_message_by_id(
     chat = services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
-        query_filter=ChatQueryFilter(
+        query_filter=ChatReadQueryFilter(
             member_id=client_id,
         ),
     )
@@ -125,7 +125,7 @@ def get_client_chat_message_by_id(
     return services.chat.get_message(
         db=db,
         message_id=message_id,
-        query_filter=ChatMessageQueryFilter(
+        query_filter=ChatMessageReadQueryFilter(
             chat_id=chat.id,
         ),
     )

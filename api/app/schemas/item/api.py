@@ -7,8 +7,8 @@ from app.schemas.query import QueryPageOptions
 from .base import MonthRange
 from .query import (
     ItemMatchingWordsQueryPageCursor,
-    ItemQueryFilter,
     ItemQueryPageCursor,
+    ItemReadQueryFilter,
 )
 
 
@@ -62,8 +62,8 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
     limit: Annotated[int, PageLimitField()] = 32
 
     @property
-    def item_query_filter(self) -> ItemQueryFilter:
-        return ItemQueryFilter(
+    def item_select_query_filter(self) -> ItemReadQueryFilter:
+        return ItemReadQueryFilter(
             targeted_age_months=self.targeted_age_months,
             regions=self.regions,
             availability=self.availability,

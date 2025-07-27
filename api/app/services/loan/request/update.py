@@ -4,7 +4,7 @@ from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRequestRead
 from app.services.chat import (
     send_message_loan_request_accepted,
@@ -27,7 +27,7 @@ def cancel_active_loan_request(
     # find pending loan request
     loan_request = database.loan.get_loan_request(
         db=db,
-        query_filter=LoanRequestQueryFilter(
+        query_filter=LoanRequestReadQueryFilter(
             item_id=item_id,
             borrower_id=borrower_id,
             states={LoanRequestState.pending, LoanRequestState.accepted},
@@ -43,7 +43,7 @@ def cancel_active_loan_request(
 def cancel_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
     check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `cancelled`.
@@ -89,7 +89,7 @@ def cancel_loan_request(
 def accept_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
     check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
@@ -134,7 +134,7 @@ def accept_loan_request(
 def reject_loan_request(
     db: Session,
     loan_request_id: int,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
     check_state: bool = True,
 ) -> LoanRequestRead:
     """Set loan request state to `rejected`.

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.clients import database
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatQueryFilter, ChatQueryPageCursor
+from app.schemas.chat.query import ChatQueryPageCursor, ChatReadQueryFilter
 from app.schemas.chat.read import ChatRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
@@ -11,7 +11,7 @@ def get_chat(
     db: Session,
     *,
     chat_id: ChatId,
-    query_filter: ChatQueryFilter | None = None,
+    query_filter: ChatReadQueryFilter | None = None,
 ) -> ChatRead:
     """Get chat by id."""
 
@@ -28,7 +28,7 @@ def get_chat(
 def list_chats(
     db: Session,
     *,
-    query_filter: ChatQueryFilter | None = None,
+    query_filter: ChatReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
 ) -> QueryPageResult[ChatRead, ChatQueryPageCursor]:
     """List chats match criteria."""

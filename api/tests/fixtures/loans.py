@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.schemas.item.read import ItemRead
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 
@@ -52,7 +52,7 @@ def bob_new_loan_of_alice_new_item(
         return services.loan.execute_loan_request(
             db=session,
             loan_request_id=bob_new_loan_request_for_alice_new_item.id,
-            query_filter=LoanRequestQueryFilter(
+            query_filter=LoanRequestReadQueryFilter(
                 owner_id=alice.id,
                 borrower_id=bob.id,
             ),

@@ -4,7 +4,7 @@ from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanRequestQueryFilter
+from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRead
 from app.services.chat import send_message_loan_started
 
@@ -13,7 +13,7 @@ def execute_loan_request(
     db: Session,
     *,
     loan_request_id: int,
-    query_filter: LoanRequestQueryFilter | None = None,
+    query_filter: LoanRequestReadQueryFilter | None = None,
     check_state: bool = True,
 ) -> LoanRead:
     """Create a loan from an accepted loan request.
