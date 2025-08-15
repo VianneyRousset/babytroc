@@ -2,19 +2,6 @@ import type { FetchError } from 'ofetch'
 import type { VisibleArea } from 'vue-advanced-cropper'
 import type { AsyncDataRequestStatus } from '#app'
 
-export type {
-  Chat,
-  ChatQuery,
-  ChatMessage,
-  ChatMessageQuery,
-  ChatMessageOrigin,
-  ChatMessageChunk,
-  ChatMessageDateGroup,
-} from './chat'
-export type { Item } from './item'
-export type { Loan, LoanRequest } from './loan'
-export type { User, UserPreview } from './user'
-
 declare global {
   // region
   type Region = Item['regions'][0]

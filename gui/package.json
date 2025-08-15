@@ -17,18 +17,18 @@
 		"@pinia/colada": "0.15.1",
 		"@pinia/colada-nuxt": "0.1.3",
 		"@pinia/nuxt": "^0.11.0",
-		"@vueuse/components": "^12.4.0",
-		"@vueuse/core": "^12.5.0",
-		"@vueuse/nuxt": "^12.5.0",
+		"@vueuse/components": "^13.6.0",
+		"@vueuse/core": "^13.6.0",
+		"@vueuse/nuxt": "^13.6.0",
 		"@web3-storage/parse-link-header": "^3.1.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"floating-vue": "^5.2.2",
 		"http-status-codes": "^2.3.0",
 		"lodash": "^4.17.21",
-		"lucide-vue-next": "^0.469.0",
+		"lucide-vue-next": "^0.539.0",
 		"luxon": "^3.5.0",
-		"nuxt": "^3.16.2",
+		"nuxt": "^4.0.3",
 		"nuxt-lodash": "^2.5.3",
 		"nuxt-swiper": "^2.0.0",
 		"patch-package": "^8.0.0",
@@ -42,10 +42,10 @@
 		"vue-content-loader": "^2.0.1",
 		"vue-router": "^4.5.0",
 		"vue3-toastify": "^0.2.8",
-		"vuedraggable": "^4.1.0"
+		"vuedraggable": "^2.24.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
+		"@biomejs/biome": "^2.2.0",
 		"@eslint/js": "^9.26.0",
 		"@nuxt/eslint": "^1.3.0",
 		"@nuxt/eslint-config": "^1.3.0",
@@ -53,12 +53,12 @@
 		"@types/luxon": "^3.4.2",
 		"eslint": "^9.26.0",
 		"eslint-formatter-stdout": "^0.0.6",
-		"nuxt-open-fetch": "^0.9.5",
+		"nuxt-open-fetch": "^0.13.2",
 		"prettier": "^3.5.3",
 		"sass": "^1.89.2",
 		"typescript-eslint": "^8.32.0",
 		"typescript-language-server": "^4.3.4",
-		"unplugin-vue-components": "^28.0.0",
-		"vue-tsc": "^2.1.10"
+		"unplugin-vue-components": "^29.0.0",
+		"vue-tsc": "^3.0.5"
 	}
 }
