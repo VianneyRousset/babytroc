@@ -5,6 +5,10 @@ import { DateTime } from 'luxon'
 import { groupBy } from 'lodash'
 import { ChatMessageType } from '#build/types/open-fetch/schemas/api'
 
+interface UserWithId {
+  id: number
+}
+
 export function useChats() {
   const { data: chatPages, loadMore } = useChatsListQuery()
   const { data: me } = useMeQuery()
@@ -62,9 +66,9 @@ export function useChatMessages(chatId: MaybeRefOrGetter<string>) {
   }
 }
 
-export function useChatMessageIsNew(
+export function useChatMessageIsNew<T extends UserWithId>(
   msg: MaybeRefOrGetter<ChatMessage>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ) {
   const { sender } = useChatMessageSender(msg, me)
   const isNew: Ref<boolean> = computed(() =>
@@ -74,9 +78,9 @@ export function useChatMessageIsNew(
   return { isNew }
 }
 
-export function useChatHasNewMessages(
+export function useChatHasNewMessages<T extends UserWithId>(
   chat: MaybeRefOrGetter<Chat>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ): { hasNewMessages: Ref<boolean> } {
   const { messages } = useChatMessages(computed(() => toValue(chat).id))
 
@@ -89,9 +93,9 @@ export function useChatHasNewMessages(
   }
 }
 
-export function useChatRoles(
+export function useChatRoles<T extends UserWithId>(
   chat: MaybeRefOrGetter<Chat>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ) {
   const isUserBorrowing = computed(
     () => toValue(chat).borrower.id === toValue(me).id,
@@ -106,9 +110,9 @@ export function useChatRoles(
   }
 }
 
-export function useChatMessageOrigin(
+export function useChatMessageOrigin<T extends UserWithId>(
   message: MaybeRefOrGetter<ChatMessage>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ): { origin: Ref<ChatMessageOrigin> } {
   const origin = computed<ChatMessageOrigin>(() =>
     toValue(message).message_type === ChatMessageType.text
@@ -121,9 +125,9 @@ export function useChatMessageOrigin(
   return { origin }
 }
 
-export function useChatMessageSender(
+export function useChatMessageSender<T extends UserWithId>(
   msg: MaybeRefOrGetter<ChatMessage>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ): { sender: Ref<ChatMessageSender> } {
   return {
     sender: computed(() =>
@@ -136,13 +140,12 @@ export function useChatMessageTime(message: MaybeRefOrGetter<ChatMessage>) {
   return {
     formattedHour: DateTime.fromISO(
       toValue(message).creation_date,
-    ).toLocaleString(DateTime.TIME_SIMPLE),
+      ).toLocaleString(DateTime.TIME_SIMPLE),
   }
 }
-
-export function useGroupChatMessages(
+export function useGroupChatMessages<T extends UserWithId>(
   messages: MaybeRefOrGetter<Array<ChatMessage>>,
-  me: MaybeRefOrGetter<User>,
+  me: MaybeRefOrGetter<T>,
 ) {
   return {
     dateGroups: computed(() => {
@@ -170,10 +173,10 @@ export function useGroupChatMessages(
   }
 }
 
-function createMessageDateGroup(
+function createMessageDateGroup<T extends UserWithId>(
   date: string,
   messages: Array<ChatMessage>,
-  user: User,
+  user: T,
 ): ChatMessageDateGroup {
   return {
     date,
@@ -185,9 +188,9 @@ function createMessageDateGroup(
   }
 }
 
-function groupByMessageChunks(
+function groupByMessageChunks<T extends UserWithId>(
   messages: Array<ChatMessage>,
-  user: User,
+  user: T,
 ): Array<ChatMessageChunk> {
   const chunks = Array<ChatMessageChunk>()
 

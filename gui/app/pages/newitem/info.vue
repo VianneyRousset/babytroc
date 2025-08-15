@@ -72,7 +72,7 @@ async function createItem() {
     name: unref(cleanedName),
     description: unref(cleanedDescription),
     images: itemEditStore.studioImages.data as Array<string>,
-    targeted_age_months: itemEditStore.targetedAge,
+    targeted_age_months: range2string(itemEditStore.targetedAge),
     regions: Array.from(itemEditStore.regions),
     blocked: itemEditStore.blocked,
   }).catch((err) => {

@@ -309,19 +309,22 @@
 				"operationId": "list_items_v1_items_get",
 				"parameters": [
 					{
-						"name": "q",
+						"name": "cwm",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "type": "null" }
-							],
-							"title": "Words used for fuzzy search",
-							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
-							"examples": [["chair"], ["dog", "cat"]]
-						},
-						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cwm"
+						}
+					},
+					{
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
 					},
 					{
 						"name": "mo",
@@ -329,7 +332,7 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "$ref": "#/components/schemas/MonthRange" },
 								{ "type": "null" }
 							],
 							"title": "Targeted age months",
@@ -343,12 +346,9 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
-								{ "type": "null" }
-							],
+							"$ref": "#/components/schemas/ItemQueryAvailability",
 							"title": "Availability",
-							"default": "y"
+							"default": "a"
 						}
 					},
 					{
@@ -371,40 +371,29 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Limit returned items count",
-							"description": "Limit the number of items returned.",
-							"examples": [[42]],
-							"default": 64
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "Limit the number of items returned."
+						"description": "Limit the number of results."
 					},
 					{
-						"name": "cid",
+						"name": "q",
 						"in": "query",
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{ "type": "integer", "exclusiveMinimum": 0 },
+								{ "type": "array", "items": { "type": "string" } },
 								{ "type": "null" }
 							],
-							"title": "Page cursor for item ID"
-						}
-					},
-					{
-						"name": "cwm",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for words match"
-						}
+							"title": "Words used for fuzzy search",
+							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
+							"examples": [["chair"], ["dog", "cat"]]
+						},
+						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
 					}
 				],
 				"responses": {
@@ -587,71 +576,11 @@
 				}
 			}
 		},
-		"/v1/me": {
+		"/v1/me/items/{item_id}/loans/requests": {
 			"get": {
-				"summary": "Get Client User",
-				"description": "Get client user.",
-				"operationId": "get_client_user_v1_me_get",
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
-							}
-						}
-					}
-				},
-				"security": [{ "OAuth2PasswordBearer": [] }]
-			},
-			"post": {
-				"summary": "Update Client User",
-				"description": "Update client user.",
-				"operationId": "update_client_user_v1_me_post",
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/UserUpdate",
-								"title": "User fields to update."
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				},
-				"security": [{ "OAuth2PasswordBearer": [] }]
-			},
-			"delete": {
-				"summary": "Delete Client User",
-				"description": "Delete client user.",
-				"operationId": "delete_client_user_v1_me_delete",
-				"responses": { "204": { "description": "Successful Response" } },
-				"security": [{ "OAuth2PasswordBearer": [] }]
-			}
-		},
-		"/v1/me/liked/{item_id}": {
-			"post": {
-				"summary": "Add Item To Client Liked Items",
-				"description": "Add the specified item to client liked items.",
-				"operationId": "add_item_to_client_liked_items_v1_me_liked__item_id__post",
+				"summary": "List Loan Requests For Items Owned By The Client",
+				"description": "List loan request of the item owned by the client.",
+				"operationId": "list_loan_requests_for_items_owned_by_the_client_v1_me_items__item_id__loans_requests_get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
@@ -663,160 +592,40 @@
 							"minimum": 0,
 							"title": "The ID of the item."
 						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": { "application/json": { "schema": {} } }
 					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			},
-			"get": {
-				"summary": "Get Client Liked Item By Id",
-				"description": "Get item liked by client.",
-				"operationId": "get_client_liked_item_by_id_v1_me_liked__item_id__get",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
 					{
-						"name": "item_id",
-						"in": "path",
-						"required": true,
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "a",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+							"title": "Active loan requests",
+							"description": "Only return pending and accepted loan requests."
+						},
+						"description": "Only return pending and accepted loan requests."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
 						"schema": {
 							"type": "integer",
-							"minimum": 0,
-							"title": "The ID of the item."
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			},
-			"delete": {
-				"summary": "Remove Item From Client Liked Items",
-				"description": "Remove the specified item from client liked items.",
-				"operationId": "remove_item_from_client_liked_items_v1_me_liked__item_id__delete",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "item_id",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "integer",
-							"minimum": 0,
-							"title": "The ID of the item."
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			}
-		},
-		"/v1/me/liked": {
-			"get": {
-				"summary": "List Items Liked By Client",
-				"description": "List items like by client.",
-				"operationId": "list_items_liked_by_client_v1_me_liked_get",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "q",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "type": "null" }
-							],
-							"title": "Words used for fuzzy search",
-							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
-							"examples": [["chair"], ["dog", "cat"]]
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
-					},
-					{
-						"name": "mo",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "string", "pattern": "^\\d*-\\d*$" },
-								{ "type": "null" }
-							],
-							"title": "Targeted age months",
-							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
-							"examples": ["3-12", "8-"]
-						},
-						"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
-					},
-					{
-						"name": "av",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
-								{ "type": "null" }
-							],
-							"title": "Availability",
-							"default": "y"
-						}
-					},
-					{
-						"name": "reg",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "integer" } },
-								{ "type": "null" }
-							],
-							"title": "Regions",
-							"description": "An item is returned if it is available in any of these regions IDs.",
-							"examples": [[4], [2, 4, 7, 8]]
-						},
-						"description": "An item is returned if it is available in any of these regions IDs."
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -826,8 +635,8 @@
 							"application/json": {
 								"schema": {
 									"type": "array",
-									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
-									"title": "Response List Items Liked By Client V1 Me Liked Get"
+									"items": { "$ref": "#/components/schemas/LoanRequestRead" },
+									"title": "Response List Loan Requests For Items Owned By The Client V1 Me Items  Item Id  Loans Requests Get"
 								}
 							}
 						}
@@ -843,37 +652,200 @@
 				}
 			}
 		},
-		"/v1/me/loans": {
+		"/v1/me/items/{item_id}/loans/requests/{loan_request_id}": {
 			"get": {
-				"summary": "List Client Loans",
-				"description": "List loans where the client is the owner.",
-				"operationId": "list_client_loans_v1_me_loans_get",
+				"summary": "Get Client Loan Request",
+				"description": "Get loan request of the item owned by the client.",
+				"operationId": "get_client_loan_request_v1_me_items__item_id__loans_requests__loan_request_id__get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "item",
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/items/{item_id}/loans/requests/{loan_request_id}/accept": {
+			"post": {
+				"summary": "Accept Client Item Loan Request",
+				"description": "Accept client's item loan request.",
+				"operationId": "accept_client_item_loan_request_v1_me_items__item_id__loans_requests__loan_request_id__accept_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/items/{item_id}/loans/requests/{loan_request_id}/reject": {
+			"post": {
+				"summary": "Reject Client Item Loan Request",
+				"description": "Reject client's item loan request.",
+				"operationId": "reject_client_item_loan_request_v1_me_items__item_id__loans_requests__loan_request_id__reject_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/items/{item_id}/loans": {
+			"get": {
+				"summary": "List Item Loans",
+				"description": "List loans of the item owned by the client.",
+				"operationId": "list_item_loans_v1_me_items__item_id__loans_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
+					{
+						"name": "cid",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "minimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Loaned item",
-							"description": "Only return loan with this item ID."
-						},
-						"description": "Only return loan with this item ID."
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
 					},
 					{
-						"name": "active",
+						"name": "a",
 						"in": "query",
 						"required": false,
 						"schema": {
 							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
-							"title": "Active",
+							"title": "Active loan",
 							"description": "Only return active loans."
 						},
 						"description": "Only return active loans."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -884,7 +856,7 @@
 								"schema": {
 									"type": "array",
 									"items": { "$ref": "#/components/schemas/LoanRead" },
-									"title": "Response List Client Loans V1 Me Loans Get"
+									"title": "Response List Item Loans V1 Me Items  Item Id  Loans Get"
 								}
 							}
 						}
@@ -900,13 +872,23 @@
 				}
 			}
 		},
-		"/v1/me/loans/{loan_id}": {
+		"/v1/me/items/{item_id}/loans/{loan_id}": {
 			"get": {
 				"summary": "Get Client Loan",
 				"description": "Get loan where the client is the owner.",
-				"operationId": "get_client_loan_v1_me_loans__loan_id__get",
+				"operationId": "get_client_loan_v1_me_items__item_id__loans__loan_id__get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
 					{
 						"name": "loan_id",
 						"in": "path",
@@ -938,13 +920,23 @@
 				}
 			}
 		},
-		"/v1/me/loans/{loan_id}/end": {
+		"/v1/me/items/{item_id}/loans/{loan_id}/end": {
 			"post": {
 				"summary": "End Client Loan",
-				"description": "End the loan where the client is the owner.",
-				"operationId": "end_client_loan_v1_me_loans__loan_id__end_post",
+				"description": "End the loan of the item owned by the client.",
+				"operationId": "end_client_loan_v1_me_items__item_id__loans__loan_id__end_post",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					},
 					{
 						"name": "loan_id",
 						"in": "path",
@@ -962,206 +954,6 @@
 						"content": {
 							"application/json": {
 								"schema": { "$ref": "#/components/schemas/LoanRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			}
-		},
-		"/v1/me/saved/{item_id}": {
-			"post": {
-				"summary": "Add Item To Client Saved Items",
-				"description": "Add item to client saved items.",
-				"operationId": "add_item_to_client_saved_items_v1_me_saved__item_id__post",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "item_id",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "integer",
-							"minimum": 0,
-							"title": "The ID of the item."
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			},
-			"get": {
-				"summary": "Get Client Saved Item By Id",
-				"description": "Get item saved by client.",
-				"operationId": "get_client_saved_item_by_id_v1_me_saved__item_id__get",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "item_id",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "integer",
-							"minimum": 0,
-							"title": "The ID of the item."
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			},
-			"delete": {
-				"summary": "Remove Item From Client Saved Items",
-				"description": "Remove the specified item from client saved items.",
-				"operationId": "remove_item_from_client_saved_items_v1_me_saved__item_id__delete",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "item_id",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "integer",
-							"minimum": 0,
-							"title": "The ID of the item."
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemRead" }
-							}
-						}
-					},
-					"422": {
-						"description": "Validation Error",
-						"content": {
-							"application/json": {
-								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
-							}
-						}
-					}
-				}
-			}
-		},
-		"/v1/me/saved": {
-			"get": {
-				"summary": "List Items Saved By Client",
-				"description": "List items saved by client.",
-				"operationId": "list_items_saved_by_client_v1_me_saved_get",
-				"security": [{ "OAuth2PasswordBearer": [] }],
-				"parameters": [
-					{
-						"name": "q",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "type": "null" }
-							],
-							"title": "Words used for fuzzy search",
-							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
-							"examples": [["chair"], ["dog", "cat"]]
-						},
-						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
-					},
-					{
-						"name": "mo",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "string", "pattern": "^\\d*-\\d*$" },
-								{ "type": "null" }
-							],
-							"title": "Targeted age months",
-							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
-							"examples": ["3-12", "8-"]
-						},
-						"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
-					},
-					{
-						"name": "av",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
-								{ "type": "null" }
-							],
-							"title": "Availability",
-							"default": "y"
-						}
-					},
-					{
-						"name": "reg",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "integer" } },
-								{ "type": "null" }
-							],
-							"title": "Regions",
-							"description": "An item is returned if it is available in any of these regions IDs.",
-							"examples": [[4], [2, 4, 7, 8]]
-						},
-						"description": "An item is returned if it is available in any of these regions IDs."
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Successful Response",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "array",
-									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
-									"title": "Response List Items Saved By Client V1 Me Saved Get"
-								}
 							}
 						}
 					},
@@ -1219,19 +1011,13 @@
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "q",
+						"name": "cid",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "type": "null" }
-							],
-							"title": "Words used for fuzzy search",
-							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
-							"examples": [["chair"], ["dog", "cat"]]
-						},
-						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
 					},
 					{
 						"name": "mo",
@@ -1239,7 +1025,7 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "$ref": "#/components/schemas/MonthRange" },
 								{ "type": "null" }
 							],
 							"title": "Targeted age months",
@@ -1253,12 +1039,9 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
-								{ "type": "null" }
-							],
+							"$ref": "#/components/schemas/ItemQueryAvailability",
 							"title": "Availability",
-							"default": "y"
+							"default": "a"
 						}
 					},
 					{
@@ -1281,40 +1064,14 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Limit returned items count",
-							"description": "Limit the number of items returned.",
-							"examples": [[42]],
-							"default": 64
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "Limit the number of items returned."
-					},
-					{
-						"name": "cid",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for item ID"
-						}
-					},
-					{
-						"name": "cwm",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for words match"
-						}
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -1443,7 +1200,7 @@
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
-								"schema": { "$ref": "#/components/schemas/ItemPrivateRead" }
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
 							}
 						}
 					},
@@ -1476,7 +1233,16 @@
 						}
 					},
 					{
-						"name": "active",
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "a",
 						"in": "query",
 						"required": false,
 						"schema": {
@@ -1485,6 +1251,20 @@
 							"description": "Only return pending and accepted loan requests."
 						},
 						"description": "Only return pending and accepted loan requests."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -1717,12 +1497,21 @@
 						}
 					},
 					{
-						"name": "seen",
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "s",
 						"in": "query",
 						"required": false,
 						"schema": {
 							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
-							"title": "Seen",
+							"title": "Seen messages",
 							"description": "Only select messages that have been seen.",
 							"examples": [true, false]
 						},
@@ -1733,28 +1522,14 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Limit returned messages count",
-							"description": "Limit the number of messages returned.",
-							"examples": [[42]],
-							"default": 64
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "Limit the number of messages returned."
-					},
-					{
-						"name": "cid",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "minimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for chat message ID"
-						}
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -1789,80 +1564,27 @@
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "item",
+						"name": "clm",
 						"in": "query",
 						"required": false,
 						"schema": {
 							"anyOf": [{ "type": "integer" }, { "type": "null" }],
-							"title": "Item",
-							"description": "Only select chats about the item with this ID.",
-							"examples": [42]
-						},
-						"description": "Only select chats about the item with this ID."
-					},
-					{
-						"name": "borrower",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [{ "type": "integer" }, { "type": "null" }],
-							"title": "Borrower",
-							"description": "Only select chats with the borrower with this ID.",
-							"examples": [42]
-						},
-						"description": "Only select chats with the borrower with this ID."
-					},
-					{
-						"name": "owner",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [{ "type": "integer" }, { "type": "null" }],
-							"title": "Owner",
-							"description": "Only select chats with the owner with this ID.",
-							"examples": [42]
-						},
-						"description": "Only select chats with the owner with this ID."
+							"title": "Clm"
+						}
 					},
 					{
 						"name": "n",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Limit returned chats count",
-							"description": "Limit the number of chats returned.",
-							"examples": [[42]],
-							"default": 64
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "Limit the number of chats returned."
-					},
-					{
-						"name": "clm",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "minimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for last message ID"
-						}
-					},
-					{
-						"name": "cid",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "string", "pattern": "\\d+-\\d+" },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for item ID"
-						}
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -2072,37 +1794,226 @@
 				}
 			}
 		},
-		"/v1/me/borrowings": {
+		"/v1/me/loans/requests": {
 			"get": {
-				"summary": "List Client Borrowings",
-				"description": "List loans where the client is the borrower.",
-				"operationId": "list_client_borrowings_v1_me_borrowings_get",
+				"summary": "List Loan Requests For Items Owned By The Client",
+				"description": "List loan requests where the client is the owner.",
+				"operationId": "list_loan_requests_for_items_owned_by_the_client_v1_me_loans_requests_get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "item",
+						"name": "cid",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "minimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Loaned item",
-							"description": "Only return loan with this item ID."
-						},
-						"description": "Only return loan with this item ID."
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
 					},
 					{
-						"name": "active",
+						"name": "a",
 						"in": "query",
 						"required": false,
 						"schema": {
 							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
-							"title": "Active",
+							"title": "Active loan requests",
+							"description": "Only return pending and accepted loan requests."
+						},
+						"description": "Only return pending and accepted loan requests."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/LoanRequestRead" },
+									"title": "Response List Loan Requests For Items Owned By The Client V1 Me Loans Requests Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans/requests/{loan_request_id}": {
+			"get": {
+				"summary": "Get Client Loan Request",
+				"description": "Get loan request where the client is the owner.",
+				"operationId": "get_client_loan_request_v1_me_loans_requests__loan_request_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans/requests/{loan_request_id}/accept": {
+			"post": {
+				"summary": "Accept Client Item Loan Request",
+				"description": "Accept loan request where the client is the owner.",
+				"operationId": "accept_client_item_loan_request_v1_me_loans_requests__loan_request_id__accept_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans/requests/{loan_request_id}/reject": {
+			"post": {
+				"summary": "Reject Client Item Loan Request",
+				"description": "Reject loan request where the client is the owner.",
+				"operationId": "reject_client_item_loan_request_v1_me_loans_requests__loan_request_id__reject_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans": {
+			"get": {
+				"summary": "List Client Loans",
+				"description": "List loans where the client is the owner.",
+				"operationId": "list_client_loans_v1_me_loans_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "a",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+							"title": "Active loan",
 							"description": "Only return active loans."
 						},
 						"description": "Only return active loans."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -2113,8 +2024,84 @@
 								"schema": {
 									"type": "array",
 									"items": { "$ref": "#/components/schemas/LoanRead" },
-									"title": "Response List Client Borrowings V1 Me Borrowings Get"
+									"title": "Response List Client Loans V1 Me Loans Get"
 								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans/{loan_id}": {
+			"get": {
+				"summary": "Get Client Loan",
+				"description": "Get loan where the client is the owner.",
+				"operationId": "get_client_loan_v1_me_loans__loan_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/loans/{loan_id}/end": {
+			"post": {
+				"summary": "End Client Loan",
+				"description": "End the loan where the client is the owner.",
+				"operationId": "end_client_loan_v1_me_loans__loan_id__end_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
 							}
 						}
 					},
@@ -2132,12 +2119,21 @@
 		"/v1/me/borrowings/requests": {
 			"get": {
 				"summary": "List Client Borrowing Loan Requests",
-				"description": "List pending loan requests made by the client.",
+				"description": "List loan requests where the client is the borrower.",
 				"operationId": "list_client_borrowing_loan_requests_v1_me_borrowings_requests_get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
-						"name": "active",
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "a",
 						"in": "query",
 						"required": false,
 						"schema": {
@@ -2146,6 +2142,20 @@
 							"description": "Only return pending and accepted loan requests."
 						},
 						"description": "Only return pending and accepted loan requests."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -2175,7 +2185,7 @@
 		"/v1/me/borrowings/requests/{loan_request_id}": {
 			"get": {
 				"summary": "Get Client Borrowing Loan Request",
-				"description": "Get loan request made by the client.",
+				"description": "Get loan request where the client is the borrower.",
 				"operationId": "get_client_borrowing_loan_request_v1_me_borrowings_requests__loan_request_id__get",
 				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
@@ -2183,11 +2193,53 @@
 						"name": "loan_request_id",
 						"in": "path",
 						"required": true,
-						"schema": { "type": "integer", "title": "Loan Request Id" }
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
 					}
 				],
 				"responses": {
 					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRequestRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/borrowings/requests/{loan_request_id}/cancel": {
+			"post": {
+				"summary": "Cancel Borrowing Loan Request",
+				"description": "Cancel pending loan request where the client is the borrower.",
+				"operationId": "cancel_borrowing_loan_request_v1_me_borrowings_requests__loan_request_id__cancel_post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_request_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
+					}
+				],
+				"responses": {
+					"201": {
 						"description": "Successful Response",
 						"content": {
 							"application/json": {
@@ -2217,7 +2269,11 @@
 						"name": "loan_request_id",
 						"in": "path",
 						"required": true,
-						"schema": { "type": "integer", "title": "Loan Request Id" }
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan request."
+						}
 					}
 				],
 				"responses": {
@@ -2226,6 +2282,564 @@
 						"content": {
 							"application/json": {
 								"schema": { "$ref": "#/components/schemas/LoanRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/borrowings": {
+			"get": {
+				"summary": "List Client Borrowings",
+				"description": "List loans where the client is the borrower.",
+				"operationId": "list_client_borrowings_v1_me_borrowings_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "a",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+							"title": "Active loan",
+							"description": "Only return active loans."
+						},
+						"description": "Only return active loans."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/LoanRead" },
+									"title": "Response List Client Borrowings V1 Me Borrowings Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/borrowings/{loan_id}": {
+			"get": {
+				"summary": "Get Client Borrowing",
+				"description": "Get loan where the client is the owner.",
+				"operationId": "get_client_borrowing_v1_me_borrowings__loan_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "loan_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the loan."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/LoanRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me": {
+			"get": {
+				"summary": "Get Client User",
+				"description": "Get client user.",
+				"operationId": "get_client_user_v1_me_get",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
+							}
+						}
+					}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
+			},
+			"post": {
+				"summary": "Update Client User",
+				"description": "Update client user.",
+				"operationId": "update_client_user_v1_me_post",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserUpdate",
+								"title": "User fields to update."
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/UserPrivateRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				},
+				"security": [{ "OAuth2PasswordBearer": [] }]
+			},
+			"delete": {
+				"summary": "Delete Client User",
+				"description": "Delete client user.",
+				"operationId": "delete_client_user_v1_me_delete",
+				"responses": { "204": { "description": "Successful Response" } },
+				"security": [{ "OAuth2PasswordBearer": [] }]
+			}
+		},
+		"/v1/me/liked/{item_id}": {
+			"post": {
+				"summary": "Add Item To Client Liked Items",
+				"description": "Add the specified item to client liked items.",
+				"operationId": "add_item_to_client_liked_items_v1_me_liked__item_id__post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"summary": "Get Client Liked Item By Id",
+				"description": "Get item liked by client.",
+				"operationId": "get_client_liked_item_by_id_v1_me_liked__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"summary": "Remove Item From Client Liked Items",
+				"description": "Remove the specified item from client liked items.",
+				"operationId": "remove_item_from_client_liked_items_v1_me_liked__item_id__delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/liked": {
+			"get": {
+				"summary": "List Items Liked By Client",
+				"description": "List items like by client.",
+				"operationId": "list_items_liked_by_client_v1_me_liked_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "mo",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "$ref": "#/components/schemas/MonthRange" },
+								{ "type": "null" }
+							],
+							"title": "Targeted age months",
+							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+							"examples": ["3-12", "8-"]
+						},
+						"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+					},
+					{
+						"name": "av",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"$ref": "#/components/schemas/ItemQueryAvailability",
+							"title": "Availability",
+							"default": "a"
+						}
+					},
+					{
+						"name": "reg",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
+							],
+							"title": "Regions",
+							"description": "An item is returned if it is available in any of these regions IDs.",
+							"examples": [[4], [2, 4, 7, 8]]
+						},
+						"description": "An item is returned if it is available in any of these regions IDs."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
+									"title": "Response List Items Liked By Client V1 Me Liked Get"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/saved/{item_id}": {
+			"post": {
+				"summary": "Add Item To Client Saved Items",
+				"description": "Add item to client saved items.",
+				"operationId": "add_item_to_client_saved_items_v1_me_saved__item_id__post",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"summary": "Get Client Saved Item By Id",
+				"description": "Get item saved by client.",
+				"operationId": "get_client_saved_item_by_id_v1_me_saved__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/ItemRead" }
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"summary": "Remove Item From Client Saved Items",
+				"description": "Remove the specified item from client saved items.",
+				"operationId": "remove_item_from_client_saved_items_v1_me_saved__item_id__delete",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "item_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"title": "The ID of the item."
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": { "application/json": { "schema": {} } }
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+							}
+						}
+					}
+				}
+			}
+		},
+		"/v1/me/saved": {
+			"get": {
+				"summary": "List Items Saved By Client",
+				"description": "List items saved by client.",
+				"operationId": "list_items_saved_by_client_v1_me_saved_get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
+				"parameters": [
+					{
+						"name": "cid",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
+					},
+					{
+						"name": "mo",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "$ref": "#/components/schemas/MonthRange" },
+								{ "type": "null" }
+							],
+							"title": "Targeted age months",
+							"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound.",
+							"examples": ["3-12", "8-"]
+						},
+						"description": "An item is returned if its targeted age months is included in this range. The values are the targeted age in months. A null value specify an infinite bound."
+					},
+					{
+						"name": "av",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"$ref": "#/components/schemas/ItemQueryAvailability",
+							"title": "Availability",
+							"default": "a"
+						}
+					},
+					{
+						"name": "reg",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{ "type": "array", "items": { "type": "integer" } },
+								{ "type": "null" }
+							],
+							"title": "Regions",
+							"description": "An item is returned if it is available in any of these regions IDs.",
+							"examples": [[4], [2, 4, 7, 8]]
+						},
+						"description": "An item is returned if it is available in any of these regions IDs."
+					},
+					{
+						"name": "n",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
+						},
+						"description": "Limit the number of results."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "array",
+									"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
+									"title": "Response List Items Saved By Client V1 Me Saved Get"
+								}
 							}
 						}
 					},
@@ -2257,19 +2871,13 @@
 						}
 					},
 					{
-						"name": "q",
+						"name": "cid",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "array", "items": { "type": "string" } },
-								{ "type": "null" }
-							],
-							"title": "Words used for fuzzy search",
-							"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is.",
-							"examples": [["chair"], ["dog", "cat"]]
-						},
-						"description": "An item is returned if any word in this list fuzzy-matches a word in the item's name or description. However, the more given words that do not match any word in the item's name or description, the higher the word matching distance is."
+							"anyOf": [{ "type": "integer" }, { "type": "null" }],
+							"title": "Cid"
+						}
 					},
 					{
 						"name": "mo",
@@ -2277,7 +2885,7 @@
 						"required": false,
 						"schema": {
 							"anyOf": [
-								{ "type": "string", "pattern": "^\\d*-\\d*$" },
+								{ "$ref": "#/components/schemas/MonthRange" },
 								{ "type": "null" }
 							],
 							"title": "Targeted age months",
@@ -2291,12 +2899,9 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "$ref": "#/components/schemas/ItemQueryAvailability" },
-								{ "type": "null" }
-							],
+							"$ref": "#/components/schemas/ItemQueryAvailability",
 							"title": "Availability",
-							"default": "y"
+							"default": "a"
 						}
 					},
 					{
@@ -2319,40 +2924,14 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 128, "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Limit returned items count",
-							"description": "Limit the number of items returned.",
-							"examples": [[42]],
-							"default": 64
+							"type": "integer",
+							"maximum": 256,
+							"exclusiveMinimum": 0,
+							"title": "Limit results count",
+							"description": "Limit the number of results.",
+							"default": 32
 						},
-						"description": "Limit the number of items returned."
-					},
-					{
-						"name": "cid",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "exclusiveMinimum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for item ID"
-						}
-					},
-					{
-						"name": "cwm",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"anyOf": [
-								{ "type": "integer", "maximum": 0 },
-								{ "type": "null" }
-							],
-							"title": "Page cursor for words match"
-						}
+						"description": "Limit the number of results."
 					}
 				],
 				"responses": {
@@ -2677,7 +3256,7 @@
 				"required": ["file"],
 				"title": "Body_upload_image_v1_images_post"
 			},
-			"ChatId": { "type": "string" },
+			"ChatId": { "type": "string", "title": "ChatId" },
 			"ChatMessageCreate": {
 				"properties": { "text": { "type": "string", "title": "Text" } },
 				"additionalProperties": false,
@@ -2776,6 +3355,7 @@
 						"type": "string",
 						"maxLength": 30,
 						"minLength": 5,
+						"pattern": "^\\p{L}[\\p{L} \\-']+\\p{L}$",
 						"title": "Name"
 					},
 					"description": {
@@ -2790,19 +3370,11 @@
 						"minItems": 1,
 						"title": "Images"
 					},
-					"targeted_age_months": {
-						"prefixItems": [
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
-						],
-						"type": "array",
-						"maxItems": 2,
-						"minItems": 2,
-						"title": "Targeted Age Months"
-					},
+					"targeted_age_months": { "$ref": "#/components/schemas/MonthRange" },
 					"regions": {
 						"items": { "type": "integer" },
 						"type": "array",
+						"minItems": 1,
 						"title": "Regions"
 					},
 					"blocked": {
@@ -2840,19 +3412,22 @@
 				"properties": {
 					"id": { "type": "integer", "title": "Id" },
 					"name": { "type": "string", "title": "Name" },
-					"targeted_age_months": {
-						"prefixItems": [
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
-						],
-						"type": "array",
-						"maxItems": 2,
-						"minItems": 2,
-						"title": "Targeted Age Months"
-					},
+					"targeted_age_months": { "$ref": "#/components/schemas/MonthRange" },
 					"first_image_name": { "type": "string", "title": "First Image Name" },
 					"available": { "type": "boolean", "title": "Available" },
-					"owner_id": { "type": "integer", "title": "Owner Id" }
+					"owner_id": { "type": "integer", "title": "Owner Id" },
+					"liked": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Liked"
+					},
+					"saved": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Saved"
+					},
+					"owned": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Owned"
+					}
 				},
 				"type": "object",
 				"required": [
@@ -2865,21 +3440,18 @@
 				],
 				"title": "ItemPreviewRead"
 			},
-			"ItemPrivateRead": {
+			"ItemQueryAvailability": {
+				"type": "string",
+				"enum": ["y", "n", "a"],
+				"title": "ItemQueryAvailability",
+				"x-enum-varnames": ["yes", "no", "all"]
+			},
+			"ItemRead": {
 				"properties": {
 					"id": { "type": "integer", "title": "Id" },
 					"name": { "type": "string", "title": "Name" },
 					"description": { "type": "string", "title": "Description" },
-					"targeted_age_months": {
-						"prefixItems": [
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
-						],
-						"type": "array",
-						"maxItems": 2,
-						"minItems": 2,
-						"title": "Targeted Age Months"
-					},
+					"targeted_age_months": { "$ref": "#/components/schemas/MonthRange" },
 					"images_names": {
 						"items": { "type": "string" },
 						"type": "array",
@@ -2894,65 +3466,22 @@
 						"title": "Regions"
 					},
 					"likes_count": { "type": "integer", "title": "Likes Count" },
-					"blocked": { "type": "boolean", "title": "Blocked" },
-					"loans": {
-						"items": { "$ref": "#/components/schemas/LoanRead" },
-						"type": "array",
-						"title": "Loans"
+					"owned": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Owned"
+					},
+					"liked": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Liked"
+					},
+					"saved": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Saved"
+					},
+					"blocked": {
+						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
+						"title": "Blocked"
 					}
-				},
-				"type": "object",
-				"required": [
-					"id",
-					"name",
-					"description",
-					"targeted_age_months",
-					"images_names",
-					"available",
-					"owner_id",
-					"owner",
-					"regions",
-					"likes_count",
-					"blocked",
-					"loans"
-				],
-				"title": "ItemPrivateRead"
-			},
-			"ItemQueryAvailability": {
-				"type": "string",
-				"enum": ["y", "n", "a"],
-				"title": "ItemQueryAvailability",
-				"x-enum-varnames": ["yes", "no", "all"]
-			},
-			"ItemRead": {
-				"properties": {
-					"id": { "type": "integer", "title": "Id" },
-					"name": { "type": "string", "title": "Name" },
-					"description": { "type": "string", "title": "Description" },
-					"targeted_age_months": {
-						"prefixItems": [
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
-							{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
-						],
-						"type": "array",
-						"maxItems": 2,
-						"minItems": 2,
-						"title": "Targeted Age Months"
-					},
-					"images_names": {
-						"items": { "type": "string" },
-						"type": "array",
-						"title": "Images Names"
-					},
-					"available": { "type": "boolean", "title": "Available" },
-					"owner_id": { "type": "integer", "title": "Owner Id" },
-					"owner": { "$ref": "#/components/schemas/UserPreviewRead" },
-					"regions": {
-						"items": { "$ref": "#/components/schemas/RegionRead" },
-						"type": "array",
-						"title": "Regions"
-					},
-					"likes_count": { "type": "integer", "title": "Likes Count" }
 				},
 				"type": "object",
 				"required": [
@@ -2973,7 +3502,12 @@
 				"properties": {
 					"name": {
 						"anyOf": [
-							{ "type": "string", "maxLength": 30, "minLength": 5 },
+							{
+								"type": "string",
+								"maxLength": 30,
+								"minLength": 5,
+								"pattern": "^\\p{L}[\\p{L} \\-']+\\p{L}$"
+							},
 							{ "type": "null" }
 						],
 						"title": "Name"
@@ -2987,36 +3521,32 @@
 					},
 					"images": {
 						"anyOf": [
-							{ "items": { "type": "string" }, "type": "array" },
+							{ "items": { "type": "string" }, "type": "array", "minItems": 1 },
 							{ "type": "null" }
 						],
 						"title": "Images"
 					},
 					"targeted_age_months": {
 						"anyOf": [
-							{
-								"prefixItems": [
-									{ "anyOf": [{ "type": "integer" }, { "type": "null" }] },
-									{ "anyOf": [{ "type": "integer" }, { "type": "null" }] }
-								],
-								"type": "array",
-								"maxItems": 2,
-								"minItems": 2
-							},
+							{ "$ref": "#/components/schemas/MonthRange" },
 							{ "type": "null" }
-						],
-						"title": "Targeted Age Months"
+						]
 					},
 					"regions": {
 						"anyOf": [
-							{ "items": { "type": "integer" }, "type": "array" },
+							{
+								"items": { "type": "integer" },
+								"type": "array",
+								"minItems": 1
+							},
 							{ "type": "null" }
 						],
 						"title": "Regions"
 					},
 					"blocked": {
 						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
-						"title": "Blocked"
+						"title": "Blocked",
+						"default": false
 					}
 				},
 				"additionalProperties": false,
@@ -3088,6 +3618,7 @@
 					"executed"
 				]
 			},
+			"MonthRange": { "type": "string", "title": "MonthRange" },
 			"RegionRead": {
 				"properties": {
 					"id": { "type": "integer", "title": "Id" },
@@ -3147,7 +3678,14 @@
 				"description": "Info about the user credentials.\n\nDoes not contain any token as the latters are given via cookies."
 			},
 			"UserPasswordUpdate": {
-				"properties": { "password": { "type": "string", "title": "Password" } },
+				"properties": {
+					"password": {
+						"type": "string",
+						"minLength": 7,
+						"pattern": "[0-9]",
+						"title": "Password"
+					}
+				},
 				"additionalProperties": false,
 				"type": "object",
 				"required": ["password"],
@@ -3166,6 +3704,7 @@
 			"UserPrivateRead": {
 				"properties": {
 					"id": { "type": "integer", "title": "Id" },
+					"validated": { "type": "boolean", "title": "Validated" },
 					"name": { "type": "string", "title": "Name" },
 					"email": { "type": "string", "format": "email", "title": "Email" },
 					"avatar_seed": { "type": "string", "title": "Avatar Seed" },
@@ -3180,6 +3719,7 @@
 				"type": "object",
 				"required": [
 					"id",
+					"validated",
 					"name",
 					"email",
 					"avatar_seed",
@@ -3194,22 +3734,18 @@
 					"id": { "type": "integer", "title": "Id" },
 					"name": { "type": "string", "title": "Name" },
 					"avatar_seed": { "type": "string", "title": "Avatar Seed" },
+					"items_count": { "type": "integer", "title": "Items Count" },
 					"stars_count": { "type": "integer", "title": "Stars Count" },
-					"likes_count": { "type": "integer", "title": "Likes Count" },
-					"items": {
-						"items": { "$ref": "#/components/schemas/ItemPreviewRead" },
-						"type": "array",
-						"title": "Items"
-					}
+					"likes_count": { "type": "integer", "title": "Likes Count" }
 				},
 				"type": "object",
 				"required": [
 					"id",
 					"name",
 					"avatar_seed",
+					"items_count",
 					"stars_count",
-					"likes_count",
-					"items"
+					"likes_count"
 				],
 				"title": "UserRead"
 			},
