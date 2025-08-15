@@ -4,7 +4,6 @@ const { loggedIn } = useAuth()
 let websocket: WebSocket | null = null
 
 const { setMessage } = useChats()
-const route = useRoute()
 
 watch(loggedIn, (state) => {
   if (state === true) {
@@ -33,20 +32,10 @@ watch(loggedIn, (state) => {
     }
   }
 })
-
-const visible = computed(() => !([
-  '/newitem',
-  '/me/account/pending-validation',
-  '/me/account/reset-password',
-  '/me/account/validate',
-].some(r => route.path.startsWith(r))))
 </script>
 
 <template>
-  <div>
+  <NuxtLayout>
     <NuxtPage />
-    <AppFooterBar v-if="visible" />
-  </div>
+  </NuxtLayout>
 </template>
-
-<style></style>
