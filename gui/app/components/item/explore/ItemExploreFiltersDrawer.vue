@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowLeft, Repeat } from 'lucide-vue-next'
+
 const open = defineModel<boolean>()
 </script>
 

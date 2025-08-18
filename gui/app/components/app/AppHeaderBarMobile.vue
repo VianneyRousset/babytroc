@@ -52,7 +52,7 @@ watch(y, (newY: number, oldY: number) => {
   gap: 16px;
   height: 64px;
 
-  position: fixed;
+  position: sticky;
   top: 0px;
   box-sizing: border-box;
   width: 100%;

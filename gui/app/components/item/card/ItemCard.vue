@@ -4,9 +4,11 @@ import { Heart, Bookmark, Clock } from 'lucide-vue-next'
 // TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
-const { item } = toRefs(defineProps<{
+const props = defineProps<{
   item: T
-}>())
+}>()
+
+const { item } = toRefs(props)
 
 const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
 const { firstImagePath } = useItemFirstImage(item)
@@ -23,42 +25,40 @@ const backgroundImage = computed(() => {
 </script>
 
 <template>
-  <aspectRatio :ratio="1">
-    <div
-      class="ItemCard"
-      :style="{ backgroundImage: backgroundImage }"
-    >
-      <div class="status">
-        <Heart
-          v-if="item.liked"
-          class="liked"
-          :size="24"
-          :stroke-width="2"
-        />
-        <Bookmark
-          v-if="item.saved"
-          class="saved"
-          :size="24"
-          :stroke-width="2"
-        />
-        <Clock
-          v-if="!item.available"
-          class="not-available"
-          :size="24"
-          :stroke-width="2"
-        />
-      </div>
+  <div
+    class="ItemCard"
+    :style="{ backgroundImage: backgroundImage }"
+  >
+    <div class="status">
+      <Heart
+        v-if="item.liked"
+        class="liked"
+        :size="24"
+        :stroke-width="2"
+      />
+      <Bookmark
+        v-if="item.saved"
+        class="saved"
+        :size="24"
+        :stroke-width="2"
+      />
+      <Clock
+        v-if="!item.available"
+        class="not-available"
+        :size="24"
+        :stroke-width="2"
+      />
+    </div>
 
-      <div class="info">
-        <div class="age">
-          {{ formatedTargetedAgeMonths }}
-        </div>
-        <div class="name">
-          {{ item.name }}
-        </div>
+    <div class="info">
+      <div class="age">
+        {{ formatedTargetedAgeMonths }}
+      </div>
+      <div class="name">
+        {{ item.name }}
       </div>
     </div>
-  </AspectRatio>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -68,7 +68,7 @@ const backgroundImage = computed(() => {
   aspect-ratio: 1;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 1rem;
+  border-radius: 1em;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -105,7 +105,7 @@ const backgroundImage = computed(() => {
   }
 
   .info {
-    padding: 1rem;
+    padding: 1em;
 
     .age {
       color: $primary-300;
@@ -115,7 +115,7 @@ const backgroundImage = computed(() => {
     .name {
       font-family: "Plus Jakarta Sans", sans-serif;
       color: var(--brand-50);
-      font-size: 1.6rem;
+      font-size: 1.6em;
       font-weight: bold;
     }
   }

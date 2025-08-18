@@ -53,7 +53,7 @@ useInfiniteScroll(
     <!-- Header bar -->
     <AppHeaderBarMobile :hide-on-scroll="true">
       <SearchInput
-        v-model="searchInput"
+        v-model="filters.words"
         @submit="applyFilters"
       />
       <Toggle
@@ -71,18 +71,20 @@ useInfiniteScroll(
 
     <!-- Filters drawer -->
     <aside>
-      <ExploreItemFiltersDrawer />
+      <ItemExploreFiltersDrawer />
     </aside>
 
     <!-- Item cards -->
     <main>
-      <ItemCardsCollections />
+      <ItemCardsCollection
+        :items="items"
+      />
     </main>
   </div>
   <div v-else>
     <!-- Filters panel -->
     <aside>
-      <ExploreItemFiltersPanel />
+      <ItemExploreFiltersPanel />
     </aside>
     <div>
       <header>
@@ -94,7 +96,9 @@ useInfiniteScroll(
 
       <!-- Item cards -->
       <main>
-        <ItemCardsCollections />
+        <ItemCardsCollection
+          :items="items"
+        />
       </main>
     </div>
     <aside />
