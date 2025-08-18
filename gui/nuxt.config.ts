@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     '@pinia/colada-nuxt',
     '@nuxt/eslint',
     'floating-vue/nuxt',
+    '@nuxtjs/device',
   ],
 
   // disable server-side rendering
@@ -30,7 +31,7 @@ export default defineNuxtConfig({
 
   // import pinia-colada queries and mutations
   imports: {
-    dirs: ['queries', 'queries/**', 'mutations', 'mutations/**'],
+    dirs: ['types', 'queries', 'queries/**', 'mutations', 'mutations/**'],
   },
 
   devtools: { enabled: true },
@@ -67,7 +68,7 @@ export default defineNuxtConfig({
 
   /* Build Pipeline Configs */
   routeRules: {
-    '/': { redirect: '/home' },
+    '/': { redirect: '/explore' },
     '/newitem': { redirect: '/newitem/studio' },
   },
 

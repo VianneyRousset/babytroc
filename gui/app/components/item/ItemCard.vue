@@ -1,20 +1,15 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends ItemPreview">
 import { Heart, Bookmark, Clock } from 'lucide-vue-next'
 
 // TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
-const props = defineProps<{
-  item: ItemPreview
-  likedItems: Array<Item | ItemPreview>
-  savedItems: Array<Item | ItemPreview>
-}>()
-const { item, likedItems, savedItems } = toRefs(props)
+const { item } = toRefs(defineProps<{
+  item: T
+}>())
 
 const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
 const { firstImagePath } = useItemFirstImage(item)
-const { isLikedByUser } = useItemLike(item, likedItems)
-const { isSavedByUser } = useItemSave(item, savedItems)
 
 const backgroundImage = computed(() => {
   const backgrounds = []
@@ -35,13 +30,13 @@ const backgroundImage = computed(() => {
     >
       <div class="status">
         <Heart
-          v-if="isLikedByUser"
+          v-if="item.liked"
           class="liked"
           :size="24"
           :stroke-width="2"
         />
         <Bookmark
-          v-if="isSavedByUser"
+          v-if="item.saved"
           class="saved"
           :size="24"
           :stroke-width="2"

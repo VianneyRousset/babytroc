@@ -11,6 +11,10 @@ const props = defineProps<{
 const { selected } = toRefs(props)
 
 const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
+
+// TODO put back in <draggable>
+// @choose="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
+// @start="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
 </script>
 
 <template>
@@ -21,8 +25,6 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
     :animation="200"
     ghost-class="ghost"
     item-key="id"
-    @choose="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
-    @start="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
   >
     <template #item="{ element }">
       <transition

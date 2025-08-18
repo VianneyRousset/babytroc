@@ -140,7 +140,7 @@ export function useChatMessageTime(message: MaybeRefOrGetter<ChatMessage>) {
   return {
     formattedHour: DateTime.fromISO(
       toValue(message).creation_date,
-      ).toLocaleString(DateTime.TIME_SIMPLE),
+    ).toLocaleString(DateTime.TIME_SIMPLE),
   }
 }
 export function useGroupChatMessages<T extends UserWithId>(

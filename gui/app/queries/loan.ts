@@ -8,8 +8,6 @@ export function useBorrowingsListQuery() {
   })
 }
 
-
-
 /*
 export const useBorrowingsListQuery = defineQuery(() => {
   const { $api } = useNuxtApp()
@@ -102,7 +100,7 @@ export function useBorrowingsLoanRequestsListQuery(options: {
     query: () =>
       $api('/v1/me/borrowings/requests', {
         query: {
-          active: toValue(options.active),
+          a: toValue(options.active),
         },
       }),
   })

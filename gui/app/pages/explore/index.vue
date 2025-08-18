@@ -1,84 +1,42 @@
 <script setup lang="ts">
-import { Filter, ArrowLeft, Repeat } from 'lucide-vue-next'
-
-import { ItemQueryAvailability } from '#build/types/open-fetch/schemas/api'
-
-const main = useTemplateRef<HTMLElement>('main')
-const { height: mainHeaderHeight } = useElementSize(
-  useTemplateRef('main-header'),
-)
-const { height: filtersHeaderHeight } = useElementSize(
-  useTemplateRef('filters-header'),
-)
+import { Filter } from 'lucide-vue-next'
 
 const filtersDrawerOpen = ref(false)
 
-const route = useRoute()
-const router = useRouter()
-const routeStack = useRouteStack()
+const { queryParams } = useMirrorItemQueryParamsAndRouteQueryParams()
 
 // query items
 const {
-  query,
-  data: itemsPages,
-  status: itemsStatus,
-  asyncStatus: itemsAsyncStatus,
+  items,
+  error,
+  loading,
   loadMore,
-} = useItemsListQuery()
+  canLoadMore,
+} = useItemExplore({ queryParams })
 
-const {
-  searchInput,
-  stateAvailable,
-  stateUnavailable,
-  targetedAge,
-  regions,
-  isFilterActive,
-  areFilterInputsChanged,
-  filter,
-} = useItemFilters()
+// item filters
+const { filters, loadFiltersFromQueryParams, dumpFiltersAsQueryParams } = useItemFilters()
 
-// update store query parameters on route query change
-watch(
-  () => route.query,
-  (routeQuery) => {
-    query.value = {
-      q: routeQuery.q ? getQueryParamAsArray(routeQuery, 'q') : undefined,
-      mo: typeof routeQuery.mo === 'string' ? routeQuery.mo : undefined,
-      av: (
-        typeof routeQuery.av === 'string'
-        && Object.values(ItemQueryAvailability).includes(routeQuery.av as ItemQueryAvailability)
-          ? (routeQuery.av as ItemQueryAvailability)
-          : undefined
-      ),
-      reg: routeQuery.reg
-        ? getQueryParamAsArray(routeQuery, 'reg').map(Number.parseInt)
-        : undefined,
-    }
-  },
-  {
-    immediate: true,
-  },
-)
+watch(queryParams, _queryParams => loadFiltersFromQueryParams(_queryParams), { immediate: true })
 
-function resetFilterInputs() {
-  stateAvailable.value = true
-  stateUnavailable.value = false
-  targetedAge.value = [0, null]
-  regions.clear()
-}
-
-const { data: likedItems } = useLikedItemsQuery()
-const { data: savedItems } = useSavedItemsQuery()
+const applyFilters = () => queryParams.value = dumpFiltersAsQueryParams()
 
 function openItem(itemId: number) {
+  const route = useRoute()
+  const router = useRouter()
+  const routeStack = useRouteStack()
   routeStack.amend(
     router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
   )
   return navigateTo(`/home/item/${itemId}`)
 }
 
+const searchInput = ref('')
+const isFilterActive = ref(false)
+
+/*
 useInfiniteScroll(
-  main,
+  document,
   async () => {
     await loadMore()
   },
@@ -87,19 +45,16 @@ useInfiniteScroll(
     distance: 1800,
   },
 )
+*/
 </script>
 
 <template>
-  <div>
+  <div v-if="$device.isMobile">
     <!-- Header bar -->
-    <AppHeaderBar
-      ref="main-header"
-      :scroll="main ?? false"
-      :scroll-offset="32"
-    >
+    <AppHeaderBarMobile :hide-on-scroll="true">
       <SearchInput
         v-model="searchInput"
-        @submit="filter()"
+        @submit="applyFilters"
       />
       <Toggle
         v-model:pressed="filtersDrawerOpen"
@@ -112,94 +67,39 @@ useInfiniteScroll(
           :class="{ active: isFilterActive }"
         />
       </Toggle>
-    </AppHeaderBar>
+    </AppHeaderBarMobile>
 
     <!-- Filters drawer -->
-    <Drawer v-model="filtersDrawerOpen">
-      <!-- Filters header bar -->
-      <AppHeaderBar ref="filters-header">
-        <Toggle
-          v-model:pressed="filtersDrawerOpen"
-          class="Toggle"
-          @click="filter()"
-        >
-          <ArrowLeft
-            :size="32"
-            :stroke-width="2"
-          />
-        </Toggle>
-        <h1>Filtres</h1>
-        <IconButton
-          :disabled="!areFilterInputsChanged"
-          @click="resetFilterInputs()"
-        >
-          <Repeat
-            :size="24"
-            :stroke-width="2"
-          />
-        </IconButton>
-      </AppHeaderBar>
+    <aside>
+      <ExploreItemFiltersDrawer />
+    </aside>
 
-      <!-- Filters main -->
-      <div class="app-content filters page">
-        <h2>Disponibilité</h2>
-        <div class="checkbox-group">
-          <Checkbox v-model="stateAvailable">
-            Disponible
-          </Checkbox>
-          <Checkbox v-model="stateUnavailable">
-            Non-disponible
-          </Checkbox>
-        </div>
-
-        <h2>Age</h2>
-        <AgeRangeInput v-model="targetedAge" />
-
-        <h2>Régions</h2>
-        <RegionsMap v-model="regions" />
-        <RegionsCheckboxes v-model="regions" />
-      </div>
-    </Drawer>
-
-    <!-- Main content -->
+    <!-- Item cards -->
     <main>
-      <List
-        ref="main"
-        class="app-content page"
-      >
-        <ItemCard
-          v-for="item in itemsPages.data ?? []"
-          :id="`item${item.id}`"
-          :key="`item${item.id}`"
-          :item="item"
-          :liked-items="likedItems ?? []"
-          :saved-items="savedItems ?? []"
-          @click="openItem(item.id)"
-        />
-        <ListError v-if="itemsStatus === 'error'">
-          Une erreur est survenue.
-        </ListError>
-        <ListLoader v-else-if="itemsAsyncStatus === 'loading'" />
-        <ListEmpty v-else-if="itemsPages.data.length === 0">
-          Aucun résultat
-        </ListEmpty>
-      </List>
+      <ItemCardsCollections />
     </main>
+  </div>
+  <div v-else>
+    <!-- Filters panel -->
+    <aside>
+      <ExploreItemFiltersPanel />
+    </aside>
+    <div>
+      <header>
+        <SearchInput
+          v-model="searchInput"
+          @submit="applyFilters()"
+        />
+      </header>
+
+      <!-- Item cards -->
+      <main>
+        <ItemCardsCollections />
+      </main>
+    </div>
+    <aside />
   </div>
 </template>
 
 <style scoped lang="scss">
-main {
-  --header-height: v-bind(mainHeaderHeight + "px");
-  overflow-y: scroll;
-}
-
-.filters.app-content {
-  --header-height: v-bind(filtersHeaderHeight + "px");
-}
-
-.filterIcon.active {
-  stroke: $primary-400;
-  filter: drop-shadow(0px 0px 2px $primary-200);
-}
 </style>

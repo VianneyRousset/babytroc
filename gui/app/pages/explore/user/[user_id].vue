@@ -75,33 +75,12 @@ const { loggedIn } = useAuth()
           <div>{{ user.likes_count }}</div>
           <div>Likes</div>
         </div>
-        <div class="counter">
-          <div>{{ user.items.length }}</div>
-          <div>Objects</div>
-        </div>
       </div>
     </AppHeaderBar>
 
     <!-- Main content -->
     <main>
-      <List
-        v-if="user"
-        ref="main"
-        class="app-content page"
-      >
-        <ItemCard
-          v-for="item in user.items"
-          :id="`item${item.id}`"
-          :key="`item${item.id}`"
-          :item="item"
-          :liked-items="likedItems ?? []"
-          :saved-items="savedItems ?? []"
-          @click="openItem(item.id)"
-        />
-        <ListEmpty v-if="user.items.length === 0">
-          {{ user?.name }} n'a pas encore d'objet.
-        </ListEmpty>
-      </List>
+      <!-- was the list of item cards -->
     </main>
   </div>
 </template>
