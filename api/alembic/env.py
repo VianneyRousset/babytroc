@@ -20,7 +20,9 @@ target_metadata = app.models.Base.metadata
 jls_extract_var = config
 if config.get_main_option("sqlalchemy.url") is None:
     app_config = app.config.Config.from_env()
-    jls_extract_var.set_main_option("sqlalchemy.url", str(app_config.database.url))
+    jls_extract_var.set_main_option(
+        "sqlalchemy.url", app_config.database.url.render_as_string(hide_password=False)
+    )
 
 
 def run_migrations_offline() -> None:
