@@ -2,7 +2,7 @@ export default defineNuxtPlugin(() => {
   const router = useRouter()
   const stack = reactive(Array<string>()) as Array<string>
   const backwardFlag = ref(false)
-  const direction = ref('forward')
+  const direction = ref<'forward' | 'backward'>('forward')
 
   router.afterEach((to) => {
     const fullPath = to.fullPath

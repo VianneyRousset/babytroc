@@ -17,7 +17,7 @@ import { OctagonAlert } from 'lucide-vue-next'
   @include flex-row;
   justify-content: center;
   gap: 1rem;
-  margin-top: 2em;
+  padding: 4em 0;
   color: $red-700;
 }
 </style>

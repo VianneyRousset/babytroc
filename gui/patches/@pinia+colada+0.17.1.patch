@@ -1,13 +1,13 @@
 diff --git a/node_modules/@pinia/colada/dist/index.d.ts b/node_modules/@pinia/colada/dist/index.d.ts
-index c587179..d2bf275 100644
+index 8230df7..ae8f6d0 100644
 --- a/node_modules/@pinia/colada/dist/index.d.ts
 +++ b/node_modules/@pinia/colada/dist/index.d.ts
-@@ -128,13 +128,17 @@ interface UseQueryOptionsGlobal {
+@@ -192,13 +192,17 @@ interface UseQueryOptionsGlobal {
   * Context object passed to the `query` function of `useQuery()`.
   * @see {@link UseQueryOptions}
   */
 -interface UseQueryFnContext {
-+interface UseQueryFnContext<TResult> {
++interface UseQueryFnContext<TData> {
      /**
       * `AbortSignal` instance attached to the query call. If the call becomes
       * outdated (e.g. due to a new call with the same key), the signal will be
@@ -15,50 +15,50 @@ index c587179..d2bf275 100644
       */
      signal: AbortSignal;
 +
-+    data: TResult,
++    data: TData;
 +
-+    reset: boolean,
++    reset: boolean;
  }
  /**
   * Options for `useQuery()`. Can be extended by plugins.
-@@ -174,7 +178,7 @@ interface UseQueryOptions<TResult = unknown, TError = ErrorDefault, TDataInitial
+@@ -238,7 +242,7 @@ interface UseQueryOptions<TData = unknown, TError = ErrorDefault, TDataInitial e
      /**
       * The function that will be called to fetch the data. It **must** be async.
       */
--    query: (context: UseQueryFnContext) => Promise<TResult>;
-+    query: (context: UseQueryFnContext<TResult>) => Promise<TResult>;
+-    query: (context: UseQueryFnContext) => Promise<TData>;
++    query: (context: UseQueryFnContext<TData>) => Promise<TData>;
      /**
       * The data which is initially set to the query while the query is loading
-      * for the first time. Note: unlike with `placeholderData`, setting the
+      * for the first time. Note: unlike with {@link placeholderData}, setting the
 diff --git a/node_modules/@pinia/colada/dist/index.js b/node_modules/@pinia/colada/dist/index.js
-index da0aefd..001215a 100644
+index 27e7911..3ab25ea 100644
 --- a/node_modules/@pinia/colada/dist/index.js
 +++ b/node_modules/@pinia/colada/dist/index.js
-@@ -655,7 +655,7 @@ See https://vuejs.org/guide/reusability/composables.html#usage-restrictions`
+@@ -323,7 +323,7 @@ See https://vuejs.org/guide/reusability/composables.html#usage-restrictions`
        const pendingCall = entry.pending = {
          abortController,
          // wrapping with async allows us to catch synchronous errors too
 -        refreshCall: (async () => options.query({ signal }))().then((data) => {
-+        refreshCall: (async () => entry.options.query({ data: toValue2(entry.state).data, signal, reset: entry.when === 0 }))().then((data) => {
++        refreshCall: (async () => entry.options.query({ data: toValue2(entry.state).data, signal, reset: entry.when === 0 }))().then((data) => {        
            if (pendingCall === entry.pending) {
              setEntryState(entry, {
                data,
-@@ -1237,16 +1237,16 @@ function PiniaColadaQueryHooksPlugin(options) {
+@@ -718,16 +718,16 @@ function useQueryState(...[_keyOrSetup, paramsGetter]) {
  // src/infinite-query.ts
- import { toValue as toValue4 } from "vue";
+ import { toValue as toValue5 } from "vue";
  function useInfiniteQuery(options) {
--  let pages = toValue4(options.initialPage);
+-  let pages = toValue5(options.initialPage);
    const { refetch, refresh, ...query } = useQuery({
      ...options,
 -    initialData: () => pages,
-+    initialData: () => toValue4(options.initialPage),
++    initialData: () => toValue5(options.initialPage),
      // since we hijack the query function and augment the data, we cannot refetch the data
      // like usual
      staleTime: Infinity,
      async query(context) {
 -      const data = await options.query(pages, context);
 -      return pages = options.merge(pages, data);
-+      const currentData = context.reset ? toValue3(options.initialPage) : context.data;
++      const currentData = context.reset ? toValue5(options.initialPage) : context.data;
 +      const data = await options.query(currentData, context);
 +      return options.merge(currentData, data);
      }

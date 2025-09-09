@@ -8,7 +8,7 @@ import {
 } from 'lucide-vue-next'
 import type { FunctionalComponent } from 'vue'
 
-const { appSectionUrls, activeAppSection } = useAppNavigation()
+const { appSectionUrls, activeAppSection } = useNavigation()
 
 const { hasNewMessages } = useChats()
 
@@ -30,7 +30,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
 </script>
 
 <template>
-  <nav>
+  <nav class="AppNavigationMobile">
     <ul>
       <li
         v-for="tab in tabs"

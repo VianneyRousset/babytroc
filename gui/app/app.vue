@@ -32,10 +32,31 @@ watch(loggedIn, (state) => {
     }
   }
 })
+
+// deduce transition to use base on navigation direction
+const { direction, resetDirection } = useNavigation()
+const transitionName = computed(() => `page-slide-${unref(direction)}`)
+
+const pageActiveTransition = ref<boolean>(false)
+provide<Ref<boolean>>('page-active-transition', pageActiveTransition)
+
+function onBeforeLeave() {
+}
+
+function onAfterEnter() {
+  resetDirection()
+}
 </script>
 
 <template>
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage
+      :transition="{
+        name: transitionName,
+        mode: 'in-out',
+        onBeforeLeave,
+        onAfterEnter,
+      }"
+    />
   </NuxtLayout>
 </template>

@@ -16,10 +16,12 @@ const props = withDefaults(defineProps<{
 })
 const { items, error, loading, dense } = toRefs(props)
 
+// emit a 'select' event with the item id when a card is select
 const emit = defineEmits<
   (e: 'select', itemId: number) => void
 >()
 
+// adjust the number of columns and the font-size with the width of the component
 const { width: collectionElementWidth } = useElementSize(
   useTemplateRef('collection'),
   undefined,
@@ -35,9 +37,7 @@ const columnsCount = computed(() => {
   const _w = unref(collectionElementWidth)
   const _steps = widthSteps[unref(dense) ? 'dense' : 'default']
   const i = _steps.findIndex(step => _w < step)
-  console.log(i, _steps.length)
-  if (i < 0) return _steps.length + 1
-  return i + 1
+  return ((i < 0) ? _steps.length : i) + 1
 })
 
 const fontSize = computed(() => {
@@ -51,30 +51,33 @@ const fontSize = computed(() => {
     ref="collection"
     class="ItemCardsCollection"
   >
-    <ItemCard
-      v-for="item in items ?? []"
-      :id="`item${item.id}`"
-      :key="`item${item.id}`"
-      :item="item"
-      @click="() => emit('select', item.id)"
-    />
     <ListError v-if="error">
       Une erreur est survenue.
     </ListError>
-    <ListLoader v-else-if="loading" />
-    <ListEmpty v-else-if="items?.length === 0">
+    <ListEmpty v-else-if="!loading && items?.length === 0">
       Aucun résultat
     </ListEmpty>
+    <div class="cards">
+      <ItemCard
+        v-for="item in items ?? []"
+        :id="`item${item.id}`"
+        :key="`item${item.id}`"
+        :item="item"
+        @click="() => emit('select', item.id)"
+      />
+    </div>
+    <ListLoader v-if="!error && loading" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .ItemCardsCollection {
-  display: grid;
-  grid-template-columns: repeat(v-bind('columnsCount'), 1fr);
-  gap: 1em;
-  padding: 1em;
-  font-size: v-bind('fontSize + "px"');
-
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(v-bind('columnsCount'), 1fr);
+    gap: 1em;
+    padding: 1em;
+    font-size: v-bind('fontSize + "px"');
+  }
 }
 </style>

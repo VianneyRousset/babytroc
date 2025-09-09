@@ -3,10 +3,9 @@ import { ShieldAlert } from 'lucide-vue-next'
 
 // get user ID from route
 const route = useRoute()
-const router = useRouter()
-const routeStack = useRouteStack()
 const userId = Number.parseInt(route.params.user_id as string) // TODO avoid this hack
 
+const { goTo } = useNavigation()
 const { currentTab } = useTab()
 
 // goto tab main page if invalid itemId
@@ -24,14 +23,8 @@ const { currentTabRoot } = useTab()
 // get user data
 const { data: user } = useUserQuery(userId)
 
-const { data: likedItems } = useLikedItemsQuery()
-const { data: savedItems } = useSavedItemsQuery()
-
 function openItem(itemId: number) {
-  routeStack.amend(
-    router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
-  )
-  return navigateTo(`${currentTabRoot}/item/${itemId}`)
+  return goTo(`${currentTabRoot}/item/${itemId}`, { saveHash: `#item${itemId}` })
 }
 
 // auth
@@ -41,7 +34,7 @@ const { loggedIn } = useAuth()
 <template>
   <div>
     <!-- Header bar -->
-    <AppHeaderBar
+    <AppHeaderBarMobile
       ref="main-header"
       :scroll="main ?? false"
       :scroll-offset="32"
@@ -76,7 +69,7 @@ const { loggedIn } = useAuth()
           <div>Likes</div>
         </div>
       </div>
-    </AppHeaderBar>
+    </AppHeaderBarMobile>
 
     <!-- Main content -->
     <main>
@@ -90,7 +83,7 @@ main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
 
-:deep(.AppHeaderBar) {
+:deep(.AppHeaderBarMobile) {
 
   @include flex-column;
   align-items: stretch;

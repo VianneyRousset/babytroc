@@ -1,6 +1,5 @@
 import type {
   DataState,
-  DataState_Success,
   UseQueryOptions,
   UseQueryReturn,
 } from '@pinia/colada'
@@ -99,7 +98,7 @@ export function useQueryWithAuth<
         status: 'success',
         data: undefined as TResult,
         error: null,
-      } satisfies DataState_Success<TResult>
+      }
     },
   )
 

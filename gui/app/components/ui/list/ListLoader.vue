@@ -7,7 +7,6 @@
 <style lang="scss" scoped>
 .ListLoader {
   @include flex-row-center;
-  margin-top: 2em;
-  margin-bottom: 2em;
+  padding: 2em 0;
 }
 </style>

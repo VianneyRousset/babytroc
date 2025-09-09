@@ -3,63 +3,57 @@ const props = withDefaults(
   defineProps<{
     // if false, the bar stays visible
     // if true, the bar is hidden when scrolling down
-    // if an HTML element is given, the bar is hidden when the element is scolled down
-    // default to false
-    scroll?: HTMLElement | boolean
+    hideOnScroll?: HTMLElement | null
 
     // min scroll y value to hide the bar
     // default to 0
     scrollOffset?: number
   }>(),
-  {
-    scroll: false,
-    scrollOffset: 0,
-  },
+  { },
 )
 
-const { scroll, scrollOffset } = toRefs(props)
+const { hideOnScroll, scrollOffset } = toRefs(props)
 
 // true if scrolling down
 const scrollingDown = ref(false)
 
-const scrollElement = computed(() => {
-  const _scroll = unref(scroll)
-  return _scroll === false ? undefined : (_scroll === true ? window : _scroll)
-})
-
 // scroll y position
-const { y } = useScroll(scrollElement)
+const { y } = useScroll(hideOnScroll)
 
 watch(y, (newY: number, oldY: number) => {
   scrollingDown.value = newY > oldY
 })
+
+// get header height and provide it to children elements
+// if no header is present (e.g. in desktop mode), the height is 0
+const { height: appHeaderBarHeight } = useElementSize(
+  useTemplateRef('header'),
+  undefined,
+  { box: 'border-box' },
+)
 </script>
 
 <template>
   <div
-    class="AppHeaderBar"
-    :class="{ hidden: y > scrollOffset && scrollingDown }"
+    ref="header"
+    class="AppHeaderBarMobile"
+    :class="{ hidden: hideOnScroll && y > (scrollOffset ?? appHeaderBarHeight) && scrollingDown }"
   >
     <slot />
   </div>
 </template>
 
 <style scoped lang="scss">
-.AppHeaderBar {
+.AppHeaderBarMobile {
 
   @include flex-row;
   @include bar-shadow;
   gap: 16px;
   height: 64px;
 
-  position: sticky;
-  top: 0px;
-  box-sizing: border-box;
-  width: 100%;
-  z-index: 5;
 
   transform: translate(0, 0);
-  transition: 0.1s transform ease-out;
+  transition: 0.1s transform ease-out, 0.1s opacity ease-out;
 
   padding: 0 1rem;
 
@@ -69,6 +63,7 @@ watch(y, (newY: number, oldY: number) => {
 
   &.hidden {
     transform: translate(0, -100%);
+    opacity: 0;
     box-shadow: none;
   }
 

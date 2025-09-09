@@ -10,12 +10,14 @@ const model = defineModel<boolean>()
 
 <style scoped lang="scss">
 div {
+
   position: fixed;
   top: 0;
   bottom: 0;
   right: 0;
 
-  max-width: 80%;
+  width: 90%;
+  max-width: 400px;
 
   background: white;
   z-index: 5;
@@ -25,6 +27,7 @@ div {
 
   &.open {
     transform: translate(0, 0);
+    @include bar-shadow;
   }
 }
 </style>

@@ -34,11 +34,10 @@ export default defineNuxtConfig({
     dirs: ['types', 'queries', 'queries/**', 'mutations', 'mutations/**'],
   },
 
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   /* Client-side Integrations */
   app: {
-    pageTransition: { name: 'fade', mode: 'out-in' },
     head: {
       title: 'Babytroc', // default fallback title
       htmlAttrs: {
@@ -115,6 +114,7 @@ export default defineNuxtConfig({
       enum: true,
     },
   },
+
 
   pinia: {
     // accept nested store directories

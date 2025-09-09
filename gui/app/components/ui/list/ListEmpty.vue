@@ -6,7 +6,7 @@
 
 <style lang="scss" scoped>
 .ListEmpty {
-  margin-top: 2em;
+  padding: 4em 0;
   color: $neutral-300;
   text-align: center;
 }

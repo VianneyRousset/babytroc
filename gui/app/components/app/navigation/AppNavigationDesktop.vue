@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { appSectionUrls, activeAppSection } = useAppNavigation()
+const { appSectionUrls, activeAppSection } = useNavigation()
 
 const { hasNewMessages } = useChats()
 

@@ -7,17 +7,17 @@ const props = defineProps<{
 
 const { fallback } = toRefs(props)
 
-const routeStack = useRouteStack()
+const { markBackward, pop, previous } = useNavigation()
 
 const { currentTabRoot } = useTab()
 const targetRoute = computed(
-  () => routeStack.previous.value ?? unref(fallback) ?? currentTabRoot,
+  () => unref(previous) ?? unref(fallback) ?? currentTabRoot,
 )
 
 async function onclick() {
-  routeStack.markBackward()
-  routeStack.pop()
-  routeStack.pop()
+  markBackward()
+  pop()
+  pop()
 }
 </script>
 

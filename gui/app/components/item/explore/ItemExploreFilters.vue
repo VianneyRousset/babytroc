@@ -1,28 +1,26 @@
 <script setup lang="ts">
-const stateAvailable = ref(false)
-const stateUnavailable = ref(false)
-const targetedAge = ref<AgeRange>([1, 2])
-const regions = ref(new Set<number>())
+const filters = defineModel<ItemFilters>({ required: true })
 </script>
 
 <template>
   <div class="ExploreItemFilters">
+    {{ filters }}
     <h2>Disponibilité</h2>
     <div class="checkbox-group">
-      <Checkbox v-model="stateAvailable">
+      <Checkbox v-model="filters.available">
         Disponible
       </Checkbox>
-      <Checkbox v-model="stateUnavailable">
+      <Checkbox v-model="filters.unavailable">
         Non-disponible
       </Checkbox>
     </div>
 
     <h2>Age</h2>
-    <AgeRangeInput v-model="targetedAge" />
+    <AgeRangeInput v-model="filters.targetedAge" />
 
     <h2>Régions</h2>
-    <RegionsMap v-model="regions" />
-    <RegionsCheckboxes v-model="regions" />
+    <RegionsMap v-model="filters.regions" />
+    <RegionsCheckboxes v-model="filters.regions" />
   </div>
 </template>
 

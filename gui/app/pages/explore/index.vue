@@ -1,87 +1,107 @@
 <script setup lang="ts">
-import { Filter } from 'lucide-vue-next'
-
-const filtersDrawerOpen = ref(false)
-
-const { queryParams } = useMirrorItemQueryParamsAndRouteQueryParams()
-
-// query items
-const {
-  items,
-  error,
-  loading,
-  loadMore,
-  canLoadMore,
-} = useItemExplore({ queryParams })
+import { Filter, LayoutGrid, Grid3x3 } from 'lucide-vue-next'
+import { AppPage } from '#components'
 
 // item filters
-const { filters, loadFiltersFromQueryParams, dumpFiltersAsQueryParams } = useItemFilters()
+const { filters, isDefault: isFiltersDefault, reset: resetFilters, loadFiltersFromQueryParams, dumpFiltersAsQueryParams } = useItemFilters()
 
-watch(queryParams, _queryParams => loadFiltersFromQueryParams(_queryParams), { immediate: true })
+// synced store and route query params
+const { queryParams } = useItemExploreQueryParams()
 
-const applyFilters = () => queryParams.value = dumpFiltersAsQueryParams()
+// update filters when route query params changes
+watch(queryParams, newQueryParams => loadFiltersFromQueryParams(newQueryParams), { immediate: true })
 
-function openItem(itemId: number) {
-  const route = useRoute()
-  const router = useRouter()
-  const routeStack = useRouteStack()
-  routeStack.amend(
-    router.resolve({ ...route, hash: `#item${itemId}` }).fullPath,
-  )
-  return navigateTo(`/home/item/${itemId}`)
-}
+// query items
+const { items, error, loading, loadMore } = useItemExplore({ queryParams: queryParams! })
 
-const searchInput = ref('')
-const isFilterActive = ref(false)
+// filters are applied by updating the route query params
+const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
 
-/*
-useInfiniteScroll(
-  document,
-  async () => {
-    await loadMore()
-  },
-  {
-    canLoadMore: () => !unref(itemsPages).end && unref(itemsStatus) !== 'error',
-    distance: 1800,
-  },
-)
-*/
+const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
+
+// dense layout
+const dense = ref(false)
+
+// filters drawer open state
+const filtersDrawerOpen = ref(false)
 </script>
 
 <template>
-  <div v-if="$device.isMobile">
+  <AppPage
+    v-if="$device.isMobileOrTablet"
+    saved-scroll="page-explore"
+    :hide-bar-on-scroll="true"
+    :infinite-scroll="true"
+    :infinite-scroll-distance="1800"
+    @more="loadMore"
+  >
     <!-- Header bar -->
-    <AppHeaderBarMobile :hide-on-scroll="true">
+    <template #header>
       <SearchInput
         v-model="filters.words"
         @submit="applyFilters"
       />
-      <Toggle
-        v-model:pressed="filtersDrawerOpen"
-        class="Toggle"
-      >
-        <Filter
-          :size="24"
-          :stroke-width="2"
-          class="filterIcon"
-          :class="{ active: isFilterActive }"
-        />
-      </Toggle>
-    </AppHeaderBarMobile>
+      <!-- Floating buttons -->
+      <div class="floating-buttons">
+        <FloatingToggle
+          v-model="filtersDrawerOpen"
+          :active="!isFiltersDefault"
+        >
+          <Filter
+            :size="24"
+            :stroke-width="2"
+          />
+        </FloatingToggle>
+        <FloatingToggle v-model="dense">
+          <transition
+            name="fade"
+            mode="out-in"
+          >
+            <LayoutGrid
+              v-if="dense"
+              :size="24"
+              :stroke-width="2"
+            />
+            <Grid3x3
+              v-else
+              :size="24"
+              :stroke-width="2"
+            />
+          </transition>
+        </FloatingToggle>
+      </div>
+    </template>
 
     <!-- Filters drawer -->
     <aside>
-      <ItemExploreFiltersDrawer />
+      <ItemExploreFiltersDrawer
+        v-model:open="filtersDrawerOpen"
+        v-model:filters="filters"
+        :is-default="isFiltersDefault"
+        @close="applyFilters"
+        @reset="resetFilters"
+      />
+      <Overlay
+        v-model="filtersDrawerOpen"
+        style="z-index:1"
+      />
     </aside>
 
     <!-- Item cards -->
     <main>
       <ItemCardsCollection
         :items="items"
+        :dense="dense"
+        :loading="loading"
+        :error="error"
+        @select="openItem"
       />
     </main>
-  </div>
-  <div v-else>
+  </AppPage>
+  <div
+    v-else
+    class="PageExplore"
+  >
     <!-- Filters panel -->
     <aside>
       <ItemExploreFiltersPanel />
@@ -89,7 +109,7 @@ useInfiniteScroll(
     <div>
       <header>
         <SearchInput
-          v-model="searchInput"
+          v-model="filters.words"
           @submit="applyFilters()"
         />
       </header>
@@ -98,6 +118,9 @@ useInfiniteScroll(
       <main>
         <ItemCardsCollection
           :items="items"
+          :loading="loading"
+          :error="error"
+          @select="openItem"
         />
       </main>
     </div>
@@ -106,4 +129,12 @@ useInfiniteScroll(
 </template>
 
 <style scoped lang="scss">
+.floating-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  position: absolute;
+  right: 0.6em;
+  top: calc(var(--app-header-bar-height) + 0.6em);
+}
 </style>

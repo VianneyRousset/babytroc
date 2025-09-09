@@ -1,11 +1,11 @@
 import { useInfiniteQuery, useQuery } from '@pinia/colada'
-import { parseLinkHeader } from '@web3-storage/parse-link-header'
+import { pickBy } from 'lodash'
 
 export function useItemQuery(itemId: MaybeRefOrGetter<number>) {
   const { $api } = useNuxtApp()
 
   return useQuery({
-    key: () => ['items', toValue(itemId)],
+    key: () => ['item', toValue(itemId)],
     query: () =>
       $api('/v1/items/{item_id}', {
         path: {
@@ -19,27 +19,22 @@ export function useItemsListQuery(queryParams?: Ref<ItemQueryParams>) {
   const definition = defineQuery(() => {
     const { $api } = useNuxtApp()
 
-    const defaultQueryParams: ItemQueryParams = {
-      n: 32,
-    }
     queryParams = queryParams ?? ref<ItemQueryParams>({})
 
-    const { ...query } = useInfiniteQuery({
-      key: () => ['items'],
+    const query = useInfiniteQuery({
+      key: () => ['item', 'explore', pickBy(unref(queryParams) ?? {}, v => v != null)],
 
       initialPage: {
-        data: Array<ItemPreview>(),
-        cursor: {} as ItemQueryParams,
+        items: Array<ItemPreview>(),
+        cursor: undefined as ItemQueryParams | undefined,
         end: false,
       },
 
       query: async (pages) => {
-        let newCursor: ItemQueryParams = {}
-
-        const newData = await $api('/v1/items', {
+        let cursor: ItemQueryParams | undefined = undefined
+        const items = await $api('/v1/items', {
           query: {
-            ...defaultQueryParams,
-            ...unref(queryParams),
+            ...pickBy(unref(queryParams), v => v != null),
             ...pages.cursor,
           },
 
@@ -47,35 +42,17 @@ export function useItemsListQuery(queryParams?: Ref<ItemQueryParams>) {
             response: { ok, headers },
           }: { response: { ok: boolean, headers: Headers } }) => {
             if (!ok) return
-
-            const linkHeader = parseLinkHeader(headers.get('link'))
-
-            if (!linkHeader?.next)
-              return console.error('Null linkHeader when fetching first items.')
-
-            const { rel, url, ...query } = linkHeader.next
-            newCursor = query
+            cursor = extractNextQueryParamsFromHeaders(headers)
           },
         })
-
-        return {
-          data: newData,
-          cursor: newCursor,
-        }
+        return { items, cursor }
       },
 
-      merge: (pages, newPage) => {
-        if (newPage.data.length === 0) {
-          return {
-            ...pages,
-            end: true,
-          }
-        }
-
+      merge: (result, current) => {
         return {
-          data: [...pages.data, ...newPage.data],
-          cursor: newPage.cursor,
-          end: false,
+          items: [...result.items, ...current.items],
+          cursor: current.cursor ?? result.cursor,
+          end: current.cursor == null,
         }
       },
     })
@@ -85,6 +62,5 @@ export function useItemsListQuery(queryParams?: Ref<ItemQueryParams>) {
       queryParams,
     }
   })
-
   return definition()
 }

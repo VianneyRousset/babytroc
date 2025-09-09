@@ -8,12 +8,6 @@ const { currentTab } = useTab()
 // goto tab main page if invalid itemId
 if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`)
 
-// get main header bar height to offset content
-const main = useTemplateRef<HTMLElement>('main')
-const { height: mainHeaderHeight } = useElementSize(
-  useTemplateRef('main-header'),
-)
-
 // query item, me, saved items and liked items
 const { state: item, asyncStatus: itemAsyncStatus } = useItemQuery(itemId)
 const { state: me } = useMeQuery()
@@ -26,13 +20,9 @@ const { loggedIn } = useAuth()
 </script>
 
 <template>
-  <div>
+  <AppPage :hide-on-scroll="true">
     <!-- Header bar -->
-    <AppHeaderBar
-      ref="main-header"
-      :scroll="main ?? false"
-      :scroll-offset="32"
-    >
+    <template #header>
       <AppBack />
       <h1 :title="item.data?.name">
         {{ item.data?.name }}
@@ -44,11 +34,10 @@ const { loggedIn } = useAuth()
         :item="item.data"
         :saved-items="savedItems.data"
       />
-    </AppHeaderBar>
+    </template>
 
     <!-- Main content -->
     <main
-      ref="main"
       class="app-content page"
     >
       <!-- Gallery -->
@@ -62,11 +51,8 @@ const { loggedIn } = useAuth()
         :loan-requests="loanRequests.data ?? []"
       />
     </main>
-  </div>
+  </AppPage>
 </template>
 
 <style scoped lang="scss">
-main {
-  --header-height: v-bind(mainHeaderHeight + "px");
-}
 </style>

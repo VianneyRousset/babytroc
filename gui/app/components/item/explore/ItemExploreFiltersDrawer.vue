@@ -1,25 +1,46 @@
 <script setup lang="ts">
 import { ArrowLeft, Repeat } from 'lucide-vue-next'
 
-const open = defineModel<boolean>()
+const props = defineProps<{
+  open: boolean
+  filters: ItemFilters
+  isDefault: boolean
+}>()
+
+const { open, filters, isDefault } = toRefs(props)
+
+const emit = defineEmits<{
+  (event: 'update:open', open: boolean): void
+  (event: 'update:filters', filters: ItemFilters): void
+  (event: 'close' | 'reset'): void
+}>()
+
+function close() {
+  emit('update:open', false)
+  emit('close')
+}
 </script>
 
 <template>
-  <div>
-    <Drawer v-model="open">
-      <div>
-        <Toggle
-          v-model:pressed="open"
+  <div class="ItemExploreFiltersDrawer">
+    <Drawer
+      :model-value="open"
+      @update:model-value="open => emit('update:open', open ?? false)"
+    >
+      <div class="header">
+        <IconButton
           class="Toggle"
+          @click="close"
         >
           <ArrowLeft
             :size="32"
             :stroke-width="2"
           />
-        </Toggle>
+        </IconButton>
         <h1>Filtres</h1>
         <IconButton
-          :disabled="true"
+          :disabled="isDefault"
+          @click="() => emit('reset')"
         >
           <Repeat
             :size="24"
@@ -29,10 +50,24 @@ const open = defineModel<boolean>()
       </div>
 
       <!-- Filters main -->
-      <ItemExploreFilters />
+      <ItemExploreFilters
+        :model-value="filters"
+        @update:model-value="filters => emit('update:filters', filters)"
+      />
     </Drawer>
   </div>
 </template>
 
 <style scoped lang="scss">
+.ItemExploreFiltersDrawer {
+  @include flex-column;
+
+  .header {
+    @include flex-row;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 1rem;
+    height: 64px;
+  }
+}
 </style>
