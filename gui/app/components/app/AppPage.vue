@@ -95,7 +95,7 @@ useInfiniteScroll(
   }
 
   .AppHeaderBarMobile {
-    position: absolute;
+    position: fixed;
     top: 0;
     box-sizing: border-box;
     width: 100%;

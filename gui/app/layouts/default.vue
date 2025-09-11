@@ -14,22 +14,17 @@ provide('app-footer-bar-height', appFooterBarHeight)
 
 <template>
   <div class="layout">
+    <AppNavigationDesktop v-if="!device.isMobileOrTablet" />
+    <slot />
     <AppNavigationMobile
       v-if="device.isMobileOrTablet"
       ref="app-footer-bar"
     />
-    <AppNavigationDesktop v-else />
-    <slot />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .layout {
   --app-footer-bar-height: v-bind('appFooterBarHeight + "px"');
-
-  /* show navigation bar above pages */
-  .AppNavigationMobile {
-    z-index: 2;
-  }
 }
 </style>

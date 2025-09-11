@@ -22,45 +22,47 @@ function close() {
 </script>
 
 <template>
-  <div class="ItemExploreFiltersDrawer">
-    <Drawer
-      :model-value="open"
-      @update:model-value="open => emit('update:open', open ?? false)"
-    >
-      <div class="header">
-        <IconButton
-          class="Toggle"
-          @click="close"
-        >
-          <ArrowLeft
-            :size="32"
-            :stroke-width="2"
-          />
-        </IconButton>
-        <h1>Filtres</h1>
-        <IconButton
-          :disabled="isDefault"
-          @click="() => emit('reset')"
-        >
-          <Repeat
-            :size="24"
-            :stroke-width="2"
-          />
-        </IconButton>
-      </div>
+  <Drawer
+    class="ItemExploreFiltersDrawer"
+    :model-value="open"
+    @update:model-value="open => emit('update:open', open ?? false)"
+  >
+    <div class="header">
+      <IconButton
+        class="Toggle"
+        @click="close"
+      >
+        <ArrowLeft
+          :size="32"
+          :stroke-width="2"
+        />
+      </IconButton>
+      <h1>Filtres</h1>
+      <IconButton
+        :disabled="isDefault"
+        @click="() => emit('reset')"
+      >
+        <Repeat
+          :size="24"
+          :stroke-width="2"
+        />
+      </IconButton>
+    </div>
 
-      <!-- Filters main -->
-      <ItemExploreFilters
-        :model-value="filters"
-        @update:model-value="filters => emit('update:filters', filters)"
-      />
-    </Drawer>
-  </div>
+    <!-- Filters main -->
+    <ItemExploreFilters
+      class="filters"
+      :model-value="filters"
+      @update:model-value="filters => emit('update:filters', filters)"
+    />
+  </Drawer>
 </template>
 
 <style scoped lang="scss">
 .ItemExploreFiltersDrawer {
   @include flex-column;
+  align-items: stretch;
+  overflow-y: scroll;
 
   .header {
     @include flex-row;
@@ -68,6 +70,10 @@ function close() {
     gap: 16px;
     padding: 0 1rem;
     height: 64px;
+  }
+
+  .filters {
+    padding: 1rem;
   }
 }
 </style>

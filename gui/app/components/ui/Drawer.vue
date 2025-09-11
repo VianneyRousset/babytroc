@@ -20,7 +20,6 @@ div {
   max-width: 400px;
 
   background: white;
-  z-index: 5;
 
   transition: 0.2s transform ease-out;
   transform: translate(100%, 0);

@@ -4,7 +4,6 @@ const filters = defineModel<ItemFilters>({ required: true })
 
 <template>
   <div class="ExploreItemFilters">
-    {{ filters }}
     <h2>Disponibilité</h2>
     <div class="checkbox-group">
       <Checkbox v-model="filters.available">

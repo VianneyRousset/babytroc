@@ -74,17 +74,18 @@ const filtersDrawerOpen = ref(false)
 
     <!-- Filters drawer -->
     <aside>
-      <ItemExploreFiltersDrawer
-        v-model:open="filtersDrawerOpen"
-        v-model:filters="filters"
-        :is-default="isFiltersDefault"
-        @close="applyFilters"
-        @reset="resetFilters"
-      />
-      <Overlay
-        v-model="filtersDrawerOpen"
-        style="z-index:1"
-      />
+      <Teleport to="body">
+        <Overlay
+          v-model="filtersDrawerOpen"
+        />
+        <ItemExploreFiltersDrawer
+          v-model:open="filtersDrawerOpen"
+          v-model:filters="filters"
+          :is-default="isFiltersDefault"
+          @close="applyFilters"
+          @reset="resetFilters"
+        />
+      </Teleport>
     </aside>
 
     <!-- Item cards -->
