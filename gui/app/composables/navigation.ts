@@ -25,7 +25,7 @@ export function useNavigation() {
     if (res == null)
       throw new Error(`Invalid app section for url '${route.path}'.`)
 
-    return res[1] as AppSection
+    return res[0] as AppSection
   })
 
   function push(fullPath: string) {

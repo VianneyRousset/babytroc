@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   Plus,
-  House,
+  Search,
   Heart,
   MessageSquare,
   UserRound,
@@ -21,7 +21,7 @@ type ClassSpecifications = {
 }
 
 const tabs = computed<Array<ClassSpecifications>>(() => [
-  { section: 'explore', name: 'Accueil', icon: House },
+  { section: 'explore', name: 'Explorer', icon: Search },
   { section: 'liked', name: 'Favorits', icon: Heart },
   { section: 'newitem', icon: Plus, class: { plus: true } },
   { section: 'chats', icon: MessageSquare, name: 'Chats', badge: unref(hasNewMessages) },
@@ -37,14 +37,11 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
         :key="tab.section"
         :active="activeAppSection === tab.section"
         :class="tab?.class ?? {}"
+        role="button"
+        tabindex="100"
+        @click="() => navigateTo(appSectionUrls.get(tab.section))"
       >
-        <NuxtLink :to="appSectionUrls.get(tab.section)">
-          <component
-            :is="tab.icon"
-            :size="24"
-            :stroke-width="activeAppSection === tab.section ? 2 : 1.33"
-          />
-          <div v-if="tab.name">{{ tab.name }}</div>
+        <div class="icon">
           <transition
             name="pop"
             mode="in-out"
@@ -55,7 +52,15 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
               class="badge"
             />
           </transition>
-        </NuxtLink>
+          <component
+            :is="tab.icon"
+            :size="24"
+            :stroke-width="activeAppSection === tab.section ? 2 : 1.33"
+          />
+        </div>
+        <div v-if="tab.name">
+          {{ tab.name }}
+        </div>
       </li>
     </ul>
   </nav>
@@ -72,8 +77,20 @@ nav {
   right: 0;
   box-sizing: border-box;
 
-  ul {
+  svg {
+    stroke: $neutral-400;
+  }
 
+  *[active="true"] {
+    color: $primary-500;
+    font-weight: 700;
+
+    svg {
+      stroke: $primary-500;
+    }
+  }
+
+  ul {
     @include reset-list;
     @include flex-row;
     font-family: 'Instrument Sans';
@@ -86,65 +103,41 @@ nav {
 
     li {
       @include flex-column;
+      align-items: center;
+      justify-content: center;
       margin: 0;
       width: 20%;
+      gap: 2px;
 
-      a {
-        @include reset-link;
-      }
-
-      svg {
-        stroke: $neutral-400;
-      }
-
-      &[active="true"] {
-        color: $primary-500;
-
-        a {
-          font-weight: 700;
-        }
-
-        svg {
-          stroke: $primary-500;
-        }
-      }
-
-      div {
-        @include flex-column;
-        justify-content: center;
-        gap: 4px;
+      &.plus {
         position: relative;
+        background: $neutral-200;
+        border: 2px solid $neutral-300;
 
-        &.plus {
-          background: $neutral-200;
-          border: 2px solid $neutral-300;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        position: relative;
+        bottom: 20px;
 
-          &.enable {
-            background: $primary-200;
-            border-color: $primary-300;
-
-            svg {
-              stroke: $primary-300;
-            }
-          }
-
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          position: relative;
-          bottom: 20px;
+        &.enable {
+          background: $primary-200;
+          border-color: $primary-300;
 
           svg {
-            stroke: $neutral-300;
+            stroke: $primary-300;
           }
         }
+      }
 
+      .icon {
+        position: relative;
       }
 
       .badge {
         @include flex-column-center;
         position: absolute;
-        right: -0.5rem;
+        right: -0.8rem;
         top: -0.3rem;
         background: $primary-300;
         min-height: 0.75rem;
