@@ -30,6 +30,8 @@ const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infin
 
 const device = useDevice()
 
+const slots = useSlots()
+
 // get header bar height and provide it to children elements
 // if no bar is present (e.g. in desktop mode), the height is 0
 const { height: appHeaderBarHeight } = useElementSize(
@@ -55,7 +57,7 @@ useInfiniteScroll(
   >
     <!-- Header bar -->
     <AppHeaderBarMobile
-      v-if="device.isMobileOrTablet"
+      v-if="slots.header"
       ref="app-header-bar"
       :hide-on-scroll="hideBarOnScroll ? appPageContent : null"
       :scroll-offset="hideBarScrollOffset"

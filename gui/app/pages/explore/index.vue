@@ -2,6 +2,8 @@
 import { Filter, LayoutGrid, Grid3x3 } from 'lucide-vue-next'
 import { AppPage } from '#components'
 
+const device = useDevice()
+
 // item filters
 const { filters, isDefault: isFiltersDefault, reset: resetFilters, loadFiltersFromQueryParams, dumpFiltersAsQueryParams } = useItemFilters()
 
@@ -28,15 +30,17 @@ const filtersDrawerOpen = ref(false)
 
 <template>
   <AppPage
-    v-if="$device.isMobileOrTablet"
     saved-scroll="page-explore"
     :hide-bar-on-scroll="true"
     :infinite-scroll="true"
     :infinite-scroll-distance="1800"
     @more="loadMore"
   >
-    <!-- Header bar -->
-    <template #header>
+    <!-- Header bar (mobile only) -->
+    <template
+      v-if="device.isMobile"
+      #header
+    >
       <SearchInput
         v-model="filters.words"
         @submit="applyFilters"
@@ -99,34 +103,6 @@ const filtersDrawerOpen = ref(false)
       />
     </main>
   </AppPage>
-  <div
-    v-else
-    class="PageExplore"
-  >
-    <!-- Filters panel -->
-    <aside>
-      <ItemExploreFiltersPanel />
-    </aside>
-    <div>
-      <header>
-        <SearchInput
-          v-model="filters.words"
-          @submit="applyFilters()"
-        />
-      </header>
-
-      <!-- Item cards -->
-      <main>
-        <ItemCardsCollection
-          :items="items"
-          :loading="loading"
-          :error="error"
-          @select="openItem"
-        />
-      </main>
-    </div>
-    <aside />
-  </div>
 </template>
 
 <style scoped lang="scss">
