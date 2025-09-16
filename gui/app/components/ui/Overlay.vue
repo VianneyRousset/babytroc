@@ -8,6 +8,8 @@ function onKeyDown(event: KeyboardEvent) {
   }
 }
 
+watch(model, v => console.log('overlay model', v), { immediate: true })
+
 onMounted(() => window.addEventListener('keydown', onKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 </script>
@@ -16,7 +18,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
   <div
     v-show="model"
     class="Overlay"
-    @click.self="model = false"
+    @click.self="() => (model = false)"
   >
     <slot />
   </div>

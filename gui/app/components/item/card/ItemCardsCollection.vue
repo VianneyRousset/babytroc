@@ -42,7 +42,7 @@ const columnsCount = computed(() => {
 
 const fontSize = computed(() => {
   const _w = unref(collectionElementWidth)
-  return _w / unref(columnsCount) / 22
+  return _w / unref(columnsCount) / 26
 })
 </script>
 

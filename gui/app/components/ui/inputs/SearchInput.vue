@@ -21,7 +21,7 @@ function submit() {
 </script>
 
 <template>
-  <div>
+  <div class="SearchInput">
     <Search
       class="search-icon"
       :size="20"
@@ -48,7 +48,7 @@ function submit() {
 </template>
 
 <style scoped lang="scss">
-div {
+.SearchInput {
 
   @include flex-row;
   position: relative;

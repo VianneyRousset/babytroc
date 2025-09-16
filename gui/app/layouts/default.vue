@@ -14,10 +14,10 @@ provide('app-footer-bar-height', appFooterBarHeight)
 
 <template>
   <div class="layout">
-    <AppNavigationDesktop v-if="!device.isMobileOrTablet" />
+    <AppNavigationDesktop v-if="!device.isMobile" />
     <slot />
     <AppNavigationMobile
-      v-if="device.isMobileOrTablet"
+      v-if="device.isMobile"
       ref="app-footer-bar"
     />
   </div>
@@ -26,5 +26,10 @@ provide('app-footer-bar-height', appFooterBarHeight)
 <style lang="scss" scoped>
 .layout {
   --app-footer-bar-height: v-bind('appFooterBarHeight + "px"');
+  @include flex-column;
+
+  .AppNavigationDesktop {
+    align-self: stretch;
+  }
 }
 </style>

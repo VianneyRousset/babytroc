@@ -1,6 +1,17 @@
 <script setup lang="ts">
 const model = defineModel<Set<number>>()
 
+const props = withDefaults(
+  defineProps<{
+    size?: 'large' | 'normal'
+  }>(),
+  {
+    size: 'normal',
+  },
+)
+
+const { size } = toRefs(props)
+
 function onChange(regionId: number, state: boolean) {
   if (state) {
     model.value?.add(regionId)
@@ -18,19 +29,17 @@ const { data: regions, status } = useApi('/v1/utils/regions', {
 
 <template>
   <div>
-    <div
-      v-if="status === 'success'"
-      class="checkbox-group"
-    >
+    <CheckboxGroup v-if="status === 'success'">
       <Checkbox
         v-for="region in regions"
         :key="`region${region.id}`"
         :model-value="model?.has(region.id)"
+        :size="size"
         @update:model-value="(v) => v !== undefined && onChange(region.id, v)"
       >
         {{ region.name }}
       </Checkbox>
-    </div>
+    </CheckboxGroup>
   </div>
 </template>
 

@@ -1,14 +1,26 @@
 <script setup lang="ts">
-const model = defineModel<boolean>()
+const checked = defineModel<boolean>()
+
+const props = withDefaults(
+  defineProps<{
+    size?: 'large' | 'normal'
+  }>(),
+  {
+    size: 'normal',
+  },
+)
+
+const { size } = toRefs(props)
 </script>
 
 <template>
   <label
     class="Checkbox"
-    :class="{ checked: model }"
+    :class="[size]"
+    :checked="checked"
   >
     <CheckboxRoot
-      v-model:checked="model"
+      v-model:checked="checked"
       class="CheckboxRoot"
     >
       <CheckboxIndicator class="CheckboxIndicator">
@@ -25,51 +37,76 @@ const model = defineModel<boolean>()
 .Checkbox {
 
   @include flex-row;
-
   cursor: pointer;
-
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid transparent;
-  border-radius: 0.5rem;
-
-  font-size: 1.2rem;
-  color: $neutral-700;
+  color: $neutral-600;
 
   &:hover {
-    border-color: $neutral-200;
     color: $neutral-900;
   }
 
-  &.checked {
-    background: $primary-50;
-    border-color: $primary-400;
-    color: $primary-400;
+  &[checked="true"],
+  &[checked="true"]:hover {
+    color: $primary-500;
   }
 
   :deep(.CheckboxRoot) {
 
+    @include reset-button;
+    @include flex-row-center;
+
     cursor: pointer;
-
-    width: 25px;
-    height: 25px;
-    border-radius: 4px;
-    border: 1px solid $neutral-300;
     background: $neutral-100;
-    padding: 5px;
-
-    &[data-state="checked"] {
-      background: $primary-100;
-    }
 
     .CheckboxIndicator {
       display: block;
-      border-radius: 3px;
+      border-radius: 0.2em;
       background: $primary-400;
       width: 100%;
       height: 100%;
     }
+  }
 
+  &.normal {
+    padding: 0.3em 0.2em;
+    gap: 0.6em;
+
+    :deep(.CheckboxRoot) {
+      width: round(up, 1em, 1px);
+      height: round(up, 1em, 1px);
+      border-radius: round(up, 0.3em, 1px);
+      padding: round(up, 0.2em, 1px);
+    }
+  }
+
+  &.large {
+    padding: 0.9em 0.8em;
+    gap: 1em;
+
+    border: 1px solid transparent;
+    border-radius: 0.5em;
+
+    &:hover {
+      border-color: $neutral-200;
+    }
+
+    &[checked="true"] {
+      background: $primary-50;
+      border-color: $primary-200;
+    }
+
+    :deep(.CheckboxRoot) {
+
+      width: round(up, 1.3em, 1px);
+      height: round(up, 1.3em, 1px);
+      border-radius: round(up, 0.4em, 1px);
+      padding: round(up, 0.3em, 1px);
+
+      border: 0.1em solid $neutral-300;
+
+      &[data-state="checked"] {
+        background: $primary-100;
+      }
+    }
   }
 }
 </style>

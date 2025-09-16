@@ -1,6 +1,19 @@
 <script setup lang="ts">
-import { Filter, LayoutGrid, Grid3x3 } from 'lucide-vue-next'
+/**
+ * Explore items page.
+ *
+ * Filtering:
+ *
+ *      ┌────────────────────────────┐
+ *      ▼                            │
+ *    filters ──applyFilters()─► queryParams ─► Queried items
+ *      ▲
+ *      └─► <input>
+ **/
+
+import { Filter, LayoutGrid, Grid3x3, ArrowLeft, Repeat } from 'lucide-vue-next'
 import { AppPage } from '#components'
+import { isEqual, cloneDeep } from 'lodash'
 
 const device = useDevice()
 
@@ -14,7 +27,7 @@ const { queryParams } = useItemExploreQueryParams()
 watch(queryParams, newQueryParams => loadFiltersFromQueryParams(newQueryParams), { immediate: true })
 
 // query items
-const { items, error, loading, loadMore } = useItemExplore({ queryParams: queryParams! })
+const { items, error, loading, loadMore } = useItemExplore({ queryParams })
 
 // filters are applied by updating the route query params
 const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
@@ -24,8 +37,20 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 // dense layout
 const dense = ref(false)
 
+const { narrowWindow } = useNarrowWindow()
+const drawerMode = computed<boolean>(() => device.isMobile || unref(narrowWindow))
+
 // filters drawer open state
 const filtersDrawerOpen = ref(false)
+
+// in panel mode (no drawer), the filters updates the queryparams without having to trigger applyFilters() manually
+watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
+  // skip if no change or not in panel model
+  if (unref(drawerMode) || isEqual(newFilters, oldFilters))
+    return
+
+  setTimeout(applyFilters, 500)
+}, { deep: true })
 </script>
 
 <template>
@@ -34,13 +59,11 @@ const filtersDrawerOpen = ref(false)
     :hide-bar-on-scroll="true"
     :infinite-scroll="true"
     :infinite-scroll-distance="1800"
+    :drawer-right="filtersDrawerOpen"
     @more="loadMore"
   >
     <!-- Header bar (mobile only) -->
-    <template
-      v-if="device.isMobile"
-      #header
-    >
+    <template #mobile-header-bar>
       <SearchInput
         v-model="filters.words"
         @submit="applyFilters"
@@ -76,36 +99,92 @@ const filtersDrawerOpen = ref(false)
       </div>
     </template>
 
-    <!-- Filters drawer -->
-    <aside>
-      <Teleport to="body">
-        <Overlay
-          v-model="filtersDrawerOpen"
+    <!-- Filters panel (larger screen only) -->
+    <template #left>
+      <PanelOrDrawer
+        v-model="filtersDrawerOpen"
+        position="right"
+        :mode="drawerMode ? 'drawer' : 'panel'"
+      >
+        <ItemExploreFilters
+          v-model="filters"
+          :size="device.isMobile ? 'large' : 'normal'"
         />
-        <ItemExploreFiltersDrawer
-          v-model:open="filtersDrawerOpen"
-          v-model:filters="filters"
-          :is-default="isFiltersDefault"
-          @close="applyFilters"
-          @reset="resetFilters"
+        <template #header-panel>
+          <h1>Filtres</h1>
+          <IconButton
+            :disabled="isFiltersDefault"
+            @click="resetFilters"
+          >
+            <Repeat
+              :size="24"
+              :stroke-width="2"
+            />
+          </IconButton>
+        </template>
+        <template #header-drawer>
+          <IconButton
+            class="Toggle"
+            @click="() => { applyFilters(); filtersDrawerOpen = false }"
+          >
+            <ArrowLeft
+              :size="32"
+              :stroke-width="2"
+            />
+          </IconButton>
+          <h1>Filtres</h1>
+          <IconButton
+            :disabled="isFiltersDefault"
+            @click="resetFilters"
+          >
+            <Repeat
+              :size="24"
+              :stroke-width="2"
+            />
+          </IconButton>
+        </template>
+      </PanelOrDrawer>
+    </template>
+
+    <template #desktop-header>
+      <div class="desktop-header">
+        <div>Trouvez ici les objets que vous voulez emprunter</div>
+        <SearchInput
+          v-model="filters.words"
+          @submit="applyFilters"
         />
-      </Teleport>
-    </aside>
+      </div>
+    </template>
 
     <!-- Item cards -->
-    <main>
-      <ItemCardsCollection
-        :items="items"
-        :dense="dense"
-        :loading="loading"
-        :error="error"
-        @select="openItem"
-      />
-    </main>
+    <ItemCardsCollection
+      :items="items"
+      :dense="dense"
+      :loading="loading"
+      :error="error"
+      @select="openItem"
+    />
   </AppPage>
 </template>
 
 <style scoped lang="scss">
+.desktop-header {
+  @include flex-column;
+  padding: 1em;
+  gap: 1em;
+
+  div:first-child {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.2em;
+    font-style: italic;
+    color: $neutral-600;
+    padding: 1em;
+  }
+  .SearchInput {
+    width: 80%;
+  }
+}
+
 .floating-buttons {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,4 @@
-import { pickBy } from 'lodash'
+import { pickBy, cloneDeep, isEqual } from 'lodash'
 
 /**
  * Parsed route query params
@@ -64,19 +64,13 @@ export function useItemFilters(): {
     regions: new Set<number>(),
   }
 
-  const filters = ref<ItemFilters>(defaultFilters)
+  const filters = ref<ItemFilters>(cloneDeep(defaultFilters))
 
-  const isDefault = computed<boolean>(() => {
-    const { available, unavailable, targetedAge, regions } = unref(filters)
-    return (
-      available && !unavailable
-      && targetedAge[0] === 0 && targetedAge[1] === null
-      && regions.size === 0
-    )
-  })
+  const isDefault = computed<boolean>(() => isEqual(unref(filters), defaultFilters))
 
   function reset() {
-    filters.value = { ...defaultFilters, words: unref(filters).words }
+    console.log('reset')
+    Object.assign(unref(filters), { ...cloneDeep(defaultFilters), words: unref(filters).words })
   }
 
   function loadFiltersFromQueryParams(queryParams: ItemQueryParams) {

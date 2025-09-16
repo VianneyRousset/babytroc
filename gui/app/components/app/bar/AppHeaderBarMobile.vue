@@ -51,7 +51,6 @@ const { height: appHeaderBarHeight } = useElementSize(
   gap: 16px;
   height: 64px;
 
-
   transform: translate(0, 0);
   transition: 0.1s transform ease-out, 0.1s opacity ease-out;
 
