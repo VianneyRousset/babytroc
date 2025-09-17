@@ -97,7 +97,6 @@ class Joins(tuple[type[SQLDeclarativeBase]]):
 # this filtering approach might have some limitation with complex filters
 class QueryFilterBase(Base):
     def _filter(self, stmt: StatementT) -> StatementT:
-        print(self._filter, stmt)
         return stmt
 
     @property
