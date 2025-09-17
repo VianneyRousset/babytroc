@@ -1,19 +1,35 @@
-export const useToggleItemLikeMutation = defineMutation(() => {
+export function useLikeItemMutation(itemId: MaybeRefOrGetter<number>) {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
   return useMutation({
-    mutation: (context: { itemId: number, isLikedByUser: boolean }) => {
-      return $api('/v1/me/liked/{item_id}', {
-        method: context.isLikedByUser ? 'DELETE' : 'POST',
-        path: {
-          item_id: context.itemId,
-        },
-      })
-    },
-    onSettled: (_data, _error, vars) => {
-      queryCache.invalidateQueries({ key: ['me', 'liked-items'] })
-      queryCache.invalidateQueries({ key: ['items', vars.itemId] })
+    key: () => ['item', 'like', toValue(itemId)],
+    mutation: () => $api('/v1/me/liked/{item_id}', {
+      method: 'POST',
+      path: {
+        item_id: toValue(itemId),
+      },
+    }),
+    onSettled: (_data, _error) => {
+      queryCache.invalidateQueries({ key: ['item', toValue(itemId)] })
     },
   })
-})
+}
+
+export function useUnlikeItemMutation(itemId: MaybeRefOrGetter<number>) {
+  const { $api } = useNuxtApp()
+  const queryCache = useQueryCache()
+
+  return useMutation({
+    key: () => ['item', 'like', toValue(itemId)],
+    mutation: () => $api('/v1/me/liked/{item_id}', {
+      method: 'DELETE',
+      path: {
+        item_id: toValue(itemId),
+      },
+    }),
+    onSettled: (_data, _error) => {
+      queryCache.invalidateQueries({ key: ['item', toValue(itemId)] })
+    },
+  })
+}

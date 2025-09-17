@@ -30,7 +30,7 @@ const { data: owner } = useUserQuery(
 
 <template>
   <div class="ItemPresentation">
-    <!-- Gallery -->
+    <!-- Gallery-->
     <ItemImagesGallery :item="item" />
 
     <!-- Availability and likes count -->

@@ -56,10 +56,9 @@ watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
 <template>
   <AppPage
     saved-scroll="page-explore"
-    :hide-bar-on-scroll="true"
-    :infinite-scroll="true"
+    hide-bar-on-scroll
+    infinite-scroll
     :infinite-scroll-distance="1800"
-    :drawer-right="filtersDrawerOpen"
     @more="loadMore"
   >
     <!-- Header bar (mobile only) -->

@@ -36,7 +36,6 @@ export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryPara
   error: Ref<boolean>
   loading: Ref<boolean>
   loadMore: () => void
-  scrollY: Ref<number>
 } {
   const {
     data: pages,
@@ -52,12 +51,6 @@ export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryPara
   // fixes few bugs by loading more items when `items` is empty
   watch(items, _items => _items.length === 0 && loadMore())
 
-  // query params in store
-  const { scrollY } = storeToRefs(useItemExploreStore())
-  const { y } = useScroll(window)
-
-  watch(y, newY => (scrollY.value = newY))
-
   return {
     items,
     error,
@@ -67,6 +60,5 @@ export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryPara
       if (!unref(pages).end && !unref(error) && !unref(loading))
         await loadMore()
     },
-    scrollY,
   }
 }

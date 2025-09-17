@@ -1,16 +1,28 @@
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
-export const useIsItemOwnedByUser = (
-  item: MaybeRefOrGetter<Item | ItemPreview>,
-  user: MaybeRefOrGetter<UserPrivate | User | UserPreview | undefined>,
-) => ({
-  isOwnedByUser: computed(() => {
-    const _user = toValue(user)
-    if (_user === undefined) return undefined
-    return toValue(item).owner_id === _user.id
-  }),
-})
+/* NEW */
+export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }): {
+  item: Ref<Item | undefined>
+  error: Ref<boolean>
+  loading: Ref<boolean>
+} {
+  const {
+    data: item,
+    asyncStatus,
+    status,
+  } = useItemQuery(itemId)
 
+  const error = computed<boolean>(() => unref(status) === 'error')
+  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
+
+  return {
+    item,
+    error,
+    loading,
+  }
+}
+
+/* OLD */
 export const useItemTargetedAgeMonths = (
   item: MaybeRefOrGetter<Item | ItemPreview>,
 ) => {
@@ -38,26 +50,6 @@ export const useItemRegions = (item: MaybeRefOrGetter<Item>) => ({
   regionsIds: computed(
     () => new Set(toValue(item).regions.map(reg => reg.id)),
   ),
-})
-
-export const useItemLike = (
-  item: MaybeRefOrGetter<Item | ItemPreview>,
-  likedItems: MaybeRefOrGetter<Array<Item | ItemPreview>>,
-) => ({
-  isLikedByUser: computed(() => {
-    const itemId = toValue(item).id
-    return toValue(likedItems).some(likedItem => likedItem.id === itemId)
-  }),
-})
-
-export const useItemSave = (
-  item: MaybeRefOrGetter<Item | ItemPreview>,
-  savedItems: MaybeRefOrGetter<Array<Item | ItemPreview>>,
-) => ({
-  isSavedByUser: computed(() => {
-    const itemId = toValue(item).id
-    return toValue(savedItems).some(savedItem => savedItem.id === itemId)
-  }),
 })
 
 export function useItemNameValidity(

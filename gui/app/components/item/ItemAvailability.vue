@@ -10,7 +10,7 @@ const { available } = toRefs(props)
 
 <template>
   <div
-    class="Availability"
+    class="ItemAvailability"
     :class="{ available }"
   >
     <Check
@@ -28,7 +28,7 @@ const { available } = toRefs(props)
 </template>
 
 <style scoped lang="scss">
-.Availability {
+.ItemAvailability {
   @include flex-row;
   gap: 0.6rem;
 

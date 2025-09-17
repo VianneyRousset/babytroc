@@ -15,8 +15,8 @@ const {
   loanRequests,
 } = toRefs(props)
 
-const { isOwnedByUser } = useIsItemOwnedByUser(item, me)
-const { isRequestedByUser } = useItemLoanRequest(item, loanRequests)
+const isOwnedByUser = false
+const isRequestedByUser = false
 
 const { mutateAsync: requestItem, asyncStatus: requestItemAsyncStatus } = useRequestItemMutation()
 const { mutateAsync: unrequestItem } = useUnrequestItemMutation()
@@ -38,7 +38,7 @@ async function request(itemId: number) {
   <div class="ItemRequest">
     <div v-if="loggedIn === true">
       <TextButton
-        v-if="isOwnedByUser !== true && !isRequestedByUser"
+        v-if="!isOwnedByUser && !isRequestedByUser"
         aspect="bezel"
         size="large"
         color="primary"
@@ -48,7 +48,7 @@ async function request(itemId: number) {
         Demander
       </TextButton>
       <TextButton
-        v-if="isOwnedByUser !== true && isRequestedByUser"
+        v-if="!isOwnedByUser !== true && isRequestedByUser"
         aspect="outline"
         size="large"
         color="neutral"
