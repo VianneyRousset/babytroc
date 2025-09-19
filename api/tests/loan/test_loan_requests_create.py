@@ -76,14 +76,39 @@ class TestLoanRequestCreateRequestAfterCancelled:
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
         resp.raise_for_status()
+        request = resp.json()
+
+        # check Bob (borrower) sees the item as requested
+        resp = bob_client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan_request"]["id"] == request["id"]
 
         # cancel loan request
         bob_client.delete(f"/v1/items/{alice_new_item.id}/request").raise_for_status()
+
+        # check Bob (borrower) does not see the item as requested anymore
+        resp = bob_client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan_request"] is None, (
+            "item should'nt have an active loan request anymore"
+        )
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
         resp.raise_for_status()
+        request = resp.json()
+
+        # check Bob (borrower) sees the item as requested
+        resp = bob_client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan_request"]["id"] == request["id"]
 
 
 @pytest.mark.usefixtures("items")
