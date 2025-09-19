@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import services
 from app.database import get_db_session
+from app.routers.v1.auth import maybe_client_id_annotation
 from app.schemas.item.api import ItemMatchinWordsApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.read import ItemRead
@@ -49,6 +50,7 @@ def list_items(
 @router.get("/{item_id}", status_code=status.HTTP_200_OK)
 def get_item(
     item_id: item_id_annotation,
+    client_id: maybe_client_id_annotation,
     db: Annotated[Session, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item."""
@@ -56,4 +58,5 @@ def get_item(
     return services.item.get_item(
         db=db,
         item_id=item_id,
+        client_id=client_id,
     )

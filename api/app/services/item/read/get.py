@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
+from app.models.loan import LoanRequest
 from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
+from app.schemas.loan.read import LoanRequestRead
 
 
 def get_item(
@@ -70,12 +72,16 @@ def _get_item_with_client_specific_fields(
     """Get item tuned with client-specific fields."""
 
     stmt = (
-        select(Item, ItemLike.id, ItemSave.id)
+        select(Item, ItemLike.id, ItemSave.id, LoanRequest)
         .outerjoin(
             ItemLike, and_(ItemLike.item_id == Item.id, ItemLike.user_id == client_id)
         )
         .outerjoin(
             ItemSave, and_(ItemSave.item_id == Item.id, ItemSave.user_id == client_id)
+        )
+        .outerjoin(
+            LoanRequest,
+            and_(LoanRequest.item_id == Item.id, LoanRequest.borrower_id == client_id),
         )
         .where(Item.id == item_id)
     )
@@ -84,7 +90,7 @@ def _get_item_with_client_specific_fields(
     stmt = query_filter.filter_read(stmt)
 
     try:
-        item, like_id, save_id = db.execute(stmt).unique().one()
+        item, like_id, save_id, loan_request = db.execute(stmt).unique().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": item_id}
@@ -96,5 +102,8 @@ def _get_item_with_client_specific_fields(
             "owned": item.owner_id == client_id,
             "liked": like_id is not None,
             "saved": save_id is not None,
+            "loan_request": (
+                loan_request and LoanRequestRead.model_validate(loan_request),
+            ),
         }
     )

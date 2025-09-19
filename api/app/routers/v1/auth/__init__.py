@@ -1,5 +1,5 @@
 from . import cookies
-from .annotations import client_id_annotation
+from .annotations import client_id_annotation, maybe_client_id_annotation
 from .availability import get_account_availability
 from .login import login
 from .logout import logout
@@ -28,6 +28,7 @@ __all__ = [
     "get_account_availability",
     "login",
     "logout",
+    "maybe_client_id_annotation",
     "oauth2_scheme",
     "refresh_credentials",
     "router",
