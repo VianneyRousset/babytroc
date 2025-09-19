@@ -56,12 +56,10 @@ class LoanRequestApiQuery(ApiQueryBase, LoanRequestQueryPageCursor):
         if self.active is None:
             return None
 
-        active_states = {LoanRequestState.pending, LoanRequestState.accepted}
-
         if self.active:
-            return active_states
+            return LoanRequestState.get_active_states()
 
-        return set(LoanRequestState) - active_states
+        return LoanRequestState.get_inactive_states()
 
 
 class LoanApiQuery(LoanQueryPageCursor):

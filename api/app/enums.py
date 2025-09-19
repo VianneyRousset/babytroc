@@ -1,4 +1,5 @@
 import enum
+from typing import Self
 
 from pydantic import GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
@@ -44,6 +45,14 @@ class LoanRequestState(int, EnumWithMetadata):
     accepted = 3
     rejected = 4
     executed = 5
+
+    @classmethod
+    def get_active_states(cls) -> set["LoanRequestState"]:
+        return {cls.pending, cls.accepted}
+
+    @classmethod
+    def get_inactive_states(cls) -> set["LoanRequestState"]:
+        return set(LoanRequestState) - cls.get_active_states()
 
 
 class ItemQueryAvailability(str, EnumWithMetadata):

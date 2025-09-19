@@ -59,7 +59,7 @@ def cancel_loan_request(
     )
 
     # check loan request state
-    active_states = {LoanRequestState.pending, LoanRequestState.accepted}
+    active_states = LoanRequestState.get_active_states()
     if check_state and loan_request.state not in active_states:
         raise LoanRequestStateError(
             expected_state=active_states,

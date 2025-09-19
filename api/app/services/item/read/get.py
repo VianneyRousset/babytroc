@@ -2,6 +2,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
 from app.models.loan import LoanRequest
@@ -81,7 +82,11 @@ def _get_item_with_client_specific_fields(
         )
         .outerjoin(
             LoanRequest,
-            and_(LoanRequest.item_id == Item.id, LoanRequest.borrower_id == client_id),
+            and_(
+                LoanRequest.item_id == Item.id,
+                LoanRequest.borrower_id == client_id,
+                LoanRequest.state.in_(LoanRequestState.get_active_states()),
+            ),
         )
         .where(Item.id == item_id)
     )
