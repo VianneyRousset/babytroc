@@ -18,7 +18,12 @@ class TestItemLike:
         # like alice items
         bob_client.post(url=f"/v1/me/liked/{item.id}").raise_for_status()
 
+        # check flagged as liked in item read
+        resp = bob_client.get(f"/v1/items/{item.id}")
+        resp.raise_for_status()
+        assert resp.json()["liked"], "ItemRead should mark item as liked"
+
+        # check appears in the list of liked items
         resp = bob_client.get("/v1/me/liked")
         resp.raise_for_status()
-
         assert [item["id"] for item in resp.json()] == [item.id]
