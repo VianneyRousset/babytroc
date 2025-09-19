@@ -24,7 +24,7 @@ class ItemRead(ItemBase, ReadBase):
     owned: bool | None = None
     liked: bool | None = None
     saved: bool | None = None
-    loan_request: LoanRequestRead | None = None
+    active_loan_request: LoanRequestRead | None = None
 
     # only given if owned
     blocked: bool | None = None

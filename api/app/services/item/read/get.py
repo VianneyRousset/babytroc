@@ -102,7 +102,7 @@ def _get_item_with_client_specific_fields(
             "owned": item.owner_id == client_id,
             "liked": like_id is not None,
             "saved": save_id is not None,
-            "loan_request": (
+            "active_loan_request": (
                 loan_request and LoanRequestRead.model_validate(loan_request)
             ),
         }

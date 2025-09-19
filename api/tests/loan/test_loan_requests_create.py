@@ -22,7 +22,7 @@ class TestLoanRequestCreate:
         print(resp.text)
         resp.raise_for_status()
         item = resp.json()
-        assert item["loan_request"] is None
+        assert item["active_loan_request"] is None
 
         # Bob requests Alice's item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -42,14 +42,14 @@ class TestLoanRequestCreate:
         print(resp.text)
         resp.raise_for_status()
         item = resp.json()
-        assert item["loan_request"]["id"] == request["id"]
+        assert item["active_loan_request"]["id"] == request["id"]
 
         # check Bob (owner) does not see the item as requested
         resp = alice_client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         item = resp.json()
-        assert item["loan_request"] is None
+        assert item["active_loan_request"] is None
 
         # check loan request appears in item's borrowings requests
         resp = alice_client.get(f"/v1/me/items/{alice_new_item.id}/requests")
