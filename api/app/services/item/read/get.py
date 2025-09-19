@@ -103,7 +103,7 @@ def _get_item_with_client_specific_fields(
             "liked": like_id is not None,
             "saved": save_id is not None,
             "loan_request": (
-                loan_request and LoanRequestRead.model_validate(loan_request),
+                loan_request and LoanRequestRead.model_validate(loan_request)
             ),
         }
     )

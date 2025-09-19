@@ -17,6 +17,13 @@ class TestLoanRequestCreate:
     ):
         """Check that a loan request can be created and appears in various lists."""
 
+        # check Bob (borrower) sees the item as not requested
+        resp = bob_client.get(f"/v1/items/{alice_new_item.id}")
+        print(resp.text)
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["loan_request"] is None
+
         # Bob requests Alice's item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
         print(resp.text)
@@ -35,7 +42,7 @@ class TestLoanRequestCreate:
         print(resp.text)
         resp.raise_for_status()
         item = resp.json()
-        assert item["loan_request"].id == request.id
+        assert item["loan_request"]["id"] == request["id"]
 
         # check Bob (owner) does not see the item as requested
         resp = alice_client.get(f"/v1/items/{alice_new_item.id}")
