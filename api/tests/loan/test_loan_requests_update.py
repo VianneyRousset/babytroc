@@ -157,6 +157,7 @@ class TestLoanRequestUpdate:
         alice_new_item: ItemRead,
         alice_client: TestClient,
         bob_client: TestClient,
+        carol_client: TestClient,
     ):
         """Test path 5, accept then execute a loan request."""
 
@@ -183,12 +184,33 @@ class TestLoanRequestUpdate:
         resp = bob_client.post(f"/v1/me/borrowings/requests/{request['id']}/execute")
         print(resp.text)
         resp.raise_for_status()
+        loan = resp.json()
 
         # check loan request state is "executed"
         resp = bob_client.get(f"/v1/me/borrowings/requests/{request['id']}")
         resp.raise_for_status()
         request = resp.json()
         assert request["state"] == LoanRequestState.executed
+
+        # check active loan is set in item read for alice
+        resp = alice_client.get(f"/v1/items/{alice_new_item.id}")
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan"]["id"] == loan["id"]
+
+        # check active loan is set in item read for bob
+        resp = bob_client.get(f"/v1/items/{alice_new_item.id}")
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan"]["id"] == loan["id"]
+
+        # check carol does not have access to the active loan
+        resp = carol_client.get(f"/v1/items/{alice_new_item.id}")
+        resp.raise_for_status()
+        item = resp.json()
+        assert item["active_loan"] is None, (
+            "Carol shouldn't have access to the active loan"
+        )
 
     def test_state_pending_invalid_transitions(
         self,

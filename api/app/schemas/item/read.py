@@ -1,6 +1,6 @@
 from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
-from app.schemas.loan.read import LoanRequestRead
+from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.region.read import RegionRead
 from app.schemas.user.preview import UserPreviewRead
 
@@ -25,6 +25,7 @@ class ItemRead(ItemBase, ReadBase):
     liked: bool | None = None
     saved: bool | None = None
     active_loan_request: LoanRequestRead | None = None
+    active_loan: LoanRead | None = None
 
     # only given if owned
     blocked: bool | None = None

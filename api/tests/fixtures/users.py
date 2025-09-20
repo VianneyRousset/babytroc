@@ -42,6 +42,17 @@ def bob_user_data() -> UserData:
 
 
 @pytest.fixture(scope="class")
+def carol_user_data() -> UserData:
+    """Carol user data."""
+
+    return {
+        "name": "carol",
+        "email": "carol@babytroc.ch",
+        "password": "password-Carol-42",
+    }
+
+
+@pytest.fixture(scope="class")
 def alice(
     database: sqlalchemy.URL,
     alice_user_data: UserData,
@@ -70,6 +81,22 @@ def bob(
         return services.user.create_many_users_without_validation(
             session,
             [UserCreate(**bob_user_data)],
+            validated=True,
+        )[0]
+
+
+@pytest.fixture(scope="class")
+def carol(
+    database: sqlalchemy.URL,
+    carol_user_data: UserData,
+) -> UserPrivateRead:
+    """Ensures Carol exists."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.user.create_many_users_without_validation(
+            session,
+            [UserCreate(**carol_user_data)],
             validated=True,
         )[0]
 
