@@ -425,6 +425,7 @@
 				"summary": "Get Item",
 				"description": "Get item.",
 				"operationId": "get_item_v1_items__item_id__get",
+				"security": [{ "OAuth2PasswordBearer": [] }],
 				"parameters": [
 					{
 						"name": "item_id",
@@ -3477,6 +3478,18 @@
 					"saved": {
 						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
 						"title": "Saved"
+					},
+					"active_loan_request": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/LoanRequestRead" },
+							{ "type": "null" }
+						]
+					},
+					"active_loan": {
+						"anyOf": [
+							{ "$ref": "#/components/schemas/LoanRead" },
+							{ "type": "null" }
+						]
 					},
 					"blocked": {
 						"anyOf": [{ "type": "boolean" }, { "type": "null" }],
