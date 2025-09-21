@@ -39,6 +39,11 @@ const { loggedIn } = useAuth()
         <ItemImagesGallery :item="item" />
       </section>
 
+      <!-- Loan state -->
+      <section>
+        <ItemLoanState :item="item" />
+      </section>
+
       <!-- Description -->
       <section>
         <h1>{{ item.name }}</h1>

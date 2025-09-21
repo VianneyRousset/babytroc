@@ -1,4 +1,4 @@
- <script setup lang="ts" generic="T extends {}">
+<script setup lang="ts" generic="T extends { owned?: boolean | null, active_loan_request?: LoanRequest | null, active_loan?: Loan | null }">
 import VSwitch from '@lmiller1990/v-switch'
 import { ChevronRight } from 'lucide-vue-next'
 
@@ -13,7 +13,7 @@ const { item } = toRefs(props)
 const state = computed<'none' | 'activeBorrowingRequest' | 'activeBorrowing' | 'activeLoan'>(() => {
   const _item = unref(item)
 
-  if (_item.owned) {
+  if (_item.owned === true) {
     if (_item.active_loan)
       return 'activeLoan'
   }

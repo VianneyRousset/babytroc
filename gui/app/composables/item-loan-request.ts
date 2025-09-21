@@ -1,5 +1,7 @@
+import type { RouteLocationGeneric } from 'vue-router'
+
 export function useItemLoanRequest({ itemId }: { itemId: MaybeRefOrGetter<number> }): {
-  request: () => Promise<LoanRequest>
+  request: () => Promise<{ loanRequest: LoanRequest, chatLocation: RouteLocationGeneric }>
   unrequest: () => Promise<void>
   error: Ref<boolean>
   loading: Ref<boolean>
@@ -16,6 +18,19 @@ export function useItemLoanRequest({ itemId }: { itemId: MaybeRefOrGetter<number
     asyncStatus: unrequestMutateAsyncStatus,
   } = useUnrequestItemMutation(itemId)
 
+  const router = useRouter()
+
+  async function request() {
+    const loanRequest = await requestMutateAsync()
+    const chatLocation = router.resolve({
+      name: 'chats-chat_id',
+      params: {
+        chat_id: loanRequest.chat_id,
+      },
+    })
+    return { loanRequest, chatLocation }
+  }
+
   const error = computed<boolean>(() => {
     return unref(requestMutateStatus) === 'error' || unref(unrequestMutateStatus) === 'error'
   })
@@ -24,7 +39,7 @@ export function useItemLoanRequest({ itemId }: { itemId: MaybeRefOrGetter<number
   })
 
   return {
-    request: requestMutateAsync,
+    request,
     unrequest: async () => {
       await unrequestMutateAsync()
     },

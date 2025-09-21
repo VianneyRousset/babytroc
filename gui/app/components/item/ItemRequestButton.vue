@@ -3,8 +3,6 @@ const props = defineProps<{
   item: T
 }>()
 
-const router = useRouter()
-
 const { loggedIn, loginRoute } = useAuth()
 
 const { item } = toRefs(props)
@@ -15,18 +13,11 @@ const availableForRequest = computed<boolean>(() => {
   return _item.available && !_item.owned && !_item.active_loan_request
 })
 
-const { request, loading, error } = useItemLoanRequest({ itemId })
+const { request, loading } = useItemLoanRequest({ itemId })
 
 async function requestAndNavigateToChat() {
-  const loanRequest = await request()
-  return navigateTo(
-    router.resolve({
-      name: 'chats-chat_id',
-      params: {
-        chat_id: loanRequest.chat_id,
-      },
-    }),
-  )
+  const { chatLocation } = await request()
+  return navigateTo(chatLocation)
 }
 </script>
 
