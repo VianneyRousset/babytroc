@@ -13,9 +13,15 @@ h5 {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
 
+h1 {
+  font-weight: 600;
+  font-size: round(up, 1.6em, 1px);
+  color: $neutral-900;
+}
+
 h2 {
-  color: $neutral-700;
-  font-size: 1.2em;
+  color: $neutral-800;
+  font-size: round(up, 1.1em, 1px);
   font-weight: 700;
 }
 

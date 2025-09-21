@@ -9,7 +9,7 @@ const { small } = toRefs(props)
 <template>
   <div
     v-if="small"
-    class="spinner-small"
+    class="LoadingAnimation spinner-small"
   >
     <div class="spinner-small-blade" />
     <div class="spinner-small-blade" />
@@ -26,7 +26,7 @@ const { small } = toRefs(props)
   </div>
   <div
     v-else
-    class="spinner-big"
+    class="LoadingAnimation spinner-big"
   >
     <div />
   </div>

@@ -162,6 +162,8 @@ useInfiniteScroll(
     top: 0;
     box-sizing: border-box;
     width: 100%;
+    /* fix swiper z-index*/
+    z-index: 2;
   }
 }
 </style>

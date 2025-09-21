@@ -9,7 +9,7 @@ const { currentTab } = useTab()
 if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`)
 
 // query item, me, saved items and liked items
-const { item, error, loading } = useItem({ itemId })
+const { item, loading } = useItem({ itemId })
 const { state: me } = useMeQuery()
 const { state: loanRequests } = useBorrowingsLoanRequestsListQuery({ active: true })
 
@@ -37,22 +37,33 @@ const { loggedIn } = useAuth()
       <!-- Gallery -->
       <section>
         <ItemImagesGallery :item="item" />
-        <h2>
-          {{ item.name }}
-        </h2>
       </section>
 
-      <!-- Availability and likes count -->
+      <!-- Description -->
       <section>
-        <ItemAvailability :available="item.available" />
-        <ItemLike
-          :item="item"
-          :disabled="false"
-        />
+        <h1>{{ item.name }}</h1>
+        <p>{{ item.description }}</p>
       </section>
+
+      <!-- Détails -->
+      <section>
+        <ItemDetails :item="item" />
+      </section>
+
+      <!-- Request -->
+      <ItemRequestButton
+        :item="item"
+        :me="me"
+        :loan-requests="loanRequests"
+      />
     </Panel>
+    <LoadingAnimation v-else-if="loading" />
   </AppPage>
 </template>
 
 <style scoped lang="scss">
+.LoadingAnimation {
+  width: 100%;
+  height: 100%;
+}
 </style>

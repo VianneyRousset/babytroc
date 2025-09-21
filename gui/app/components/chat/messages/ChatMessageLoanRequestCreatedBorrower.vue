@@ -9,14 +9,12 @@ const props = defineProps<{
   loanRequestId: number
 }>()
 
-// chat
 const { me, chat, msg, loanRequestId } = toRefs(props)
 
 // get loan request
 const { data: loanRequest } = useBorrowingsLoanRequestQuery(loanRequestId)
 
-// muations
-const { mutateAsync: unrequestItem, asyncStatus: unrequestItemAsyncStatus } = useUnrequestItemMutation()
+const { request, unrequest, loading, error } = useItemLoanRequest({ itemId: unref(chat).item.id })
 
 // popup
 const showPopup = ref(false)
@@ -56,8 +54,8 @@ const showPopup = ref(false)
             aspect="flat"
             size="large"
             color="red"
-            :loading="unrequestItemAsyncStatus === 'loading'"
-            @click="unrequestItem(chat.item.id)"
+            :loading="loading"
+            @click="unrequest"
           >
             Supprimer
           </TextButton>

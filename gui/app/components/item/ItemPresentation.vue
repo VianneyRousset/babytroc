@@ -54,7 +54,7 @@ const { data: owner } = useUserQuery(
     </NuxtLink>
 
     <!-- Request -->
-    <ItemRequest
+    <ItemRequestAction
       :item="item"
       :me="me"
       :loan-requests="loanRequests"

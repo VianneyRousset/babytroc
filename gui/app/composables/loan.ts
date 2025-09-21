@@ -7,13 +7,3 @@ export const useIsLoanRequestActive = (
     return toValue(likedItems).some(likedItem => likedItem.id === itemId)
   }),
 })
-
-export const useItemLoanRequest = (
-  item: MaybeRefOrGetter<Item | ItemPreview>,
-  loanRequests: MaybeRefOrGetter<Array<LoanRequest>>,
-) => ({
-  isRequestedByUser: computed(() => {
-    const itemId = toValue(item).id
-    return toValue(loanRequests).some(req => req.item.id === itemId)
-  }),
-})
