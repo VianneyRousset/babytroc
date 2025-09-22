@@ -34,13 +34,13 @@ const { height: appHeaderBarHeight } = useElementSize(
 </script>
 
 <template>
-  <div
+  <header
     ref="header"
     class="AppHeaderBarMobile"
     :class="{ hidden: hideOnScroll && y > (scrollOffset ?? appHeaderBarHeight) && scrollingDown }"
   >
     <slot />
-  </div>
+  </header>
 </template>
 
 <style scoped lang="scss">

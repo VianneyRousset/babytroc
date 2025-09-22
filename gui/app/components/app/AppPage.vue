@@ -58,21 +58,21 @@ useInfiniteScroll(
 </script>
 
 <template>
-  <!-- Mobile page -->
   <div
     ref="page"
-    :class="{ AppPage: true, mobile: device.isMobile }"
+    v-saved-scroll:[savedScroll]
+    class="AppPage"
+    :class="{ mobile: device.isMobile }"
   >
     <!-- Header bar (mobile only) -->
-    <header v-if="slots['mobile-header-bar'] && device.isMobile">
-      <AppHeaderBarMobile
-        ref="app-header-bar"
-        :hide-on-scroll="hideBarOnScroll ? page : null"
-        :scroll-offset="hideBarScrollOffset"
-      >
-        <slot name="mobile-header-bar" />
-      </AppHeaderBarMobile>
-    </header>
+    <AppHeaderBarMobile
+      v-if="slots['mobile-header-bar'] && device.isMobile"
+      ref="app-header-bar"
+      :hide-on-scroll="hideBarOnScroll ? page : null"
+      :scroll-offset="hideBarScrollOffset"
+    >
+      <slot name="mobile-header-bar" />
+    </AppHeaderBarMobile>
 
     <!-- Page header (desktop/tablet only) -->
     <header v-if="slots['desktop-header'] && !device.isMobile">
@@ -87,11 +87,7 @@ useInfiniteScroll(
       <slot name="left" />
     </aside>
 
-    <!-- Main content -->
-    <main
-      ref="main"
-      v-saved-scroll:[savedScroll]
-    >
+    <main>
       <slot />
     </main>
 
@@ -108,46 +104,14 @@ useInfiniteScroll(
 <style scoped lang="scss">
 .AppPage {
   --app-header-bar-height: v-bind('appHeaderBarHeight + "px"');
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-areas:
-    ". header ."
-    "left main right";
-  width: 100%;
-  max-width: 1400px;
-
-  header {
-    grid-area: header;
-    @include flex-column;
-    align-items: stretch;
-    justify-content: center;
-  }
-
-  aside {
-    &.left {
-      grid-area: left;
-    }
-    &.right {
-      grid-area: right;
-    }
-  }
-
-  main {
-    grid-area: main;
-
-    @include flex-column;
-    align-items: stretch;
-    flex: 1;
-  }
 
   &.mobile {
+    @include flex-column;
+    align-items: stretch;
+
     position: fixed;
     width: 100%;
     height: 100%;
-
-    @include flex-column;
-    align-items: stretch;
-
     background: white;
     overflow-y: scroll;
 
@@ -155,15 +119,49 @@ useInfiniteScroll(
       padding-top: var(--app-header-bar-height);
       padding-bottom: var(--app-footer-bar-height);
     }
+
+    .AppHeaderBarMobile {
+      position: fixed;
+      top: 0;
+      box-sizing: border-box;
+      width: 100%;
+      /* fix swiper z-index*/
+      z-index: 2;
+    }
   }
 
-  .AppHeaderBarMobile {
-    position: fixed;
-    top: 0;
-    box-sizing: border-box;
+  &:not(.mobile) {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      ". header ."
+      "left main right";
+
     width: 100%;
-    /* fix swiper z-index*/
-    z-index: 2;
+    max-width: 1400px;
+
+    header {
+      grid-area: header;
+      @include flex-column;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    aside {
+      &.left {
+        grid-area: left;
+      }
+      &.right {
+        grid-area: right;
+      }
+    }
+
+    main {
+     grid-area: main;
+     @include flex-column;
+     align-items: stretch;
+     flex: 1;
+    }
   }
 }
 </style>
