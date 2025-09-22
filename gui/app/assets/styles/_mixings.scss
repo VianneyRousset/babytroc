@@ -47,3 +47,11 @@
   overflow: hidden;
   white-space: nowrap
 }
+
+@mixin font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+@mixin font-jakarta {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
