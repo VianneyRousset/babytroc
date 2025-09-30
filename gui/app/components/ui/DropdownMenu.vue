@@ -47,7 +47,6 @@ const open = ref(false)
   align-items: stretch;
 
   position: relative;
-  z-index: 150;
 
   min-width: 260px;
   background: white;

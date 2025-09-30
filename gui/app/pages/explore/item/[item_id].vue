@@ -39,9 +39,9 @@ const { loggedIn } = useAuth()
         <ItemImagesGallery :item="item" />
       </section>
 
-      <!-- Loan state -->
+      <!-- Info boxes -->
       <section>
-        <ItemLoanState :item="item" />
+        <ItemInfoBox :item="item" />
       </section>
 
       <!-- Description -->

@@ -8,8 +8,6 @@ function onKeyDown(event: KeyboardEvent) {
   }
 }
 
-watch(model, v => console.log('overlay model', v), { immediate: true })
-
 onMounted(() => window.addEventListener('keydown', onKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 </script>

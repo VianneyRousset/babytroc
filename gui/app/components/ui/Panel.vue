@@ -30,5 +30,9 @@ const slots = useSlots()
   div:not(.header) {
     padding: 1em;
   }
+
+  :deep(section) {
+    margin-bottom: 1em;
+  }
 }
 </style>
