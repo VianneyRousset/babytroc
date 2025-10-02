@@ -17,7 +17,10 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
 </script>
 
 <template>
-  <div class="ItemInfoBoxes">
+  <div
+    v-if="state"
+    class="ItemInfoBox"
+  >
     <v-switch :case="state">
       <!-- Loaned -->
       <template #loaned>

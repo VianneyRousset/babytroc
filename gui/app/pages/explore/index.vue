@@ -51,6 +51,12 @@ watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
 
   setTimeout(applyFilters, 500)
 }, { deep: true })
+
+// apply filter when drawer is closed
+watch(filtersDrawerOpen, (newState, oldState) => {
+  if (!newState && oldState)
+    applyFilters()
+})
 </script>
 
 <template>
@@ -124,7 +130,7 @@ watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
         <template #header-drawer>
           <IconButton
             class="Toggle"
-            @click="() => { applyFilters(); filtersDrawerOpen = false }"
+            @click="() => { filtersDrawerOpen = false }"
           >
             <ArrowLeft
               :size="32"
@@ -145,43 +151,58 @@ watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
       </PanelOrDrawer>
     </template>
 
-    <template #desktop-header>
-      <div class="desktop-header">
-        <div>Trouvez ici les objets que vous voulez emprunter</div>
+    <template #desktop>
+      <AppHeaderDesktop>
+        <template
+          v-if="drawerMode"
+          #buttons-right
+        >
+          <ToggleIcon
+            v-model="filtersDrawerOpen"
+            :active="!isFiltersDefault"
+            class="filter"
+          >
+            <Filter
+              :size="32"
+              :stroke-width="1.33"
+            />
+          </ToggleIcon>
+        </template>
+        <h1>Trouvez ici les objets que vous voulez emprunter</h1>
         <SearchInput
           v-model="filters.words"
           @submit="applyFilters"
         />
-      </div>
+      </AppHeaderDesktop>
     </template>
 
     <!-- Item cards -->
-    <ItemCardsCollection
-      :items="items"
-      :dense="dense"
-      :loading="loading"
-      :error="error"
-      @select="openItem"
-    />
+    <main>
+      <ItemCardsCollection
+        :items="items"
+        :dense="dense"
+        :loading="loading"
+        :error="error"
+        @select="openItem"
+      />
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
-.desktop-header {
-  @include flex-column;
-  padding: 1em;
-  gap: 1em;
-
-  div:first-child {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-size: 1.2em;
-    font-style: italic;
-    color: $neutral-600;
-    padding: 1em;
+.AppHeaderDesktop {
+  font-size: clamp(0.5em, 1.5vw, 1em);
+  h1 {
+    text-align: center;
   }
   .SearchInput {
     width: 80%;
   }
+}
+
+.ToggleIcon.filter {
+  margin-right: 4em;
+  color: $neutral-400;
 }
 
 .floating-buttons {

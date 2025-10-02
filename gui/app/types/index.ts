@@ -2,9 +2,6 @@ import type { FetchError } from 'ofetch'
 import type { VisibleArea } from 'vue-advanced-cropper'
 import type { AsyncDataRequestStatus } from '#app'
 
-// region
-export type Region = Item['regions'][0]
-
 export interface PaginatedSource<T> {
   data: Array<T>
   more: () => Promise<void>

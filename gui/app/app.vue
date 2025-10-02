@@ -33,9 +33,11 @@ watch(loggedIn, (state) => {
   }
 })
 
-// deduce transition to use base on navigation direction
+// deduce transition to use base on platform and navigation direction
+const device = useDevice()
 const { direction, resetDirection } = useNavigation()
-const transitionName = computed(() => `page-slide-${unref(direction)}`)
+const transitionName = computed(() => device.isMobile ? `page-slide-${unref(direction)}` : 'fade')
+const transitionMode = computed(() => device.isMobile ? 'in-out' : 'out-in')
 
 const pageActiveTransition = ref<boolean>(false)
 provide<Ref<boolean>>('page-active-transition', pageActiveTransition)
@@ -53,7 +55,7 @@ function onAfterEnter() {
     <NuxtPage
       :transition="{
         name: transitionName,
-        mode: 'in-out',
+        mode: transitionMode,
         onBeforeLeave,
         onAfterEnter,
       }"

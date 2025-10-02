@@ -36,7 +36,7 @@ const { height: appHeaderBarHeight } = useElementSize(
 <template>
   <header
     ref="header"
-    class="AppHeaderBarMobile"
+    class="AppHeaderMobileBar"
     :class="{ hidden: hideOnScroll && y > (scrollOffset ?? appHeaderBarHeight) && scrollingDown }"
   >
     <slot />
@@ -44,7 +44,7 @@ const { height: appHeaderBarHeight } = useElementSize(
 </template>
 
 <style scoped lang="scss">
-.AppHeaderBarMobile {
+.AppHeaderMobileBar {
 
   @include flex-row;
   @include bar-shadow;
@@ -78,7 +78,7 @@ const { height: appHeaderBarHeight } = useElementSize(
     flex-grow: 1;
     margin: 0;
     font-weight: 500;
-    font-size: 1.6rem;
+    font-size: round(1.5rem, 1px);
   }
 
 }

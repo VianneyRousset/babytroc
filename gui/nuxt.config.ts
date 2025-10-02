@@ -9,7 +9,6 @@ export default defineNuxtConfig({
     'nuxt-open-fetch',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    'nuxt-swiper',
     'radix-vue/nuxt',
     '@pinia/colada-nuxt',
     '@nuxt/eslint',
@@ -82,7 +81,12 @@ export default defineNuxtConfig({
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: '@use "~/assets/styles/_colors.scss" as *; @use "~/assets/styles/_mixings.scss" as *; @use "~/assets/styles/_fonts.scss" as *;',
+          additionalData: `
+          @use "~/assets/styles/_constants.scss" as *;
+          @use "~/assets/styles/_colors.scss" as *;
+          @use "~/assets/styles/_mixings.scss" as *;
+          @use "~/assets/styles/_fonts.scss" as *;
+        `,
         },
       },
     },
@@ -114,7 +118,6 @@ export default defineNuxtConfig({
       enum: true,
     },
   },
-
 
   pinia: {
     // accept nested store directories

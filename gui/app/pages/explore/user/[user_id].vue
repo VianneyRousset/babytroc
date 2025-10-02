@@ -34,7 +34,7 @@ const { loggedIn } = useAuth()
 <template>
   <div>
     <!-- Header bar -->
-    <AppHeaderBarMobile
+    <AppHeaderMobileBar
       ref="main-header"
       :scroll="main ?? false"
       :scroll-offset="32"
@@ -69,7 +69,7 @@ const { loggedIn } = useAuth()
           <div>Likes</div>
         </div>
       </div>
-    </AppHeaderBarMobile>
+    </AppHeaderMobileBar>
 
     <!-- Main content -->
     <main>
@@ -83,7 +83,7 @@ main {
   --header-height: v-bind(mainHeaderHeight + "px");
 }
 
-:deep(.AppHeaderBarMobile) {
+:deep(.AppHeaderMobileBar) {
 
   @include flex-column;
   align-items: stretch;

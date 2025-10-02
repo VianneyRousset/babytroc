@@ -10,7 +10,7 @@ const slots = useSlots()
     >
       <slot name="header" />
     </div>
-    <div>
+    <div class="content">
       <slot />
     </div>
   </div>
@@ -27,12 +27,37 @@ const slots = useSlots()
     height: 64px;
   }
 
-  div:not(.header) {
+  .content {
+    @include flex-column;
+    align-items: stretch;
+    gap: 1em;
     padding: 1em;
-  }
 
-  :deep(section) {
-    margin-bottom: 1em;
+    & > :deep(.h) {
+        @include flex-row;
+        align-items: stretch;
+        gap: 1em;
+    }
+
+    & > :deep(.golden-left) {
+      & > *:nth-child(1) {
+        flex: $golden-ratio;
+      }
+
+      & > *:nth-child(2) {
+        flex: 1;
+      }
+    }
+
+    & > :deep(.golden-right) {
+      & > *:nth-child(1) {
+        flex: 1;
+      }
+
+      & > *:nth-child(2) {
+        flex: $golden-ratio;
+      }
+    }
   }
 }
 </style>

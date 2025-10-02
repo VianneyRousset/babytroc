@@ -9,7 +9,10 @@ const { imagesPaths } = useItemImages(item)
 </script>
 
 <template>
-  <ImageGallery :images="imagesPaths" />
+  <ImageGallery
+    class="ItemImagesGallery"
+    :images="imagesPaths"
+  />
 </template>
 
 <style lang="scss" scoped></style>

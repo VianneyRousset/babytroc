@@ -23,17 +23,6 @@ export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }): {
 }
 
 /* OLD */
-export const useItemTargetedAgeMonths = (
-  item: MaybeRefOrGetter<Item | ItemPreview>,
-) => {
-  const targetedAgeMonths = computed(() => toValue(item).targeted_age_months)
-  const formatedTargetedAgeMonths = computed(() => {
-    const _targetedAgeMonths = string2range(toValue(item).targeted_age_months)
-    return formatTargetedAge(_targetedAgeMonths[0], _targetedAgeMonths[1])
-  })
-
-  return { targetedAgeMonths, formatedTargetedAgeMonths }
-}
 
 export const useItemFirstImage = (item: MaybeRefOrGetter<ItemPreview>) => ({
   firstImageName: computed(() => toValue(item).first_image_name),
@@ -43,13 +32,6 @@ export const useItemFirstImage = (item: MaybeRefOrGetter<ItemPreview>) => ({
 export const useItemImages = (item: MaybeRefOrGetter<Item>) => ({
   imagesNames: computed(() => toValue(item).images_names),
   imagesPaths: computed(() => toValue(item).images_names.map(imagePath)),
-})
-
-export const useItemRegions = (item: MaybeRefOrGetter<Item>) => ({
-  regions: computed(() => toValue(item).regions),
-  regionsIds: computed(
-    () => new Set(toValue(item).regions.map(reg => reg.id)),
-  ),
 })
 
 export function useItemNameValidity(

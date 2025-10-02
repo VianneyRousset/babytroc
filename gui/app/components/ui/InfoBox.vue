@@ -76,6 +76,7 @@ const slots = useSlots()
   }
 
   .icon {
+    @include flex-column;
     margin-right: 1em;
   }
 

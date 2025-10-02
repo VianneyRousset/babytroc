@@ -22,10 +22,14 @@ const props = withDefaults(
 
     // ininite scroll distance
     infiniteScrollDistance?: number
+
+    // max width
+    maxWidth?: number
   }>(),
   {
     hideBarOnScroll: false,
     infiniteScroll: false,
+    maxWidth: 1400,
   },
 )
 
@@ -33,7 +37,7 @@ const emit = defineEmits<{
   (event: 'more'): void
 }>()
 
-const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance } = toRefs(props)
+const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth } = toRefs(props)
 
 const device = useDevice()
 
@@ -65,19 +69,14 @@ useInfiniteScroll(
     :class="{ mobile: device.isMobile }"
   >
     <!-- Header bar (mobile only) -->
-    <AppHeaderBarMobile
+    <AppHeaderMobileBar
       v-if="slots['mobile-header-bar'] && device.isMobile"
       ref="app-header-bar"
       :hide-on-scroll="hideBarOnScroll ? page : null"
       :scroll-offset="hideBarScrollOffset"
     >
       <slot name="mobile-header-bar" />
-    </AppHeaderBarMobile>
-
-    <!-- Page header (desktop/tablet only) -->
-    <header v-if="slots['desktop-header'] && !device.isMobile">
-      <slot name="desktop-header" />
-    </header>
+    </AppHeaderMobileBar>
 
     <!-- Left panel / drawer -->
     <aside
@@ -87,9 +86,15 @@ useInfiniteScroll(
       <slot name="left" />
     </aside>
 
-    <main>
-      <slot />
-    </main>
+    <slot
+      v-if="device.isMobile"
+      name="mobile"
+    />
+    <slot
+      v-else
+      name="desktop"
+    />
+    <slot />
 
     <!-- Right panel / drawer -->
     <aside
@@ -105,27 +110,29 @@ useInfiniteScroll(
 .AppPage {
   --app-header-bar-height: v-bind('appHeaderBarHeight + "px"');
 
-  &.mobile {
+  :deep(main) {
     @include flex-column;
     align-items: stretch;
+  }
 
+  &.mobile {
     position: fixed;
     width: 100%;
     height: 100%;
     background: white;
     overflow-y: scroll;
 
-    main {
+    :deep(main) {
       padding-top: var(--app-header-bar-height);
       padding-bottom: var(--app-footer-bar-height);
     }
 
-    .AppHeaderBarMobile {
+    .AppHeaderMobileBar {
       position: fixed;
       top: 0;
       box-sizing: border-box;
       width: 100%;
-      /* fix swiper z-index*/
+      /* compensate for image gallery carousel z-index*/
       z-index: 2;
     }
   }
@@ -134,17 +141,18 @@ useInfiniteScroll(
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-areas:
-      ". header ."
-      "left main right";
+      ".    header ."
+      "left main   right";
 
     width: 100%;
-    max-width: 1400px;
+    max-width: v-bind("`${maxWidth}px`");
 
-    header {
-      grid-area: header;
-      @include flex-column;
-      align-items: stretch;
-      justify-content: center;
+    :deep(main) {
+      grid-area: main;
+    }
+
+    :deep(header) {
+      grid-area: header
     }
 
     aside {
@@ -154,13 +162,6 @@ useInfiniteScroll(
       &.right {
         grid-area: right;
       }
-    }
-
-    main {
-     grid-area: main;
-     @include flex-column;
-     align-items: stretch;
-     flex: 1;
     }
   }
 }
