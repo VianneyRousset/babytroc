@@ -182,6 +182,7 @@ class Config(NamedTuple):
     host_name: str
     app_name: str
     test: bool
+    delay: float
     database: DatabaseConfig
     pubsub: PubsubConfig
     email: EmailConfig
@@ -195,6 +196,7 @@ class Config(NamedTuple):
         host_name: str | None = None,
         app_name: str | None = None,
         test: bool | None = None,
+        delay: float | None = None,
         database: DatabaseConfig | None = None,
         pubsub: PubsubConfig | None = None,
         email: EmailConfig | None = None,
@@ -209,6 +211,9 @@ class Config(NamedTuple):
 
         if test is None:
             test = "PYTEST_CURRENT_TEST" in os.environ
+
+        if delay is None:
+            delay = float(os.environ.get("DELAY", 0))
 
         if database is None:
             database = DatabaseConfig.from_env()
@@ -229,6 +234,7 @@ class Config(NamedTuple):
             host_name=host_name,
             app_name=app_name,
             test=test,
+            delay=delay,
             database=database,
             pubsub=pubsub,
             email=email,

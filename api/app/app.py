@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from broadcaster import Broadcast
@@ -7,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig as EmailConnectionConfig
 from fastapi_mail import FastMail
 from pydantic import SecretStr
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.errors import ApiError
 
@@ -21,6 +23,12 @@ async def lifespan(app: FastAPI):
     await app.state.broadcast.connect()
     yield
     await app.state.broadcast.disconnect()
+
+
+class DelayMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        await asyncio.sleep(request.app.state.config.delay)
+        return await call_next(request)
 
 
 def create_app(config: Config) -> FastAPI:
@@ -57,6 +65,10 @@ def create_app(config: Config) -> FastAPI:
             SUPPRESS_SEND=1 if config.test else 0,
         )
     )
+
+    # add delay middleware
+    if config.delay > 0:
+        app.add_middleware(DelayMiddleware)
 
     @app.get("/")
     def root(request: Request) -> JSONResponse:
