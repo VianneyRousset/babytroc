@@ -54,7 +54,6 @@ async function requestAndNavigateToChat() {
 .ItemRequestButton {
   @include flex-column;
   align-items: stretch;
-  margin: 2em 0;
 
   &.login {
     @include flex-column;

@@ -1,28 +1,32 @@
-<script setup lang="ts">
-import { ChevronRight, Heart, Star } from 'lucide-vue-next'
+<script setup lang="ts" generic="T extends { name: string, avatar_seed: string, stars_count?: number, likes_count?: number}">
+import { Heart, Star } from 'lucide-vue-next'
 
-const props = defineProps<{
-  user: User
-}>()
+const props = withDefaults(defineProps<{
+  user: T
+  chevron?: boolean
+}>(), {
+  chevron: false,
+})
 
-const { user } = toRefs(props)
+const { user, chevron } = toRefs(props)
 </script>
 
 <template>
-  <div
+  <InfoBox
     class="UserCard"
-    :title="user.name"
+    :chevron-right="chevron"
   >
-    <UserAvatar :seed="user.avatar_seed" />
-    <span class="name">{{ user.name }}</span>
-    <div class="counters">
+    <template #icon>
+      <UserAvatar :seed="user.avatar_seed" />
+    </template>
+    <template #mini>
       <StatsCounter
         v-model="user.stars_count"
         size="tiny"
       >
         <Heart
           :size="16"
-          :stroke-width="1.25"
+          :stroke-width="1.33"
         />
       </StatsCounter>
       <StatsCounter
@@ -31,68 +35,20 @@ const { user } = toRefs(props)
       >
         <Star
           :size="16"
-          :stroke-width="1.25"
+          :stroke-width="1.33"
         />
       </StatsCounter>
-    </div>
-    <ChevronRight
-      class="chevron"
-      :size="32"
-      :stroke-width="2"
-    />
-  </div>
+    </template>
+    <span class="name">{{ user.name }}</span>
+  </InfoBox>
 </template>
 
 <style scoped lang="scss">
 .UserCard {
-
-  @include reset-link;
-  @include flex-row;
-  align-items: center;
-  gap: 1.0rem;
-
-  position: relative;
-
-  color: $neutral-700 !important;
-  text-decoration: none !important;
-
-  padding: 1.0rem 1.0rem;
-  border-radius: 0.5rem;
-  border: 1px solid $neutral-300;
-  cursor: pointer;
-
-  .avatar {
-    width: 24px;
-
-    background: gray;
-  }
-
-  .name {
+ .name {
     @include ellipsis-overflow;
-    font-size: 1.6rem;
-    padding-right: 10px;
-    padding-bottom: 0.8rem;
+    font-size: 1.6em;
     font-weight: 300;
-  }
-
-  .counters {
-    @include flex-row;
-    justify-content: right;
-    gap: 0;
-    position: absolute;
-    bottom: 0.5rem;
-    right: 1.0rem;
-
-    :deep(div) {
-      color: $neutral-300;
-    }
-  }
-
-  .chevron {
-    position: absolute;
-    top: calc(50% - 16px);
-    right: 0.2rem;
-    color: $neutral-300;
   }
 }
 </style>

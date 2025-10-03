@@ -62,11 +62,23 @@ const slots = useSlots()
 
   position: relative;
 
-  border: 1px solid $neutral-600;
   border-radius: 0.5em;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  border: 1px solid $neutral-200;
 
   color: $neutral-600;
   font-weight: 500;
+
+  &.active {
+    background: linear-gradient($primary-50, $primary-100), ;
+    border-color: $primary-300;
+    color: $primary-500;
+
+    .mini {
+      color: $primary-400;
+    }
+  }
 
   &:has(.mini) {
     padding: 0.8em;
@@ -85,7 +97,7 @@ const slots = useSlots()
   }
 
   .mini {
-    @include ellipsis-overflow;
+    @include flex-row;
     max-width: 70%;
     position: absolute;
     bottom: 0.25rem;

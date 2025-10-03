@@ -1,5 +1,28 @@
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
+/* NEW */
+export function useUser({ userId }: { userId: MaybeRefOrGetter<number> }): {
+  user: Ref<User | undefined>
+  error: Ref<boolean>
+  loading: Ref<boolean>
+} {
+  const {
+    data: user,
+    asyncStatus,
+    status,
+  } = useUserQuery(userId)
+
+  const error = computed<boolean>(() => unref(status) === 'error')
+  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
+
+  return {
+    user,
+    error,
+    loading,
+  }
+}
+
+/* OLD */
 export function useUserNameValidity(
   name: MaybeRefOrGetter<string>,
   touched?: MaybeRefOrGetter<boolean>,

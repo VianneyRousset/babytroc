@@ -45,7 +45,7 @@ const symbolStrokeWidth = computed(() => {
         :stroke-width="symbolStrokeWidth"
       />
     </slot>
-    <div>{{ model }}</div>
+    <div>{{ model ?? '...' }}</div>
   </div>
 </template>
 

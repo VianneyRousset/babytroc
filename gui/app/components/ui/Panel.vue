@@ -33,13 +33,19 @@ const slots = useSlots()
     gap: 1em;
     padding: 1em;
 
-    & > :deep(.h) {
+    :deep(.h) {
         @include flex-row;
         align-items: stretch;
         gap: 1em;
     }
 
-    & > :deep(.golden-left) {
+    :deep(.v) {
+        @include flex-column;
+        align-items: stretch;
+        gap: 1em;
+    }
+
+    :deep(.golden-left) {
       & > *:nth-child(1) {
         flex: $golden-ratio;
       }
@@ -49,7 +55,7 @@ const slots = useSlots()
       }
     }
 
-    & > :deep(.golden-right) {
+    :deep(.golden-right) {
       & > *:nth-child(1) {
         flex: 1;
       }

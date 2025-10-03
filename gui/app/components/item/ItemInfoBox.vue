@@ -28,6 +28,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
           <InfoBox
             chevron-right
             :icon="Box"
+            class="active"
           >
             Vous avez prété cet objet à {{ item.active_loan.borrower.name }}
             <template #mini>
@@ -50,6 +51,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
           <InfoBox
             chevron-right
             :icon="Box"
+            class="active"
           >
             Vous avez emprunté cet objet.
             <template #mini>
@@ -59,7 +61,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
         </NuxtLink>
       </template>
 
-      <!-- requested -->
+      <!-- Requested -->
       <template #requested>
         <NuxtLink :to="`/chats/${item.active_loan_request.chat_id}`">
           <InfoBox

@@ -7,10 +7,8 @@ const { currentTab } = useTab()
 // goto tab main page if invalid itemId
 if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`)
 
-// query item, me, saved items and liked items
+// query item
 const { item, loading } = useItem({ itemId })
-const { state: me } = useMeQuery()
-const { state: loanRequests } = useBorrowingsLoanRequestsListQuery({ active: true })
 
 // auth
 const { loggedIn } = useAuth()
@@ -39,11 +37,16 @@ const device = useDevice()
       <main>
         <Panel v-if="item">
           <ItemImagesGallery :item="item" />
-          <ItemInfoBox :item="item" />
           <div class="description">
             <h1>{{ item.name }}</h1>
             <p>{{ item.description }}</p>
           </div>
+          <ItemInfoBox :item="item" />
+          <ItemOwner
+            :item="item"
+            :chevron="true"
+          />
+          <h2>Informations</h2>
           <ItemMinitable
             v-if="device.isMobile"
             :item="item"
@@ -67,10 +70,15 @@ const device = useDevice()
           v-if="item"
           class="desktop"
         >
-          <section class="h golden-right">
-            <!-- Gallery -->
-            <ItemImagesGallery :item="item" />
-            <div class="description">
+          <ItemImagesGallery
+            :item="item"
+            wide
+          />
+          <section
+            class="h golden-left"
+            style="gap: 2em;"
+          >
+            <div class="name-description">
               <h1>{{ item.name }}</h1>
               <p>{{ item.description }}</p>
               <ItemAge
@@ -78,13 +86,22 @@ const device = useDevice()
                 :lowercase="true"
                 prefix="Convient à des enfants "
               />
+            </div>
+            <div class="v">
               <ItemInfoBox :item="item" />
+              <ItemOwner
+                :item="item"
+                :chevron="true"
+              />
               <ItemRequestButton :item="item" />
             </div>
           </section>
-          <section class="h golden-left">
-            <ItemRegionsList :item="item" />
-            <ItemRegionsMap :item="item" />
+          <section>
+            <h2>Régions</h2>
+            <div class="h golden-left">
+              <ItemRegionsList :item="item" />
+              <ItemRegionsMap :item="item" />
+            </div>
           </section>
         </Panel>
         <LoadingAnimation v-else-if="loading" />
@@ -98,12 +115,14 @@ const device = useDevice()
 
   gap: 2em;
 
+  .name-description {
+    h1 {
+      margin: 0;
+    }
+  }
+
   section {
     font-size: clamp(0.6em, 2vw, 1em);
-
-    &:not(:first-child){
-      padding: 0 1em;
-    }
 
     .ItemAge {
       color: $neutral-400;
@@ -113,15 +132,6 @@ const device = useDevice()
     .ItemRegionsList {
       font-size: clamp(0.6em, 1.4vw, 0.8em);
       padding: 2em 0;
-    }
-
-    .ItemInfoBox {
-      padding: 2em 0;
-    }
-
-    .ItemRequestButton {
-      grid-area: request;
-      align-self: start;
     }
   }
 }

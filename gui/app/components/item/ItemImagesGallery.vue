@@ -1,9 +1,12 @@
 <script setup lang="ts">
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   item: Item
-}>()
+  wide?: boolean
+}>(), {
+  wide: false,
+})
 
-const { item } = toRefs(props)
+const { item, wide } = toRefs(props)
 
 const { imagesPaths } = useItemImages(item)
 </script>
@@ -12,6 +15,7 @@ const { imagesPaths } = useItemImages(item)
   <ImageGallery
     class="ItemImagesGallery"
     :images="imagesPaths"
+    :config="{ itemsToShow: wide ? 2.5 : 1 }"
   />
 </template>
 
