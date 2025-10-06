@@ -76,7 +76,6 @@ const fontSize = computed(() => {
     display: grid;
     grid-template-columns: repeat(v-bind('columnsCount'), 1fr);
     gap: 1em;
-    padding: 1em;
     font-size: v-bind('fontSize + "px"');
   }
 }

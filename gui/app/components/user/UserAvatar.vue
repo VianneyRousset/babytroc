@@ -29,20 +29,19 @@ const sizePx = computed(() => `${unref(size)}px`)
 </script>
 
 <template>
-  <div class="UserAvatar">
-    <img
-      v-if="seed"
-      :src="avatar"
-    >
-  </div>
+  <img
+    v-if="seed"
+    class="UserAvatar"
+    :src="avatar"
+  >
 </template>
 
 <style lang="scss" scoped>
 .UserAvatar {
   @include flex-row-center;
 
-  width: v-bind(sizePx);
-  height: v-bind(sizePx);
+  aspect-ratio: 1;
+
 
   background: $neutral-100;
   border-radius: 50%;

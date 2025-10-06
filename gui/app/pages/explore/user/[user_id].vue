@@ -5,155 +5,157 @@ import { ShieldAlert } from 'lucide-vue-next'
 const route = useRoute()
 const userId = Number.parseInt(route.params.user_id as string) // TODO avoid this hack
 
-const { goTo } = useNavigation()
 const { currentTab } = useTab()
 
 // goto tab main page if invalid itemId
 if (Number.isNaN(userId)) navigateTo(`/${currentTab}`)
 
-// get main header bar height to offset content
-const main = useTemplateRef<HTMLElement>('main')
-const { height: mainHeaderHeight } = useElementSize(
-  useTemplateRef('main-header'),
-)
-
-// current tab
-const { currentTabRoot } = useTab()
-
 // get user data
-const { data: user } = useUserQuery(userId)
+const { user, loading } = useUser({ userId })
 
-function openItem(itemId: number) {
-  return goTo(`${currentTabRoot}/item/${itemId}`, { saveHash: `#item${itemId}` })
-}
+// query items
+const { items, error: itemsError, loading: itemsLoading, loadMore: loadMoreItems } = useUserItems({ userId })
 
 // auth
 const { loggedIn } = useAuth()
+
+const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 </script>
 
 <template>
-  <div>
-    <!-- Header bar -->
-    <AppHeaderMobileBar
-      ref="main-header"
-      :scroll="main ?? false"
-      :scroll-offset="32"
-    >
-      <div>
-        <AppBack />
-        <h1 :title="user?.name">
-          {{ user?.name }}
-        </h1>
+  <AppPage
+    :max-width="1000"
+    infinite-scroll
+    :infinite-scroll-distance="1800"
+    @more="loadMoreItems"
+  >
+    <!-- Header bar (mobile only) -->
+    <template #mobile-header-bar>
+      <AppBack />
+      <h1 :title="user?.name">
+        {{ user?.name }}
+      </h1>
 
-        <!-- Dropdown menu -->
-        <DropdownMenu v-if="loggedIn === true">
-          <DropdownMenuItem class="red">
-            <ShieldAlert
-              style="cursor: pointer;"
-              :size="32"
-              :stroke-width="2"
-            />
-            <div>Signaler</div>
-          </DropdownMenuItem>
-        </DropdownMenu>
-      </div>
+      <!-- Dropdown menu -->
+      <DropdownMenu v-if="loggedIn === true">
+        <DropdownMenuItem class="red">
+          <ShieldAlert
+            style="cursor: pointer;"
+            :size="32"
+            :stroke-width="2"
+          />
+          <div>Signaler</div>
+        </DropdownMenuItem>
+      </DropdownMenu>
+    </template>
 
-      <div v-if="user">
-        <UserAvatar :seed="user.avatar_seed" />
-        <div class="counter">
-          <div>{{ user.stars_count }}</div>
-          <div>Étoiles</div>
-        </div>
-        <div class="counter">
-          <div>{{ user.likes_count }}</div>
-          <div>Likes</div>
-        </div>
-      </div>
-    </AppHeaderMobileBar>
+    <!-- Mobile page -->
+    <template #mobile>
+      <main>
+        <WithLoading :loading="!user && loading">
+          <Panel v-if="user">
+            <!-- Item collection -->
+          </Panel>
+        </WithLoading>
+      </main>
+    </template>
 
-    <!-- Main content -->
-    <main>
-      <!-- was the list of item cards -->
-    </main>
-  </div>
+    <!-- Desktop page -->
+    <template #desktop>
+      <AppHeaderDesktop>
+        <template #buttons-left>
+          <AppBack />
+        </template>
+      </AppHeaderDesktop>
+      <main>
+        <WithLoading :loading="!user && loading">
+          <Panel
+            v-if="user"
+            class="desktop"
+          >
+            <InfoBox>
+              <div class="avatar-name">
+                <UserAvatar :seed="user.avatar_seed" />
+                <h1>{{ user.name }}</h1>
+              </div>
+              <div class="counters">
+                <VerticalCounter
+                  orientation="vertical"
+                  :model-value="user.stars_count"
+                >
+                  Étoiles
+                </VerticalCounter>
+                <VerticalCounter
+                  orientation="vertical"
+                  :model-value="user.likes_count"
+                >
+                  Likes
+                </VerticalCounter>
+                <VerticalCounter
+                  orientation="vertical"
+                  :model-value="user.items_count"
+                >
+                  Objets
+                </VerticalCounter>
+              </div>
+            </InfoBox>
+            <section>
+              <h2>Objects appartenants à {{ user.name }}</h2>
+              <ItemCardsCollection
+                :items="items"
+                :dense="false"
+                :loading="itemsLoading"
+                :error="itemsError"
+                @select="openItem"
+              />
+            </section>
+          </Panel>
+        </WithLoading>
+      </main>
+    </template>
+  </AppPage>
 </template>
 
 <style scoped lang="scss">
-main {
-  --header-height: v-bind(mainHeaderHeight + "px");
-}
+:deep(.Panel.desktop .content) {
 
-:deep(.AppHeaderMobileBar) {
+  gap: 2em;
 
-  @include flex-column;
-  align-items: stretch;
-  padding: 0;
-  gap: 0;
-  height: 170px;
+  .InfoBox {
+    border-radius: 2em;
 
-  &>div:first-child {
-    @include flex-row;
-
-    height: 64px;
-    gap: 16px;
-    padding: 0 1rem;
-
-    h1 {
-      @include ellipsis-overflow;
-      flex-grow: 1;
-      font-size: 1.6rem;
-      font-weight: 500;
-    }
-
-  }
-
-  &>div:last-child {
-    @include flex-row;
-    flex-grow: 1;
-    justify-content: space-between;
-    padding: 0 2rem;
-
-    .counter {
-      @include flex-column;
-
-      &>div:first-child {
-        font-size: 2rem;
-        font-weight: 400;
-        font-family: "Plus Jakarta Sans", sans-serif;
-      }
-
-      &>div:last-child {
-        font-family: 'Inter', sans-serif;
-        color: $neutral-400;
-      }
-
-    }
-
-    gap: 16px;
-    height: 64px;
-
-    a {
+    .content {
       @include flex-row;
+      gap: 4em;
+      padding: 2em 4em;
     }
 
-    svg {
-      stroke: $neutral-700;
+    font-size: clamp(0.6em, 1.5vw, 1em);
+
+    .avatar-name {
+      @include flex-column;
+      flex: 2;
+      gap: 1em;
+      .UserAvatar {
+        width: 60%;
+      }
+      h1 {
+        margin: 0;
+        text-align: center;
+      }
     }
 
-    h1 {
-      @include ellipsis-overflow;
-      flex-grow: 1;
-
-      font-weight: 500;
-      font-size: 1.6rem;
+    .counters {
+      @include flex-row;
+      gap: 2em;
+      justify-content: center;
+      flex: 5;
     }
-
   }
 }
 
-.main {
-  padding-top: 170px;
-  padding-bottom: 64px;
-  box-sizing: border-box;
+.LoadingAnimation {
+  width: 100%;
+  height: 10em;
 }
 </style>

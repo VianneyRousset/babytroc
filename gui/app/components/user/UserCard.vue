@@ -31,7 +31,7 @@ const targetLocation = computed<string | RouteLocationGeneric | undefined>(() =>
       <UserAvatar :seed="user.avatar_seed" />
     </template>
     <template #mini>
-      <StatsCounter
+      <HorizontalCounter
         v-model="user.stars_count"
         size="tiny"
       >
@@ -39,8 +39,8 @@ const targetLocation = computed<string | RouteLocationGeneric | undefined>(() =>
           :size="16"
           :stroke-width="1.33"
         />
-      </StatsCounter>
-      <StatsCounter
+      </HorizontalCounter>
+      <HorizontalCounter
         v-model="user.likes_count"
         size="tiny"
       >
@@ -48,7 +48,7 @@ const targetLocation = computed<string | RouteLocationGeneric | undefined>(() =>
           :size="16"
           :stroke-width="1.33"
         />
-      </StatsCounter>
+      </HorizontalCounter>
     </template>
     <span class="name">{{ user.name }}</span>
   </InfoBox>

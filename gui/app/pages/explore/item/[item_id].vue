@@ -35,26 +35,27 @@ const device = useDevice()
     <!-- Mobile page -->
     <template #mobile>
       <main>
-        <Panel v-if="item">
-          <ItemImagesGallery :item="item" />
-          <div class="description">
-            <h1>{{ item.name }}</h1>
-            <p>{{ item.description }}</p>
-          </div>
-          <ItemInfoBox :item="item" />
-          <ItemOwner
-            :item="item"
-            :target="userId => `/explore/users/${userId}`"
-          />
-          <h2>Informations</h2>
-          <ItemMinitable
-            v-if="device.isMobile"
-            :item="item"
-          />
-          <ItemRegionsMap :item="item" />
-          <ItemRequestButton :item="item" />
-        </Panel>
-        <LoadingAnimation v-else-if="loading" />
+        <WithLoading :loading="!item && loading">
+          <Panel v-if="item">
+            <ItemImagesGallery :item="item" />
+            <div class="description">
+              <h1>{{ item.name }}</h1>
+              <p>{{ item.description }}</p>
+            </div>
+            <ItemInfoBox :item="item" />
+            <ItemOwner
+              :item="item"
+              :target="userId => `/explore/user/${userId}`"
+            />
+            <h2>Informations</h2>
+            <ItemMinitable
+              v-if="device.isMobile"
+              :item="item"
+            />
+            <ItemRegionsMap :item="item" />
+            <ItemRequestButton :item="item" />
+          </Panel>
+        </WithLoading>
       </main>
     </template>
 
@@ -66,46 +67,47 @@ const device = useDevice()
         </template>
       </AppHeaderDesktop>
       <main>
-        <Panel
-          v-if="item"
-          class="desktop"
-        >
-          <ItemImagesGallery
-            :item="item"
-            wide
-          />
-          <section
-            class="h golden-left"
-            style="gap: 2em;"
+        <WithLoading :loading="!item && loading">
+          <Panel
+            v-if="item"
+            class="desktop"
           >
-            <div class="name-description">
-              <h1>{{ item.name }}</h1>
-              <p>{{ item.description }}</p>
-              <ItemAge
-                :item="item"
-                :lowercase="true"
-                prefix="Convient à des enfants "
-              />
-            </div>
-            <div class="v">
-              <ItemInfoBox :item="item" />
-              <ItemOwner
-                :item="item"
-                :chevron="true"
-                :target="userId => `/explore/users/${userId}`"
-              />
-              <ItemRequestButton :item="item" />
-            </div>
-          </section>
-          <section>
-            <h2>Régions</h2>
-            <div class="h golden-left">
-              <ItemRegionsList :item="item" />
-              <ItemRegionsMap :item="item" />
-            </div>
-          </section>
-        </Panel>
-        <LoadingAnimation v-else-if="loading" />
+            <ItemImagesGallery
+              :item="item"
+              wide
+            />
+            <section
+              class="h golden-left"
+              style="gap: 2em;"
+            >
+              <div class="name-description">
+                <h1>{{ item.name }}</h1>
+                <p>{{ item.description }}</p>
+                <ItemAge
+                  :item="item"
+                  :lowercase="true"
+                  prefix="Convient à des enfants "
+                />
+              </div>
+              <div class="v">
+                <ItemInfoBox :item="item" />
+                <ItemOwner
+                  :item="item"
+                  :chevron="true"
+                  :target="userId => `/explore/user/${userId}`"
+                />
+                <ItemRequestButton :item="item" />
+              </div>
+            </section>
+            <section>
+              <h2>Régions</h2>
+              <div class="h golden-left">
+                <ItemRegionsList :item="item" />
+                <ItemRegionsMap :item="item" />
+              </div>
+            </section>
+          </Panel>
+        </WithLoading>
       </main>
     </template>
   </AppPage>

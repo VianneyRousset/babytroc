@@ -178,13 +178,15 @@ watch(filtersDrawerOpen, (newState, oldState) => {
 
     <!-- Item cards -->
     <main>
-      <ItemCardsCollection
-        :items="items"
-        :dense="dense"
-        :loading="loading"
-        :error="error"
-        @select="openItem"
-      />
+      <Panel>
+        <ItemCardsCollection
+          :items="items"
+          :dense="dense"
+          :loading="loading"
+          :error="error"
+          @select="openItem"
+        />
+      </Panel>
     </main>
   </AppPage>
 </template>
