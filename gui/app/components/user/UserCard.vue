@@ -1,20 +1,31 @@
 <script setup lang="ts" generic="T extends { name: string, avatar_seed: string, stars_count?: number, likes_count?: number}">
 import { Heart, Star } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   user: T
-  chevron?: boolean
-}>(), {
-  chevron: false,
-})
+  target?: string | RouteLocationGeneric | ((userId: number) => string | RouteLocationGeneric)
+}>()
+const { user, target } = toRefs(props)
 
-const { user, chevron } = toRefs(props)
+const targetLocation = computed<string | RouteLocationGeneric | undefined>(() => {
+  const _target = unref(target)
+
+  if (_target == null)
+    return undefined
+
+  if (typeof _target === 'function')
+    return _target(unref(user).id)
+
+  return _target
+})
 </script>
 
 <template>
   <InfoBox
     class="UserCard"
-    :chevron-right="chevron"
+    :chevron-right="targetLocation != null"
+    :target="targetLocation"
   >
     <template #icon>
       <UserAvatar :seed="user.avatar_seed" />

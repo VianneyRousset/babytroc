@@ -44,7 +44,7 @@ const device = useDevice()
           <ItemInfoBox :item="item" />
           <ItemOwner
             :item="item"
-            :chevron="true"
+            :target="userId => `/explore/users/${userId}`"
           />
           <h2>Informations</h2>
           <ItemMinitable
@@ -92,6 +92,7 @@ const device = useDevice()
               <ItemOwner
                 :item="item"
                 :chevron="true"
+                :target="userId => `/explore/users/${userId}`"
               />
               <ItemRequestButton :item="item" />
             </div>

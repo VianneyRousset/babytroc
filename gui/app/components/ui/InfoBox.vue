@@ -1,59 +1,70 @@
 <script setup lang="ts">
 import { ChevronRight } from 'lucide-vue-next'
+import { NuxtLink } from '#components'
 import type { LucideIcon } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
 
 const props = withDefaults(defineProps<{
   icon?: LucideIcon
+  target?: string | RouteLocationGeneric
   chevronRight?: boolean
 }>(), {
   chevronRight: false,
 })
 
-const { icon, chevronRight } = toRefs(props)
+const { icon, chevronRight, target } = toRefs(props)
 
 const slots = useSlots()
 </script>
 
 <template>
-  <div class="InfoBox">
-    <!-- Icon -->
-    <div
-      v-if="slots.icon || icon"
-      class="icon with"
-    >
-      <component
-        :is="icon"
-        v-if="icon"
-        :size="32"
-        :stroke-width="1"
-      />
-      <slot name="icon" />
-    </div>
+  <Unwrap :disabled="target != null">
+    <NuxtLink :to="target">
+      <div class="InfoBox">
+        <!-- Icon -->
+        <div
+          v-if="slots.icon || icon"
+          class="icon with"
+        >
+          <component
+            :is="icon"
+            v-if="icon"
+            :size="32"
+            :stroke-width="1"
+          />
+          <slot name="icon" />
+        </div>
 
-    <!-- Content -->
-    <div class="content">
-      <slot />
-    </div>
+        <!-- Content -->
+        <div class="content">
+          <slot />
+        </div>
 
-    <!-- Mini -->
-    <div
-      v-if="slots.mini"
-      class="mini"
-    >
-      <slot name="mini" />
-    </div>
+        <!-- Mini -->
+        <div
+          v-if="slots.mini"
+          class="mini"
+        >
+          <slot name="mini" />
+        </div>
 
-    <!-- Chevron right -->
-    <ChevronRight
-      v-if="chevronRight"
-      class="chevron"
-      :size="32"
-      :stroke-width="1"
-    />
-  </div>
+        <!-- Chevron right -->
+        <ChevronRight
+          v-if="chevronRight"
+          class="chevron"
+          :size="32"
+          :stroke-width="1"
+        />
+      </div>
+    </NuxtLink>
+  </Unwrap>
 </template>
 
 <style scoped lang="scss">
+a {
+  @include reset-link;
+}
+
 .InfoBox {
 
   @include flex-row;
