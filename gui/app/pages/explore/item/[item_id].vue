@@ -26,10 +26,7 @@ const device = useDevice()
       </h1>
 
       <!-- Dropdown menu -->
-      <ItemDropdownMenu
-        v-if="loggedIn === true && item"
-        :item="item"
-      />
+      <ItemDropdownMenu v-if="loggedIn === true && item" />
     </template>
 
     <!-- Mobile page -->

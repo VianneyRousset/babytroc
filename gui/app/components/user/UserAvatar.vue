@@ -24,8 +24,6 @@ const avatar = computed(() =>
     shapeColor: ['729577'],
   }).toDataUri(),
 )
-
-const sizePx = computed(() => `${unref(size)}px`)
 </script>
 
 <template>
@@ -41,7 +39,6 @@ const sizePx = computed(() => `${unref(size)}px`)
   @include flex-row-center;
 
   aspect-ratio: 1;
-
 
   background: $neutral-100;
   border-radius: 50%;

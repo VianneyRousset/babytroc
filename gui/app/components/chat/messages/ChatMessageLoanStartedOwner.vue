@@ -2,14 +2,14 @@
 import { Import } from 'lucide-vue-next'
 
 const props = defineProps<{
-  msg: ChatMessage
+  message: ChatMessage
   me: User
   chat: Chat
   loanId: number
 }>()
 
 // chat
-const { me, chat, msg, loanId } = toRefs(props)
+const { me, chat, message, loanId } = toRefs(props)
 
 // get loan
 const { data: loan } = useLoanQuery({ loanId })
@@ -29,7 +29,7 @@ async function end() {
 <template>
   <ChatMessage
     :me="me"
-    :msg="msg"
+    :message="message"
   >
     <Import
       :size="24"

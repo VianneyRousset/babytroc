@@ -1,18 +1,18 @@
 <script setup lang="ts">
 const props = defineProps<{
   me: User
-  msg: ChatMessage
+  message: ChatMessage
 }>()
 
 // chat
-const { me, msg } = toRefs(props)
+const { me, message } = toRefs(props)
 </script>
 
 <template>
   <ChatMessage
     :me="me"
-    :msg="msg"
+    :message="message"
   >
-    {{ msg.text }}
+    {{ message.text }}
   </ChatMessage>
 </template>

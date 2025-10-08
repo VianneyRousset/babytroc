@@ -1,5 +1,6 @@
-import { useInfiniteQuery } from '@pinia/colada'
-import { parseLinkHeader } from '@web3-storage/parse-link-header'
+import type { ApiRequestQuery } from '#open-fetch'
+
+/* NEW */
 
 export function useChatQuery(chatId: MaybeRefOrGetter<string>) {
   const { $api } = useNuxtApp()
@@ -15,123 +16,43 @@ export function useChatQuery(chatId: MaybeRefOrGetter<string>) {
   })
 }
 
+type ChatsQueryParams = ApiRequestQuery<'list_client_chats_v1_me_chats_get'>
+
 export const useChatsListQuery = defineQuery(() => {
   const { $api } = useNuxtApp()
 
-  return useInfiniteQuery({
+  const query = useInfiniteQueryWithAuth({
     key: ['me', 'chats'],
 
     initialPage: {
-      data: Array<Chat>(),
-      cursor: {} as ChatQuery,
+      chats: Array<Chat>(),
+      cursor: {} as ChatsQueryParams,
       end: false,
     },
 
     query: async (pages) => {
-      let newCursor: ChatQuery = {}
+      let cursor: ChatsQueryParams | undefined = undefined
 
-      const newData = await $api('/v1/me/chats', {
+      const chats = await $api('/v1/me/chats', {
         query: pages.cursor,
-
         onResponse: async ({
           response: { ok, headers },
         }: { response: { ok: boolean, headers: Headers } }) => {
           if (!ok) return
-
-          const linkHeader = parseLinkHeader(headers.get('link'))
-
-          if (!linkHeader?.next)
-            return console.error('Null linkHeader when fetching first items.')
-
-          const { rel, url, ...query } = linkHeader.next
-          newCursor = query
+          cursor = extractNextQueryParamsFromHeaders(headers)
         },
       })
-
-      return {
-        data: newData,
-        cursor: newCursor,
-      }
+      return { chats, cursor }
     },
 
-    merge: (pages, newPage) => {
-      if (newPage.data.length === 0) {
-        return {
-          ...pages,
-          end: true,
-        }
-      }
-
+    merge: (result, current) => {
       return {
-        data: [...pages.data, ...newPage.data],
-        cursor: newPage.cursor,
-        end: false,
+        chats: [...result.chats, ...current.chats],
+        cursor: current.cursor ?? result.cursor,
+        end: current.cursor == null,
       }
     },
   })
+
+  return query
 })
-
-export const useChatMessagesListQuery = (chatId: MaybeRefOrGetter<string>) => {
-  const definition = defineQuery(() => {
-    const { $api } = useNuxtApp()
-
-    return useInfiniteQuery({
-      key: () => ['me', 'chats', toValue(chatId), 'messages'],
-
-      initialPage: {
-        data: Array<ChatMessage>(),
-        cursor: {} as ChatMessageQuery,
-        end: false,
-      },
-
-      query: async (pages) => {
-        let newCursor: ChatMessageQuery = {}
-
-        const newData = await $api('/v1/me/chats/{chat_id}/messages', {
-          path: {
-            chat_id: toValue(chatId),
-          },
-          query: pages.cursor,
-
-          onResponse: async ({
-            response: { ok, headers },
-          }: { response: { ok: boolean, headers: Headers } }) => {
-            if (!ok) return
-
-            const linkHeader = parseLinkHeader(headers.get('link'))
-
-            if (!linkHeader?.next)
-              return console.error(
-                'Null linkHeader when fetching first items.',
-              )
-
-            const { rel, url, ...query } = linkHeader.next
-            newCursor = query
-          },
-        })
-
-        return {
-          data: newData,
-          cursor: newCursor,
-        }
-      },
-
-      merge: (pages, newPage) => {
-        if (newPage.data.length === 0) {
-          return {
-            ...pages,
-            end: true,
-          }
-        }
-
-        return {
-          data: [...pages.data, ...newPage.data],
-          cursor: newPage.cursor,
-          end: false,
-        }
-      },
-    })
-  })
-
-  return definition()
-}

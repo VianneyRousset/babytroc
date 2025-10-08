@@ -14,10 +14,10 @@ run = "npm install"
 description = "Lint the code"
 depends = ["lint:*"]
 
-[tasks."lint:biome"]
-description = "Lint the code with biome"
-depends = ["deps"]
-run = "npx biome lint"
+# [tasks."lint:biome"]
+# description = "Lint the code with biome"
+# depends = ["deps"]
+# run = "npx biome lint"
 
 [tasks."lint:eslint"]
 description = "Lint the code with eslint"

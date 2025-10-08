@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<{
 
 const { item, disabled } = toRefs(props)
 
-const { like, unlike, error, loading } = useItemLike({ itemId: () => unref(item).id })
+const { like, unlike, loading } = useItemLike({ itemId: () => unref(item).id })
 
 // toggle like state
 async function onclick() {

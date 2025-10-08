@@ -16,7 +16,7 @@ const { firstImagePath: itemImage } = useItemFirstImage(
 )
 
 // has new messages
-const { hasNewMessages } = useChatHasNewMessages(chat, me)
+const { hasUnseenMessageForMe } = useChatSeen(chat, me)
 </script>
 
 <template>
@@ -35,7 +35,7 @@ const { hasNewMessages } = useChatHasNewMessages(chat, me)
     </template>
 
     <template
-      v-if="hasNewMessages"
+      v-if="hasUnseenMessageForMe"
       #badge
     />
   </Slab>

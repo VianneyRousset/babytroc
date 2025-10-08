@@ -2,18 +2,18 @@
 import { X } from 'lucide-vue-next'
 
 const props = defineProps<{
-  msg: ChatMessage
+  message: ChatMessage
   me: User
 }>()
 
 // chat
-const { me, msg } = toRefs(props)
+const { me, message } = toRefs(props)
 </script>
 
 <template>
   <ChatMessage
     :me="me"
-    :msg="msg"
+    :message="message"
   >
     <X
       :size="24"

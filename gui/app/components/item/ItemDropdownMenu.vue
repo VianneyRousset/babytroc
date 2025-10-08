@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import { ShieldAlert } from 'lucide-vue-next'
-
-const props = defineProps<{
-  item: Item | ItemPreview
-}>()
-
-const { item } = toRefs(props)
 </script>
 
 <template>

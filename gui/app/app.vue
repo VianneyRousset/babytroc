@@ -3,7 +3,7 @@ const { loggedIn } = useAuth()
 
 let websocket: WebSocket | null = null
 
-const { setMessage } = useChats()
+const { addMessage } = useChats()
 
 watch(loggedIn, (state) => {
   if (state === true) {
@@ -21,7 +21,7 @@ watch(loggedIn, (state) => {
       if (
         ['new_chat_message', 'updated_chat_message'].includes(wsMessage.type)
       ) {
-        setMessage(wsMessage.message)
+        addMessage(wsMessage.message)
       }
     })
   }

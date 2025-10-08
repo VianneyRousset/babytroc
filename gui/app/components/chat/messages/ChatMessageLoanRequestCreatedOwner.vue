@@ -3,14 +3,14 @@ import { MessageCircleQuestion, X, Check } from 'lucide-vue-next'
 import { LoanRequestState } from '#build/types/open-fetch/schemas/api'
 
 const props = defineProps<{
-  msg: ChatMessage
+  message: ChatMessage
   me: User
   chat: Chat
   loanRequestId: number
 }>()
 
 // chat
-const { me, chat, msg, loanRequestId } = toRefs(props)
+const { me, chat, message, loanRequestId } = toRefs(props)
 
 // get loan request
 const { data: loanRequest } = useItemLoanRequestQuery({
@@ -52,7 +52,7 @@ async function accept() {
 <template>
   <ChatMessage
     :me="me"
-    :msg="msg"
+    :message="message"
   >
     <MessageCircleQuestion
       :size="24"

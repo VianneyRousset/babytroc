@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   UserRound,
-  Heart,
   Package,
   Gift,
   UserPen,

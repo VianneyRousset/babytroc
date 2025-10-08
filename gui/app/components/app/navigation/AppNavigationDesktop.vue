@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { appSectionUrls, activeAppSection } = useNavigation()
 
-const { hasNewMessages } = useChats()
+const { hasUnseenMessageForMe } = useChats()
 
 type ClassSpecifications = {
   section: AppSection
@@ -13,7 +13,7 @@ type ClassSpecifications = {
 const tabs = computed<Array<ClassSpecifications>>(() => [
   { section: 'explore', name: 'Explorer' },
   { section: 'liked', name: 'Favorits' },
-  { section: 'chats', name: 'Chats', badge: unref(hasNewMessages) },
+  { section: 'chats', name: 'Chats', badge: unref(hasUnseenMessageForMe) },
 ])
 </script>
 

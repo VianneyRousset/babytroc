@@ -2,19 +2,19 @@
 import { Clock } from 'lucide-vue-next'
 
 const props = defineProps<{
-  msg: ChatMessage
+  message: ChatMessage
   me: User
   chat: Chat
 }>()
 
 // chat
-const { me, chat, msg } = toRefs(props)
+const { me, chat, message } = toRefs(props)
 </script>
 
 <template>
   <ChatMessage
     :me="me"
-    :msg="msg"
+    :message="message"
   >
     <Clock
       :size="24"

@@ -11,7 +11,7 @@ const props = defineProps<{
 const { me, chat, messages } = toRefs(props)
 
 // group messages
-const { dateGroups } = useGroupChatMessages(messages, me)
+const { dateGroups } = useChatMessageDateGroups(messages, me)
 
 const { isUserBorrowing } = useChatRoles(chat, me)
 </script>
@@ -35,7 +35,7 @@ const { isUserBorrowing } = useChatRoles(chat, me)
         >
           <template #[ChatMessageType.text]>
             <ChatMessageText
-              :msg="msg"
+              :message="msg"
               :me="me"
             />
           </template>
@@ -43,14 +43,14 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_request_created]>
             <ChatMessageLoanRequestCreatedBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
             />
             <ChatMessageLoanRequestCreatedOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
@@ -60,12 +60,12 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_request_cancelled]>
             <ChatMessageLoanRequestCancelledBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
             />
             <ChatMessageLoanRequestCancelledOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />
@@ -74,14 +74,14 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_request_accepted]>
             <ChatMessageLoanRequestAcceptedBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
             />
             <ChatMessageLoanRequestAcceptedOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
@@ -91,14 +91,14 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_request_rejected]>
             <ChatMessageLoanRequestRejectedBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
             />
             <ChatMessageLoanRequestRejectedOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-request-id="msg.loan_request_id!"
@@ -108,13 +108,13 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_started]>
             <ChatMessageLoanStartedBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />
             <ChatMessageLoanStartedOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
               :loan-id="msg.loan_id!"
@@ -124,13 +124,13 @@ const { isUserBorrowing } = useChatRoles(chat, me)
           <template #[ChatMessageType.loan_ended]>
             <ChatMessageLoanEndedBorrower
               v-if="isUserBorrowing"
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />
             <ChatMessageLoanEndedOwner
               v-else
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />
@@ -138,7 +138,7 @@ const { isUserBorrowing } = useChatRoles(chat, me)
 
           <template #[ChatMessageType.item_not_available]>
             <ChatMessageItemNotAvailable
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />
@@ -146,7 +146,7 @@ const { isUserBorrowing } = useChatRoles(chat, me)
 
           <template #[ChatMessageType.item_available]>
             <ChatMessageItemAvailable
-              :msg="msg"
+              :message="msg"
               :me="me"
               :chat="chat"
             />

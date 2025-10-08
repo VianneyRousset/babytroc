@@ -10,7 +10,7 @@ import type { FunctionalComponent } from 'vue'
 
 const { appSectionUrls, activeAppSection } = useNavigation()
 
-const { hasNewMessages } = useChats()
+const { hasUnseenMessageForMe } = useChats()
 
 type ClassSpecifications = {
   section: AppSection
@@ -24,7 +24,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
   { section: 'explore', name: 'Explorer', icon: Search },
   { section: 'liked', name: 'Favorits', icon: Heart },
   { section: 'newitem', icon: Plus, class: { plus: true } },
-  { section: 'chats', icon: MessageSquare, name: 'Chats', badge: unref(hasNewMessages) },
+  { section: 'chats', icon: MessageSquare, name: 'Chats', badge: unref(hasUnseenMessageForMe) },
   { section: 'me', icon: UserRound, name: 'Moi' },
 ])
 </script>

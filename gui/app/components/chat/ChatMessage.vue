@@ -3,52 +3,31 @@ import { Check, CheckCheck } from 'lucide-vue-next'
 
 const props = defineProps<{
   me: User
-  msg: ChatMessage
+  message: ChatMessage
 }>()
 
-const { me, msg } = toRefs(props)
+const { me, message } = toRefs(props)
 
 const slots = useSlots()
 
-const { origin } = useChatMessageOrigin(msg, me)
-const { isNew } = useChatMessageIsNew(msg, me)
-const { $api } = useNuxtApp()
+const { origin } = useChatMessageOrigin(message, me)
 
-let seeMessageTimeout: ReturnType<typeof setTimeout> | undefined = undefined
+// mark message as seen when component is visible for a while
+const component = useTemplateRef<HTMLElement>('chat-message')
+const { isUnseenForMe } = useChatMessageSeen(message, me, { monitor: component })
 
-watch(isNew, (isNew) => {
-  if (isNew === true) {
-    seeMessageTimeout = setTimeout(async () => {
-      const _msg = unref(msg)
-      await $api('/v1/me/chats/{chat_id}/messages/{message_id}/see', {
-        method: 'post',
-        path: {
-          chat_id: _msg.chat_id,
-          message_id: _msg.id,
-        },
-      })
-    }, 2000)
-  }
-}, { immediate: true })
-
-onUnmounted(() => {
-  if (seeMessageTimeout !== undefined) {
-    clearTimeout(seeMessageTimeout)
-    seeMessageTimeout = undefined
-  }
-})
-
-const { formattedHour } = useChatMessageTime(msg)
+const { formattedHour } = useChatMessageTime(message)
 </script>
 
 <template>
   <div
+    ref="chat-message"
     class="ChatMessage"
     :origin="origin"
-    :new="isNew"
+    :new="isUnseenForMe"
   >
     <transition
-      :name="isNew ? 'pop' : undefined"
+      :name="isUnseenForMe ? 'pop' : undefined"
       mode="in-out"
       appear
     >
@@ -71,7 +50,7 @@ const { formattedHour } = useChatMessageTime(msg)
             mode="in-out"
           >
             <CheckCheck
-              v-if="msg.seen"
+              v-if="message.seen"
               :size="16"
               :stroke-width="1.33"
             />

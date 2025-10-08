@@ -7,7 +7,7 @@ const props = defineProps<{
 const { me, chat } = toRefs(props)
 
 // get messages
-const { messages, loadMore, end } = useChatMessages(() => unref(chat).id)
+const { messages, loadMore, end } = useChatMessages(chat)
 
 // mutations
 const { mutate: sendMessage } = useSendMessageMutation()
