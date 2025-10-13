@@ -18,3 +18,28 @@ export function useMe(): {
     loading,
   }
 }
+
+/* Loans */
+
+export function useMeLoans() {
+  const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/loans', {
+    key: ['me', 'loans'],
+  })
+  return { loans, ...query }
+}
+
+/* Borrowings */
+
+export function useMeBorrowings() {
+  const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/borrowings', {
+    key: ['me', 'borrowings'],
+  })
+  return { loans, ...query }
+}
+
+export function useMeBorrowingRequests() {
+  const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/borrowings/requests', {
+    key: ['me', 'borrowings', 'requests'],
+  })
+  return { loans, ...query }
+}
