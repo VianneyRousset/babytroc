@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MessageCircleQuestion, Archive } from 'lucide-vue-next'
 
-const { data: loans } = useBorrowingsListQuery()
+const { loans } = useMeBorrowings()
 </script>
 
 <template>

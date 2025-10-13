@@ -30,35 +30,14 @@ export function useItemExploreQueryParams(): { queryParams: Ref<ItemQueryParams>
 /**
  * List of all items for item explore
  **/
-export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryParams> }): {
-  items: Ref<Array<ItemPreview>>
-  queryParams: Ref<ItemQueryParams>
-  error: Ref<boolean>
-  loading: Ref<boolean>
-  loadMore: () => void
-} {
-  const {
-    data: pages,
-    loadMore,
-    asyncStatus,
-    status,
-  } = useItemsListQuery(queryParams)
-
-  const items = computed<Array<ItemPreview>>(() => unref(pages).items ?? [])
-  const error = computed<boolean>(() => unref(status) === 'error')
-  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
-
-  // fixes few bugs by loading more items when `items` is empty
-  watch(items, _items => _items.length === 0 && loadMore())
-
-  return {
-    items,
-    error,
-    loading,
-    queryParams,
-    loadMore: async () => {
-      if (!unref(pages).end && !unref(error) && !unref(loading))
-        await loadMore()
+export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryParams> }) {
+  const { data: items, ...query } = useApiPaginatedQuery(
+    '/v1/items',
+    {
+      key: ['item', 'explore'],
+      query: queryParams,
     },
-  }
+  )
+
+  return { items, ...query }
 }

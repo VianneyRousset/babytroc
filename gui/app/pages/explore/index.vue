@@ -27,7 +27,7 @@ const { queryParams } = useItemExploreQueryParams()
 watch(queryParams, newQueryParams => loadFiltersFromQueryParams(newQueryParams), { immediate: true })
 
 // query items
-const { items, error, loading, loadMore } = useItemExplore({ queryParams })
+const { items, error, isLoading, loadMore } = useItemExplore({ queryParams })
 
 // filters are applied by updating the route query params
 const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
@@ -182,8 +182,8 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         <ItemCardsCollection
           :items="items"
           :dense="dense"
-          :loading="loading"
-          :error="error"
+          :loading="isLoading"
+          :error="error != null"
           @select="openItem"
         />
       </Panel>

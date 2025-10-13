@@ -1,13 +1,3 @@
-// TODO check paginated
-export function useBorrowingsListQuery() {
-  const { $api } = useNuxtApp()
-
-  return useQueryWithAuth({
-    key: ['me', 'borrowings'],
-    query: () => $api('/v1/me/borrowings'),
-  })
-}
-
 /*
 export const useBorrowingsListQuery = defineQuery(() => {
   const { $api } = useNuxtApp()

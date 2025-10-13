@@ -1,25 +1,15 @@
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 /* NEW */
-export function useUser({ userId }: { userId: MaybeRefOrGetter<number> }): {
-  user: Ref<User | undefined>
-  error: Ref<boolean>
-  loading: Ref<boolean>
-} {
-  const {
-    data: user,
-    asyncStatus,
-    status,
-  } = useUserQuery(userId)
+export function useUser({ userId }: { userId: MaybeRefOrGetter<number> }) {
+  const { data: user, ...query } = useApiQuery('/v1/users/{user_id}', {
+    key: () => ['user', toValue(userId)],
+    path: () => ({
+      user_id: toValue(userId),
+    }),
+  })
 
-  const error = computed<boolean>(() => unref(status) === 'error')
-  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
-
-  return {
-    user,
-    error,
-    loading,
-  }
+  return { user, ...query }
 }
 
 /* OLD */

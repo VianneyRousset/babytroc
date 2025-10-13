@@ -1,25 +1,14 @@
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 /* NEW */
-export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }): {
-  item: Ref<Item | undefined>
-  error: Ref<boolean>
-  loading: Ref<boolean>
-} {
-  const {
-    data: item,
-    asyncStatus,
-    status,
-  } = useItemQuery(itemId)
-
-  const error = computed<boolean>(() => unref(status) === 'error')
-  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
-
-  return {
-    item,
-    error,
-    loading,
-  }
+export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
+  const { data: item, ...query } = useApiQuery('/v1/items/{item_id}', {
+    key: () => ['item', toValue(itemId)],
+    path: () => ({
+      item_id: toValue(itemId),
+    }),
+  })
+  return { item, ...query }
 }
 
 /* OLD */

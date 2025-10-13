@@ -8,7 +8,7 @@ const { currentTab } = useTab()
 if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`)
 
 // query item
-const { item, loading } = useItem({ itemId })
+const { item, isLoading } = useItem({ itemId })
 
 // auth
 const { loggedIn } = useAuth()
@@ -32,7 +32,7 @@ const device = useDevice()
     <!-- Mobile page -->
     <template #mobile>
       <main>
-        <WithLoading :loading="!item && loading">
+        <WithLoading :loading="!item && isLoading">
           <Panel v-if="item">
             <ItemImagesGallery :item="item" />
             <div class="description">
@@ -64,7 +64,7 @@ const device = useDevice()
         </template>
       </AppHeaderDesktop>
       <main>
-        <WithLoading :loading="!item && loading">
+        <WithLoading :loading="!item && isLoading">
           <Panel
             v-if="item"
             class="desktop"

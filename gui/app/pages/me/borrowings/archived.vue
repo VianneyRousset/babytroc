@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: loans } = useBorrowingsListQuery()
+const { loans } = useMeBorrowings()
 </script>
 
 <template>

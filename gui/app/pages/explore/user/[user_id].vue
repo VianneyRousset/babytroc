@@ -11,10 +11,10 @@ const { currentTab } = useTab()
 if (Number.isNaN(userId)) navigateTo(`/${currentTab}`)
 
 // get user data
-const { user, loading } = useUser({ userId })
+const { user, isLoading } = useUser({ userId })
 
 // query items
-const { items, error: itemsError, loading: itemsLoading, loadMore: loadMoreItems } = useUserItems({ userId })
+const { items, error: itemsError, isLoading: itemsIsLoading, loadMore: loadMoreItems } = useUserItems({ userId })
 
 // auth
 const { loggedIn } = useAuth()
@@ -52,7 +52,7 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
     <!-- Mobile page -->
     <template #mobile>
       <main>
-        <WithLoading :loading="!user && loading">
+        <WithLoading :loading="!user && isLoading">
           <Panel v-if="user">
             <!-- Item collection -->
           </Panel>
@@ -68,7 +68,7 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
         </template>
       </AppHeaderDesktop>
       <main>
-        <WithLoading :loading="!user && loading">
+        <WithLoading :loading="!user && isLoading">
           <Panel
             v-if="user"
             class="desktop"
@@ -104,8 +104,8 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
               <ItemCardsCollection
                 :items="items"
                 :dense="false"
-                :loading="itemsLoading"
-                :error="itemsError"
+                :loading="itemsIsLoading"
+                :error="itemsError != null"
                 @select="openItem"
               />
             </section>
