@@ -53,6 +53,24 @@ def bob_websocket(
         yield bob_client.websocket_connect("/v1/me/websocket")
 
 
+@pytest.fixture
+def carol_websocket(
+    app_config: Config,
+    carol: UserPrivateRead,
+    carol_user_data: UserData,
+) -> Generator[WebSocketTestSession]:
+    """Websocket with carol's credentials."""
+
+    with create_client(app_config) as client:
+        carol_client = login_as_user(
+            client=client,
+            username=carol_user_data["email"],
+            password=carol_user_data["password"],
+        )
+
+        yield carol_client.websocket_connect("/v1/me/websocket")
+
+
 class WebSocketRecorder(AbstractContextManager):
     """Helper to record one message from websocket."""
 

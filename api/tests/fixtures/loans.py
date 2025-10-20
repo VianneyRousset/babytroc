@@ -19,7 +19,7 @@ def bob_new_loan_request_for_alice_new_item(
     alice_new_item: ItemRead,
     bob: UserPrivateRead,
 ) -> LoanRequestRead:
-    """A new loan request made by Bob for the new alice of Alice.
+    """A new loan request made by Bob for the new item of Alice.
 
     fixture scope: function.
     """
@@ -30,6 +30,48 @@ def bob_new_loan_request_for_alice_new_item(
             db=session,
             item_id=alice_new_item.id,
             borrower_id=bob.id,
+        )
+
+
+@pytest.fixture
+def bob_new_loan_request_for_alice_special_item(
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    alice_special_item: ItemRead,
+    bob: UserPrivateRead,
+) -> LoanRequestRead:
+    """A new loan request made by Bob for the special item of Alice.
+
+    fixture scope: function.
+    """
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.loan.create_loan_request(
+            db=session,
+            item_id=alice_special_item.id,
+            borrower_id=bob.id,
+        )
+
+
+@pytest.fixture
+def carol_new_loan_request_for_alice_new_item(
+    database: sqlalchemy.URL,
+    alice: UserPrivateRead,
+    alice_new_item: ItemRead,
+    carol: UserPrivateRead,
+) -> LoanRequestRead:
+    """A new loan request made by Carol for the new item of Alice.
+
+    fixture scope: function.
+    """
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        return services.loan.create_loan_request(
+            db=session,
+            item_id=alice_new_item.id,
+            borrower_id=carol.id,
         )
 
 
