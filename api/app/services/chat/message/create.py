@@ -30,6 +30,7 @@ def send_message_text(
         message_type=ChatMessageType.text,
         sender_id=sender_id,
         text=text,
+        ensure_chat=False,
     )
 
 
@@ -224,12 +225,19 @@ def send_message(
     text: str | None = None,
     loan_request_id: int | None = None,
     loan_id: int | None = None,
+    ensure_chat: bool = True,
 ) -> ChatMessageRead:
     # ensure chat does exist
-    chat = database.chat.ensure_chat(
-        db=db,
-        chat_id=chat_id,
-    )
+    if ensure_chat:
+        chat = database.chat.ensure_chat(
+            db=db,
+            chat_id=chat_id,
+        )
+    else:
+        chat = database.chat.get_chat(
+            db=db,
+            chat_id=chat_id,
+        )
 
     stmt = (
         insert(ChatMessage)

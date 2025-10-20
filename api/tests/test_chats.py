@@ -670,10 +670,10 @@ class TestChatForbiddenTextMessage:
         # ensure cannot send message
         assert alice_client.post(
             f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
-        ).is_error, "Alice should not be able to post in non-exist chat"
+        ).is_error, "Alice should not be able to post in non-existing chat"
         assert bob_client.post(
             f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
-        ).is_error, "Bob should not be able to post in non-exist chat"
+        ).is_error, "Bob should not be able to post in non-existing chat"
 
     def test_send_message_not_member(
         self,
