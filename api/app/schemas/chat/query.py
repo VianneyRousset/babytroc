@@ -116,7 +116,7 @@ class ChatMessageQueryFilterChat(ReadQueryFilter):
 
     def _filter_read(self, stmt: Select) -> Select:
         return super()._filter_read(
-            (
+            stmt.where(
                 (Chat.item_id == self.chat_id.item_id)
                 & (Chat.borrower_id == self.chat_id.borrower_id)
             )
@@ -205,7 +205,7 @@ class ChatMessageQueryFilterMember(ReadQueryFilter):
 
     def _filter_read(self, stmt: Select) -> Select:
         if self.member_id is None:
-            return stmt
+            return super()._filter_read(stmt)
 
         return super()._filter_read(
             stmt.where(
@@ -222,7 +222,7 @@ class ChatMessageQueryFilterSeen(QueryFilter):
     seen: bool | None = None
 
     def _filter(self, stmt: StatementT) -> StatementT:
-        return (
+        return super()._filter(
             stmt.where(ChatMessage.seen == self.seen) if self.seen is not None else stmt
         )
 

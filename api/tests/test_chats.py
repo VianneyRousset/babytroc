@@ -743,6 +743,7 @@ class TestChatReadSeparation:
         carol_client: TestClient,
         alice_new_item: ItemRead,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
+        carol_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check Carol cannot read the chat between Alice and Bob."""
 
@@ -774,6 +775,11 @@ class TestChatReadSeparation:
         )
         assert carol_client.get(
             f"/v1/me/chats/{chat_id}/messages/{message.id}"
+        ).is_error, "Carol should not be able to read chat message"
+
+        carol_chat_id = carol_new_loan_request_for_alice_new_item.chat_id
+        assert carol_client.get(
+            f"/v1/me/chats/{carol_chat_id}/messages/{message.id}"
         ).is_error, "Carol should not be able to read chat message"
 
     def test_text_message_sent_to_proper_chat(
@@ -822,6 +828,8 @@ class TestChatReadSeparation:
             msg["id"] != message.id
             for msg in bob_client.get(f"/v1/me/chats/{other_chat_id_1}/messages").json()
         ), "message should not be in this chat"
+        assert alice_client.get(f"/v1/me/chats/{other_chat_id_1}/messages/{message.id}")
+        assert bob_client.get(f"/v1/me/chats/{other_chat_id_1}/messages/{message.id}")
 
         # check the message is not in the other chat number 2
         assert all(
@@ -836,3 +844,5 @@ class TestChatReadSeparation:
                 f"/v1/me/chats/{other_chat_id_2}/messages"
             ).json()
         ), "message should not be in this chat"
+        assert alice_client.get(f"/v1/me/chats/{other_chat_id_2}/messages/{message.id}")
+        assert carol_client.get(f"/v1/me/chats/{other_chat_id_2}/messages/{message.id}")
