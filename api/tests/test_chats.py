@@ -646,8 +646,34 @@ class TestChatMessage:
         assert last_chat_message.model_dump() == expected_chat_message.model_dump()
 
 
-class TestChatForbiddenTextMessage:
-    """Tests sending message to an non-existing chat."""
+class TestInvalidChatMessageSend:
+    """Tests send invalid text chat message."""
+
+    def test_invalid_text(
+        self,
+        alice_client: TestClient,
+        bob_new_loan_request_for_alice_new_item: LoanRequestRead,
+    ):
+        """Check empty or too long messages cannot be sent."""
+
+        chat_id = bob_new_loan_request_for_alice_new_item.chat_id
+
+        empty_text = ""
+        white_text = "\t \n \r"
+        too_long_text = "x" * 1001
+
+        assert alice_client.post(
+            f"/v1/me/chats/{chat_id}/messages",
+            json={"text": empty_text},
+        ).is_error, "Empty text message should be invalid"
+        assert alice_client.post(
+            f"/v1/me/chats/{chat_id}/messages",
+            json={"text": white_text},
+        ).is_error, "White text message should be invalid"
+        assert alice_client.post(
+            f"/v1/me/chats/{chat_id}/messages",
+            json={"text": too_long_text},
+        ).is_error, "Too long text message should be invalid"
 
     def test_send_message_non_existing_chat(
         self,
