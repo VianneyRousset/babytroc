@@ -23,10 +23,7 @@ const { send, isLoading: sendIsLoading } = useSendChatMessage(() => ({ id: unref
 
 useInfiniteScroll(
   scroller,
-  () => {
-    console.log('loadMore')
-    loadMore()
-  },
+  loadMore,
   {
     canLoadMore: () => !unref(end),
     direction: 'top',
@@ -40,7 +37,7 @@ useInfiniteScroll(
 )
 
 const { y } = useScroll(scroller)
-const { height } = useElementSize(useTemplateRef<HTMLElement>('messages'))
+const { height } = useElementSize(useTemplateRef<HTMLElement>('messages-list'))
 
 watch(height, (newH, oldH) => {
   y.value = unref(y) + newH - oldH
@@ -76,7 +73,7 @@ async function sendMessage() {
         >
           <ChatMessages
             v-if="me && chat && messages"
-            ref="messages"
+            ref="messages-list"
             class="with-floating-padding"
             :chat="chat"
             :me="me"
