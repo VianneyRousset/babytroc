@@ -33,7 +33,7 @@ export function useUnrequestItemMutation(itemId: MaybeRefOrGetter<number>) {
         item_id: toValue(itemId),
       },
     }),
-    onSuccess: () => $toast.success('Demande d\'emprunt envoyé'),
+    onSuccess: () => $toast.success('Demande d\'emprunt supprimée'),
     onError: () => $toast.error('Échec de la demande d\'emprunt.'),
     onSettled: (data) => {
       queryCache.invalidateQueries({ key: ['item', toValue(itemId)] })

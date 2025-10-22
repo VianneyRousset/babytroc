@@ -54,7 +54,7 @@ const chatsDrawerOpen = ref(false)
             :stroke-width="1.33"
           />
         </FloatingToggle>
-        <ConditionalDrawer
+        <ConditionalDrawerOverlay
           :model-value="chatsDrawerOpen || chatId == null"
           position="left"
           :page="false"
@@ -62,7 +62,7 @@ const chatsDrawerOpen = ref(false)
           @update:model-value="v => chatId != null && (chatsDrawerOpen = (v == true))"
         >
           <ChatsList :active="chatId" />
-        </ConditionalDrawer>
+        </ConditionalDrawerOverlay>
       </main>
     </template>
 
@@ -121,9 +121,11 @@ main.desktop {
     position: absolute;
     top: 1em;
     left: 1em;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
 
-  & > .ConditionalDrawer {
+  & > .ConditionalDrawerOverlay {
     @include flex-column;
     flex: 1;
     max-width: 500px;

@@ -51,33 +51,31 @@ const showPopup = ref(false)
       </TextButton>
     </template>
 
-    <Overlay v-model="showPopup">
-      <Popup v-model="showPopup">
-        <X
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>Êtes-vous sûr de rejeter la demande d'emprunt de <b>{{ chat.borrower.name }}</b> ?</div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="red"
-            :loading="rejectLoanRequestAsyncStatus === 'loading'"
-            @click="rejectLoanRequest({ itemId: chat.item.id, loanRequestId })"
-          >
-            Rejeter
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="showPopup = false"
-          >
-            Ne pas rejeter
-          </TextButton>
-        </template>
-      </Popup>
-    </Overlay>
+    <PopupOverlay v-model="showPopup">
+      <X
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>Êtes-vous sûr de rejeter la demande d'emprunt de <b>{{ chat.borrower.name }}</b> ?</div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="red"
+          :loading="rejectLoanRequestAsyncStatus === 'loading'"
+          @click="rejectLoanRequest({ itemId: chat.item.id, loanRequestId })"
+        >
+          Rejeter
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="showPopup = false"
+        >
+          Ne pas rejeter
+        </TextButton>
+      </template>
+    </PopupOverlay>
   </ChatMessage>
 </template>

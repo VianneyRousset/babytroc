@@ -42,33 +42,31 @@ const showPopup = ref(false)
         Annuler la demande
       </TextButton>
     </template>
-    <Overlay v-model="showPopup">
-      <Popup v-model="showPopup">
-        <X
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>Êtes-vous sûr de supprimer votre demande d'emprunt ?</div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="red"
-            :loading="loading"
-            @click="unrequest"
-          >
-            Supprimer
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="showPopup = false"
-          >
-            Annuler
-          </TextButton>
-        </template>
-      </Popup>
-    </Overlay>
+    <PopupOverlay v-model="showPopup">
+      <X
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>Êtes-vous sûr de supprimer votre demande d'emprunt ?</div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="red"
+          :loading="loading"
+          @click="unrequest"
+        >
+          Supprimer
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="showPopup = false"
+        >
+          Annuler
+        </TextButton>
+      </template>
+    </PopupOverlay>
   </ChatMessage>
 </template>

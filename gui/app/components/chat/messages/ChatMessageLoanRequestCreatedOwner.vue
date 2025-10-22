@@ -79,65 +79,61 @@ async function accept() {
       </TextButton>
     </template>
 
-    <Overlay v-model="showRejectPopup">
-      <Popup v-model="showRejectPopup">
-        <X
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>Êtes-vous sûr de rejeter la demande d'emprunt de <b>{{ chat.borrower.name }}</b> ?</div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="red"
-            :loading="rejectLoanRequestAsyncStatus === 'loading'"
-            @click="reject"
-          >
-            Rejeter
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="showRejectPopup = false"
-          >
-            Annuler
-          </TextButton>
-        </template>
-      </Popup>
-    </Overlay>
+    <PopupOverlay v-model="showRejectPopup">
+      <X
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>Êtes-vous sûr de rejeter la demande d'emprunt de <b>{{ chat.borrower.name }}</b> ?</div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="red"
+          :loading="rejectLoanRequestAsyncStatus === 'loading'"
+          @click="reject"
+        >
+          Rejeter
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="showRejectPopup = false"
+        >
+          Annuler
+        </TextButton>
+      </template>
+    </PopupOverlay>
 
-    <Overlay v-model="showAcceptPopup">
-      <Popup v-model="showAcceptPopup">
-        <Check
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>
-          Êtes-vous sûr d'accepter de prêter l'objet <b>{{ chat.item.name }}</b> ?<br>La prochaine étape sera de
-          rencontrer <b>{{ chat.borrower.name }}</b> pour lui transporter l'objet.
-        </div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="primary"
-            :loading="acceptLoanRequestAsyncStatus === 'loading'"
-            @click="accept"
-          >
-            Accepter
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="showAcceptPopup = false"
-          >
-            Annuler
-          </TextButton>
-        </template>
-      </Popup>
-    </Overlay>
+    <PopupOverlay v-model="showAcceptPopup">
+      <Check
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>
+        Êtes-vous sûr d'accepter de prêter l'objet <b>{{ chat.item.name }}</b> ?<br>La prochaine étape sera de
+        rencontrer <b>{{ chat.borrower.name }}</b> pour lui transporter l'objet.
+      </div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="primary"
+          :loading="acceptLoanRequestAsyncStatus === 'loading'"
+          @click="accept"
+        >
+          Accepter
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="showAcceptPopup = false"
+        >
+          Annuler
+        </TextButton>
+      </template>
+    </PopupOverlay>
   </ChatMessage>
 </template>

@@ -53,36 +53,34 @@ async function execute() {
       </TextButton>
     </template>
 
-    <Overlay v-model="showPopup">
-      <Popup v-model="showPopup">
-        <Import
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>
-          Avez-vous bien reçu l'objet <b>{{ chat.item.name }}</b> ? Une fois confirmé, l'emprunt commencera
-          officiellement.
-        </div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="primary"
-            :loading="executeLoanRequestAsyncStatus === 'loading'"
-            @click="execute"
-          >
-            Objet reçu
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="showPopup = false"
-          >
-            Annuler
-          </TextButton>
-        </template>
-      </Popup>
-    </Overlay>
+    <PopupOverlay v-model="showPopup">
+      <Import
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>
+        Avez-vous bien reçu l'objet <b>{{ chat.item.name }}</b> ? Une fois confirmé, l'emprunt commencera
+        officiellement.
+      </div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="primary"
+          :loading="executeLoanRequestAsyncStatus === 'loading'"
+          @click="execute"
+        >
+          Objet reçu
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="showPopup = false"
+        >
+          Annuler
+        </TextButton>
+      </template>
+    </PopupOverlay>
   </ChatMessage>
 </template>

@@ -13,13 +13,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 </script>
 
 <template>
-  <div
-    v-show="model"
-    class="Overlay"
-    @click.self="() => (model = false)"
+  <transition
+    name="fade"
   >
-    <slot />
-  </div>
+    <div
+      v-show="model"
+      class="Overlay"
+      @click.self="() => (model = false)"
+    >
+      <slot />
+    </div>
+  </transition>
 </template>
 
 <style scoped lang="scss">

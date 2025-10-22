@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const model = defineModel<boolean>()
+const slots = useSlots()
 </script>
 
 <template>
@@ -9,10 +10,13 @@ const model = defineModel<boolean>()
   >
     <div
       v-show="model"
-      class="popup"
+      class="Popup"
     >
       <slot />
-      <div class="actions">
+      <div
+        v-if="slots.actions"
+        class="actions"
+      >
         <slot name="actions" />
       </div>
     </div>
@@ -20,7 +24,7 @@ const model = defineModel<boolean>()
 </template>
 
 <style scoped lang="scss">
-.popup {
+.Popup {
   @include flex-column;
   align-items: center;
   gap: 1.5rem;

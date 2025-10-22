@@ -20,7 +20,7 @@ const { position, drawer, page } = toRefs(props)
     :disabled="!page"
   >
     <div
-      class="ConditionalDrawer"
+      class="ConditionalDrawerOverlay"
       :class="{ page }"
     >
       <Overlay v-model="drawerOpen" />
@@ -37,7 +37,7 @@ const { position, drawer, page } = toRefs(props)
   <!-- panel mode (wide window) -->
   <div
     v-else
-    class="ConditionalDrawer"
+    class="ConditionalDrawerOverlay"
   >
     <slot name="panel-only" />
     <slot />
@@ -45,7 +45,7 @@ const { position, drawer, page } = toRefs(props)
 </template>
 
 <style scoped lang="scss">
-.ConditionalDrawer {
+.ConditionalDrawerOverlay {
   &:not(.page) {
     .Overlay {
       position: absolute;

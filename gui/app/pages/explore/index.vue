@@ -107,7 +107,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
 
     <!-- Filters panel (larger screen only) -->
     <template #left>
-      <ConditionalDrawer
+      <ConditionalDrawerOverlay
         v-model="filtersDrawerOpen"
         position="right"
         :drawer="drawerMode"
@@ -157,7 +157,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
             </IconButton>
           </template>
         </Panel>
-      </ConditionalDrawer>
+      </ConditionalDrawerOverlay>
     </template>
 
     <template #desktop>
