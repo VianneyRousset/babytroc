@@ -26,7 +26,7 @@ export function useStudioImage(
   const top = ref(0)
   const left = ref(0)
 
-  watch(img, (_img) => {
+  const stop = watch(img, (_img) => {
     if (_img == null)
       return
 
@@ -50,6 +50,8 @@ export function useStudioImage(
       left.value = _crop.left
     }
   })
+
+  tryOnUnmounted(stop)
 
   return reactive({
     id: studioImageIndex++,
@@ -108,7 +110,7 @@ export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null |
     return (_width == null || _height == null) ? undefined : _width / _height
   })
 
-  watchEffect(() => {
+  const stop = watchEffect(() => {
     const _video = toValue(video)
     const _stream = unref(stream)
     if (_video && _stream) {
@@ -138,6 +140,8 @@ export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null |
     context.drawImage(_video, 0, 0)
     return canvas.toDataURL('image/png')
   }
+
+  tryOnUnmounted(stop)
 
   return {
     capture,

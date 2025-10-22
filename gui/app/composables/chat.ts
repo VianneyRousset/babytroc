@@ -22,17 +22,17 @@ export function useChats(): {
   error: Ref<Error | null>
   end: Ref<boolean>
   loadMore: () => Promise<void>
-  hasUnseenMessageForMe: Ref<boolean>
+  hot: Ref<boolean>
   addMessage: (msg: ChatMessage) => void
 } {
   const { data: chats, isLoading, error, end, loadMore } = useApiPaginatedQuery('/v1/me/chats', {
     key: ['me', 'chats'],
   })
 
-  const hasUnseenMessageForMe = ref(true)
+  const hot = ref(true)
   const { addMessage } = useLiveChatStore()
 
-  return { chats, isLoading, error, end, loadMore, hasUnseenMessageForMe, addMessage }
+  return { chats, isLoading, error, end, loadMore, hot, addMessage }
 }
 
 /**
@@ -74,8 +74,8 @@ export function useChatSeen<
   chat: MaybeRefOrGetter<ChatT>,
   me: MaybeRefOrGetter<UserT>,
 ): {
-  hasUnseenMessageForMe: Ref<boolean>
+  hot: Ref<boolean>
 } {
-  const hasUnseenMessageForMe = computed(() => toValue(chat).id !== '')
-  return { hasUnseenMessageForMe }
+  const hot = computed(() => toValue(chat).id !== '')
+  return { hot }
 }

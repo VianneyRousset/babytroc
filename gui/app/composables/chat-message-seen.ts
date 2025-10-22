@@ -4,7 +4,7 @@
  * If `monitor` is given, the visibility of the component `monitor` is checked. When the latter is
  * visible for more than `timeout` ms, the function `markAsSeen()` is automatically called.
  *
- * @return `isUnseenForMe`, true if the message is addressed to me and not seen.
+ * @return `hot`, true if the message is addressed to me and not seen.
  *
  * @return `markAsSeen()`, mark message as seen. The latter function safe to call even if the message
  *                         is already seen and whatever is the origin.
@@ -20,16 +20,15 @@ export function useChatMessageSeen<
     timeout?: MaybeRefOrGetter<number>
   },
 ): {
-  isUnseenForMe: MaybeRefOrGetter<boolean>
+  hot: MaybeRefOrGetter<boolean>
   markAsSeen: () => Promise<void>
 } {
   // if the element `monitor` is visible for `timeout` ms, call `markAsSeen`
-  // const visible = useThrottle(useElementVisibility(() => toValue(options.monitor)), () =>  toValue(options.timeout) ?? 2000)
-  const visible: Ref<boolean> = useElementVisibility(() => toValue(options.monitor))
-  watch(visible, state => state === true && markAsSeen(), { immediate: true })
+  const { value: visible } = useThrottle(useElementVisibility(() => toValue(options.monitor)), () => toValue(options.timeout) ?? 2000)
+  const stop = watch(visible, state => state === true && markAsSeen(), { immediate: true })
 
   // is unseen for me
-  const isUnseenForMe = computed(() => {
+  const hot = computed(() => {
     const _msg = toValue(message)
     const _me = toValue(me)
     return _msg.sender_id != _me.id && !_msg.seen
@@ -48,8 +47,10 @@ export function useChatMessageSeen<
     await mutateAsync()
   }
 
+  tryOnUnmounted(stop)
+
   return {
-    isUnseenForMe,
+    hot,
     markAsSeen,
   }
 }

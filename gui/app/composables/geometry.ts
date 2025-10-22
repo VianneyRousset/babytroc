@@ -8,7 +8,7 @@ export function useObjectFit(
   const width = ref<number | undefined>(0)
   const height = ref<number | undefined>(0)
 
-  watchEffect(() => {
+  const stop = watchEffect(() => {
     const _containerWidth = unref(containerWidth)
     const _containerHeight = unref(containerHeight)
     const _aspectRatio = toValue(aspectRatio)
@@ -39,6 +39,8 @@ export function useObjectFit(
         break
     }
   })
+
+  tryOnUnmounted(stop)
 
   return { width, height }
 }

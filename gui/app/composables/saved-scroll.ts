@@ -19,10 +19,12 @@ export function useSavedScroll(
   watch(y, _y => (savedY.value = _y))
 
   // restore scroll position of element update
-  watch(_element, () => {
+  const stop = watch(_element, () => {
     x.value = unref(savedX)
     y.value = unref(savedY)
   }, { immediate: true })
+
+  tryOnUnmounted(stop)
 
   return { x: savedX, y: savedY }
 }

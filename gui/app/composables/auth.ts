@@ -72,11 +72,13 @@ export function useAuth(options?: UseAuthOptions) {
   const loggedIn = computed(() => unref(meStatus) === 'pending' ? undefined : unref(me) != null)
 
   // if fallbackRoute is given, navigate to it when logged out
-  watchEffect(() => {
+  const stop = watchEffect(() => {
     const _route = toValue(options.fallbackRoute)
     if (_route != null && unref(loggedIn) == false)
       navigateTo(_route)
   })
+
+  tryOnUnmounted(stop)
 
   return {
     loginRoute,

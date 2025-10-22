@@ -7,7 +7,7 @@ export function useThrottle<T>(
 
   let timeout = null as null | ReturnType<typeof setTimeout>
 
-  watch(value, (v) => {
+  const stop = watch(value, (v) => {
     synced.value = false
 
     if (timeout) clearTimeout(timeout)
@@ -20,6 +20,8 @@ export function useThrottle<T>(
       toValue(time),
     )
   })
+
+  tryOnUnmounted(stop)
 
   return {
     synced,

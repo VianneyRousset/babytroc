@@ -19,10 +19,12 @@ export function useItemExploreQueryParams(): { queryParams: Ref<ItemQueryParams>
   })
 
   // ensure store and route query params are always synced
-  watchEffect(() => {
+  const stop = watchEffect(() => {
     if (!isEqual(unref(storeQueryParams), unref(routeQueryParams)))
       queryParams.value = unref(storeQueryParams) ?? unref(routeQueryParams)
   })
+
+  tryOnUnmounted(stop)
 
   return { queryParams }
 }
