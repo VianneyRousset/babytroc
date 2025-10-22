@@ -25,11 +25,14 @@ const props = withDefaults(
 
     // max width
     maxWidth?: number
+
+    withHeader?: boolean
   }>(),
   {
     hideBarOnScroll: false,
     infiniteScroll: false,
     maxWidth: 1400,
+    withHeader: false,
   },
 )
 
@@ -66,7 +69,7 @@ useInfiniteScroll(
     ref="page"
     v-saved-scroll:[savedScroll]
     class="AppPage"
-    :class="{ mobile: device.isMobile }"
+    :class="{ 'mobile': device.isMobile, 'with-header': withHeader }"
   >
     <!-- Header bar (mobile only) -->
     <AppHeaderMobileBar
@@ -140,19 +143,25 @@ useInfiniteScroll(
   &:not(.mobile) {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    grid-template-areas:
-      ".    header ."
-      "left main   right";
+    grid-template-areas: "left main   right";
 
     width: 100%;
     max-width: v-bind("`${maxWidth}px`");
 
+    &.with-header {
+      grid-template-areas:
+        ".    header ."
+        "left main   right";
+    }
+
     :deep(main) {
       grid-area: main;
+      flex: 1;
     }
 
     :deep(header) {
-      grid-area: header
+      grid-area: header;
+      flex: 0;
     }
 
     aside {

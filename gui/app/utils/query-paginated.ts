@@ -60,10 +60,10 @@ export function useApiPaginatedQuery<
     initialPage: Array<ApiPage<TData, TQueryParams>>(),
 
     // @ts-expect-error avoid typing error
-    query: () => $api(url, {
+    query: pages => $api(url, {
       query: {
         ...unref(queryParams),
-        ...cursor,
+        ...(pages.length > 0 ? pages[pages.length - 1]?.cursor : undefined),
       },
       header: toValue(options.header),
       path: toValue(options.path),

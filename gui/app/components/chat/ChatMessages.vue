@@ -3,12 +3,12 @@ import VSwitch from '@lmiller1990/v-switch'
 import { ChatMessageType } from '#build/types/open-fetch/schemas/api'
 
 const props = defineProps<{
-  me: User
-  chat: Chat
   messages: Array<ChatMessage>
+  chat: Chat
+  me: UserPrivate
 }>()
 
-const { me, chat, messages } = toRefs(props)
+const { messages, chat, me } = toRefs(props)
 
 // group messages
 const { dateGroups } = useChatMessageDateGroups(messages, me)
@@ -17,7 +17,7 @@ const { isUserBorrowing } = useChatRoles(chat, me)
 </script>
 
 <template>
-  <List class="ChatMessagesList">
+  <List class="ChatMessages">
     <div
       v-for="dateGroup in dateGroups"
       :key="dateGroup.date"
@@ -165,7 +165,7 @@ const { isUserBorrowing } = useChatRoles(chat, me)
 </template>
 
 <style scoped lang="scss">
-.ChatMessagesList {
+.ChatMessages {
 
   display: flex;
   flex-direction: column-reverse;

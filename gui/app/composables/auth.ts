@@ -6,13 +6,23 @@ import type {
   UseInfiniteQueryReturn,
 } from '@pinia/colada'
 import { useInfiniteQuery, useQuery } from '@pinia/colada'
+import type { RouteLocationGeneric } from 'vue-router'
 import { StatusCodes } from 'http-status-codes'
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
-export function useAuth() {
+type UseAuthOptions = {
+  fallbackRoute?: MaybeRefOrGetter<string | RouteLocationGeneric>
+}
+
+export function useAuth(options?: UseAuthOptions) {
   const { $api } = useNuxtApp()
   const route = useRoute()
   const router = useRouter()
+
+  // default options
+  options = options ?? {
+    fallbackRoute: undefined,
+  }
 
   const { data: me, status: meStatus } = useQuery({
     key: () => ['auth'],
@@ -59,6 +69,15 @@ export function useAuth() {
     }),
   )
 
+  const loggedIn = computed(() => unref(meStatus) === 'pending' ? undefined : unref(me) != null)
+
+  // if fallbackRoute is given, navigate to it when logged out
+  watchEffect(() => {
+    const _route = toValue(options.fallbackRoute)
+    if (_route != null && unref(loggedIn) == false)
+      navigateTo(_route)
+  })
+
   return {
     loginRoute,
     username,
@@ -69,10 +88,7 @@ export function useAuth() {
     logout,
     logoutStatus,
     logoutAsyncStatus,
-    loggedIn: computed(() => {
-      if (unref(meStatus) === 'pending') return undefined
-      return unref(me) != null
-    }),
+    loggedIn,
     loggedInStatus: meStatus,
   }
 }

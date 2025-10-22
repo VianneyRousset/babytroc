@@ -28,6 +28,9 @@ provide('app-footer-bar-height', appFooterBarHeight)
   --app-footer-bar-height: v-bind('appFooterBarHeight + "px"');
   @include flex-column;
 
+  height: 100vh;
+  box-sizing: border-box;
+
   .AppNavigationDesktop {
     align-self: stretch;
   }

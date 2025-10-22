@@ -3,7 +3,7 @@ import { Upload } from 'lucide-vue-next'
 
 const props = defineProps<{
   message: ChatMessage
-  me: User
+  me: UserPrivate
   chat: Chat
 }>()
 

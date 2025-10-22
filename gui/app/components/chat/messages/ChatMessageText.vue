@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  me: User
+  me: UserPrivate
   message: ChatMessage
 }>()
 

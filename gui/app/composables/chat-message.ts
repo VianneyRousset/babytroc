@@ -10,18 +10,55 @@ export function useChatMessages<
   chat: MaybeRefOrGetter<ChatT>,
 ): {
   messages: Ref<Array<ChatMessage>>
-  loading: Ref<boolean>
-  error: Ref<boolean>
+  isLoading: Ref<boolean>
+  error: Ref<Error | null>
   end: Ref<boolean>
   loadMore: () => void
 } {
-  const messages = ref(Array<ChatMessage>())
-  const loading = ref(false)
-  const error = ref(false)
-  const end = ref(true)
-  function loadMore() {}
+  const liveMessages: Ref<Array<ChatMessage>> = useLiveChatStore().getChatMessages(() => toValue(chat).id)
 
-  return { messages, loading, error, end, loadMore }
+  const { data: queriedMessages, isLoading, error, end, loadMore } = useApiPaginatedQuery(
+    '/v1/me/chats/{chat_id}/messages', {
+      key: () => ['me', 'chat', toValue(chat).id, 'messages'],
+      path: () => ({ chat_id: toValue(chat).id }),
+    })
+
+  const messages = computed<Array<ChatMessage>>(() => [...(new Map([
+    ...unref(queriedMessages),
+    ...unref(liveMessages),
+  ].map(msg => [msg.id, msg]))).values()])
+
+  return { messages, isLoading, error, end, loadMore }
+}
+
+export function useSendChatMessage<
+  ChatT extends { id: string },
+>(
+  chat: MaybeRefOrGetter<ChatT>,
+) {
+  const { $api } = useNuxtApp()
+
+  const { mutateAsync: send, ...mutation } = useMutation({
+    mutation: (text: string) =>
+      $api('/v1/me/chats/{chat_id}/messages', {
+        method: 'POST',
+        path: {
+          chat_id: toValue(chat).id,
+        },
+        body: {
+          text: text,
+        },
+      }),
+    onSettled: () => {
+      // queryCache.invalidateQueries({
+      //   key: ['me', 'borrowings', 'requests'],
+      // })
+      // queryCache.invalidateQueries({ key: ['chats'] })
+      // queryCache.invalidateQueries({ key: ['chats', chatId, 'messages'] })
+    },
+  })
+
+  return { send, ...mutation }
 }
 
 /**

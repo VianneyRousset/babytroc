@@ -24,6 +24,7 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 
 <template>
   <AppPage
+    with-header
     :max-width="1000"
     infinite-scroll
     :infinite-scroll-distance="1800"

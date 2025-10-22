@@ -4,7 +4,7 @@ import { LoanRequestState } from '#build/types/open-fetch/schemas/api'
 
 const props = defineProps<{
   message: ChatMessage
-  me: User
+  me: UserPrivate
   chat: Chat
   loanRequestId: number
 }>()

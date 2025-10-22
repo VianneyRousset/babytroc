@@ -1,28 +1,38 @@
+export function useChat(chatId: MaybeRefOrGetter<string | undefined>) {
+  const { data: chat, ...query } = useApiQuery('/v1/me/chats/{chat_id}', {
+    key: () => ['me', 'chat', toValue(chatId) ?? ''],
+    path: () => ({
+      chat_id: toValue(chatId) ?? '',
+    }),
+    enabled: () => toValue(chatId) != null,
+  })
+
+  const { addMessage } = useLiveChatStore()
+
+  return { addMessage, chat, ...query }
+}
+
 /**
  * List of chats of the client.
  * TODO implement
  **/
 export function useChats(): {
   chats: Ref<Array<Chat>>
-  loading: Ref<boolean>
-  error: Ref<boolean>
+  isLoading: Ref<boolean>
+  error: Ref<Error | null>
   end: Ref<boolean>
-  loadMore: () => void
+  loadMore: () => Promise<void>
   hasUnseenMessageForMe: Ref<boolean>
   addMessage: (msg: ChatMessage) => void
 } {
-  const chats = ref(Array<Chat>())
+  const { data: chats, isLoading, error, end, loadMore } = useApiPaginatedQuery('/v1/me/chats', {
+    key: ['me', 'chats'],
+  })
+
   const hasUnseenMessageForMe = ref(true)
-  function addMessage(msg: ChatMessage) {
-    console.log('addMessage', msg)
-  }
+  const { addMessage } = useLiveChatStore()
 
-  const loading = ref(false)
-  const error = ref(false)
-  const end = ref(true)
-  function loadMore() {}
-
-  return { chats, loading, error, end, loadMore, hasUnseenMessageForMe, addMessage }
+  return { chats, isLoading, error, end, loadMore, hasUnseenMessageForMe, addMessage }
 }
 
 /**

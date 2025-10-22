@@ -1,8 +1,53 @@
 import { defineStore } from 'pinia'
 
+export const useLiveChatStore = defineStore('live-chat', () => {
+  // all the stored messages
+  const messages = ref(new Map<number, ChatMessage>())
+
+  // all the stored chats
+  const chatIds = computed<Set<string>>(() => new Set([...unref(messages).values()].map(msg => msg.chat_id)))
+
+  const { $api } = useNuxtApp()
+
+  const savedChats = ref(new Map<string, Chat>())
+
+  async function ensureChat(chatId: string) {
+    if (unref(savedChats).get(chatId)) return
+
+    unref(savedChats).set(chatId, await $api('/v1/me/chats/{chat_id}', {
+      path: {
+        chat_id: chatId,
+      },
+    }))
+  }
+
+  const chats = computed<Array<Chat>>(() => {
+    unref(chatIds).forEach(chatId => ensureChat(chatId))
+    return [...unref(savedChats).values()]
+  })
+
+  // add the given message to the collection of messages
+  function addMessage(message: ChatMessage) {
+    unref(messages).set(message.id, message)
+  }
+
+  // get all stored messages from the given chat ID
+  function getChatMessages(chatId: MaybeRefOrGetter<string>): Ref<Array<ChatMessage>> {
+    return computed(() => [...unref(messages).values()].filter(msg => msg.chat_id == toValue(chatId)))
+  }
+
+  return {
+    messages,
+    chats,
+    chatIds,
+    addMessage,
+    getChatMessages,
+  }
+})
+
+/*
 export const useExtraChatsStore = defineStore('extra-chats', () => {
   const { $api } = useNuxtApp()
-  const chats = reactive(new Map<string, Chat>())
 
   async function ensureChat(chatId: string): Promise<Chat> {
     const chat = chats.get(chatId)
@@ -58,3 +103,4 @@ export const useChatExtraMessagesStore = (chatId: string) => {
   })
   return definition()
 }
+*/

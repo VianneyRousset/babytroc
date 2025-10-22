@@ -1,5 +1,9 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <div>
-    Liked
-  </div>
+  <h1>Favorits</h1>
 </template>
+
+<style scoped lang="scss">
+</style>

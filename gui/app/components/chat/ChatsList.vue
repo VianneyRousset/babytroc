@@ -1,6 +1,14 @@
 <script setup lang="ts">
+const props = defineProps<{
+  active?: string
+}>()
+
+const { active } = toRefs(props)
+
 const { me } = useMe()
-const { chats } = useChats()
+const { chats, loadMore } = useChats()
+
+loadMore()
 </script>
 
 <template>
@@ -19,6 +27,7 @@ const { chats } = useChats()
         :key="`${chat.id}`"
         :chat="chat"
         :me="me"
+        :class="{ active: active != null && active == chat.id, inactive: active != null && active != chat.id }"
       />
       <!-- TODO add empty -->
     </NuxtLink>
@@ -29,4 +38,7 @@ const { chats } = useChats()
 </template>
 
 <style scoped lang="scss">
+.active {
+  background: $primary-50;
+}
 </style>

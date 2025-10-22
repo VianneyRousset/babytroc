@@ -17,7 +17,10 @@ const device = useDevice()
 </script>
 
 <template>
-  <AppPage :max-width="1000">
+  <AppPage
+    with-header
+    :max-width="1000"
+  >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
       <AppBack />

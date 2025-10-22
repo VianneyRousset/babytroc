@@ -35,8 +35,6 @@ const { small } = toRefs(props)
 <style lang="scss" scoped>
 .spinner-big {
   @include flex-row-center;
-  width: 48px;
-  height: 48px;
 
   &>div {
     border: 4px solid rgba(0, 0, 0, .1);

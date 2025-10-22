@@ -2,7 +2,7 @@
 import { Check, CheckCheck } from 'lucide-vue-next'
 
 const props = defineProps<{
-  me: User
+  me: UserPrivate
   message: ChatMessage
 }>()
 
@@ -26,43 +26,37 @@ const { formattedHour } = useChatMessageTime(message)
     :origin="origin"
     :new="isUnseenForMe"
   >
-    <transition
-      :name="isUnseenForMe ? 'pop' : undefined"
-      mode="in-out"
-      appear
-    >
-      <div class="bubble">
-        <div class="text">
-          <slot />
-        </div>
-        <div
-          v-if="slots.buttons"
-          class="buttons"
-        >
-          <slot name="buttons" />
-        </div>
-        <div class="hour-and-check">
-          <div class="hour">
-            {{ formattedHour }}
-          </div>
-          <transition
-            name="pop"
-            mode="in-out"
-          >
-            <CheckCheck
-              v-if="message.seen"
-              :size="16"
-              :stroke-width="1.33"
-            />
-            <Check
-              v-else
-              :size="16"
-              :stroke-width="1.33"
-            />
-          </transition>
-        </div>
+    <div class="bubble">
+      <div class="text">
+        <slot />
       </div>
-    </transition>
+      <div
+        v-if="slots.buttons"
+        class="buttons"
+      >
+        <slot name="buttons" />
+      </div>
+      <div class="hour-and-check">
+        <div class="hour">
+          {{ formattedHour }}
+        </div>
+        <transition
+          name="pop"
+          mode="in-out"
+        >
+          <CheckCheck
+            v-if="message.seen"
+            :size="16"
+            :stroke-width="1.33"
+          />
+          <Check
+            v-else
+            :size="16"
+            :stroke-width="1.33"
+          />
+        </transition>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -93,6 +87,7 @@ const { formattedHour } = useChatMessageTime(message)
     :deep(.text) {
       @include flex-row;
       gap: 0.7rem;
+      white-space: preserve wrap;
 
       svg {
         flex-shrink: 0;

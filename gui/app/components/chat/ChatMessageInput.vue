@@ -26,6 +26,10 @@ const input = computed({
   },
 })
 
+watch(input, (v) => {
+  input.value = v?.substring(0, 1000)
+})
+
 function blur() {
   if (textarea.value) textarea.value.blur()
 }
@@ -58,6 +62,7 @@ const disabled = computed(
       ref="textarea"
       v-model="input"
       placeholder="Répondre"
+      :disabled="loading"
       tabindex="1"
       @keydown.enter="enterDown"
       @keyup.enter="enterUp"
@@ -68,15 +73,20 @@ const disabled = computed(
       :disabled="disabled"
       @click="submit"
     >
-      <LoadingAnimation
-        v-if="loading"
-        :small="true"
-      />
-      <Send
-        v-else
-        :size="20"
-        :stroke-width="1.5"
-      />
+      <transition
+        name="pop"
+        mode="out-in"
+      >
+        <LoadingAnimation
+          v-if="loading"
+          :small="true"
+        />
+        <Send
+          v-else
+          :size="20"
+          :stroke-width="1.5"
+        />
+      </transition>
     </IconButton>
   </div>
 </template>
@@ -86,8 +96,6 @@ const disabled = computed(
 
   @include flex-row;
   position: relative;
-
-  padding: 1rem;
 
   textarea {
 

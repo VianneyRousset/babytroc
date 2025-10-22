@@ -64,6 +64,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
     saved-scroll="page-explore"
     hide-bar-on-scroll
     infinite-scroll
+    with-header
     :infinite-scroll-distance="1800"
     @more="loadMore"
   >
@@ -106,49 +107,57 @@ watch(filtersDrawerOpen, (newState, oldState) => {
 
     <!-- Filters panel (larger screen only) -->
     <template #left>
-      <PanelOrDrawer
+      <ConditionalDrawer
         v-model="filtersDrawerOpen"
         position="right"
-        :mode="drawerMode ? 'drawer' : 'panel'"
+        :drawer="drawerMode"
       >
-        <ItemExploreFilters
-          v-model="filters"
-          :size="device.isMobile ? 'large' : 'normal'"
-        />
-        <template #header-panel>
-          <h1>Filtres</h1>
-          <IconButton
-            :disabled="isFiltersDefault"
-            @click="resetFilters"
+        <Panel>
+          <ItemExploreFilters
+            v-model="filters"
+            :size="device.isMobile ? 'large' : 'normal'"
+          />
+          <template
+            v-if="drawerMode"
+            #header
           >
-            <Repeat
-              :size="24"
-              :stroke-width="2"
-            />
-          </IconButton>
-        </template>
-        <template #header-drawer>
-          <IconButton
-            class="Toggle"
-            @click="() => { filtersDrawerOpen = false }"
+            <IconButton
+              class="Toggle"
+              @click="() => { filtersDrawerOpen = false }"
+            >
+              <ArrowLeft
+                :size="32"
+                :stroke-width="2"
+              />
+            </IconButton>
+            <h1>Filtres</h1>
+            <IconButton
+              :disabled="isFiltersDefault"
+              @click="resetFilters"
+            >
+              <Repeat
+                :size="24"
+                :stroke-width="2"
+              />
+            </IconButton>
+          </template>
+          <template
+            v-else
+            #header
           >
-            <ArrowLeft
-              :size="32"
-              :stroke-width="2"
-            />
-          </IconButton>
-          <h1>Filtres</h1>
-          <IconButton
-            :disabled="isFiltersDefault"
-            @click="resetFilters"
-          >
-            <Repeat
-              :size="24"
-              :stroke-width="2"
-            />
-          </IconButton>
-        </template>
-      </PanelOrDrawer>
+            <h1>Filtres</h1>
+            <IconButton
+              :disabled="isFiltersDefault"
+              @click="resetFilters"
+            >
+              <Repeat
+                :size="24"
+                :stroke-width="2"
+              />
+            </IconButton>
+          </template>
+        </Panel>
+      </ConditionalDrawer>
     </template>
 
     <template #desktop>
