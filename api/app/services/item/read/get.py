@@ -1,14 +1,14 @@
-from sqlalchemy import and_, or_, select, func
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item, ItemLike, ItemSave
-from app.models.loan import LoanRequest, Loan
+from app.models.loan import Loan, LoanRequest
 from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRequestRead, LoanRead
+from app.schemas.loan.read import LoanRead, LoanRequestRead
 
 
 def get_item(

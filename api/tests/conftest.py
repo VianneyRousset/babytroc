@@ -7,4 +7,5 @@ pytest_plugins = [
     "tests.fixtures.items",
     "tests.fixtures.loans",
     "tests.fixtures.websockets",
+    "tests.fixtures.chat",
 ]
