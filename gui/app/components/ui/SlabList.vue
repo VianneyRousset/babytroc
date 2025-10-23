@@ -12,8 +12,8 @@
   @include flex-column;
   align-items: stretch;
 
-  &>:deep(a:not(:last-child) > .Slab),
-  &>:deep(.Slab:not(:last-child)) {
+  &>:deep(a > .Slab),
+  &>:deep(.Slab) {
     border-bottom: 1px solid $neutral-200;
   }
 

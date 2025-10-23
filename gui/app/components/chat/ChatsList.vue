@@ -6,14 +6,24 @@ const props = defineProps<{
 const { active } = toRefs(props)
 
 const { me } = useMe()
-const { chats, loadMore } = useChats()
+const { chats, isLoading, loadMore, end } = useChats()
 
-loadMore()
+const scroller = useTemplateRef<HTMLElement>('scroller')
+
+useInfiniteScroll(
+  scroller,
+  loadMore,
+  {
+    canLoadMore: () => !unref(end),
+    distance: 300,
+  },
+)
 </script>
 
 <template>
   <SlabList
     v-if="me && chats"
+    ref="scroller"
     class="ChatsList"
   >
     <NuxtLink
@@ -29,16 +39,25 @@ loadMore()
         :me="me"
         :class="{ active: active != null && active == chat.id, inactive: active != null && active != chat.id }"
       />
-      <!-- TODO add empty -->
     </NuxtLink>
     <ListEmpty v-if="chats.length === 0">
       Vous n'avez pas encore de message.
     </ListEmpty>
+    <LoadingAnimation v-if="isLoading" />
   </SlabList>
 </template>
 
 <style scoped lang="scss">
-.active {
-  background: $primary-50;
+.SlabList {
+
+  overflow-y: scroll;
+
+  .active {
+    background: $primary-50;
+  }
+
+  .LoadingAnimation {
+    padding: 2em 0;
+  }
 }
 </style>

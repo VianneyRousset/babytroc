@@ -25,11 +25,10 @@ useInfiniteScroll(
   {
     canLoadMore: () => !unref(end),
     direction: 'top',
-    distance: 300,
-    interval: 1000,
+    distance: 500,
     offset: {
       // distance does not work if flex-direction: column-reverse is used
-      bottom: 300,
+      bottom: 500,
     },
   },
 )

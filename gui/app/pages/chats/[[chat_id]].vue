@@ -129,7 +129,6 @@ main.desktop {
     @include flex-column;
     flex: 1;
     max-width: 500px;
-    overflow-y: scroll;
     border-right: 1px solid $neutral-200;
     & > * {
       width: 100%;
