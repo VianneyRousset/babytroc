@@ -1,20 +1,8 @@
-export function useRegionsList(): {
-  regions: Ref<Array<Region> | undefined>
-  error: Ref<boolean>
-  loading: Ref<boolean>
-} {
-  const {
-    data: regions,
-    asyncStatus,
-    status,
-  } = useRegionsListQuery()
+export function useRegionsList() {
+  const { data: regions, ...query } = useApiQuery('/v1/utils/regions', {
+    key: ['regions'],
+    refetchOnMount: false,
+  })
 
-  const error = computed<boolean>(() => unref(status) === 'error')
-  const loading = computed<boolean>(() => unref(asyncStatus) === 'loading')
-
-  return {
-    regions,
-    error,
-    loading,
-  }
+  return { regions, ...query }
 }

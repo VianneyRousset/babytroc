@@ -21,10 +21,7 @@ function onChange(regionId: number, state: boolean) {
   }
 }
 
-const { data: regions, status } = useApi('/v1/utils/regions', {
-  key: '/utils/regions', // provided to avoid missmatch with ssr (bug with openfetch?)
-  watch: false,
-})
+const { regions, status } = useRegionsList()
 </script>
 
 <template>

@@ -33,10 +33,15 @@ export function useItemExploreQueryParams(): { queryParams: Ref<ItemQueryParams>
  * List of all items for item explore
  **/
 export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryParams> }) {
-  const { queryParams: params, data: items, ...query } = useItemExploreQuery()
+  const { data: items, ...query } = useApiPaginatedQuery(
+    '/v1/items',
+    {
+      key: ['item', 'explore'],
+      query: queryParams,
+    },
+  )
 
-  const stop = watch(queryParams, v => (params.value = v))
-  tryOnUnmounted(stop)
+  watch(queryParams, qp => console.log(qp))
 
   return { items, ...query }
 }
