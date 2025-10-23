@@ -7,6 +7,7 @@ export function useUser({ userId }: { userId: MaybeRefOrGetter<number> }) {
     path: () => ({
       user_id: toValue(userId),
     }),
+    refetchOnMount: false,
   })
 
   return { user, ...query }

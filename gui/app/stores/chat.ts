@@ -7,7 +7,23 @@ export const useLiveChatStore = defineStore('live-chat', () => {
   // all the stored chats
   const chatIds = computed<Set<string>>(() => new Set([...unref(messages).values()].map(msg => msg.chat_id)))
 
-  const { $api } = useNuxtApp()
+  // add the given message to the collection of messages
+  function addMessage(message: ChatMessage) {
+    unref(messages).set(message.id, message)
+  }
+
+  // get all stored messages from the given chat ID
+  function getChatMessages(chatId: MaybeRefOrGetter<string>): Ref<Array<ChatMessage>> {
+    return computed(() => _getChatMessages(toValue(chatId)))
+  }
+  function _getChatMessages(chatId: string): Array<ChatMessage> {
+    return [...unref(messages).values()].filter(msg => msg.chat_id == chatId)
+  }
+
+  // get last message in chat
+  function _getChatLastMessage(chatId: string): ChatMessage | undefined {
+    return _getChatMessages(chatId).sort((a, b) => b.id - a.id)[0]
+  }
 
   const savedChats = ref(new Map<string, Chat>())
 
@@ -23,84 +39,29 @@ export const useLiveChatStore = defineStore('live-chat', () => {
 
   const chats = computed<Array<Chat>>(() => {
     unref(chatIds).forEach(chatId => ensureChat(chatId))
-    return [...unref(savedChats).values()]
+    return [...unref(savedChats).values()].map(chat => ({
+      ...chat,
+      last_message_id: _getChatLastMessage(chat.id)?.id ?? 0,
+    }))
   })
 
-  // add the given message to the collection of messages
-  function addMessage(message: ChatMessage) {
-    unref(messages).set(message.id, message)
+  const { $api } = useNuxtApp()
+
+  async function prefetchMessages() {
+    const chats = await $api('/v1/me/chats')
+
+    await Promise.all(chats.map(chat => $api('/v1/me/chats/{chat_id}/messages', {
+      path: { chat_id: chat.id },
+    }).then(messages => messages.map(addMessage))))
   }
 
-  // get all stored messages from the given chat ID
-  function getChatMessages(chatId: MaybeRefOrGetter<string>): Ref<Array<ChatMessage>> {
-    return computed(() => [...unref(messages).values()].filter(msg => msg.chat_id == toValue(chatId)))
-  }
+  prefetchMessages()
 
   return {
-    messages,
+    messages: computed(() => [...unref(messages).values()]),
     chats,
     chatIds,
     addMessage,
     getChatMessages,
   }
 })
-
-/*
-export const useExtraChatsStore = defineStore('extra-chats', () => {
-  const { $api } = useNuxtApp()
-
-  async function ensureChat(chatId: string): Promise<Chat> {
-    const chat = chats.get(chatId)
-
-    // chat alredy exists, return it
-    if (chat !== undefined) return chat
-
-    // chat doesn't exist, load it
-    const newChat: Chat = await $api('/v1/me/chats/{chat_id}', {
-      path: {
-        chat_id: chatId,
-      },
-    })
-    chats.set(newChat.id, newChat)
-    return newChat
-  }
-
-  async function setMessage(msg: ChatMessage) {
-    // update chat last message id if chat is already loaded
-    const chat = await ensureChat(msg.chat_id)
-    chat.last_message_id = Math.max(chat.last_message_id, msg.id)
-
-    // add message to chat extra messages
-    const extraMessagesStore = useChatExtraMessagesStore(msg.chat_id)
-    extraMessagesStore.setMessage(msg)
-  }
-
-  return {
-    ensureChat,
-    setMessage,
-    chats,
-  }
-})
-
-export const useChatExtraMessagesStore = (chatId: string) => {
-  const storeId = `chat-${chatId}-extra-messages`
-  const definition = defineStore(storeId, () => {
-    const messages = reactive(new Map<number, ChatMessage>())
-
-    function setMessage(msg: ChatMessage) {
-      if (msg.chat_id !== chatId)
-        throw new Error(
-          `Cannot add message with chatId ${msg.chat_id} in store ${storeId}.`,
-        )
-
-      messages.set(msg.id, msg)
-    }
-
-    return {
-      setMessage,
-      messages,
-    }
-  })
-  return definition()
-}
-*/

@@ -13,7 +13,7 @@ export function useChatMessages<
   isLoading: Ref<boolean>
   error: Ref<Error | null>
   end: Ref<boolean>
-  loadMore: () => void
+  loadMore: () => Promise<void>
 } {
   const liveMessages: Ref<Array<ChatMessage>> = useLiveChatStore().getChatMessages(() => toValue(chat).id)
 
@@ -21,8 +21,11 @@ export function useChatMessages<
     '/v1/me/chats/{chat_id}/messages', {
       key: () => ['me', 'chat', toValue(chat).id, 'messages'],
       path: () => ({ chat_id: toValue(chat).id }),
+      preloadFirstPage: true,
+      refetchOnMount: false,
     })
 
+  // combine queried messages and live messages
   const messages = computed<Array<ChatMessage>>(() => [...(new Map([
     ...unref(queriedMessages),
     ...unref(liveMessages),
@@ -37,6 +40,7 @@ export function useSendChatMessage<
   chat: MaybeRefOrGetter<ChatT>,
 ) {
   const { $api } = useNuxtApp()
+  const queryCache = useQueryCache()
 
   const { mutateAsync: send, ...mutation } = useMutation({
     mutation: (text: string) =>
@@ -50,11 +54,7 @@ export function useSendChatMessage<
         },
       }),
     onSettled: () => {
-      // queryCache.invalidateQueries({
-      //   key: ['me', 'borrowings', 'requests'],
-      // })
-      // queryCache.invalidateQueries({ key: ['chats'] })
-      // queryCache.invalidateQueries({ key: ['chats', chatId, 'messages'] })
+      queryCache.invalidateQueries({ key: ['chats', toValue(chat).id, 'messages'] })
     },
   })
 

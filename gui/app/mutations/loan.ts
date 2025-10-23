@@ -79,8 +79,8 @@ export const useEndLoanMutation = defineMutation(() => {
           loan_id: loanId,
         },
       }),
-    onSuccess: () => $toast.success('Emprunt commencé.'),
-    onError: () => $toast.error('Échec de l\'emprunt.'),
+    onSuccess: () => $toast.success('Fin de l\'emprunt'),
+    onError: () => $toast.error('Une erreur s\'est produite'),
     onSettled: (_data, _error, { loanId }) => {
       queryCache.invalidateQueries({ key: ['me', 'loans', loanId] })
     },

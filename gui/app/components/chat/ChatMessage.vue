@@ -14,7 +14,7 @@ const { origin } = useChatMessageOrigin(message, me)
 
 // mark message as seen when component is visible for a while
 const component = useTemplateRef<HTMLElement>('chat-message')
-const { isUnseenForMe } = useChatMessageSeen(message, me, { monitor: component })
+const { hot } = useChatMessageSeen(message, me, { monitor: component })
 
 const { formattedHour } = useChatMessageTime(message)
 </script>
@@ -24,7 +24,7 @@ const { formattedHour } = useChatMessageTime(message)
     ref="chat-message"
     class="ChatMessage"
     :origin="origin"
-    :new="isUnseenForMe"
+    :hot="hot"
   >
     <div class="bubble">
       <div class="text">

@@ -8,7 +8,7 @@ const props = defineProps<{
 const { chat, me } = toRefs(props)
 
 // interlocutor
-const { isUserBorrowing, interlocutor } = useChatRoles(chat, me)
+const { interlocutor } = useChatRoles(chat, me)
 
 // item image
 const { firstImagePath: itemImage } = useItemFirstImage(
@@ -16,7 +16,7 @@ const { firstImagePath: itemImage } = useItemFirstImage(
 )
 
 // has new messages
-const { hasUnseenMessageForMe } = useChatSeen(chat, me)
+const { hot } = useChatHot(chat)
 </script>
 
 <template>
@@ -31,11 +31,11 @@ const { hasUnseenMessageForMe } = useChatSeen(chat, me)
     </template>
 
     <template #sub>
-      {{ isUserBorrowing ? `Pour emprunter à ${interlocutor.name}` : `Pour prêter à ${interlocutor.name}` }}
+      {{ interlocutor.name }}
     </template>
 
     <template
-      v-if="hasUnseenMessageForMe"
+      v-if="hot"
       #badge
     />
   </Slab>

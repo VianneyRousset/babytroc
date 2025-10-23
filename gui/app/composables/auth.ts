@@ -35,6 +35,7 @@ export function useAuth(options?: UseAuthOptions) {
           }
         },
       }),
+    refetchOnMount: false,
   })
 
   // login

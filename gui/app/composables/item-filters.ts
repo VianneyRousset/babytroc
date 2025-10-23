@@ -69,7 +69,6 @@ export function useItemFilters(): {
   const isDefault = computed<boolean>(() => isEqual(unref(filters), defaultFilters))
 
   function reset() {
-    console.log('reset')
     Object.assign(unref(filters), { ...cloneDeep(defaultFilters), words: unref(filters).words })
   }
 

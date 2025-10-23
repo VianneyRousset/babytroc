@@ -28,11 +28,7 @@ export function useChatMessageSeen<
   const stop = watch(visible, state => state === true && markAsSeen(), { immediate: true })
 
   // is unseen for me
-  const hot = computed(() => {
-    const _msg = toValue(message)
-    const _me = toValue(me)
-    return _msg.sender_id != _me.id && !_msg.seen
-  })
+  const hot = computed(() => getChatMessageHot(toValue(message), toValue(me)))
 
   // mutation to mark as seen
   const { asyncStatus, mutateAsync } = useMarkChatMessageAsSeenMutation(message)

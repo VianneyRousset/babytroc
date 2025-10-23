@@ -4,6 +4,7 @@ function useMeQuery() {
   return useQueryWithAuth({
     key: ['me'],
     query: () => $api('/v1/me'),
+    refetchOnMount: false,
   })
 }
 

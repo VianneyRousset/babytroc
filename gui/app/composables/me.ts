@@ -24,6 +24,7 @@ export function useMe(): {
 export function useMeLoans() {
   const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/loans', {
     key: ['me', 'loans'],
+    refetchOnMount: false,
   })
   return { loans, ...query }
 }
@@ -33,6 +34,7 @@ export function useMeLoans() {
 export function useMeBorrowings() {
   const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/borrowings', {
     key: ['me', 'borrowings'],
+    refetchOnMount: false,
   })
   return { loans, ...query }
 }
@@ -40,6 +42,7 @@ export function useMeBorrowings() {
 export function useMeBorrowingRequests() {
   const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/borrowings/requests', {
     key: ['me', 'borrowings', 'requests'],
+    refetchOnMount: false,
   })
   return { loans, ...query }
 }

@@ -18,3 +18,16 @@ export function getChatMessageOrigin<
     : 'system'
   )
 }
+
+export function getChatMessageHot<
+  MessageT extends {
+    sender_id: number | null
+    seen: boolean
+  },
+  UserT extends { id: number },
+>(
+  message: MessageT,
+  me: UserT,
+): boolean {
+  return message.sender_id !== me.id && !message.seen
+}

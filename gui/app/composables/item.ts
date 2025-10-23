@@ -7,6 +7,7 @@ export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
     path: () => ({
       item_id: toValue(itemId),
     }),
+    refetchOnMount: false,
   })
   return { item, ...query }
 }

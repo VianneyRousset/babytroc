@@ -1,20 +1,36 @@
-export function useChat(chatId: MaybeRefOrGetter<string | undefined>) {
-  const { data: chat, ...query } = useApiQuery('/v1/me/chats/{chat_id}', {
-    key: () => ['me', 'chat', toValue(chatId) ?? ''],
-    path: () => ({
-      chat_id: toValue(chatId) ?? '',
-    }),
-    enabled: () => toValue(chatId) != null,
-  })
+export function useChat(chatId: MaybeRefOrGetter<string>) {
+  const { data: chat, ...query } = useApiQuery(
+    '/v1/me/chats/{chat_id}', {
+      key: () => ['me', 'chat', toValue(chatId)],
+      path: () => ({ chat_id: toValue(chatId) }),
+    })
 
   const { addMessage } = useLiveChatStore()
 
   return { addMessage, chat, ...query }
 }
 
+export function useChatHot<
+  ChatT extends { id: string },
+>(
+  chat: MaybeRefOrGetter<ChatT>,
+) {
+  const { me } = useMe()
+
+  const liveChatStore = useLiveChatStore()
+  const messages: Ref<Array<ChatMessage>> = liveChatStore.getChatMessages(() => toValue(chat).id)
+
+  const hot = computed(() => {
+    const _me = unref(me)
+    const _messages: Array<ChatMessage> = unref(messages)
+    return _me != null && _messages.some(msg => getChatMessageHot(msg, _me))
+  })
+
+  return { hot }
+}
+
 /**
  * List of chats of the client.
- * TODO implement
  **/
 export function useChats(): {
   chats: Ref<Array<Chat>>
@@ -22,23 +38,33 @@ export function useChats(): {
   error: Ref<Error | null>
   end: Ref<boolean>
   loadMore: () => Promise<void>
-  hot: Ref<boolean>
   addMessage: (msg: ChatMessage) => void
+  hot: Ref<boolean>
 } {
-  const { data: chats, isLoading, error, end, loadMore } = useApiPaginatedQuery('/v1/me/chats', {
-    key: ['me', 'chats'],
-  })
+  const { messages, chats: liveChats } = storeToRefs(useLiveChatStore())
+  const { data: queriedChats, ...query } = useChatsQuery()
 
-  const hot = ref(true)
   const { addMessage } = useLiveChatStore()
 
-  return { chats, isLoading, error, end, loadMore, hot, addMessage }
+  const { me } = useMe()
+
+  // combine queried chats and live chats
+  const chats = computed<Array<Chat>>(() => [...(new Map([
+    ...unref(queriedChats),
+    ...unref(liveChats),
+  ].map(chat => [chat.id, chat]))).values()].sort((a, b) => b.last_message_id - a.last_message_id))
+
+  const hot = computed(() => {
+    const _me = unref(me)
+    return _me != null && unref(messages).some(msg => getChatMessageHot(msg, _me))
+  })
+
+  return { chats, ...query, addMessage, hot }
 }
 
 /**
  * Get if the client is the borrower and access to the interlocutor user.
  **/
-// type ChatT<UserT extends { id: number }> = { borrower: UserT, owner: UserT }
 export function useChatRoles<
   UserT extends { id: number },
   ChatT extends { borrower: UserT, owner: UserT },
@@ -61,21 +87,4 @@ export function useChatRoles<
     isUserBorrowing,
     interlocutor,
   }
-}
-
-/**
- * Get status of unseen message in chat.
- * TODO implement
- **/
-export function useChatSeen<
-  ChatT extends { id: string },
-  UserT extends { id: number },
->(
-  chat: MaybeRefOrGetter<ChatT>,
-  me: MaybeRefOrGetter<UserT>,
-): {
-  hot: Ref<boolean>
-} {
-  const hot = computed(() => toValue(chat).id !== '')
-  return { hot }
 }

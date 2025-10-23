@@ -13,8 +13,6 @@ const { chat, isLoading: chatIsLoading, addMessage } = useChat(chatId)
 const { me } = useMe()
 const { messages, isLoading: messagesIsLoading, loadMore, end } = useChatMessages(() => ({ id: unref(chatId) }))
 
-watch(messages, v => console.log('messages', v.length))
-
 const scroller = useTemplateRef<HTMLElement>('scroller')
 
 const outbox = ref('')

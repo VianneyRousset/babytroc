@@ -16,10 +16,11 @@ type ApiPaginatedQueryPaths = {
 type ApiPaginatedQueryOptions<TPath, TData, TError, TQueryParams> = (
   ApiFetchOptions<TPath>
   & Omit<UseInfiniteQueryOptions<TData, TError, TData | undefined, Array<ApiPage<TData, TQueryParams>>>, 'query' | 'initialPage' | 'merge'>
+  & { preloadFirstPage?: boolean }
 )
 
 // Return type (rename 'data' to 'pages' to avoid confusion)
-type ApiPaginatedQueryReturn<TData, TError, TQueryParams> = Omit<UseInfiniteQueryReturn<Array<ApiPage<TData, TQueryParams>>, TError>, 'data'>
+export type ApiPaginatedQueryReturn<TData, TError, TQueryParams> = Omit<UseInfiniteQueryReturn<Array<ApiPage<TData, TQueryParams>>, TError>, 'data'>
   & {
     pages: Ref<Array<ApiPage<TData, TQueryParams>>>
     data: Ref<Array<TData>>
@@ -45,7 +46,7 @@ export function useApiPaginatedQuery<
   const queryParams = computed(() => pickBy(unref(options.query), v => v != null) as TQueryParams)
   const key = computed(() => {
     const _key = toValue(options.key)
-    return Array.isArray(_key) ? [..._key, unref(queryParams)] : [_key, unref(queryParams)]
+    return Array.isArray(_key) ? [..._key, toRaw(unref(queryParams))] : [_key, toRaw(unref(queryParams))]
   })
   const { $api } = useNuxtApp()
 
@@ -117,5 +118,5 @@ type PathWithGetOperationQueryParams<TQueryParams = unknown> = {
   }
 }
 
-type FetchResponseDataArray<TPath> = TPath extends PathWithGetOperationData<Array<infer D>> ? D : never
-type FetchQueryParams<TPath> = TPath extends PathWithGetOperationQueryParams<infer Q> ? Q : never
+export type FetchResponseDataArray<TPath> = TPath extends PathWithGetOperationData<Array<infer D>> ? D : never
+export type FetchQueryParams<TPath> = TPath extends PathWithGetOperationQueryParams<infer Q> ? Q : never
