@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends {active_loan?: Loan | null}">
 import VSwitch from '@lmiller1990/v-switch'
-import { Box } from 'lucide-vue-next'
+import { Box, MessageCircleQuestion, Import } from 'lucide-vue-next'
 
 const props = defineProps<{
   item: T
@@ -27,7 +27,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
         <NuxtLink :to="`/chats/${item.active_loan.chat_id}`">
           <InfoBox
             chevron-right
-            :icon="Box"
+            :icon="Import"
             class="active"
           >
             Vous avez prété cet objet à {{ item.active_loan.borrower.name }}
@@ -50,7 +50,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
         <NuxtLink :to="`/chats/${item.active_loan.chat_id}`">
           <InfoBox
             chevron-right
-            :icon="Box"
+            :icon="Import"
             class="active"
           >
             Vous avez emprunté cet objet.
@@ -66,7 +66,7 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
         <NuxtLink :to="`/chats/${item.active_loan_request.chat_id}`">
           <InfoBox
             chevron-right
-            :icon="Box"
+            :icon="MessageCircleQuestion"
           >
             Vous avez demandé à emprunté cet objet.
           </InfoBox>
