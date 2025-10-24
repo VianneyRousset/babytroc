@@ -52,7 +52,7 @@ export function useChats(): {
   const chats = computed<Array<Chat>>(() => [...(new Map([
     ...unref(queriedChats),
     ...unref(liveChats),
-  ].map(chat => [chat.id, chat]))).values()].sort((a, b) => b.last_message_id - a.last_message_id))
+  ].map(chat => [chat.id, chat]))).values()].sort((a, b) => (b.last_message_id ?? -1) - (a.last_message_id ?? -1)))
 
   const hot = computed(() => {
     const _me = unref(me)
