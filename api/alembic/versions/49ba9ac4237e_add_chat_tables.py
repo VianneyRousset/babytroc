@@ -34,7 +34,6 @@ def create_chat_table():
         "chat",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("borrower_id", sa.Integer(), nullable=False),
-        sa.Column("last_message_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["borrower_id"],
             ["user.id"],

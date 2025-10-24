@@ -13,7 +13,7 @@ class ChatRead(ChatBase, ReadBase):
     borrower: UserPreviewRead
     owner: UserPreviewRead
     item: ItemPreviewRead
-    last_message_id: int
+    last_message_id: int | None
 
 
 class ChatMessageRead(ChatBase, ReadBase):

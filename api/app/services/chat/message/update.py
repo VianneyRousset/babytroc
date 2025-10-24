@@ -1,10 +1,14 @@
+from sqlalchemy import update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
-from app.clients import database
+from app.errors.chat import ChatMessageNotFoundError
+from app.models.chat import ChatMessage
 from app.pubsub import notify_user
 from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.pubsub import PubsubMessageUpdatedChatMessage
+from app.services.chat import get_chat
 
 
 def mark_message_as_seen(
@@ -15,24 +19,28 @@ def mark_message_as_seen(
 ) -> ChatMessageRead:
     """Mark message with `message_id` as seen."""
 
-    # get message from database
-    message = database.chat.get_message(
-        db=db,
-        message_id=message_id,
-        query_filter=query_filter,
-    )
-
-    # get chat
-    chat = database.chat.get_chat(
-        db=db,
-        chat_id=message.chat_id,
-    )
+    # default query filter
+    query_filter = query_filter or ChatMessageReadQueryFilter()
 
     # set seen to True
-    message = database.chat.update_message(
+    stmt = (
+        update(ChatMessage)
+        .where(ChatMessage.id == message_id)
+        .values({"seen": True})
+        .returning(ChatMessage)
+    )
+
+    try:
+        message = db.execute(stmt).scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
+
+    # get chat
+    chat = get_chat(
         db=db,
-        message=message,
-        attributes={"seen": True},
+        chat_id=message.chat_id,
     )
 
     pubsub_message = PubsubMessageUpdatedChatMessage(
@@ -49,7 +57,7 @@ def mark_message_as_seen(
     # notify borrower
     notify_user(
         db=db,
-        user_id=chat.borrower_id,
+        user_id=chat.id.borrower_id,
         message=pubsub_message,
     )
 

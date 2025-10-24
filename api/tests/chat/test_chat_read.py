@@ -29,7 +29,9 @@ class TestChatsRead:
         # sort chats by last message id
         alice_many_chats = sorted(
             alice_many_chats,
-            key=lambda chat: chat.last_message_id,
+            key=lambda chat: chat.last_message_id
+            if chat.last_message_id is not None
+            else -1,
             reverse=True,
         )
 
@@ -37,7 +39,7 @@ class TestChatsRead:
             **({"n": count} if count is not None else {}),
         }
 
-        for alice_chats, expected_chats in zip(
+        for chats, expected_chats in zip(
             iter_paginated_endpoint(
                 client=alice_client,
                 url="/v1/me/chats",
@@ -50,9 +52,7 @@ class TestChatsRead:
             ),
             strict=True,
         ):
-            assert [
-                ChatMessageRead.model_validate(msg) for msg in alice_chats
-            ] == expected_chats
+            assert [ChatRead.model_validate(msg) for msg in chats] == expected_chats
 
 
 class TestChatMessagesRead:

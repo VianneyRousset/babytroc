@@ -94,9 +94,6 @@ class Chat(Base):
 
         return msg
 
-    # TODO cleaner metric ?
-    last_message_id: Mapped[int] = mapped_column(default=0)
-
     __table_args__ = (PrimaryKeyConstraint(item_id, borrower_id),)
 
 

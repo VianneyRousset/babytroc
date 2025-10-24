@@ -1,7 +1,10 @@
+from sqlalchemy import desc, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from app.clients import database
+from app.errors.chat import ChatMessageNotFoundError
+from app.models.chat import ChatMessage
 from app.schemas.chat.query import (
     ChatMessageQueryPageCursor,
     ChatMessageReadQueryFilter,
@@ -18,12 +21,19 @@ def get_message(
 ) -> ChatMessageRead:
     """Get message with `message_id`."""
 
-    # get message from database
-    message = database.chat.get_message(
-        db=db,
-        message_id=message_id,
-        query_filter=query_filter,
-    )
+    # default query filter
+    query_filter = query_filter or ChatMessageReadQueryFilter()
+
+    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
+
+    stmt = query_filter.filter_read(stmt)
+
+    try:
+        message = db.execute(stmt).unique().scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
 
     return ChatMessageRead.model_validate(message)
 
@@ -36,12 +46,19 @@ async def get_message_async(
 ) -> ChatMessageRead:
     """Get message with `message_id`."""
 
-    # get message from database
-    message = await database.chat.get_message_async(
-        db=db,
-        message_id=message_id,
-        query_filter=query_filter,
-    )
+    # default query filter
+    query_filter = query_filter or ChatMessageReadQueryFilter()
+
+    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
+
+    stmt = query_filter.filter_read(stmt)
+
+    try:
+        message = (await db.execute(stmt)).scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
 
     return ChatMessageRead.model_validate(message)
 
@@ -54,14 +71,35 @@ def list_messages(
 ) -> QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor]:
     """List messages."""
 
-    # messages in the database
-    result = database.chat.list_messages(
-        db=db,
-        query_filter=query_filter,
-        page_options=page_options,
+    # if no page options are provided, use default page options
+    query_filter = query_filter or ChatMessageReadQueryFilter()
+
+    # default query filter
+    page_options = page_options or QueryPageOptions(
+        cursor=ChatMessageQueryPageCursor(),
     )
 
+    # selection
+    stmt = select(ChatMessage)
+
+    # apply filtering
+    stmt = query_filter.filter_read(stmt)
+
+    # apply ordering
+    stmt = stmt.order_by(desc(ChatMessage.id))
+
+    # apply pagination
+    stmt = stmt.limit(page_options.limit)
+    if page_options.cursor.message_id:
+        stmt = stmt.where(ChatMessage.id < page_options.cursor.message_id)
+
+    messages = list(db.execute(stmt).scalars().all())
+
     return QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor](
-        data=[ChatMessageRead.model_validate(message) for message in result.data],
-        next_page_cursor=result.next_page_cursor,
+        data=[ChatMessageRead.model_validate(message) for message in messages],
+        next_page_cursor=ChatMessageQueryPageCursor(
+            message_id=messages[-1].id,
+        )
+        if messages
+        else None,
     )

@@ -1,7 +1,6 @@
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.enums import ChatMessageType
 from app.models.chat import ChatMessage
 from app.models.item import Item
@@ -9,6 +8,8 @@ from app.pubsub import notify_user
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.pubsub import PubsubMessageNewChatMessage
+from app.services.chat import get_chat
+from app.services.chat.chat.create import ensure_chat as _ensure_chat
 
 
 def send_message_text(
@@ -229,16 +230,17 @@ def send_message(
 ) -> ChatMessageRead:
     # ensure chat does exist
     if ensure_chat:
-        chat = database.chat.ensure_chat(
+        chat = _ensure_chat(
             db=db,
             chat_id=chat_id,
         )
     else:
-        chat = database.chat.get_chat(
+        chat = get_chat(
             db=db,
             chat_id=chat_id,
         )
 
+    # insert new message in chat messages
     stmt = (
         insert(ChatMessage)
         .values(
@@ -270,7 +272,7 @@ def send_message(
     # notify borrower
     notify_user(
         db=db,
-        user_id=chat.borrower_id,
+        user_id=chat.id.borrower_id,
         message=pubsub_message,
     )
 
