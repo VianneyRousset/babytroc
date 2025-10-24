@@ -10,14 +10,16 @@ from starlette.testclient import WebSocketTestSession
 
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageReadQueryFilter
-from app.schemas.chat.read import ChatMessageRead
+from app.schemas.chat.read import ChatMessageRead, ChatRead
+from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.read import UserRead
 from app.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from app.services.chat import list_messages, send_message_text
+from app.services.chat import get_chat, list_messages, send_message_text
+from app.services.loan import create_loan_request
 from tests.fixtures.websockets import WebSocketRecorder
 
 
@@ -137,6 +139,8 @@ def alice_many_messages_to_bob(
     alice: UserRead,
     bob_new_loan_request_for_alice_new_item: LoanRequestRead,
 ) -> list[ChatMessageRead]:
+    """Many messages in the same chat sent by Alice to Bob."""
+
     chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
     engine = create_engine(database)
@@ -161,3 +165,32 @@ def alice_many_messages_to_bob(
         ]
 
         return messages + extra_messages
+
+
+@pytest.fixture(scope="class")
+def alice_many_chats(
+    database: sqlalchemy.URL,
+    alice: UserRead,
+    bob: UserRead,
+    many_items: list[ItemRead],
+) -> list[ChatRead]:
+    """Many chats between Alice and Bob."""
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        loan_requests = [
+            create_loan_request(
+                db=session,
+                item_id=item.id,
+                borrower_id=alice.id if item.owner_id == bob.id else bob.id,
+            )
+            for item in many_items
+            if item.owner_id in [alice.id, bob.id]
+        ]
+        return [
+            get_chat(
+                db=session,
+                chat_id=loan_request.chat_id,
+            )
+            for loan_request in loan_requests
+        ]
