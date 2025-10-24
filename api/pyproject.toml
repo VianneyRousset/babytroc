@@ -78,6 +78,6 @@ extend-immutable-calls = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = "."
 timeout = 20
+pythonpath = "."
 addopts = "-vv"

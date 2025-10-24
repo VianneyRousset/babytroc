@@ -50,7 +50,7 @@ def list_messages(
     db: Session,
     *,
     query_filter: ChatMessageReadQueryFilter | None = None,
-    page_options: QueryPageOptions | None = None,
+    page_options: QueryPageOptions[ChatMessageQueryPageCursor] | None = None,
 ) -> QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor]:
     """List messages."""
 

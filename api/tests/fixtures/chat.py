@@ -1,15 +1,23 @@
 from contextlib import AbstractContextManager
 from types import TracebackType
 
+import pytest
+import sqlalchemy
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from starlette.testclient import WebSocketTestSession
 
 from app.schemas.chat.base import ChatId
+from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead
+from app.schemas.loan.read import LoanRequestRead
+from app.schemas.user.read import UserRead
 from app.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
+from app.services.chat import list_messages, send_message_text
 from tests.fixtures.websockets import WebSocketRecorder
 
 
@@ -114,3 +122,42 @@ class ReceivedChatMessageChecker(AbstractContextManager):
             ) == expected_message.model_dump(
                 exclude=exclude,  # type: ignore[arg-type]
             )
+
+
+@pytest.fixture(scope="class")
+def alice_many_messages_to_bob_text() -> list[str]:
+    """Text of the many messages sent by Alice to Bob."""
+    return [f"msg - {i}" for i in range(100)]
+
+
+@pytest.fixture
+def alice_many_messages_to_bob(
+    database: sqlalchemy.URL,
+    alice_many_messages_to_bob_text: list[str],
+    alice: UserRead,
+    bob_new_loan_request_for_alice_new_item: LoanRequestRead,
+) -> list[ChatMessageRead]:
+    chat_id = bob_new_loan_request_for_alice_new_item.chat_id
+
+    engine = create_engine(database)
+    with Session(engine) as session, session.begin():
+        # get current messages
+        messages: list[ChatMessageRead] = list_messages(
+            db=session,
+            query_filter=ChatMessageReadQueryFilter(
+                chat_id=chat_id,
+            ),
+        ).data
+
+        # create extra messages
+        extra_messages: list[ChatMessageRead] = [
+            send_message_text(
+                db=session,
+                chat_id=chat_id,
+                sender_id=alice.id,
+                text=text,
+            )
+            for text in alice_many_messages_to_bob_text
+        ]
+
+        return messages + extra_messages

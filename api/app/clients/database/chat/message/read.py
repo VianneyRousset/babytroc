@@ -62,7 +62,7 @@ def list_messages(
     db: Session,
     *,
     query_filter: ChatMessageReadQueryFilter | None = None,
-    page_options: QueryPageOptions | None = None,
+    page_options: QueryPageOptions[ChatMessageQueryPageCursor] | None = None,
 ) -> QueryPageResult[ChatMessage, ChatMessageQueryPageCursor]:
     """List chat messages matching criteria."""
 
@@ -71,7 +71,7 @@ def list_messages(
 
     # if no page options are provided, use default page options
     page_options = page_options or QueryPageOptions(
-        cursor=ChatMessageQueryPageCursor,
+        cursor=ChatMessageQueryPageCursor(),
     )
 
     # selection

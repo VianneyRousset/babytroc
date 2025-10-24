@@ -41,7 +41,6 @@ class TestItemsRead:
             ),
             strict=True,
         ):
-            print("page")
             assert [item["id"] for item in items] == [
                 item.id for item in expected_items
             ]
