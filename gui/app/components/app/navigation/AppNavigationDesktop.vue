@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const { appSectionUrls, activeAppSection } = useNavigation()
+const { loggedIn } = useAuth()
+const { me } = useMe()
 
 const { hot } = useChats()
 
@@ -50,7 +52,13 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
       </ul>
     </div>
     <div class="user">
-      Se connecter
+      <AccountMenu v-if="loggedIn" />
+      <NuxtLink
+        v-else
+        to="/me/account"
+      >
+        Se connecter
+      </NuxtLink>
     </div>
   </nav>
 </template>
@@ -75,6 +83,12 @@ nav {
     justify-content: space-between;
     padding: 0 1rem;
     gap: 3rem;
+  }
+
+  .user {
+    a {
+      @include reset-link;
+    }
   }
 
   .logo {

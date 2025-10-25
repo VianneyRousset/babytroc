@@ -107,6 +107,7 @@ async function sendMessage() {
     height: 100%;
     overflow-x: hidden;
     overflow-y: scroll;
+    scrollbar-width: none;
 
     .ChatMessages {
       padding-top: 2em;

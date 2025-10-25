@@ -1,40 +1,42 @@
 <script setup lang="ts">
 import { Ellipsis } from 'lucide-vue-next'
 
-const open = ref(false)
+const open = defineModel<boolean>()
 </script>
 
 <template>
-  <div class="DropdownMenu">
-    <DropdownMenuRoot v-model:open="open">
-      <!-- Trigger button -->
-      <DropdownMenuTrigger class="DropdownMenuTrigger">
+  <DropdownMenuRoot v-model:open="open">
+    <!-- Trigger button -->
+    <DropdownMenuTrigger class="DropdownMenuTrigger">
+      <slot name="trigger">
         <Ellipsis
           style="cursor: pointer;"
           :size="32"
           :stroke-width="2"
         />
-      </DropdownMenuTrigger>
+      </slot>
+    </DropdownMenuTrigger>
 
+    <Teleport to="body">
       <Overlay v-model="open">
         <DropdownMenuPortal>
           <!-- Menu content -->
           <DropdownMenuContent
             class="DropdownMenuContent"
-            :side-offset="-10"
+            :side-offset="0"
             align="start"
           >
-            <slot />
             <DropdownMenuArrow
               class="DropdownMenuArrow"
               :width="28"
               :height="14"
             />
+            <slot />
           </DropdownMenuContent>
         </DropdownMenuPortal>
       </Overlay>
-    </DropdownMenuRoot>
-  </div>
+    </Teleport>
+  </DropdownMenuRoot>
 </template>
 
 <style scoped lang="scss">
@@ -46,47 +48,20 @@ const open = ref(false)
   @include flex-column;
   align-items: stretch;
 
+  z-index: 3;
+
   position: relative;
 
   min-width: 260px;
   background: white;
-  border-radius: 0.5rem;
-  margin: 0 6px;
+  border-radius: 8px;
+  margin: 0 1em;
 
   filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
+}
 
-  &>div:not(a),
-  &>a>div {
-    @include flex-row;
-    gap: 0.8rem;
-    font-size: 1.5rem;
-
-    justify-content: flex-start;
-    cursor: pointer;
-    color: $neutral-600;
-    text-decoration: none;
-
-    padding: 1rem 1.2rem;
-
-    border-top: 1px solid $neutral-200;
-
-    &:first-child {
-      border-top: none;
-    }
-
-    &.red {
-      color: $red-700;
-
-      &:hover {
-        color: $red-800;
-      }
-    }
-
-    &:hover {
-      color: $neutral-700;
-    }
-  }
-
+.Overlay {
+  z-index: 1;
 }
 
 :deep(.DropdownMenuArrow) {

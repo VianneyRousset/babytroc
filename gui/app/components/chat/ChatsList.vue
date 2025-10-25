@@ -51,6 +51,7 @@ useInfiniteScroll(
 .SlabList {
 
   overflow-y: scroll;
+  scrollbar-width: none;
 
   .active {
     background: $primary-50;
