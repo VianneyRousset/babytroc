@@ -38,28 +38,6 @@ export function useAuth(options?: UseAuthOptions) {
     refetchOnMount: false,
   })
 
-  // login
-  const {
-    mutateAsync: loginRaw,
-    status: loginStatus,
-    asyncStatus: loginAsyncStatus,
-  } = useLoginMutation()
-
-  const username = ref('')
-  const password = ref('')
-
-  const login = async () => await loginRaw({
-    username: unref(username),
-    password: unref(password),
-  })
-
-  // logout
-  const {
-    mutate: logout,
-    status: logoutStatus,
-    asyncStatus: logoutAsyncStatus,
-  } = useLogoutMutation()
-
   // login path
   const loginRoute = computed(() =>
     router.resolve({
@@ -81,19 +59,63 @@ export function useAuth(options?: UseAuthOptions) {
 
   tryOnUnmounted(stop)
 
-  return {
-    loginRoute,
-    username,
-    password,
-    login,
-    loginStatus,
-    loginAsyncStatus,
-    logout,
-    logoutStatus,
-    logoutAsyncStatus,
-    loggedIn,
-    loggedInStatus: meStatus,
-  }
+  return { loggedIn, loginRoute }
+}
+
+export function useLogin() {
+  const { $api } = useNuxtApp()
+  const queryCache = useQueryCache()
+
+  const { mutateAsync: login, ...mutation } = useMutation({
+    mutation: (ctx: { username: string, password: string }) => {
+      // create form data
+      const formData = new FormData()
+      formData.append('grant_type', 'password')
+      formData.append('username', ctx.username)
+      formData.append('password', ctx.password)
+
+      return $api('/v1/auth/login', {
+        method: 'POST',
+        // @ts-expect-error: cannot type FormData
+        body: formData,
+      })
+    },
+
+    onSettled: () => {
+      queryCache.invalidateQueries({ key: ['me'] })
+      queryCache.invalidateQueries({ key: ['auth'] })
+    },
+
+    onSuccess: () => {
+      localStorage.setItem('auth-session', 'true')
+    },
+  })
+
+  return { login, ...mutation }
+}
+
+export function useLogout() {
+  const { $api } = useNuxtApp()
+  const queryCache = useQueryCache()
+
+  const { mutateAsync: logout, ...mutation } = useMutation({
+    mutation: () => {
+      return $api('/v1/auth/logout', {
+        method: 'POST',
+      })
+    },
+
+    onSettled: () => {
+      queryCache.invalidateQueries({ key: ['me'] })
+      queryCache.invalidateQueries({ key: ['auth'], exact: true })
+    },
+
+    onSuccess: () => {
+      localStorage.removeItem('auth-session')
+    },
+  })
+
+  return { logout, ...mutation }
 }
 
 export function useQueryWithAuth<

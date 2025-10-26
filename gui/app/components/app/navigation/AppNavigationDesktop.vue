@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { appSectionUrls, activeAppSection } = useNavigation()
 const { loggedIn } = useAuth()
-const { me } = useMe()
 
 const { hot } = useChats()
 
@@ -52,9 +51,12 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
       </ul>
     </div>
     <div class="user">
-      <AccountMenu v-if="loggedIn" />
+      <AccountMenu
+        v-if="loggedIn === true"
+      />
       <NuxtLink
-        v-else
+        v-else-if="loggedIn === false"
+        class="login"
         to="/me/account"
       >
         Se connecter
@@ -86,8 +88,14 @@ nav {
   }
 
   .user {
-    a {
+    a.login {
       @include reset-link;
+      &:hover {
+        color: $neutral-600;
+      }
+      &:active {
+        color: $neutral-900;
+      }
     }
   }
 

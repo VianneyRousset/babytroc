@@ -2,7 +2,7 @@
 import { Box, LogOut, UserRound } from 'lucide-vue-next'
 
 const { me } = useMe()
-const { logout } = useAuth()
+const { logout } = useLogout()
 const open = ref(false)
 
 provide('dropdown-menu-open', open)
