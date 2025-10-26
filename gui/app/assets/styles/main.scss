@@ -42,8 +42,8 @@ input {
     color: #9e9ea7;
   }
 
-  &:focus,
-  &:hover {
+  &:not(:disabled):focus,
+  &:not(:disabled):hover {
     outline: none;
     border-color: $primary-200;
     box-shadow: 0 0 0 2px $primary-50;

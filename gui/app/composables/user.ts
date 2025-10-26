@@ -31,9 +31,9 @@ export function useUserNameValidity(
 
   // retrieve user name avability from API
   const {
-    data: nameAvailability,
+    available: nameAvailable,
     asyncStatus: nameAvailabilityAsyncStatus,
-  } = useAuthAccountNameAvailableQuery(throttledName)
+  } = useAccountNameAvailable(throttledName)
 
   // compute error message
   const error = computed<string | undefined>(() => {
@@ -51,7 +51,7 @@ export function useUserNameValidity(
     if (!validCharactersRegex.test(_name))
       return 'Pseudonyme non valide'
 
-    if (unref(nameAvailability)?.available === false)
+    if (unref(nameAvailable) === false)
       return 'Pseudonyme est déjà utilisé'
 
     return undefined
@@ -91,10 +91,10 @@ export function useUserEmailValidity(
 
   // retrieve user email avAsyncDataRequestStatusailability from API
   const {
-    data: emailAvailability,
+    available: emailAvailable,
     status: emailAvailabilityStatus,
     asyncStatus: emailAvailabilityAsyncStatus,
-  } = useAuthAccountEmailAvailableQuery(throttledEmail)
+  } = useAccountEmailAvailable(throttledEmail)
 
   // compute error message
   const error = computed<string | undefined>(() => {
@@ -106,7 +106,7 @@ export function useUserEmailValidity(
     if (unref(emailAvailabilityStatus) === 'error')
       return 'Adresse email invalide'
 
-    if (unref(emailAvailability)?.available === false)
+    if (unref(emailAvailable) === false)
       return 'Addresse mail est déjà utilisé'
 
     return undefined

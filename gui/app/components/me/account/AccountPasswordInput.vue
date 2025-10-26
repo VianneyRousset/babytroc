@@ -31,7 +31,7 @@ watchEffect(() => {
 
 <template>
   <div class="AccountPasswordInput vbox">
-    <DropdownMessage
+    <WithDropdownMessage
       :status="status"
       :msg-error="error"
       :msg-placement="msgPlacement"
@@ -46,7 +46,7 @@ watchEffect(() => {
         @blur="touched = true"
         @keyup.enter="emit('enter')"
       />
-    </DropdownMessage>
+    </WithDropdownMessage>
   </div>
 </template>
 

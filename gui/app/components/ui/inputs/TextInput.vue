@@ -15,8 +15,10 @@ const props = withDefaults(defineProps<{
   autofocus?: boolean
   tabindex?: number
   status?: AsyncStatus
+  disabled?: boolean
 }>(), {
   status: 'idle',
+  disabled: false,
 })
 
 const inputElement = useTemplateRef<HTMLElement>('input')
@@ -40,6 +42,7 @@ const type = computed(() => {
       :size="1"
       :placeholder="props.placeholder"
       :type="type"
+      :disabled="props.disabled"
       :tabindex="props.tabindex"
       :autofocus="props.autofocus"
       @blur="emit('blur')"
@@ -100,6 +103,11 @@ const type = computed(() => {
     font-size: 1.5rem;
     padding: 0.3rem 0.8rem;
     border-radius: 0.4rem;
+
+    &:disabled {
+      background: $neutral-50;
+      color: $neutral-300;
+    }
   }
 
   .icons-wrapper {

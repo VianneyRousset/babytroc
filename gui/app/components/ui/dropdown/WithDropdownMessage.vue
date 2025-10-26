@@ -36,7 +36,7 @@ const message = computed<string | undefined>(() => {
     :auto-hide="false"
     :placement="msgPlacement"
     :theme="`dropdown-${status}`"
-    class="DropdownMessage"
+    class="WithDropdownMessage"
   >
     <slot />
     <template #popper>
@@ -46,5 +46,5 @@ const message = computed<string | undefined>(() => {
 </template>
 
 <style scoped lang="scss">
-.DropdownMessage {}
+.WithDropdownMessage {}
 </style>
