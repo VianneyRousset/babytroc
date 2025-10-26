@@ -83,9 +83,11 @@ a {
   justify-content: flex-start;
   padding: 1rem;
   position: relative;
+  border: 1px solid transparent;
 
   &:hover {
     background: $neutral-50;
+    border-color: $neutral-200;
   }
 
   &:active {

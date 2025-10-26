@@ -9,12 +9,13 @@
 
 <style scoped lang="scss">
 .SlabList {
-  @include flex-column;
-  align-items: stretch;
+  display: grid;
+  border-collapse: collapse;
 
-  &>:deep(a > .Slab),
-  &>:deep(.Slab) {
-    border-bottom: 1px solid $neutral-200;
+  &>:deep(a > .Slab:not(:first-of-type)),
+  &>:deep(.Slab:not(:first-of-type)) {
+    border-top: 1px solid $neutral-200;
+    margin-top: -1px;
   }
 
   &>:deep(a) {
