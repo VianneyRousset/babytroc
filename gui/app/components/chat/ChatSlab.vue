@@ -23,7 +23,7 @@ const { hot } = useChatHot(chat)
   <Slab>
     {{ chat.item.name }}
 
-    <template #image>
+    <template #icon>
       <ImageAndAvatar
         :image="itemImage"
         :avatar="interlocutor.avatar_seed"

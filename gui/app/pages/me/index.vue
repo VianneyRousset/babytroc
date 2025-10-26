@@ -89,7 +89,7 @@ const sections = computed<Array<SectionData>>(() => [
           :key="section.title"
         >
           <h2>{{ section.title }}</h2>
-          <SlabList>
+          <SlabList light>
             <Slab
               v-for="slab in section.slabs"
               :key="slab.text"

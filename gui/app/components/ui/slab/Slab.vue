@@ -92,6 +92,7 @@ a {
 
   &:active {
     background: $neutral-100;
+    border-color: $neutral-200;
   }
 
   :deep(.title) {

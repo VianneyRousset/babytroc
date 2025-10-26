@@ -26,20 +26,16 @@ useInfiniteScroll(
     ref="scroller"
     class="ChatsList"
   >
-    <NuxtLink
+    <ChatSlab
       v-for="chat in chats"
       :id="`chat-${chat.id}`"
       :key="`chat-${chat.id}`"
-      :to="`/chats/${chat.id}`"
+      :target="`/chats/${chat.id}`"
       class="reset-link"
-    >
-      <ChatSlab
-        :key="`${chat.id}`"
-        :chat="chat"
-        :me="me"
-        :class="{ active: active != null && active == chat.id, inactive: active != null && active != chat.id }"
-      />
-    </NuxtLink>
+      :chat="chat"
+      :me="me"
+      :class="{ active: active != null && active == chat.id, inactive: active != null && active != chat.id }"
+    />
     <ListEmpty v-if="chats.length === 0">
       Vous n'avez pas encore de message.
     </ListEmpty>
