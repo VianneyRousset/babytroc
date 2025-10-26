@@ -12,7 +12,7 @@ const open = defineModel<boolean>()
         <Ellipsis
           style="cursor: pointer;"
           :size="32"
-          :stroke-width="2"
+          :stroke-width="1.5"
         />
       </slot>
     </DropdownMenuTrigger>

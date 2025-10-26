@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { appSectionUrls, activeAppSection } = useNavigation()
-const { loggedIn } = useAuth()
 
 const { hot } = useChats()
 
@@ -50,18 +49,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
         </li>
       </ul>
     </div>
-    <div class="user">
-      <AccountMenu
-        v-if="loggedIn === true"
-      />
-      <NuxtLink
-        v-else-if="loggedIn === false"
-        class="login"
-        to="/me/account"
-      >
-        Se connecter
-      </NuxtLink>
-    </div>
+    <AccountMenu />
   </nav>
 </template>
 
@@ -74,6 +62,7 @@ nav {
   font-weight: 500;
   color: $neutral-500;
   border-bottom: 1px solid $neutral-200;
+  padding: 0 1em;
 
   *[active="true"] {
     font-weight: 600;
@@ -85,21 +74,6 @@ nav {
     justify-content: space-between;
     padding: 0 1rem;
     gap: 3rem;
-  }
-
-  .user {
-    a.login {
-      @include reset-link;
-      &:hover {
-        color: $neutral-600;
-      }
-      &:active {
-        color: $neutral-900;
-      }
-    }
-  }
-
-  .logo {
   }
 
   ul {

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Box, LogOut, UserRound } from 'lucide-vue-next'
+import { Box, LogOut, LogIn, UserRound, Ellipsis } from 'lucide-vue-next'
+
+const { loggedIn } = useAuth()
 
 const { me } = useMe()
 const { logout } = useLogout()
@@ -10,11 +12,11 @@ provide('dropdown-menu-open', open)
 
 <template>
   <DropdownMenu
-    v-if="me"
     v-model="open"
   >
     <template #trigger>
       <div
+        v-if="loggedIn === true && me"
         class="AccountMenuTrigger"
         :open="open"
       >
@@ -26,8 +28,15 @@ provide('dropdown-menu-open', open)
           {{ me.name }}
         </div>
       </div>
+      <Ellipsis
+        v-else
+        class="AccountMenuTrigger"
+        :size="32"
+        :stroke-width="1.5"
+      />
     </template>
     <DropdownItem
+      v-if="loggedIn === true"
       :icon="Box"
       target="/me/items"
     >
@@ -37,14 +46,22 @@ provide('dropdown-menu-open', open)
       :icon="UserRound"
       target="/me"
     >
-      Mon compte
+      Options et info
     </DropdownItem>
     <DropdownItem
+      v-if="loggedIn === true"
       :icon="LogOut"
       red
       @click="logout"
     >
       Se déconnecter
+    </DropdownItem>
+    <DropdownItem
+      v-else
+      :icon="LogIn"
+      target="/me/account"
+    >
+      Se connecter
     </DropdownItem>
   </DropdownMenu>
 </template>
