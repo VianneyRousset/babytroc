@@ -18,7 +18,7 @@ const chatsDrawerOpen = ref(false)
 </script>
 
 <template>
-  <AppPage>
+  <AppPage logged-in-only>
     <!-- Header bar (mobile only) -->
     <template
       v-if="chatId == null"

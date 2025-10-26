@@ -4,6 +4,8 @@
  *
  **/
 
+import { HeartCrack } from 'lucide-vue-next'
+
 const props = withDefaults(
   defineProps<{
     // if false, the bar stays visible
@@ -27,12 +29,14 @@ const props = withDefaults(
     maxWidth?: number
 
     withHeader?: boolean
+    loggedInOnly?: boolean
   }>(),
   {
     hideBarOnScroll: false,
     infiniteScroll: false,
     maxWidth: 1400,
     withHeader: false,
+    loggedInOnly: false,
   },
 )
 
@@ -40,11 +44,15 @@ const emit = defineEmits<{
   (event: 'more'): void
 }>()
 
-const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth } = toRefs(props)
+const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth, loggedInOnly } = toRefs(props)
 
 const device = useDevice()
 
 const slots = useSlots()
+
+// whether to show loggin screen or not
+const { loggedIn, loginRoute } = useAuth()
+const loginScreen = computed(() => unref(loggedInOnly) && unref(loggedIn) !== true)
 
 // get header bar height and provide it to children elements
 // if no bar is present (e.g. in desktop mode), the height is 0
@@ -73,7 +81,7 @@ useInfiniteScroll(
   >
     <!-- Header bar (mobile only) -->
     <AppHeaderMobileBar
-      v-if="slots['mobile-header-bar'] && device.isMobile"
+      v-if="slots['mobile-header-bar'] && device.isMobile && !loginScreen"
       ref="app-header-bar"
       :hide-on-scroll="hideBarOnScroll ? page : null"
       :scroll-offset="hideBarScrollOffset"
@@ -83,25 +91,41 @@ useInfiniteScroll(
 
     <!-- Left panel / drawer -->
     <aside
-      v-if="slots['left']"
+      v-if="slots['left'] && !loginScreen"
       class="left"
     >
       <slot name="left" />
     </aside>
 
     <slot
-      v-if="device.isMobile"
+      v-if="device.isMobile && !loginScreen"
       name="mobile"
     />
     <slot
-      v-else
+      v-else-if="!loginScreen"
       name="desktop"
     />
-    <slot />
+    <slot v-if="!loginScreen" />
+
+    <!-- Login screen -->
+    <main v-if="loginScreen">
+      <Panel>
+        <PanelBanner :icon="HeartCrack">
+          <h1 style="margin-bottom: 2em">Vous n'êtes pas connecté</h1>
+          <TextButton
+            aspect="outline"
+            size="large"
+            @click="navigateTo(loginRoute)"
+          >
+            Se connecter
+          </TextButton>
+        </PanelBanner>
+      </Panel>
+    </main>
 
     <!-- Right panel / drawer -->
     <aside
-      v-if="slots['right']"
+      v-if="slots['right'] && !loginScreen"
       class="right"
     >
       <slot name="right" />

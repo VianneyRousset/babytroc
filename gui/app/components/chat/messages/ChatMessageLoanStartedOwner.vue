@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Gift } from 'lucide-vue-next'
+import { Gift, Import } from 'lucide-vue-next'
 
 const props = defineProps<{
   message: ChatMessage

@@ -3,7 +3,7 @@ const { loggedIn } = useAuth()
 
 // redirect once logged in
 const { redirect } = useRedirect()
-const stop = watch(loggedIn, (newState, oldState) => (oldState === false && newState === true) && redirect)
+const stop = watch(loggedIn, (newState, oldState) => (oldState === false && newState === true) && redirect())
 tryOnUnmounted(stop)
 </script>
 
