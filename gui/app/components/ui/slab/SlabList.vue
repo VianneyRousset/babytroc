@@ -20,6 +20,7 @@ const { light } = toRefs(props)
 <style scoped lang="scss">
 .SlabList {
   display: grid;
+  overflow: show;
 
   & > :deep(.Slab) {
 

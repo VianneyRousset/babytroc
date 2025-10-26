@@ -86,13 +86,13 @@ a {
   border: 1px solid transparent;
 
   &:hover {
-    background: $neutral-50;
-    border-color: $neutral-200;
+    background: $neutral-50 !important;
+    border-color: $neutral-200 !important;
   }
 
   &:active {
-    background: $neutral-100;
-    border-color: $neutral-200;
+    background: $neutral-100 !important;
+    border-color: $neutral-200 !important;
   }
 
   :deep(.title) {
