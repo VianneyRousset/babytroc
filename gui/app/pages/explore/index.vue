@@ -112,7 +112,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         position="right"
         :drawer="drawerMode"
       >
-        <Panel>
+        <Panel style="width: 20em;">
           <ItemExploreFilters
             v-model="filters"
             :size="device.isMobile ? 'large' : 'normal'"
@@ -202,7 +202,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
 
 <style scoped lang="scss">
 .AppHeaderDesktop {
-  font-size: clamp(0.5em, 1.5vw, 1em);
+  font-size: clamp(0.8em, 1.5vw, 1em);
   h1 {
     text-align: center;
   }
