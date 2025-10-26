@@ -2,6 +2,7 @@
 import type { LucideIcon } from 'lucide-vue-next'
 import {
   UserRound,
+  Timer,
   Package,
   Gift,
   UserPen,
@@ -33,8 +34,9 @@ const sections = computed<Array<SectionData>>(() => [
     title: 'Mes activités & options',
     logged: true,
     slabs: [
-      { icon: Package, target: '/me/borrowings', text: 'Mes emprunts' },
+      { icon: Package, target: '/me/items', text: 'Mes objets' },
       { icon: Gift, target: '/me/loans', text: 'Mes prêts' },
+      { icon: Timer, target: '/me/borrowings', text: 'Mes emprunts' },
     ],
   },
   {

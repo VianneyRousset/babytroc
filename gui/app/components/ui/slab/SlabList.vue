@@ -21,7 +21,7 @@ const { light } = toRefs(props)
 .SlabList {
   display: grid;
 
-  &>:deep(.Slab) {
+  & > :deep(.Slab) {
 
     margin-top: -1px;
     margin-left: -1px;

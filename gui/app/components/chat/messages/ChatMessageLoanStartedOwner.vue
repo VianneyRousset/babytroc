@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Import } from 'lucide-vue-next'
+import { Gift } from 'lucide-vue-next'
 
 const props = defineProps<{
   message: ChatMessage
@@ -31,7 +31,7 @@ async function end() {
     :me="me"
     :message="message"
   >
-    <Import
+    <Gift
       :size="24"
       :stroke-width="1.33"
     />
