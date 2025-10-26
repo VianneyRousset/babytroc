@@ -23,6 +23,7 @@ class TestItemsRead:
         count: int | None,
     ):
         params: dict[str, Any] = {
+            "av": "a",
             **({"n": count} if count is not None else {}),
         }
 
@@ -67,8 +68,7 @@ class TestItemsReadUserItems:
         item_ids = [
             item["id"]
             for page in iter_paginated_endpoint(
-                url=f"/v1/users/{alice.id}/items",
-                client=client,
+                url=f"/v1/users/{alice.id}/items", client=client, params={"av": "a"}
             )
             for item in page
         ]
@@ -112,6 +112,7 @@ class TestItemsReadUserItems:
             for page in iter_paginated_endpoint(
                 url="/v1/me/items",
                 client=alice_client,
+                params={"av": "a"},
             )
             for item in page
         ]
@@ -174,6 +175,7 @@ class TestItemsReadFilterTargetedAgeMonth:
                 client=client,
                 params={
                     "mo": self.format_range((lower, upper)),
+                    "av": "a",
                 },
             )
             for item in page
@@ -262,7 +264,7 @@ class TestItemsReadFilterAvailability:
 
         # default availability
         availability = (
-            ItemQueryAvailability.all if availability is None else availability
+            ItemQueryAvailability.yes if availability is None else availability
         )
 
         if availability == ItemQueryAvailability.all:
@@ -307,6 +309,7 @@ class TestItemsReadFilterRegions:
                 client=client,
                 params={
                     "n": 256,
+                    "av": "a",
                     **{
                         k: filter_regions for k in ["reg"] if filter_regions is not None
                     },
@@ -347,6 +350,7 @@ class TestItemsReadFilterWords:
                 url="/v1/items",
                 client=client,
                 params={
+                    "av": "a",
                     "n": 256,
                     "q": words,
                 },
@@ -380,6 +384,7 @@ class TestItemsReadFilterWords:
                 url="/v1/items",
                 client=client,
                 params={
+                    "av": "a",
                     "n": 256,
                     "q": words,
                 },
@@ -409,6 +414,7 @@ class TestItemsReadFilterWords:
                 url="/v1/items",
                 client=client,
                 params={
+                    "av": "a",
                     "n": 4,
                     "q": ["bleu"],
                 },
@@ -436,6 +442,7 @@ class TestItemsReadFilterWords:
         resp = client.get(
             url="/v1/items",
             params={
+                "av": "a",
                 "n": 4,
                 "q": ["senat", "bleu"],
             },

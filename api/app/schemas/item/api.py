@@ -40,7 +40,7 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
             alias="av",
             title="Availability",
         ),
-    ] = ItemQueryAvailability.all
+    ] = ItemQueryAvailability.yes
 
     # regions
     regions: Annotated[
