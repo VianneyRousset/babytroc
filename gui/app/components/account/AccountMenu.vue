@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Box, LogOut, LogIn, UserRound, Ellipsis } from 'lucide-vue-next'
+import { Box, LogOut, LogIn, Settings, Ellipsis } from 'lucide-vue-next'
 
 const { loggedIn } = useAuth()
 
@@ -43,7 +43,7 @@ provide('dropdown-menu-open', open)
       Mes Objets
     </DropdownItem>
     <DropdownItem
-      :icon="UserRound"
+      :icon="Settings"
       target="/me"
     >
       Options et info
