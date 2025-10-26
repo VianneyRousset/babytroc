@@ -29,7 +29,7 @@ export function useChatMessages<
   const messages = computed<Array<ChatMessage>>(() => [...(new Map([
     ...unref(queriedMessages),
     ...unref(liveMessages),
-  ].map(msg => [msg.id, msg]))).values()])
+  ].map(msg => [msg.id, msg]))).values()].sort((a, b) => b.id - a.id))
 
   return { messages, isLoading, error, end, loadMore }
 }
