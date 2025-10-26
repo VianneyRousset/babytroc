@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LucideIcon } from 'lucide-vue-next'
 import {
   UserRound,
   Package,
@@ -14,11 +15,61 @@ import {
 
 // auth session
 const { loggedIn } = useAuth()
+
+type SlabData = {
+  icon: LucideIcon
+  target: string
+  text: string
+}
+
+type SectionData = {
+  title: string
+  logged?: boolean
+  slabs: Array<SlabData>
+}
+
+const sections = computed<Array<SectionData>>(() => [
+  {
+    title: 'Mes activités & options',
+    logged: true,
+    slabs: [
+      { icon: Package, target: '/me/borrowings', text: 'Mes emprunts' },
+      { icon: Gift, target: '/me/loans', text: 'Mes prêts' },
+    ],
+  },
+  {
+    title: 'Options',
+    logged: true,
+    slabs: [
+      { icon: UserPen, target: '/me/profile', text: 'Profile' },
+      { icon: LockKeyhole, target: '/me/account', text: 'Compte' },
+    ],
+  },
+  {
+    title: 'Options',
+    logged: false,
+    slabs: [
+      { icon: LockKeyholeOpen, target: '/me/account', text: 'Compte' },
+    ],
+  },
+  {
+    title: 'Info',
+    slabs: [
+      { icon: Info, target: '/me/about', text: 'A propos de Babytroc' },
+      { icon: MessageCircleQuestion, target: '/me/faq', text: 'FAQ' },
+      { icon: Scale, target: '/me/politics', text: 'Politiques' },
+      { icon: AtSign, target: '/me/contact', text: 'Contact' },
+    ],
+  },
+].filter(sec => sec.logged == null || unref(loggedIn) === sec.logged))
 </script>
 
 <template>
-  <AppPage>
-    <!-- Header bar -->
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
       <UserRound
         :size="32"
@@ -28,118 +79,29 @@ const { loggedIn } = useAuth()
     </template>
 
     <!-- Main content -->
-    <Panel>
-      <section>
-        <h2 v-if="loggedIn === true">
-          Activités
-        </h2>
-        <SlabList v-if="loggedIn === true">
-          <NuxtLink to="/me/borrowings">
-            <MeSlab>
-              Mes emprunts
-              <template #image>
-                <Package
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-          <NuxtLink to="/me/loans">
-            <MeSlab>
-              Mes prêts
-              <template #image>
-                <Gift
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-        </SlabList>
-      </section>
-      <section>
-        <h2>Options</h2>
-        <SlabList>
-          <NuxtLink to="/me/profile">
-            <MeSlab v-if="loggedIn === true">
-              Profile
-              <template #image>
-                <UserPen
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-          <NuxtLink to="/me/account">
-            <MeSlab>
-              Compte
-              <template #image>
-                <LockKeyhole
-                  v-if="loggedIn === true"
-                  :size="32"
-                  :stroke-width="2"
-                />
-                <LockKeyholeOpen
-                  v-else
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-        </SlabList>
-      </section>
-      <section>
-        <h2>Info</h2>
-        <SlabList>
-          <NuxtLink to="/me/about">
-            <MeSlab>
-              A propos de BabyTroc
-              <template #image>
-                <Info
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-          <NuxtLink to="/me/faq">
-            <MeSlab>
-              FAQ
-              <template #image>
-                <MessageCircleQuestion
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-          <NuxtLink to="/me/politics">
-            <MeSlab>
-              Politiques
-              <template #image>
-                <Scale
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-          <NuxtLink to="/me/contact">
-            <MeSlab>
-              Contact
-              <template #image>
-                <AtSign
-                  :size="32"
-                  :stroke-width="2"
-                />
-              </template>
-            </MeSlab>
-          </NuxtLink>
-        </SlabList>
-      </section>
-    </Panel>
+    <main>
+      <Panel>
+        <PanelBanner style="font-size: 4rem; font-family: 'Plus Jakarta Sans'; font-weight: 200;">
+          Babytroc
+        </PanelBanner>
+        <section
+          v-for="section in sections"
+          :key="section.title"
+        >
+          <h2>{{ section.title }}</h2>
+          <SlabList>
+            <Slab
+              v-for="slab in section.slabs"
+              :key="slab.text"
+              :icon="slab.icon"
+              :target="slab.target"
+              chevron
+            >
+              {{ slab.text }}
+            </Slab>
+          </SlabList>
+        </section>
+      </Panel>
+    </main>
   </AppPage>
 </template>

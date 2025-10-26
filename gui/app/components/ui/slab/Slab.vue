@@ -1,12 +1,35 @@
 <script setup lang="ts">
 import { ChevronRight } from 'lucide-vue-next'
+import type { LucideIcon } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
+
+const props = withDefaults(defineProps<{
+  target?: string | RouteLocationGeneric
+  icon?: LucideIcon
+  chevron?: boolean
+}>(), {
+  chevron: false,
+})
+
+const { target, icon, chevron } = toRefs(props)
 
 const slots = useSlots()
 </script>
 
 <template>
-  <div class="Slab">
-    <slot name="image" />
+  <NuxtLink
+    class="Slab"
+    :to="target ?? ''"
+  >
+    <!-- Icon -->
+    <slot name="icon">
+      <component
+        :is="icon"
+        v-if="icon"
+        :size="32"
+        :stroke-width="1.5"
+      />
+    </slot>
 
     <div class="title">
       <div>
@@ -41,13 +64,18 @@ const slots = useSlots()
     </transition>
 
     <ChevronRight
+      v-if="chevron"
       :size="32"
-      :stroke-width="2"
+      :stroke-width="1.5"
     />
-  </div>
+  </NuxtLink>
 </template>
 
 <style scoped lang="scss">
+a {
+  @include reset-link;
+}
+
 .Slab {
 
   @include flex-row;
@@ -55,6 +83,10 @@ const slots = useSlots()
   justify-content: flex-start;
   padding: 1rem;
   position: relative;
+
+  &:hover {
+    background: $neutral-50;
+  }
 
   &:active {
     background: $neutral-100;
@@ -103,7 +135,7 @@ const slots = useSlots()
 
   /* chevron */
   &>svg {
-    color: $neutral-400;
+    color: $neutral-700;
   }
 }
 </style>

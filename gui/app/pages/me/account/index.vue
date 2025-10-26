@@ -18,6 +18,7 @@ tryOnUnmounted(stop)
       <h1>Mon compte</h1>
     </template>
 
+    <!-- Header (desktop only) -->
     <template #desktop>
       <AppHeaderDesktop>
         <template #buttons-left>
