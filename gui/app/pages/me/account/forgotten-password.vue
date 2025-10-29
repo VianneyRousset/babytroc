@@ -11,12 +11,13 @@ function done() {
     with-header
     :max-width="800"
   >
-    <!-- Header bar -->
+    <!-- Header bar (mobile only ) -->
     <template #mobile-header-bar>
       <AppBack />
       <h1>Réinitialisation mot de passe</h1>
     </template>
 
+    <!-- Header (desktop only) -->
     <template #desktop>
       <AppHeaderDesktop>
         <template #buttons-left>

@@ -26,7 +26,7 @@ const input = computed({
   },
 })
 
-watch(input, (v) => {
+const stop = watch(input, (v) => {
   input.value = v?.substring(0, 1000)
 })
 
@@ -54,6 +54,8 @@ function submit() {
 const disabled = computed(
   () => model.value?.trim().length === 0 || loading.value,
 )
+
+tryOnUnmounted(stop)
 </script>
 
 <template>

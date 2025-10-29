@@ -7,25 +7,19 @@ const props = defineProps<{
 
 const { fallback } = toRefs(props)
 
-const { markBackward, pop, previous } = useNavigation()
+const { previous, goBack } = useNavigation()
 
 const { currentTabRoot } = useTab()
 const targetRoute = computed(
   () => unref(previous) ?? unref(fallback) ?? currentTabRoot,
 )
-
-async function onclick() {
-  markBackward()
-  pop()
-  pop()
-}
 </script>
 
 <template>
   <NuxtLink
     :to="targetRoute"
     class="AppBack"
-    @click="onclick"
+    @click="goBack"
   >
     <ArrowLeft
       style="cursor: pointer;"

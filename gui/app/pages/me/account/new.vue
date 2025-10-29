@@ -1,155 +1,146 @@
 <script setup lang="ts">
-import { UserRound, AtSign, KeyRound } from 'lucide-vue-next'
-import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
+import { UserRoundPlus, ArrowLeft, AtSign, KeyRound, Check, OctagonAlert } from 'lucide-vue-next'
 
 const name = ref('')
-const nameStatus = ref<AsyncStatus>('idle')
-
 const email = ref('')
-const emailStatus = ref<AsyncStatus>('idle')
-
 const password = ref('')
-const passwordStatus = ref<AsyncStatus>('idle')
 
-const mode = ref<'name' | 'email' | 'password'>('name')
+const modeCounter = ref(0)
+const mode = computed(() => {
+  return {
+    0: 'name',
+    1: 'email',
+    2: 'password',
+  }[unref(modeCounter)]
+})
 
-function next() {
-  const _mode = unref(mode)
+const { createAccount, isLoading, status } = useCreateAccount()
 
-  if (_mode === 'name' && unref(nameStatus) === 'success')
-    mode.value = 'email'
+const { goBack } = useNavigation()
 
-  else if (_mode === 'email' && unref(emailStatus) === 'success')
-    mode.value = 'password'
+async function next() {
+  const _modeCounter = unref(modeCounter)
+
+  if (_modeCounter === 2)
+    return await createAccount({
+      name: unref(name),
+      email: unref(email),
+      password: unref(password),
+    })
+
+  modeCounter.value = _modeCounter + 1
 }
 
-const { mutateAsync: submit, asyncStatus: submitAsyncStatus } = useCreateAccountMutation()
+function previous() {
+  const _modeCounter = unref(modeCounter)
 
-const isValid = computed(() => unref(nameStatus) === 'success' && unref(emailStatus) === 'success' && unref(passwordStatus) === 'success')
+  if (_modeCounter === 0)
+    return goBack('/me/account')
 
-async function create() {
-  if (!unref(isValid))
-    return
-
-  await submit({
-    name: unref(name),
-    email: unref(email),
-    password: unref(password),
-  })
-  navigateTo('/me/account/pending-validation')
+  modeCounter.value = _modeCounter - 1
 }
 </script>
 
 <template>
-  <AppPage>
-    <!-- Header bar -->
-    <template #mobile-heade-bar>
-      <AppBack />
-      <h1>Créer un compte</h1>
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <!-- Header bar (mobile only ) -->
+    <template #mobile-header-bar>
+      <ArrowLeft
+        style="cursor: pointer;"
+        :size="32"
+        :stroke-width="2"
+        @click="previous"
+      />
+      <h1>Réinitialisation mot de passe</h1>
+    </template>
+
+    <!-- Header (desktop only) -->
+    <template #desktop>
+      <AppHeaderDesktop>
+        <template #buttons-left>
+          <ArrowLeft
+            style="cursor: pointer;"
+            :size="32"
+            :stroke-width="2"
+            @click="previous"
+          />
+        </template>
+      </AppHeaderDesktop>
     </template>
 
     <!-- Main content -->
-    <Panel>
-      <!-- Not logged in: show login form -->
-      <div class="app-content page">
-        <transition
-          name="slide-right-left"
-          mode="out-in"
-          appear
-        >
-          <!-- name input -->
-          <div
-            v-if="mode === 'name'"
-            class="vbox"
+    <main>
+      <transition
+        name="fade"
+        mode="out-in"
+      >
+        <!-- Name -->
+        <Panel v-if="mode === 'name'">
+          <PanelBanner :icon="UserRoundPlus">
+            <h2>Entrez un pseudonyme.</h2>
+          </PanelBanner>
+          <AccountCreationNameForm
+            v-model:name="name"
+            @next="next"
+          />
+        </Panel>
+        <!-- Email -->
+        <Panel v-else-if="mode === 'email'">
+          <PanelBanner :icon="AtSign">
+            <h2>Entrez votre address email.</h2>
+          </PanelBanner>
+          <AccountCreationEmailForm
+            v-model:email="email"
+            @next="next"
+          />
+        </Panel>
+        <!-- Password -->
+        <Panel v-else-if="mode === 'password'">
+          <transition
+            name="pop"
+            mode="out-in"
           >
-            <PageDecoration>
-              <UserRound
-                :size="64"
-                :stroke-width="1.33"
-              />
-            </PageDecoration>
-            <AccountNameInput
-              v-model="name"
-              msg-placement="top"
-              @update:status="_status => (nameStatus = _status)"
-              @enter="next"
-            />
-            <TextButton
-              aspect="flat"
-              size="large"
+            <PanelBanner
+              v-if="status === 'success'"
+              :icon="Check"
               color="primary"
-              :disabled="nameStatus !== 'success'"
-              @click="next"
             >
-              Continuer
-            </TextButton>
-          </div>
-          <!-- email input -->
-          <div
-            v-else-if="mode === 'email'"
-            class="vbox"
-          >
-            <PageDecoration>
-              <AtSign
-                :size="64"
-                :stroke-width="1.33"
-              />
-            </PageDecoration>
-            <AccountEmailInput
-              v-model="email"
-              msg-placement="top"
-              @update:status="_status => (emailStatus = _status)"
-              @enter="next"
-            />
-            <TextButton
-              aspect="flat"
-              size="large"
-              color="primary"
-              :disabled="emailStatus !== 'success'"
-              @click="next"
+              <h2>Compte crée avec succés. Un email de validation vous à été envoyé.</h2>
+            </PanelBanner>
+            <PanelBanner
+              v-else-if="status === 'error'"
+              :icon="OctagonAlert"
             >
-              Continuer
-            </TextButton>
-          </div>
-          <!-- password input -->
-          <div
-            v-else-if="mode === 'password'"
-            class="vbox"
-          >
-            <PageDecoration>
-              <KeyRound
-                :size="64"
-                :stroke-width="1.33"
-              />
-            </PageDecoration>
-            <AccountPasswordInput
-              v-model="password"
-              msg-placement="top"
-              @update:status="_status => (passwordStatus = _status)"
-              @enter="create"
-            />
-            <TextButton
-              aspect="bezel"
-              size="large"
-              color="primary"
-              :disabled="!isValid"
-              :loading="submitAsyncStatus === 'loading'"
-              :timeout="0"
-              @click="create"
+              <h2>Une erreur est survenue.</h2>
+            </PanelBanner>
+            <PanelBanner
+              v-else
+              :icon="KeyRound"
             >
-              Enregistrer
-            </TextButton>
-          </div>
-        </transition>
-      </div>
-    </Panel>
+              <h2>Entrer un mot de passe pour votre compte.</h2>
+            </PanelBanner>
+          </transition>
+          <AccountCreationPasswordForm
+            v-model:password="password"
+            :loading="isLoading"
+            @next="next"
+          />
+        </Panel>
+      </transition>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
-.vbox {
-  @include flex-column;
-  align-items: stretch;
-  gap: 1rem;
+main {
+  position: relative;
+
+  & > .Panel {
+    position: absolute;
+    width: 100%;
+  }
 }
 </style>

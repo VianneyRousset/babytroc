@@ -70,11 +70,11 @@ async function reset() {
           v-if="resetPasswordStatus === 'pending'"
           class="vbox"
         >
-          <AccountPasswordInput
-            v-model="password"
-            @update:status="_status => (passwordStatus = _status)"
-            @enter="reset"
-          />
+          <!-- <AccountPasswordInput -->
+            <!-- v-model="password" -->
+            <!-- @update:status="_status => (passwordStatus = _status)" -->
+            <!-- @enter="reset" -->
+          <!-- /> -->
           <TextButton
             aspect="flat"
             size="large"

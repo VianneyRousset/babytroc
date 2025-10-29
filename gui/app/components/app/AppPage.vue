@@ -111,7 +111,9 @@ useInfiniteScroll(
     <main v-if="loginScreen">
       <Panel>
         <PanelBanner :icon="HeartCrack">
-          <h1 style="margin-bottom: 2em">Vous n'êtes pas connecté</h1>
+          <h1 style="margin-bottom: 2em">
+            Vous n'êtes pas connecté
+          </h1>
           <TextButton
             aspect="outline"
             size="large"

@@ -1,13 +1,13 @@
 export function useThrottle<T>(
-  value: Ref<T>,
+  value: MaybeRefOrGetter<T>,
   time: MaybeRefOrGetter<number>,
 ): { value: Ref<T>, synced: Ref<boolean> } {
   const synced = ref(true)
-  const result = ref<T>(unref(value)) as Ref<T>
+  const result = ref<T>(toValue(value)) as Ref<T>
 
   let timeout = null as null | ReturnType<typeof setTimeout>
 
-  const stop = watch(value, (v) => {
+  const stop = watch(() => toValue(value), (v) => {
     synced.value = false
 
     if (timeout) clearTimeout(timeout)
