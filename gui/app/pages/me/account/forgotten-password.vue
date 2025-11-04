@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { goBack } = useNavigation()
 
+definePageMeta({
+  layout: 'me',
+})
+
 function done() {
   setTimeout(() => goBack(), 10000)
 }

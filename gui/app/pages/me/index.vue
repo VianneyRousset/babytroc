@@ -14,6 +14,10 @@ import {
   AtSign,
 } from 'lucide-vue-next'
 
+definePageMeta({
+  layout: 'me',
+})
+
 // auth session
 const { loggedIn } = useAuth()
 

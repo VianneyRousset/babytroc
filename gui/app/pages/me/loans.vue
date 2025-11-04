@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const { loans } = useMeLoans()
+
+definePageMeta({
+  layout: 'me',
+})
 </script>
 
 <template>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { loggedIn } = useAuth()
 
+definePageMeta({
+  layout: 'me',
+})
+
 // redirect once logged in
 const { redirect } = useRedirect()
 const stop = watch(loggedIn, (newState, oldState) => (oldState === false && newState === true) && redirect())

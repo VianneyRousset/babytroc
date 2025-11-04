@@ -2,6 +2,10 @@
 import { Check, OctagonAlert, KeyRound } from 'lucide-vue-next'
 import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
+definePageMeta({
+  layout: 'me',
+})
+
 const {
   mutateAsync: resetPassword,
   status: resetPasswordStatus,

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ShieldAlert } from 'lucide-vue-next'
 
+definePageMeta({
+  layout: 'explore',
+})
+
 // get user ID from route
 const route = useRoute()
 const userId = Number.parseInt(route.params.user_id as string) // TODO avoid this hack

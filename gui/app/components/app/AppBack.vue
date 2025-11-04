@@ -7,26 +7,16 @@ const props = defineProps<{
 
 const { fallback } = toRefs(props)
 
-const { previous, goBack } = useNavigation()
-
-const { currentTabRoot } = useTab()
-const targetRoute = computed(
-  () => unref(previous) ?? unref(fallback) ?? currentTabRoot,
-)
+const { goBack } = useNavigation()
 </script>
 
 <template>
-  <NuxtLink
-    :to="targetRoute"
-    class="AppBack"
-    @click="goBack"
-  >
-    <ArrowLeft
-      style="cursor: pointer;"
-      :size="32"
-      :stroke-width="2"
-    />
-  </NuxtLink>
+  <ArrowLeft
+    style="cursor: pointer;"
+    :size="32"
+    :stroke-width="2"
+    @click="() => goBack(fallback)"
+  />
 </template>
 
 <style scoped lang="scss">

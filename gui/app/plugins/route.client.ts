@@ -1,27 +1,20 @@
 export default defineNuxtPlugin(() => {
   const router = useRouter()
-  const stack = reactive(Array<string>()) as Array<string>
-  const backwardFlag = ref(false)
   const direction = ref<'forward' | 'backward'>('forward')
+  let previousPosition = 0
 
-  router.afterEach((to) => {
-    const fullPath = to.fullPath
-    stack.push(fullPath)
+  router.beforeEach(() => {
+    const delta = window.history.state.position - previousPosition
+    direction.value = delta < 0 ? 'backward' : 'forward'
+  })
 
-    if (backwardFlag.value) {
-      backwardFlag.value = false
-      direction.value = 'backward'
-    }
-    else {
-      direction.value = 'forward'
-    }
+  router.afterEach(() => {
+    previousPosition = window.history.state.position
   })
 
   return {
     provide: {
-      routeStack: stack,
-      routeStackBackwardFlag: backwardFlag,
-      routeStackDirection: direction,
+      routeChangeDirection: direction,
     },
   }
 })

@@ -1,3 +1,9 @@
+<script setup lang="ts">
+definePageMeta({
+  layout: 'me',
+})
+</script>
+
 <template>
   <AppPage>
     <!-- Header bar (mobile only) -->

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: 'explore',
+})
+
 // get item ID from route
 const route = useRoute()
 const itemId = Number.parseInt(route.params.item_id as string) // TODO avoid this hack

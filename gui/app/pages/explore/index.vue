@@ -15,6 +15,10 @@ import { Filter, LayoutGrid, Grid3x3, ArrowLeft, Repeat } from 'lucide-vue-next'
 import { AppPage } from '#components'
 import { isEqual, cloneDeep } from 'lodash'
 
+definePageMeta({
+  layout: 'explore',
+})
+
 const device = useDevice()
 
 // item filters

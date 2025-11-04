@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { UserRoundPlus, ArrowLeft, AtSign, KeyRound, Check, OctagonAlert } from 'lucide-vue-next'
 
+definePageMeta({
+  layout: 'me',
+})
+
 const name = ref('')
 const email = ref('')
 const password = ref('')
@@ -15,12 +19,8 @@ const mode = computed(() => {
 })
 
 // account creation
-const { reset: resetNavigation } = useNavigation()
 const { createAccount, isLoading, status } = useCreateAccount({
-  onSuccess: () => setTimeout(() => {
-    resetNavigation()
-    return navigateTo('/me/account/pending-validation')
-  }, 1200),
+  onSuccess: () => setTimeout(() => navigateTo('/me/account/pending-validation'), 1200),
 })
 
 const { goBack } = useNavigation()
@@ -71,7 +71,7 @@ function previous() {
           @click="previous"
         />
       </IconButton>
-      <h1>Réinitialisation mot de passe</h1>
+      <h1>Créer un compte</h1>
     </template>
 
     <!-- Header (desktop only) -->

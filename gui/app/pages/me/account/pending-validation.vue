@@ -2,7 +2,7 @@
 import { Check, OctagonAlert, X } from 'lucide-vue-next'
 
 definePageMeta({
-  layout: 'empty',
+  layout: 'me-account-pending-validation',
 })
 
 const {
@@ -12,17 +12,13 @@ const {
 
 const error = ref<boolean>(false)
 const { loggedIn } = useAuth()
-const { reset: resetNavigation } = useNavigation()
 const { $api } = useNuxtApp()
 
 watch(loggedIn, (state) => {
   if (state !== true)
     return
 
-  setTimeout(() => {
-    resetNavigation()
-    return navigateTo('/me/account')
-  }, 1200)
+  setTimeout(() => navigateTo('/me/account'), 1200)
 })
 
 // resend validation email if specified
@@ -42,38 +38,18 @@ useLiveMessage('updated_account_validation', () => {
 
 <template>
   <AppPage
-    with-header
     :max-width="800"
   >
-    <!-- Header bar (mobile only ) -->
-    <template #mobile-header-bar>
-      <NuxtLink
-        to="/me/account"
-      >
-        <X
-          style="cursor: pointer;"
-          :size="32"
-          :stroke-width="2"
-        />
-      </NuxtLink>
-    </template>
-
     <!-- Header (desktop only) -->
-    <template #desktop>
-      <AppHeaderDesktop>
-        <template #buttons-left>
-          <NuxtLink
-            to="/me/account"
-          >
-            <X
-              style="cursor: pointer;"
-              :size="32"
-              :stroke-width="2"
-            />
-          </NuxtLink>
-        </template>
-      </AppHeaderDesktop>
-    </template>
+    <NuxtLink
+      to="/me/account"
+    >
+      <X
+        style="cursor: pointer; margin: 1em;"
+        :size="32"
+        :stroke-width="2"
+      />
+    </NuxtLink>
 
     <!-- Main content -->
     <main>

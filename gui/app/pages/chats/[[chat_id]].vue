@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { Menu, MessageSquare } from 'lucide-vue-next'
+
+definePageMeta({
+  layout: 'chats',
+})
+
 // get chat ID from route
 const route = useRoute()
 const chatId = computed<string | undefined>(() => {
