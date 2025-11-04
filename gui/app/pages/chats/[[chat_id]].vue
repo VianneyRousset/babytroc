@@ -90,7 +90,7 @@ const chatsDrawerOpen = ref(false)
 <style scoped lang="scss">
 .AppPage {
   @include flex-column;
-  flex: 1; 
+  flex: 1;
   min-height: 0;
   align-items: stretch;
 }

@@ -49,6 +49,10 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: '#f6f7f6' },
       ],
     },
+    layoutTransition: {
+      name: 'fade',
+      mode: 'out-in',
+    },
   },
 
   // inject SCSS code (colors definition)

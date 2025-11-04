@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import { Check, TriangleAlert, Eye, EyeOff } from 'lucide-vue-next'
-import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
-
-const model = defineModel<string>()
-const emit = defineEmits(['blur'])
 
 type InputType = ('button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email'
   | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range'
   | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week')
 
-const props = withDefaults(defineProps<{
+export type TextInputProps = {
   placeholder?: string
   type?: InputType
   autofocus?: boolean
   tabindex?: number
-  status?: AsyncStatus
+  status?: 'idle' | 'pending' | 'success' | 'error'
   disabled?: boolean
-}>(), {
+}
+
+const model = defineModel<string>()
+const emit = defineEmits(['blur'])
+
+const props = withDefaults(defineProps<TextInputProps>(), {
   status: 'idle',
   disabled: false,
 })

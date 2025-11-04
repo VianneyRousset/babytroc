@@ -1,37 +1,22 @@
 <script setup lang="ts">
 const { loggedIn } = useAuth()
-
-let websocket: WebSocket | null = null
-
 const { addMessage } = useChats()
 
-watch(loggedIn, (state) => {
-  if (state === true) {
-    // websocket uri
-    const loc = window.location
-    const proto = loc.protocol === 'https:' ? 'wss:' : 'ws:'
-    const uri = `${proto}//${loc.host}/api/v1/me/websocket`
+// add new chat messages from websocket to chats if logged in
+useLiveMessage(
+  'new_chat_message',
+  wsMessage => addMessage(wsMessage.message), {
+    enabled: () => unref(loggedIn) === true,
+  },
+)
 
-    // open websocket and attach event listener
-    websocket = new WebSocket(uri)
-
-    websocket.addEventListener('message', (event) => {
-      const wsMessage = JSON.parse(event.data)
-
-      if (
-        ['new_chat_message', 'updated_chat_message'].includes(wsMessage.type)
-      ) {
-        addMessage(wsMessage.message)
-      }
-    })
-  }
-  else {
-    if (websocket != null) {
-      websocket.close()
-      websocket = null
-    }
-  }
-})
+// update chat messages from websocket to chats if logged in
+useLiveMessage(
+  'updated_chat_message',
+  wsMessage => addMessage(wsMessage.message), {
+    enabled: () => unref(loggedIn) === true,
+  },
+)
 
 // deduce transition to use base on platform and navigation direction
 const device = useDevice()
@@ -41,9 +26,6 @@ const transitionMode = computed(() => device.isMobile ? 'in-out' : 'out-in')
 
 const pageActiveTransition = ref<boolean>(false)
 provide<Ref<boolean>>('page-active-transition', pageActiveTransition)
-
-function onBeforeLeave() {
-}
 
 function onAfterEnter() {
   resetDirection()
@@ -56,7 +38,6 @@ function onAfterEnter() {
       :transition="{
         name: transitionName,
         mode: transitionMode,
-        onBeforeLeave,
         onAfterEnter,
       }"
     />

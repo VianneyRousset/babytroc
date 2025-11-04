@@ -61,7 +61,6 @@ export function useAuth(options?: UseAuthOptions) {
   return { loggedIn, loginRoute }
 }
 
-
 export function useQueryWithAuth<
   TResult,
   TError,

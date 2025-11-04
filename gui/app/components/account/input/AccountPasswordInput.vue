@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const props = defineProps<{
-  tabindex?: number
-  autofocus?: boolean
-  msgPlacement?: MsgPlacement
-}>()
+import type { TextInputProps } from '../../ui/inputs/TextInput.vue'
 
-const { tabindex, autofocus } = toRefs(props)
+const props = withDefaults(defineProps<{
+  msgPlacement?: MsgPlacement
+} & Omit<TextInputProps, 'modelValue' | 'status'>>(), {
+  type: 'password',
+  placeholder: 'Mot de passe',
+})
+
+const { msgPlacement } = toRefs(props)
 
 const password = defineModel<string>('password', { default: '' })
 const valid = defineModel<boolean>('valid')
@@ -19,7 +22,8 @@ const stop = watchEffect(() => {
 })
 
 function next() {
-  emit('next')
+  if (unref(valid))
+    emit('next')
 }
 
 tryOnUnmounted(stop)
@@ -34,10 +38,7 @@ tryOnUnmounted(stop)
     >
       <TextInput
         v-model="password"
-        type="password"
-        placeholder="Mot de passe"
-        :autofocus="autofocus"
-        :tabindex="tabindex"
+        v-bind="props"
         :status="status"
         @keyup.enter="next"
         @blur="() => (touched = true)"

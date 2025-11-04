@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const props = defineProps<{
   loading?: boolean
+  disabled?: boolean
 }>()
 
-const { loading } = toRefs(props)
+const { loading, disabled } = toRefs(props)
 
 const password = defineModel<string>('password', { default: '' })
 const valid = defineModel<boolean>('valid')
@@ -19,6 +20,7 @@ const next = () => unref(valid) && emit('next')
       v-model:valid="valid"
       msg-placement="top"
       :tabindex="0"
+      :disabled="loading || disabled"
       autofocus
       @next="() => emit('next')"
     />
@@ -27,7 +29,7 @@ const next = () => unref(valid) && emit('next')
       size="large"
       color="primary"
       :loading="loading"
-      :disabled="!valid || loading"
+      :disabled="!valid || loading || disabled"
       @click="next"
     >
       Créer un compte

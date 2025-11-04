@@ -60,6 +60,7 @@ const classes = computed(() => ({
   color: white;
   text-align: center;
   cursor: pointer;
+  user-select: none;
   border-radius: 0.4rem;
   padding: 0.3rem 0.8rem;
 

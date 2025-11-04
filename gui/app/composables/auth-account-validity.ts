@@ -4,7 +4,7 @@ import type { FetchError } from 'ofetch'
 export function useAccountNameValidity(
   name: MaybeRefOrGetter<string>,
 ) {
-  const { value: touched } = useThrottle(useTouched(name), 1000)
+  const { value: touched } = useThrottle(useTouched(name, ''), 1000)
 
   // validity pattern (unicode letters with ' ' and '-' not at the ends)
   const validCharactersRegex = /^\p{L}[\p{L} -]+\p{L}$/u
@@ -46,7 +46,7 @@ export function useAccountNameValidity(
 export function useAccountEmailValidity(
   email: MaybeRefOrGetter<string>,
 ) {
-  const { value: touched } = useThrottle(useTouched(email), 1000)
+  const { value: touched } = useThrottle(useTouched(email, ''), 1000)
 
   // delayed propagation of the cleaned email
   const { value: throttledEmail, synced: throttledEmailSynced } = useThrottle(email, 500)
@@ -83,7 +83,7 @@ export function useAccountEmailValidity(
 export function useAccountPasswordValidity(
   password: MaybeRefOrGetter<string>,
 ) {
-  const { value: touched } = useThrottle(useTouched(password), 1000)
+  const { value: touched } = useThrottle(useTouched(password, ''), 1000)
 
   // validity pattern
   const digitPattern = /[0-9]/

@@ -1,4 +1,4 @@
-export function useCreateAccount() {
+export function useCreateAccount(options?: { onSuccess?: () => void }) {
   const { $api } = useNuxtApp()
 
   const { mutateAsync: createAccount, ...mutation } = useMutation({
@@ -8,6 +8,7 @@ export function useCreateAccount() {
         body: context,
       })
     },
+    onSuccess: () => options?.onSuccess && options.onSuccess(),
   })
 
   return { createAccount, ...mutation }

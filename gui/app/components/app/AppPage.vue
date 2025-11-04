@@ -169,12 +169,15 @@ useInfiniteScroll(
   &:not(.mobile) {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    grid-template-areas: "left main   right";
+    grid-template-rows: 1fr;
+    grid-template-areas: "left main right";
+    flex: 1;
 
     width: 100%;
     max-width: v-bind("`${maxWidth}px`");
 
     &.with-header {
+      grid-template-rows: auto 1fr;
       grid-template-areas:
         ".    header ."
         "left main   right";
@@ -182,7 +185,6 @@ useInfiniteScroll(
 
     :deep(main) {
       grid-area: main;
-      flex: 1;
     }
 
     :deep(header) {

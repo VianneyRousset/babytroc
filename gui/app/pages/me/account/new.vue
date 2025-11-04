@@ -11,15 +11,28 @@ const mode = computed(() => {
     0: 'name',
     1: 'email',
     2: 'password',
-  }[unref(modeCounter)]
+  }[unref(status) === 'success' ? 2 : unref(modeCounter)]
 })
 
-const { createAccount, isLoading, status } = useCreateAccount()
+// account creation
+const { reset: resetNavigation } = useNavigation()
+const { createAccount, isLoading, status } = useCreateAccount({
+  onSuccess: () => setTimeout(() => {
+    resetNavigation()
+    return navigateTo('/me/account/pending-validation')
+  }, 1200),
+})
 
 const { goBack } = useNavigation()
 
+// when the account creation request is pending or succeeded
+// it is impossible to go back or resend a request
+const freeze = computed(() => unref(isLoading) || unref(status) === 'success')
+
 async function next() {
   const _modeCounter = unref(modeCounter)
+
+  if (unref(freeze)) return
 
   if (_modeCounter === 2)
     return await createAccount({
@@ -33,6 +46,8 @@ async function next() {
 
 function previous() {
   const _modeCounter = unref(modeCounter)
+
+  if (unref(freeze)) return
 
   if (_modeCounter === 0)
     return goBack('/me/account')
@@ -48,12 +63,14 @@ function previous() {
   >
     <!-- Header bar (mobile only ) -->
     <template #mobile-header-bar>
-      <ArrowLeft
-        style="cursor: pointer;"
-        :size="32"
-        :stroke-width="2"
-        @click="previous"
-      />
+      <IconButton :disabled="freeze">
+        <ArrowLeft
+          style="cursor: pointer;"
+          :size="32"
+          :stroke-width="2"
+          @click="previous"
+        />
+      </IconButton>
       <h1>Réinitialisation mot de passe</h1>
     </template>
 
@@ -61,12 +78,14 @@ function previous() {
     <template #desktop>
       <AppHeaderDesktop>
         <template #buttons-left>
-          <ArrowLeft
-            style="cursor: pointer;"
-            :size="32"
-            :stroke-width="2"
-            @click="previous"
-          />
+          <IconButton :disabled="freeze">
+            <ArrowLeft
+              style="cursor: pointer;"
+              :size="32"
+              :stroke-width="2"
+              @click="previous"
+            />
+          </IconButton>
         </template>
       </AppHeaderDesktop>
     </template>
@@ -80,7 +99,7 @@ function previous() {
         <!-- Name -->
         <Panel v-if="mode === 'name'">
           <PanelBanner :icon="UserRoundPlus">
-            <h2>Entrez un pseudonyme.</h2>
+            <h2>Entrez votre pseudonyme</h2>
           </PanelBanner>
           <AccountCreationNameForm
             v-model:name="name"
@@ -90,7 +109,7 @@ function previous() {
         <!-- Email -->
         <Panel v-else-if="mode === 'email'">
           <PanelBanner :icon="AtSign">
-            <h2>Entrez votre address email.</h2>
+            <h2>Entrez votre address email</h2>
           </PanelBanner>
           <AccountCreationEmailForm
             v-model:email="email"
@@ -108,24 +127,25 @@ function previous() {
               :icon="Check"
               color="primary"
             >
-              <h2>Compte crée avec succés. Un email de validation vous à été envoyé.</h2>
+              <h2>Compte créé avec succés</h2>
             </PanelBanner>
             <PanelBanner
               v-else-if="status === 'error'"
               :icon="OctagonAlert"
             >
-              <h2>Une erreur est survenue.</h2>
+              <h2>Une erreur est survenue</h2>
             </PanelBanner>
             <PanelBanner
               v-else
               :icon="KeyRound"
             >
-              <h2>Entrer un mot de passe pour votre compte.</h2>
+              <h2>Entrer un mot de passe pour votre compte</h2>
             </PanelBanner>
           </transition>
           <AccountCreationPasswordForm
             v-model:password="password"
             :loading="isLoading"
+            :disabled="status === 'success'"
             @next="next"
           />
         </Panel>

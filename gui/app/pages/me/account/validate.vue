@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { Check, OctagonAlert, AtSign } from 'lucide-vue-next'
 
+definePageMeta({
+  layout: 'empty',
+})
+
 const {
   mutateAsync: validateAccount,
-  status: validateAccountStatus,
-  asyncStatus: validateAccountAsyncStatus,
+  status,
+  isLoading,
 } = useValidateAccountMutation()
 
 const route = useRoute()
+
+watch(status, state => state === 'success' && setTimeout(closeWindow, 2000))
 
 async function validate() {
   const code = Array.isArray(route.query.code) ? route.query.code[0] ?? '' : route.query.code ?? ''
@@ -17,97 +23,62 @@ async function validate() {
 </script>
 
 <template>
-  <AppPage>
-    <!-- Main content -->
-    <Panel>
+  <AppPage
+    :max-width="600"
+  >
+    <main>
       <transition
         name="pop"
         mode="out-in"
         appear
       >
-        <div
-          v-if="validateAccountStatus === 'success'"
-          class="success"
-        >
-          <Check
-            :size="64"
-            :stroke-width="1.33"
-          />
-        </div>
-        <div
-          v-else-if="validateAccountStatus === 'error'"
-          class="error"
-        >
-          <OctagonAlert
-            :size="64"
-            :stroke-width="1.33"
-          />
-          <div>Code de confirmation invalide</div>
-        </div>
-        <AtSign
-          v-else
-          :size="64"
-          :stroke-width="1.33"
-        />
+        <!-- Success -->
+        <Panel v-if="status === 'success'">
+          <PanelBanner
+            :icon="Check"
+            color="primary"
+          >
+            <h1>Addresse e-mail confirmée</h1>
+            <h2>Vous pouvez fermer cette page</h2>
+          </PanelBanner>
+        </Panel>
+
+        <!-- Error -->
+        <Panel v-else-if="status === 'error'">
+          <PanelBanner
+            :icon="OctagonAlert"
+            color="red"
+          >
+            <h1>Code de confirmation invalide</h1>
+            <h2>Vous pouvez fermer cette page</h2>
+          </PanelBanner>
+        </Panel>
+
+        <!-- Pending -->
+        <Panel v-else>
+          <PanelBanner :icon="AtSign">
+            <h1>Confirmer votre addresse e-mail</h1>
+          </PanelBanner>
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="neutral"
+            :loading="isLoading"
+            @click="validate"
+          >
+            Confirmer
+          </TextButton>
+        </Panel>
       </transition>
-      <h1>Confirmer votre adresse email</h1>
-      <transition
-        name="pop"
-        mode="out-in"
-      >
-        <TextButton
-          v-if="validateAccountStatus === 'pending'"
-          aspect="flat"
-          size="large"
-          color="neutral"
-          :loading="validateAccountAsyncStatus === 'loading'"
-          :timeout="0"
-          @click="validate"
-        >
-          Confirmer
-        </TextButton>
-      </transition>
-    </Panel>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
 main {
-  @include flex-column-center;
-  box-sizing: border-box;
-  height: 100dvh;
-  color: $neutral-600;
-  position: relative;
-
-  h1 {
-    font-family: "Plus Jakarta Sans", sans-serif;
+  padding-top: 4em;
+  .PanelBanner {
     text-align: center;
-    color: $neutral-800;
-    font-size: 1.4rem;
-    font-weight: 700;
-  }
-
-  .TextButton {
-    margin: 1rem;
-  }
-
-  a.cancel {
-    @include reset-link;
-    @include flex-row;
-    gap: 0.5rem;
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-  }
-
-  .success {
-    color: $primary-400;
-  }
-
-  .error {
-    @include flex-column;
-    gap: 1rem;
-    color: $red-800;
   }
 }
 </style>

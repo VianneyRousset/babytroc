@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Check, OctagonAlert, X } from 'lucide-vue-next'
 
+definePageMeta({
+  layout: 'empty',
+})
+
 const {
   mutateAsync: resendValidationEmail,
   asyncStatus: resendValidationEmailAsyncStatus,
@@ -9,19 +13,16 @@ const {
 const error = ref<boolean>(false)
 const { loggedIn } = useAuth()
 const { reset: resetNavigation } = useNavigation()
-const { data: me } = useMeQuery()
 const { $api } = useNuxtApp()
 
 watch(loggedIn, (state) => {
   if (state !== true)
     return
 
-  const _me = unref(me)
-
   setTimeout(() => {
     resetNavigation()
-    return navigateTo('/')
-  }, 750)
+    return navigateTo('/me/account')
+  }, 1200)
 })
 
 // resend validation email if specified
@@ -32,132 +33,122 @@ if (route.query.sendEmail !== undefined) {
   router.replace({ query: {} })
 }
 
-try {
-  const queryCache = useQueryCache()
-
-  // websocket uri
-  const loc = window.location
-  const proto = loc.protocol === 'https:' ? 'wss:' : 'ws:'
-  const uri = `${proto}//${loc.host}/api/v1/me/websocket`
-
-  // open websocket and attach event listener
-  const websocket = new WebSocket(uri)
-
-  websocket.addEventListener('message', async (event) => {
-    try {
-      const wsMessage = JSON.parse(event.data)
-
-      if (wsMessage.type === 'updated_account_validation') {
-        console.log('updated validation')
-        await $api('/v1/auth/refresh', { method: 'POST' })
-        console.log('refresh')
-        queryCache.invalidateQueries({ key: ['auth'] })
-      }
-    }
-    catch (err) {
-      error.value = true
-      console.error(err)
-    }
-  })
-}
-catch (err) {
-  error.value = true
-  throw err
-}
+const queryCache = useQueryCache()
+useLiveMessage('updated_account_validation', () => {
+  $api('/v1/auth/refresh', { method: 'POST' })
+    .then(() => queryCache.invalidateQueries({ key: ['auth'] }))
+})
 </script>
 
 <template>
-  <AppPage>
-    <!-- Main content -->
-    <Panel>
+  <AppPage
+    with-header
+    :max-width="800"
+  >
+    <!-- Header bar (mobile only ) -->
+    <template #mobile-header-bar>
       <NuxtLink
-        class="cancel"
         to="/me/account"
       >
         <X
-          :size="24"
-          :stroke-width="1.33"
+          style="cursor: pointer;"
+          :size="32"
+          :stroke-width="2"
         />
-        <div>Annuler</div>
       </NuxtLink>
+    </template>
+
+    <!-- Header (desktop only) -->
+    <template #desktop>
+      <AppHeaderDesktop>
+        <template #buttons-left>
+          <NuxtLink
+            to="/me/account"
+          >
+            <X
+              style="cursor: pointer;"
+              :size="32"
+              :stroke-width="2"
+            />
+          </NuxtLink>
+        </template>
+      </AppHeaderDesktop>
+    </template>
+
+    <!-- Main content -->
+    <main>
       <transition
         name="pop"
         mode="out-in"
         appear
       >
-        <div
-          v-if="loggedIn"
-          class="success"
+        <!-- Validated -->
+        <Panel v-if="loggedIn === true">
+          <PanelBanner
+            :icon="Check"
+            color="primary"
+          >
+            <h2>Votre compte a été validé</h2>
+          </PanelBanner>
+        </Panel>
+
+        <!-- Erreur -->
+        <Panel v-else-if="error">
+          <PanelBanner
+            :icon="OctagonAlert"
+            color="red"
+          >
+            <h2>Une erreur est survenue.</h2>
+          </PanelBanner>
+        </Panel>
+
+        <!-- Pending validation -->
+        <Panel
+          v-else
+          class="pending"
         >
-          <Check
-            :size="64"
-            :stroke-width="1.33"
-          />
-        </div>
-        <div
-          v-else-if="error"
-          class="error"
-        >
-          <OctagonAlert
-            :size="64"
-            :stroke-width="1.33"
-          />
-          <div>Une erreur est survenue.</div>
-        </div>
-        <LoadingAnimation v-else />
+          <PanelBanner>
+            <LoadingAnimation />
+            <h1>En attente de validation...</h1>
+            <div>Un email de validation vous été envoyé.</div>
+            <TextButton
+              aspect="outline"
+              color="neutral"
+              :loading="resendValidationEmailAsyncStatus === 'loading'"
+              :timeout="0"
+              @click="resendValidationEmail"
+            >
+              Renvoyer un email
+            </TextButton>
+          </PanelBanner>
+        </Panel>
       </transition>
-      <h1>En attente de validation...</h1>
-      <div>Un email de confirmation vous été envoyé.</div>
-      <TextButton
-        aspect="outline"
-        color="neutral"
-        :loading="resendValidationEmailAsyncStatus === 'loading'"
-        :timeout="0"
-        @click="resendValidationEmail"
-      >
-        Renvoyer un email
-      </TextButton>
-    </Panel>
+    </main>
   </AppPAge>
 </template>
 
 <style scoped lang="scss">
-main {
-  @include flex-column-center;
-  box-sizing: border-box;
-  height: 100dvh;
-  color: $neutral-600;
-  position: relative;
+.AppPage {
+  min-height: 0;
+  align-items: stretch;
 
-  h1 {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    text-align: center;
-    color: $neutral-800;
-    font-size: 1.4rem;
-    font-weight: 700;
-  }
-
-  .TextButton {
-    margin: 1rem;
-  }
-
-  a.cancel {
+  a {
     @include reset-link;
-    @include flex-row;
-    gap: 0.5rem;
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
   }
 
-  .success {
-    color: $primary-400;
-  }
+  .Panel {
 
-  .error {
-    @include flex-column;
-    gap: 1rem;
-    color: $red-800;
+    .LoadingAnimation {
+      margin: 4em 0;
+    }
+
+    h1 {
+      margin: 1em 0;
+    }
+
+    .TextButton {
+      margin-top: 1em;
+    }
   }
 }
 </style>
