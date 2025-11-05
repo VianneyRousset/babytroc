@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Box, LogOut, LogIn, Settings, Ellipsis } from 'lucide-vue-next'
 
+const props = withDefaults(defineProps<{
+  compact?: boolean
+}>(), {
+  compact: false,
+})
+
+const { compact } = toRefs(props)
+
 const { loggedIn } = useAuth()
 
 const { me } = useMe()
@@ -24,7 +32,7 @@ provide('dropdown-menu-open', open)
           :seed="me.avatar_seed"
           :size="48"
         />
-        <div>
+        <div v-if="!compact">
           {{ me.name }}
         </div>
       </div>

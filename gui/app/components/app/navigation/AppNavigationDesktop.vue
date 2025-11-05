@@ -3,6 +3,8 @@ const { appSectionUrls, activeAppSection } = useNavigation()
 
 const { hot } = useChats()
 
+const { narrowWindow } = useNarrowWindow()
+
 type ClassSpecifications = {
   section: AppSection
   name?: string
@@ -49,7 +51,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
         </li>
       </ul>
     </div>
-    <AccountMenu />
+    <AccountMenu :compact="narrowWindow" />
   </nav>
 </template>
 
