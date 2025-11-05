@@ -19,8 +19,8 @@ const { light } = toRefs(props)
 
 <style scoped lang="scss">
 .SlabList {
-  display: grid;
-  overflow: show;
+  @include flex-column;
+  align-items: stretch;
 
   & > :deep(.Slab) {
 
