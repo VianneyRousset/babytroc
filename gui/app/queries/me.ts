@@ -1,4 +1,4 @@
-function useMeQuery() {
+export function useMeQuery() {
   const { $api } = useNuxtApp()
 
   return useQueryWithAuth({
@@ -8,4 +8,8 @@ function useMeQuery() {
   })
 }
 
-export { useMeQuery }
+export function useMeItemsListQuery() {
+  return useApiPaginatedQuery('/v1/me/items', {
+    key: ['item', 'me'],
+  })
+}

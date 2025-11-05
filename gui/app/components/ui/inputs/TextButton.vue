@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { LucideIcon } from 'lucide-vue-next'
+
 const props = withDefaults(
   defineProps<{
     aspect?: 'flat' | 'outline' | 'bezel'
@@ -7,6 +9,7 @@ const props = withDefaults(
     loading?: boolean
     timeout?: number
     disabled?: boolean
+    icon?: LucideIcon
   }>(),
   {
     aspect: 'flat',
@@ -17,9 +20,13 @@ const props = withDefaults(
     disabled: false,
   },
 )
-const { aspect, size, color, loading, timeout, disabled } = toRefs(props)
+const { aspect, size, color, loading, timeout, disabled, icon } = toRefs(props)
 
 const { value: longLoading } = useThrottle(loading, timeout)
+
+const slots = useSlots()
+
+const iconSize = computed(() => ({ normal: 24, large: 32 }[unref(size)]))
 
 const classes = computed(() => ({
   large: unref(size) === 'large',
@@ -48,9 +55,21 @@ const classes = computed(() => ({
     >
       <LoadingAnimation :small="true" />
     </div>
-    <span>
+    <div class="content">
+      <div
+        v-if="slots.icon || icon"
+        class="icon"
+      >
+        <component
+          :is="icon"
+          v-if="icon"
+          :size="iconSize"
+          :stroke-width="1"
+        />
+        <slot name="icon" />
+      </div>
       <slot />
-    </span>
+    </div>
   </div>
 </template>
 
@@ -86,7 +105,19 @@ const classes = computed(() => ({
     left: 0;
   }
 
-  &.loading>span {
+  .content {
+    @include flex-row;
+    align-content: center;
+    justify-content: center;
+    gap: 0.5em;
+
+    .icon {
+      position: relative;
+      top: 3px;
+    }
+  }
+
+  &.loading>.content {
     opacity: 0.1;
   }
 

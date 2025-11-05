@@ -10,8 +10,11 @@ export function useLogout() {
     },
 
     onSettled: () => {
-      queryCache.invalidateQueries({ key: ['me'] })
       queryCache.invalidateQueries({ key: ['auth'], exact: true })
+
+      queryCache.getEntries({
+        predicate: entry => entry.key.includes('me'),
+      }).map(queryCache.remove)
     },
 
     onSuccess: () => {
