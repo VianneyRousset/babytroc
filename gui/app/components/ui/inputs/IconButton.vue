@@ -1,39 +1,50 @@
 <script setup lang="ts">
 import { Square } from 'lucide-vue-next'
+import type { LucideIcon } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
 
 const props = withDefaults(
   defineProps<{
     active?: boolean
     disabled?: boolean
+    icon?: LucideIcon
+    target?: string | RouteLocationGeneric
   }>(),
   {
     active: false,
     disabled: false,
+    icon: Square,
   },
 )
 
-const { disabled, active } = toRefs(props)
+const { disabled, active, icon, target } = toRefs(props)
+
+const slots = useSlots()
 </script>
 
 <template>
-  <div
+  <NuxtLink
     class="IconButton"
     role="button"
     :disabled="disabled"
     :active="active"
+    :to="target"
   >
     <slot>
-      <Square
-        :size="24"
-        :stroke-width="2"
+      <component
+        :is="icon"
+        v-if="slots.default == null"
+        :size="32"
+        :stroke-width="1.5"
       />
     </slot>
-  </div>
+  </NuxtLink>
 </template>
 
 <style scoped lang="scss">
-.IconButton {
+a.IconButton {
   @include reset-button;
+  @include reset-link;
   @include flex-row-center;
   padding: 0px;
   cursor: pointer;
