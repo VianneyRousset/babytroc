@@ -49,6 +49,10 @@ textarea {
   }
 }
 
+input {
+  font-size: 1.4em;
+}
+
 .flex-column-center {
   @include flex-column-center;
 }

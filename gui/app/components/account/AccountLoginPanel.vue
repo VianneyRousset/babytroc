@@ -142,12 +142,6 @@ tryOnUnmounted(stop)
     @include flex-column;
     align-items: stretch;
     gap: 1rem;
-
-    input {
-      border-radius: 0.5rem;
-      padding: 0.6rem 1.5rem;
-      font-size: 1.5rem;
-    }
   }
 
   a.forgotten-password {

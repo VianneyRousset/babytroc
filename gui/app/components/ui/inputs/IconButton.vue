@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Square } from 'lucide-vue-next'
-import type { LucideIcon } from 'lucide-vue-next'
+import { Square, type LucideIcon } from 'lucide-vue-next'
 import type { RouteLocationGeneric } from 'vue-router'
 
 const props = withDefaults(
@@ -13,13 +12,10 @@ const props = withDefaults(
   {
     active: false,
     disabled: false,
-    icon: Square,
   },
 )
 
 const { disabled, active, icon, target } = toRefs(props)
-
-const slots = useSlots()
 </script>
 
 <template>
@@ -30,10 +26,14 @@ const slots = useSlots()
     :active="active"
     :to="target"
   >
-    <slot>
-      <component
-        :is="icon"
-        v-if="slots.default == null"
+    <component
+      :is="icon"
+      v-if="icon"
+      :size="32"
+      :stroke-width="1.5"
+    />
+    <slot v-else>
+      <Square
         :size="32"
         :stroke-width="1.5"
       />

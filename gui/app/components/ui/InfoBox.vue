@@ -18,46 +18,45 @@ const slots = useSlots()
 </script>
 
 <template>
-  <Unwrap :disabled="target != null">
-    <NuxtLink :to="target">
-      <div class="InfoBox">
-        <!-- Icon -->
-        <div
-          v-if="slots.icon || icon"
-          class="icon with"
-        >
-          <component
-            :is="icon"
-            v-if="icon"
-            :size="32"
-            :stroke-width="1"
-          />
-          <slot name="icon" />
-        </div>
+  <NuxtLink
+    class="InfoBox"
+    :to="target"
+  >
+    <!-- Icon -->
+    <div
+      v-if="slots.icon || icon"
+      class="icon with"
+    >
+      <component
+        :is="icon"
+        v-if="icon"
+        :size="32"
+        :stroke-width="1"
+      />
+      <slot name="icon" />
+    </div>
 
-        <!-- Content -->
-        <div class="content">
-          <slot />
-        </div>
+    <!-- Content -->
+    <div class="content">
+      <slot />
+    </div>
 
-        <!-- Mini -->
-        <div
-          v-if="slots.mini"
-          class="mini"
-        >
-          <slot name="mini" />
-        </div>
+    <!-- Mini -->
+    <div
+      v-if="slots.mini"
+      class="mini"
+    >
+      <slot name="mini" />
+    </div>
 
-        <!-- Chevron right -->
-        <ChevronRight
-          v-if="chevronRight"
-          class="chevron"
-          :size="32"
-          :stroke-width="1"
-        />
-      </div>
-    </NuxtLink>
-  </Unwrap>
+    <!-- Chevron right -->
+    <ChevronRight
+      v-if="chevronRight"
+      class="chevron"
+      :size="32"
+      :stroke-width="1"
+    />
+  </NuxtLink>
 </template>
 
 <style scoped lang="scss">

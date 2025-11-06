@@ -24,18 +24,17 @@ const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined
     <v-switch :case="state">
       <!-- Loaned -->
       <template #loaned>
-        <NuxtLink :to="`/chats/${item.active_loan.chat_id}`">
-          <InfoBox
-            chevron-right
-            :icon="Import"
-            class="active"
-          >
-            Vous avez prété cet objet à {{ item.active_loan.borrower.name }}
-            <template #mini>
-              {{ formatRelativeDateRange(item.active_loan.during) }}
-            </template>
-          </InfoBox>
-        </NuxtLink>
+        <InfoBox
+          chevron-right
+          :icon="Import"
+          :target="`/chats/${item.active_loan.chat_id}`"
+          class="active"
+        >
+          Vous avez prété cet objet à {{ item.active_loan.borrower.name }}
+          <template #mini>
+            {{ formatRelativeDateRange(item.active_loan.during) }}
+          </template>
+        </InfoBox>
       </template>
 
       <!-- Owned -->

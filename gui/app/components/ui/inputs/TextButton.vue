@@ -89,7 +89,6 @@ a.TextButton {
   user-select: none;
   font-size: 1.2em;
   border-radius: 0.4em;
-  padding: 0.4em 0.8em;
 
   transition: all 200ms ease-out;
 
