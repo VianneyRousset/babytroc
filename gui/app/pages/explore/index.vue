@@ -83,12 +83,8 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         <FloatingToggle
           v-model="filtersDrawerOpen"
           :active="!isFiltersDefault"
-        >
-          <Filter
-            :size="24"
-            :stroke-width="2"
-          />
-        </FloatingToggle>
+          :icon="Filter"
+        />
         <FloatingToggle v-model="dense">
           <transition
             name="fade"
@@ -116,7 +112,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         position="right"
         :drawer="drawerMode"
       >
-        <Panel style="width: 20em;">
+        <Panel style="width: 20em; align-items: stretch;">
           <ItemExploreFilters
             v-model="filters"
             :size="device.isMobile ? 'large' : 'normal'"
