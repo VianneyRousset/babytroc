@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import 'vue3-carousel/carousel.css'
+import { Image } from 'lucide-vue-next'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import type { ComponentProps } from 'vue-component-type-helpers'
 
@@ -60,9 +61,19 @@ const carouselConfig = {
       >
     </Slide>
 
+    <Slide v-if="images.length === 0">
+      <div class="empty">
+        <Image
+          :size="128"
+          :stroke-width="1"
+        />
+        <div>Aucune image disponible</div>
+      </div>
+    </Slide>
+
     <template #addons>
-      <Navigation />
-      <Pagination />
+      <Navigation v-if="images.length > 0" />
+      <Pagination v-if="images.length > 0" />
     </template>
   </Carousel>
 </template>
@@ -78,6 +89,30 @@ const carouselConfig = {
     height: 100%;
     aspect-ratio: 1;
     object-fit: cover;
+  }
+
+  div.empty {
+    @include flex-column-center;
+    gap: 1em;
+
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    background: $neutral-100;
+
+    color: $neutral-300;
+    font-size: 1.5em;
+    font-weight: 600;
+
+    & > svg {
+      width: 40%;
+      height: 40%;
+    }
+
+    & > div {
+      width: 40%;
+      text-align: center;
+    }
   }
 
   .carousel__slide {
