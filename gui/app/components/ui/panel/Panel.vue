@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const slots = useSlots()
+
+const props = defineProps<{
+  maxWidth?: number
+}>()
+
+const { maxWidth } = toRefs(props)
 </script>
 
 <template>
@@ -18,6 +24,9 @@ const slots = useSlots()
 
 <style scoped lang="scss">
 .Panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   .header {
     @include flex-row;
@@ -28,10 +37,18 @@ const slots = useSlots()
   }
 
   .content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: v-bind("maxWidth && `${maxWidth}px`");
     @include flex-column;
     align-items: stretch;
     gap: 1em;
     padding: 1em;
+
+    :deep(.legend) {
+      font-style: italic;
+      color: $neutral-500;
+    }
 
     :deep(.h) {
         @include flex-row;
