@@ -41,8 +41,8 @@ textarea {
     color: #9e9ea7;
   }
 
-  &:not(:disabled):focus,
-  &:not(:disabled):hover {
+  &[disabled=false]:focus,
+  &[disabled=false]:hover {
     outline: none;
     border-color: $primary-200;
     box-shadow: 0 0 0 2px $primary-50;

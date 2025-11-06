@@ -113,6 +113,7 @@ const type = computed(() => {
     flex: 1;
     font-size: 1.5rem;
     border-radius: 0.4rem;
+    transition: all 200ms ease-out;
 
     padding-right: v-bind("`max(0.6em, calc(${iconsWidth}px + 12px))`");
 
@@ -122,7 +123,7 @@ const type = computed(() => {
     }
 
     &.error {
-      box-shadow: 0 0 2px 2px $red-700;
+      box-shadow: 0 0 2px $red-700;
     }
   }
 

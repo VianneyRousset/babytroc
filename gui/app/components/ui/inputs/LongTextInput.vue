@@ -19,13 +19,6 @@ const props = withDefaults(defineProps<LongTextInputProps>(), {
 
 const textarea = useTemplateRef<HTMLTextAreaElement>('textarea')
 
-useTextareaAutosize({
-  element: textarea,
-  input: model,
-})
-
-watch(textarea, _el => _el && props.autofocus ? _el.focus() : undefined)
-
 // monitor icons container width to add padding to textarea element
 // thus avoiding overlaps
 const { width: iconsWidth } = useElementSize(
@@ -33,6 +26,15 @@ const { width: iconsWidth } = useElementSize(
   undefined,
   { box: 'border-box' },
 )
+
+useTextareaAutosize({
+  element: textarea,
+  input: model,
+  styleProp: 'minHeight',
+  watch: iconsWidth,
+})
+
+watch(textarea, _el => _el && props.autofocus ? _el.focus() : undefined)
 
 const blur = () => unref(textarea)?.blur()
 
@@ -65,6 +67,7 @@ function submit() {
       :tabindex="props.tabindex"
       :autofocus="props.autofocus"
       :class="[status]"
+      :rows="8"
       @blur="emit('blur')"
       @keydown.enter="enterDown"
       @keyup.enter="enterUp"
@@ -126,10 +129,7 @@ function submit() {
 
     font-family: 'Inter', sans-serif;
     font-size: 1em;
-
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-    transition: box-shadow 0.2s ease-out,
-    all 0.2 ease-out;
+    transition: box-shadow 0.2s ease-out;
 
     &:disabled {
       background: $neutral-50;
@@ -137,7 +137,7 @@ function submit() {
     }
 
     &.error {
-      box-shadow: 0 0 2px 2px $red-700;
+      box-shadow: 0 0 2px $red-700;
     }
   }
 
