@@ -11,16 +11,8 @@ const { goBack } = useNavigation()
 </script>
 
 <template>
-  <ArrowLeft
-    style="cursor: pointer;"
-    :size="32"
-    :stroke-width="2"
+  <IconButton
+    :icon="ArrowLeft"
     @click="() => goBack(fallback)"
   />
 </template>
-
-<style scoped lang="scss">
-a {
-  @include reset-link;
-}
-</style>

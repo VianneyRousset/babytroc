@@ -174,7 +174,7 @@ useInfiniteScroll(
     flex: 1;
 
     width: 100%;
-    max-width: v-bind("`${maxWidth}px`");
+    max-width: v-bind("maxWidth && `${maxWidth}px`");
 
     &.with-header {
       grid-template-rows: auto 1fr;
