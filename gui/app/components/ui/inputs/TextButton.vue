@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import type { LucideIcon } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
 
 const props = withDefaults(
   defineProps<{
     aspect?: 'flat' | 'outline' | 'bezel'
-    size?: 'large' | 'normal'
+    size?: 'large' | 'normal' | 'small'
     color?: 'neutral' | 'primary' | 'red'
     loading?: boolean
     timeout?: number
     disabled?: boolean
     icon?: LucideIcon
+    target?: string | RouteLocationGeneric
   }>(),
   {
     aspect: 'flat',
@@ -20,16 +22,17 @@ const props = withDefaults(
     disabled: false,
   },
 )
-const { aspect, size, color, loading, timeout, disabled, icon } = toRefs(props)
+const { aspect, size, color, loading, timeout, disabled, icon, target } = toRefs(props)
 
 const { value: longLoading } = useThrottle(loading, timeout)
 
 const slots = useSlots()
 
-const iconSize = computed(() => ({ normal: 24, large: 32 }[unref(size)]))
+const iconSize = computed(() => ({ small: 16, normal: 24, large: 32 }[unref(size)]))
 
 const classes = computed(() => ({
   large: unref(size) === 'large',
+  small: unref(size) === 'small',
 
   flat: unref(aspect) === 'flat',
   outline: unref(aspect) === 'outline',
@@ -45,9 +48,10 @@ const classes = computed(() => ({
 </script>
 
 <template>
-  <div
+  <NuxtLink
     class="TextButton"
     :class="classes"
+    :to="target"
   >
     <div
       v-if="loading && longLoading"
@@ -70,18 +74,22 @@ const classes = computed(() => ({
       </div>
       <slot />
     </div>
-  </div>
+  </NuxtLink>
 </template>
 
 <style scoped lang="scss">
-.TextButton {
+a.TextButton {
+  @include reset-link;
+
+  display: block;
   position: relative;
   color: white;
   text-align: center;
   cursor: pointer;
   user-select: none;
-  border-radius: 0.4rem;
-  padding: 0.3rem 0.8rem;
+  font-size: 1.2em;
+  border-radius: 0.4em;
+  padding: 0.4em 0.8em;
 
   transition: all 200ms ease-out;
 
@@ -147,10 +155,16 @@ const classes = computed(() => ({
     --color-900: #{$red-900};
   }
 
+  &.small {
+    border-radius: 0.4em;
+    padding: 0.3em 0.8em;
+    font-size: 1.5em;
+  }
+
   &.large {
-    border-radius: 0.5rem;
-    padding: 0.6rem 1.5rem;
-    font-size: 1.5rem;
+    border-radius: 0.5em;
+    padding: 0.6em 1.5em;
+    font-size: 1.5em;
   }
 
   &.active {
@@ -181,10 +195,10 @@ const classes = computed(() => ({
     border: var(--color-500) 1px solid;
 
     /* compensate for the border width */
-    padding: calc(0.3rem - 1px) 0.8rem;
+    padding: calc(0.3em - 1px) 0.8em;
 
     &.large {
-      padding: calc(0.6rem - 1px) 1.5rem;
+      padding: calc(0.6em - 1px) 1.5em;
     }
 
     &:hover {
