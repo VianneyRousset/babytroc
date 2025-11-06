@@ -9,7 +9,7 @@ export function useAccountNameValidity(
   // validity pattern (unicode letters with ' ' and '-' not at the ends)
   const validCharactersRegex = /^\p{L}[\p{L} -]+\p{L}$/u
 
-  // delayed propagation of the cleaned name
+  // delayed propagation of the name
   const { value: throttledName, synced: throttledNameSynced } = useThrottle(name, 500)
 
   // retrieve user name avability from API
@@ -48,7 +48,7 @@ export function useAccountEmailValidity(
 ) {
   const { value: touched } = useThrottle(useTouched(email, ''), 1000)
 
-  // delayed propagation of the cleaned email
+  // delayed propagation of the email
   const { value: throttledEmail, synced: throttledEmailSynced } = useThrottle(email, 500)
 
   // retrieve user email avAsyncDataRequestStatusailability from API
@@ -88,7 +88,7 @@ export function useAccountPasswordValidity(
   // validity pattern
   const digitPattern = /[0-9]/
 
-  // delayed propagation of the cleaned email
+  // delayed propagation of the email
   const { synced: throttledPasswordSynced } = useThrottle(computed(() => toValue(password)), 500)
 
   // compute error message

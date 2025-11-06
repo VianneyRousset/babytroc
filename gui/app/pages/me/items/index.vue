@@ -38,6 +38,7 @@ const openItem = (itemId: number) => navigateTo(`/me/items/${itemId}`)
         </template>
         <template #buttons-right>
           <TextButton
+            target="/me/items/new"
             aspect="outline"
             color="primary"
             :icon="CirclePlus"

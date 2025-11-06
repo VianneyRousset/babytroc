@@ -25,16 +25,15 @@ h2 {
   font-weight: 600;
 }
 
-input {
+input,
+textarea {
   border: 1px solid $neutral-200;
   border-radius: 8px;
 
   outline: none;
 
-  line-height: 2em;
-  padding: 0.2em 0.3em;
+  padding: 0.4em 0.6em;
 
-  transition: .3s ease;
   font-family: 'Inter', sans-serif;
   font-size: 1em;
 
