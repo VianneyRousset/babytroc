@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { Check, TriangleAlert, Eye, EyeOff } from 'lucide-vue-next'
 
-type InputType = ('button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email'
-  | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range'
-  | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week')
+type InputType = ('email' | 'password' | 'search' | 'tel' | 'text' | 'url')
 
 export type TextInputProps = {
   placeholder?: string
@@ -28,6 +26,14 @@ watch(inputElement, _el => _el && props.autofocus ? _el.focus() : undefined)
 
 const showPassword = ref<boolean>(false)
 
+// monitor icons container width to add padding to input element
+// thus avoiding overlaps
+const { width: iconsWidth } = useElementSize(
+  useTemplateRef<HTMLElement>('icons'),
+  undefined,
+  { box: 'border-box' },
+)
+
 const type = computed(() => {
   if (props.type === 'password')
     return unref(showPassword) ? 'text' : 'password'
@@ -46,9 +52,13 @@ const type = computed(() => {
       :disabled="props.disabled"
       :tabindex="props.tabindex"
       :autofocus="props.autofocus"
+      :class="[status]"
       @blur="emit('blur')"
     >
-    <div class="icons-wrapper">
+    <div
+      ref="icons"
+      class="icons-wrapper"
+    >
       <transition
         name="pop"
         mode="out-in"
@@ -102,12 +112,17 @@ const type = computed(() => {
   input {
     flex: 1;
     font-size: 1.5rem;
-    padding: 0.3rem 0.8rem;
     border-radius: 0.4rem;
+
+    padding-right: v-bind("`max(0.6em, calc(${iconsWidth}px + 12px))`");
 
     &:disabled {
       background: $neutral-50;
       color: $neutral-300;
+    }
+
+    &.error {
+      box-shadow: 0 0 2px 2px $red-700;
     }
   }
 
@@ -129,6 +144,7 @@ const type = computed(() => {
     .error {
       color: $red-800;
     }
+
     .success {
       color: $primary-600;
     }
