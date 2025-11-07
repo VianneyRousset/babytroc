@@ -6,9 +6,19 @@ export function useItemEditStore(storeName: string) {
 
     // name
     const name = ref('')
+    const nameValid = ref(false)
+
+    // description
     const description = ref('')
+    const descriptionValid = ref(false)
+
+    // age
     const targetedAge = ref<AgeRange>([null, null])
+
+    // regions
     const regions = ref(new Set<number>())
+
+    // options
     const blocked = ref(false)
 
     function reset() {
@@ -21,7 +31,9 @@ export function useItemEditStore(storeName: string) {
 
     return {
       name,
+      nameValid,
       description,
+      descriptionValid,
       targetedAge,
       regions,
       blocked,

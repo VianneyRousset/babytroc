@@ -90,6 +90,9 @@ a.TextButton {
   font-size: 1.2em;
   border-radius: 0.4em;
 
+  padding: 0.5em 1em;
+  font-size: 1.3em;
+
   transition: all 200ms ease-out;
 
   --color-50: #{$neutral-50};
@@ -157,7 +160,7 @@ a.TextButton {
   &.small {
     border-radius: 0.4em;
     padding: 0.3em 0.8em;
-    font-size: 1.5em;
+    font-size: 1em;
   }
 
   &.large {

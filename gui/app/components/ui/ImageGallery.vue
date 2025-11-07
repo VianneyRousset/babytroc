@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import 'vue3-carousel/carousel.css'
-import { Image } from 'lucide-vue-next'
+import { Image, Pencil } from 'lucide-vue-next'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import type { ComponentProps } from 'vue-component-type-helpers'
 
@@ -36,52 +36,65 @@ function onKeyDown(event: KeyboardEvent) {
 onMounted(() => window.addEventListener('keydown', onKeyDown))
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 
-const carouselConfig = {
+const empty = computed(() => unref(images).length === 0)
+
+const carouselConfig = computed(() => ({
   itemsToShow: 2.5,
-  wrapAround: true,
+  wrapAround: !unref(empty),
+  enabled: !unref(empty),
 
   gap: 10,
   ...unref(config),
-}
+}))
 </script>
 
 <template>
-  <Carousel
-    ref="carousel"
+  <div
     class="ImageGallery"
-    v-bind="carouselConfig"
+    @click="() => console.log('click')"
   >
-    <Slide
-      v-for="(image, idx) in images"
-      :key="idx"
+    <Carousel
+      ref="carousel"
+      v-bind="carouselConfig"
     >
-      <img
-        class="carousel__item"
-        :src="image"
+      <Slide
+        v-for="(image, idx) in images"
+        :key="idx"
       >
-    </Slide>
+        <img
+          class="carousel__item"
+          :src="image"
+        >
+      </Slide>
 
-    <Slide v-if="images.length === 0">
-      <div class="empty">
-        <Image
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>Aucune image disponible</div>
-      </div>
-    </Slide>
+      <Slide v-if="empty">
+        <div class="empty">
+          <Image
+            :size="128"
+            :stroke-width="1"
+          />
+          <div>Aucune image disponible</div>
+        </div>
+      </Slide>
 
-    <template #addons>
-      <Navigation v-if="images.length > 0" />
-      <Pagination v-if="images.length > 0" />
-    </template>
-  </Carousel>
+      <template #addons>
+        <Navigation v-if="images.length > 0" />
+        <Pagination v-if="images.length > 0" />
+      </template>
+    </Carousel>
+    <div class="edit">
+      <FloatingToggle
+        :icon="Pencil"
+      />
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
 .ImageGallery {
   border-radius: 1em;
   overflow: hidden;
+  position: relative;
 
   img {
     display: block;
@@ -91,7 +104,25 @@ const carouselConfig = {
     object-fit: cover;
   }
 
-  div.empty {
+  .edit {
+    @include flex-column-center;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    cursor: pointer;
+    z-index: 2;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    /* box-shadow: 0 0 1em black; */
+    filter: drop-shadow(0 0 12px black);
+
+
+    &:hover svg {
+      filter: drop-shadow(0 0 12px $neutral-200);
+    }
+  }
+
+  .empty {
     @include flex-column-center;
     gap: 1em;
 
@@ -99,6 +130,8 @@ const carouselConfig = {
     height: 100%;
     aspect-ratio: 1;
     background: $neutral-100;
+    border-radius: 1em;
+    border: 1px solid $neutral-300;
 
     color: $neutral-300;
     font-size: 1.5em;

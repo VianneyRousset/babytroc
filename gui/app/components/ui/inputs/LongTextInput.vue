@@ -9,7 +9,7 @@ export type LongTextInputProps = {
   disabled?: boolean
 }
 
-const model = defineModel<string>('model', { default: '' })
+const model = defineModel<string>({ default: '' })
 const emit = defineEmits(['blur', 'submit'])
 
 const props = withDefaults(defineProps<LongTextInputProps>(), {

@@ -1,7 +1,18 @@
 <script setup lang="ts">
 const model = defineModel<Set<number>>()
 
+const props = withDefaults(defineProps<{
+  editable?: boolean
+}>(), {
+  editable: false,
+})
+
+const { editable } = toRefs(props)
+
 function toggle(regionId: number) {
+  // prevent modification if not editable
+  if (!unref(editable)) return
+
   if (model.value?.has(regionId)) {
     model.value?.delete(regionId)
   }
@@ -12,7 +23,10 @@ function toggle(regionId: number) {
 </script>
 
 <template>
-  <div class="RegionsMap">
+  <div
+    class="RegionsMap"
+    :class="{ editable }"
+  >
     <svg
       version="1.1"
       viewBox="0 0 215 160"
@@ -155,11 +169,14 @@ function toggle(regionId: number) {
 
     .region {
       fill: white;
-      transition: fill ease 0.3s;
-    }
+      transition: fill ease 200ms;
 
-    .region.active {
-      fill: $primary-400;
+      &:hover {
+      }
+
+      &.active {
+        fill: $primary-400;
+      }
     }
 
     .wireframe {
@@ -167,7 +184,21 @@ function toggle(regionId: number) {
       stroke: $neutral-300;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-width: 0.8;
+      stroke-width: 0.6;
+    }
+  }
+
+  &.editable {
+    .region {
+
+      cursor: pointer;
+
+      &:not(.active):hover {
+        fill: $neutral-100;
+      }
+      &.active:hover {
+        fill: $primary-300;
+      }
     }
   }
 }

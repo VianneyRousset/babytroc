@@ -1,5 +1,3 @@
-import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
-
 /* NEW */
 export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
   const { data: item, ...query } = useApiQuery('/v1/items/{item_id}', {

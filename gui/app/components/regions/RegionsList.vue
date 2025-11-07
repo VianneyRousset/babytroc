@@ -1,6 +1,16 @@
 <script setup lang="ts">
 const model = defineModel<Set<number>>()
 
+const props = withDefaults(defineProps<{
+  editable?: boolean
+  columns?: number
+}>(), {
+  editable: false,
+  columns: 3,
+})
+
+const { editable, columns } = toRefs(props)
+
 function toggle(regionId: number) {
   const _model = unref(model)
 
@@ -19,7 +29,10 @@ const { regions } = useRegionsList()
 </script>
 
 <template>
-  <ul class="RegionsList">
+  <ul
+    class="RegionsList"
+    :class="{ editable }"
+  >
     <li
       v-for="region in regions ?? []"
       :key="`region${region.id}`"
@@ -35,14 +48,30 @@ const { regions } = useRegionsList()
 .RegionsList {
   @include reset-list;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.6em;
+  align-items: center;
+  grid-template-columns: v-bind("`repeat(${columns}, 1fr)`");
   font-size: round(0.9em, 1px);
-  color: $neutral-400;
+  color: $neutral-300;
+
+  li {
+    padding: 0.6em 0.3em;
+  }
 
   li[active="true"] {
-    font-weight: 600;
-    color: $primary-600;
+    color: $primary-900;
+  }
+
+  &.editable {
+    li {
+      cursor: pointer;
+
+      &[active="false"]:hover {
+        color: $neutral-500;
+      }
+      &[active="true"]:hover {
+        color: $neutral-600;
+      }
+    }
   }
 }
 </style>
