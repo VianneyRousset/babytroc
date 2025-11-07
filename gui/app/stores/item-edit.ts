@@ -17,6 +17,7 @@ export function useItemEditStore(storeName: string) {
 
     // regions
     const regions = ref(new Set<number>())
+    const regionsValid = ref(false)
 
     // options
     const blocked = ref(false)
@@ -36,6 +37,7 @@ export function useItemEditStore(storeName: string) {
       descriptionValid,
       targetedAge,
       regions,
+      regionsValid,
       blocked,
       studioImages,
       reset,

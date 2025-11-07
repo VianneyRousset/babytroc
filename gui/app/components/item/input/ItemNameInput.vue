@@ -12,9 +12,11 @@ const { msgPlacement } = toRefs(props)
 
 const name = defineModel<string>('name', { default: '' })
 const valid = defineModel<boolean>('valid')
+const touched = defineModel<boolean>('touched', { default: false })
+
 const emit = defineEmits(['next', 'blur'])
 
-const { status, error, touched } = useItemNameValidity(name)
+const { status, error } = useItemNameValidity(name, touched)
 
 const stop = watchEffect(() => {
   name.value = avoidConsecutiveWhitespaces(unref(name).trim())

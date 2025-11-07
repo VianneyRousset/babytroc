@@ -11,10 +11,12 @@ const props = withDefaults(defineProps<{
 const { msgPlacement } = toRefs(props)
 
 const description = defineModel<string>('description', { default: '' })
-const valid = defineModel<boolean>('valid')
+const valid = defineModel<boolean>('valid', { default: false })
+const touched = defineModel<boolean>('touched', { default: false })
+
 const emit = defineEmits(['next', 'blur'])
 
-const { status, error, touched } = useItemDescriptionValidity(description)
+const { status, error } = useItemDescriptionValidity(description, touched)
 
 const stop = watchEffect(() => {
   description.value = avoidConsecutiveWhitespaces(unref(description).trim())
