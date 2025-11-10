@@ -123,16 +123,17 @@ export function useItemStudioImages(
   }
 
   function deleteImage(id: number) {
-    const _images = unref(images)
+    let _images = unref(images)
 
     // get selected image index
     const index: number | undefined = images.value.findIndex(img => img.id === id)
     const nextIndex = Math.min(Math.max(0, index - 1), _images.length - 1)
 
     // remove image from array
-    images.value = unref(images).filter(img => img.id !== id)
+    _images = _images.filter(img => img.id !== id)
 
-    selectedImage.value = unref(images)[nextIndex]
+    selectedImage.value = _images[nextIndex]
+    images.value = _images
   }
 
   function cropSelectedImage(crop: StudioImageCrop) {

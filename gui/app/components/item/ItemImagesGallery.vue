@@ -18,5 +18,3 @@ const { imagesPaths } = useItemImages(item)
     :config="{ itemsToShow: wide ? 2.5 : 1 }"
   />
 </template>
-
-<style lang="scss" scoped></style>

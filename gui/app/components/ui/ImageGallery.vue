@@ -134,8 +134,6 @@ const carouselConfig = computed(() => ({
     height: 100%;
     aspect-ratio: 1;
     background: $neutral-100;
-    border-radius: 1em;
-    border: 1px solid $neutral-300;
 
     color: $neutral-300;
     font-size: 1.5em;

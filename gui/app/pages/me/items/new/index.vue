@@ -11,14 +11,41 @@ const store = useItemEditStore('create')
 const nameTouched = ref(false)
 const descriptionTouched = ref(false)
 const regionsTouched = ref(false)
+const imagesTouched = ref(false)
 
-const allValid = computed(() => [store.nameValid, store.descriptionValid, store.regionsValid].every(v => v))
+const valid = computed(() => [store.nameValid, store.descriptionValid, store.regionsValid, store.imagesValid].every(v => v) && store.images.status === 'success')
+
+const { $toast } = useNuxtApp()
+
+async function onclick() {
+  touchAll()
+
+  if (!unref(valid))
+    return
+
+  const item = await create({
+    name: store.name,
+    description: store.description,
+    images: store.images.data,
+    targeted_age_months: range2string(store.targetedAge),
+    regions: [...store.regions],
+    blocked: false,
+  }).catch((err) => {
+    $toast.error('Échec de la création de l\'objet')
+    throw err
+  })
+
+  return navigateTo(`/explore/item/${item.id}`)
+}
 
 function touchAll() {
   nameTouched.value = true
   descriptionTouched.value = true
   regionsTouched.value = true
+  imagesTouched.value = true
 }
+
+const { mutateAsync: create, isLoading } = useCreateItemMutation()
 </script>
 
 <template>
@@ -42,9 +69,12 @@ function touchAll() {
 
     <main>
       <Panel :max-width="600">
-        <ItemImagesGallery
-          :item="{ images_names: store.images.data ?? [] }"
-          editable
+        <ItemImagesInput
+          v-model:valid="store.imagesValid"
+          v-model:touched="imagesTouched"
+          :upload-status="store.images.status"
+          :images="store.images.data"
+          msg-placement="top"
           @edit="navigateTo('new/studio')"
         />
         <section class="v">
@@ -89,8 +119,9 @@ function touchAll() {
           <TextButton
             aspect="bezel"
             color="primary"
-            :disabled="!allValid"
-            @click="touchAll()"
+            :disabled="!valid"
+            :loading="isLoading"
+            @click="onclick"
           >
             Créer l'objet
           </TextButton>

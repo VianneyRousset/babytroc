@@ -2,8 +2,6 @@ import { defineStore } from 'pinia'
 
 export function useItemEditStore(storeName: string) {
   const definition = defineStore(`item-edit-${storeName}`, () => {
-    const images = useStudioImagesUploadStore(storeName)
-
     // name
     const name = ref('')
     const nameValid = ref(false)
@@ -21,6 +19,10 @@ export function useItemEditStore(storeName: string) {
 
     // options
     const blocked = ref(false)
+
+    // images
+    const images = useStudioImagesUploadStore(storeName)
+    const imagesValid = ref(false)
 
     function reset() {
       name.value = ''
@@ -40,6 +42,7 @@ export function useItemEditStore(storeName: string) {
       regionsValid,
       blocked,
       images,
+      imagesValid,
       reset,
     }
   })

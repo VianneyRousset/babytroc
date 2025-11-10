@@ -7,6 +7,8 @@ export const useItemNameValidity = defineValidityFunction<string>((_name) => {
   if (_name.length > 30) return 'Nom trop long'
   if (!validCharactersRegex.test(_name)) return 'Nom invalide'
   return undefined
+}, {
+  initialValue: '',
 })
 
 export const useItemDescriptionValidity = defineValidityFunction<string>((_description) => {
@@ -14,12 +16,22 @@ export const useItemDescriptionValidity = defineValidityFunction<string>((_descr
   if (_description.length < 20) return 'Description trop courte'
   if (_description.length > 600) return 'Description trop longue'
   return undefined
+}, {
+  initialValue: '',
 })
 
 export const useItemRegionsValidity = defineValidityFunction<Set<number>>(
-  _regions => (_regions.size < 1) ? 'Veuillez spécifier une région' : undefined,
+  _regions => (_regions.size < 1) ? 'Veuillez spécifier au moins une région' : undefined,
   {
     initialValue: new Set(),
     compare: (a: Set<number>, b: Set<number>) => a.size === b.size && [...a].every(x => b.has(x)),
+  },
+)
+
+export const useItemImagesValidity = defineValidityFunction<Array<string>>(
+  _images => (_images.length < 1) ? 'Veuillez spécifier au moins une image' : undefined,
+  {
+    initialValue: [],
+    compare: (a: Array<string>, b: Array<string>) => a.length === b.length && a.every((el, i) => b[i] === el),
   },
 )
