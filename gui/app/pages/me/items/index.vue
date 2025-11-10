@@ -11,7 +11,7 @@ const { items, error, isLoading, loadMore: loadMoreItems } = useMeItems()
 // auth
 useAuth({ fallbackRoute: '/me' })
 
-const openItem = (itemId: number) => navigateTo(`/me/items/${itemId}`)
+const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 </script>
 
 <template>
