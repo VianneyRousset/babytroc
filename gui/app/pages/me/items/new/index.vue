@@ -132,6 +132,10 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
 </template>
 
 <style scoped lang="scss">
+.ItemImagesInput {
+  margin-bottom: 2em;
+}
+
 .TextButton {
   margin: 2em 0;
 }

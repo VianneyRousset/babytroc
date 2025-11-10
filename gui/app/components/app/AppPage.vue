@@ -206,7 +206,7 @@ useInfiniteScroll(
       box-sizing: border-box;
       width: 100%;
       /* compensate for image gallery carousel z-index*/
-      z-index: 2;
+      z-index: 3;
     }
 
   }
