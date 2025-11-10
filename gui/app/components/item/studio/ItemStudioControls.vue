@@ -36,8 +36,8 @@ function emitImageFromFile(file: File) {
     if (typeof fileReader.result !== 'string')
       throw new Error('File reader result is not a string')
 
-    const img: StudioImage = useStudioImage(fileReader.result, { crop: 'center', maxSize: 1024 })
-    emit('new-image', img)
+    const image = useStudioImage(fileReader.result, { crop: 'center', maxSize: 1024 })
+    emit('new-image', image)
   }
   fileReader.readAsDataURL(file)
 }
@@ -48,33 +48,27 @@ function emitImageFromFile(file: File) {
     <IconButton
       class="gallery"
       :disabled="disableGallery"
+      :icon="Images"
+      :size="32"
+      :stroke-width="1.5"
       @click="!disableGallery && open()"
-    >
-      <Images
-        :size="32"
-        :stroke-width="1.5"
-      />
-    </IconButton>
+    />
     <IconButton
       class="shoot"
       :disabled="disableShoot"
+      :icon="Camera"
+      :size="48"
+      :stroke-width="1.5"
       @click="!disableShoot && emit('capture')"
-    >
-      <Camera
-        :size="48"
-        :stroke-width="1.5"
-      />
-    </IconButton>
+    />
     <IconButton
       class="done"
       :disabled="disableDone"
+      :icon="ArrowRight"
+      :size="32"
+      :stroke-width="1.5"
       @click="!disableDone && emit('done')"
-    >
-      <ArrowRight
-        :size="32"
-        :stroke-width="1.5"
-      />
-    </IconButton>
+    />
   </div>
 </template>
 

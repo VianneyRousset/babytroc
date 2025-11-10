@@ -12,9 +12,10 @@ const { selected } = toRefs(props)
 
 const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
 
-// TODO put back in <draggable>
-// @choose="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
-// @start="e => emit('select', Number.parseInt(e.item.getAttribute('element-id')))"
+function select(event: { item: HTMLElement }) {
+  const id = Number.parseInt(event.item.getAttribute('element-id') ?? '')
+  emit('select', isNaN(id) ? undefined : id)
+}
 </script>
 
 <template>
@@ -25,6 +26,8 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
     :animation="200"
     ghost-class="ghost"
     item-key="id"
+    @choose="select"
+    @start="select"
   >
     <template #item="{ element }">
       <transition
@@ -41,7 +44,6 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
         </li>
       </transition>
     </template>
-
     <template #footer>
       <li
         class="add"
@@ -62,13 +64,14 @@ const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
   @include flex-row-center;
   @include reset-list;
   flex-wrap: wrap;
-  gap: 16px;
-  margin: 16px;
+  font-size: clamp(10px, 4vw, 24px);
+  gap: 0.8em;
+  margin: 1em;
 
   li {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
+    width: 2em;
+    height: 2em;
+    border-radius: 0.5em;
     overflow: hidden;
     box-shadow: 0 0 8px black;
     border: 3px solid transparent;

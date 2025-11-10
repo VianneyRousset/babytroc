@@ -18,7 +18,10 @@ export type StudioImage = {
   original: string
   width?: number
   height?: number
-  crop: StudioImageCrop
+  maxWidth?: number
+  crop: StudioImageCrop | undefined
+  copy: () => StudioImage
+  setCrop: (crop: StudioImageCrop) => void
   cropped?: string
 }
 

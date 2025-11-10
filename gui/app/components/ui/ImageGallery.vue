@@ -6,11 +6,15 @@ import type { ComponentProps } from 'vue-component-type-helpers'
 
 type CarouselConfig = ComponentProps<typeof Carousel>
 
+const emit = defineEmits(['edit'])
+
 const props = withDefaults(defineProps<{
   images: string[]
   config?: CarouselConfig
+  editable?: boolean
 }>(), {
   config: () => ({}),
+  editable: false,
 })
 
 const { images, config } = toRefs(props)
@@ -49,10 +53,7 @@ const carouselConfig = computed(() => ({
 </script>
 
 <template>
-  <div
-    class="ImageGallery"
-    @click="() => console.log('click')"
-  >
+  <div class="ImageGallery">
     <Carousel
       ref="carousel"
       v-bind="carouselConfig"
@@ -82,7 +83,11 @@ const carouselConfig = computed(() => ({
         <Pagination v-if="images.length > 0" />
       </template>
     </Carousel>
-    <div class="edit">
+    <div
+      v-if="editable"
+      class="edit"
+      @click="() => emit('edit')"
+    >
       <FloatingToggle
         :icon="Pencil"
       />
@@ -115,7 +120,6 @@ const carouselConfig = computed(() => ({
     border-radius: 50%;
     /* box-shadow: 0 0 1em black; */
     filter: drop-shadow(0 0 12px black);
-
 
     &:hover svg {
       filter: drop-shadow(0 0 12px $neutral-200);

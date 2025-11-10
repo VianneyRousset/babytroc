@@ -25,6 +25,9 @@ const props = withDefaults(
     // ininite scroll distance
     infiniteScrollDistance?: number
 
+    // do not apply custom styling
+    customStyling?: boolean
+
     // max width
     maxWidth?: number
 
@@ -34,7 +37,7 @@ const props = withDefaults(
   {
     hideBarOnScroll: false,
     infiniteScroll: false,
-    maxWidth: 1400,
+    empty: false,
     withHeader: false,
     loggedInOnly: false,
   },
@@ -44,7 +47,7 @@ const emit = defineEmits<{
   (event: 'more'): void
 }>()
 
-const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth, loggedInOnly } = toRefs(props)
+const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth, loggedInOnly, customStyling } = toRefs(props)
 
 const device = useDevice()
 
@@ -77,7 +80,7 @@ useInfiniteScroll(
     ref="page"
     v-saved-scroll:[savedScroll]
     class="AppPage"
-    :class="{ 'mobile': device.isMobile, 'with-header': withHeader }"
+    :class="{ 'mobile': device.isMobile, 'with-header': withHeader, 'custom-styling': customStyling }"
   >
     <!-- Header bar (mobile only) -->
     <AppHeaderMobileBar
@@ -139,9 +142,55 @@ useInfiniteScroll(
 .AppPage {
   --app-header-bar-height: v-bind('appHeaderBarHeight + "px"');
 
-  :deep(main) {
-    @include flex-column;
-    align-items: stretch;
+  &:not(.custom-styling) {
+
+    :deep(main) {
+      @include flex-column;
+      align-items: stretch;
+    }
+
+    &.mobile {
+      :deep(main) {
+        padding-top: var(--app-header-bar-height);
+        padding-bottom: var(--app-footer-bar-height);
+      }
+    }
+
+    &:not(.mobile) {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: 1fr;
+      grid-template-areas: "left main right";
+      flex: 1;
+
+      width: 100%;
+      max-width: v-bind("maxWidth && `${maxWidth}px`");
+
+      &.with-header {
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          ".    header ."
+          "left main   right";
+      }
+
+      :deep(main) {
+        grid-area: main;
+      }
+
+      :deep(header) {
+        grid-area: header;
+        flex: 0;
+      }
+
+      aside {
+        &.left {
+          grid-area: left;
+        }
+        &.right {
+          grid-area: right;
+        }
+      }
+    }
   }
 
   &.mobile {
@@ -151,11 +200,6 @@ useInfiniteScroll(
     background: white;
     overflow-y: scroll;
 
-    :deep(main) {
-      padding-top: var(--app-header-bar-height);
-      padding-bottom: var(--app-footer-bar-height);
-    }
-
     .AppHeaderMobileBar {
       position: fixed;
       top: 0;
@@ -164,42 +208,8 @@ useInfiniteScroll(
       /* compensate for image gallery carousel z-index*/
       z-index: 2;
     }
+
   }
 
-  &:not(.mobile) {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: 1fr;
-    grid-template-areas: "left main right";
-    flex: 1;
-
-    width: 100%;
-    max-width: v-bind("maxWidth && `${maxWidth}px`");
-
-    &.with-header {
-      grid-template-rows: auto 1fr;
-      grid-template-areas:
-        ".    header ."
-        "left main   right";
-    }
-
-    :deep(main) {
-      grid-area: main;
-    }
-
-    :deep(header) {
-      grid-area: header;
-      flex: 0;
-    }
-
-    aside {
-      &.left {
-        grid-area: left;
-      }
-      &.right {
-        grid-area: right;
-      }
-    }
-  }
 }
 </style>

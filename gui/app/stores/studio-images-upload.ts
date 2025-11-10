@@ -9,16 +9,21 @@ export function useStudioImagesUploadStore(name: string) {
 
     const images = ref(Array<StudioImage>())
 
-    async function ensureImageUpload(img: StudioImage) {
-      const data = img.cropped
+    async function ensureImageUpload(
+      image: StudioImage,
+      signal?: AbortSignal,
+    ): Promise<string> {
+      const data: string | undefined = image.cropped
 
       if (data == null)
         throw new Error('Null image cropped data')
 
-      if (cache.get(data) != null)
-        return cache.get(data)
+      const cachedData = cache.get(data)
 
-      const blob = await (await fetch(data)).blob()
+      if (cachedData != null)
+        return cachedData
+
+      const blob = await (await fetch(data, { signal })).blob()
       const file = new File([blob], 'name', {
         type: blob.type,
       })
@@ -29,17 +34,33 @@ export function useStudioImagesUploadStore(name: string) {
 
         // @ts-expect-error: cannot type FormData
         body: form,
+        signal,
       })
 
       cache.set(data, resp.name)
       return resp.name
     }
 
+    async function ensureAllImagesUpload(
+      images: Array<StudioImage>,
+      signal?: AbortSignal,
+    ): Promise<Array<string>> {
+      return Promise.all(images.map(img => ensureImageUpload(img, signal)))
+    }
+
+    function setImages(_images: Array<StudioImage>) {
+      images.value = _images.map(img => img.copy())
+    }
+
     return {
       images,
-      ...useAsyncData(
+      setImages,
+      ...useAsyncData<Array<string>>(
         () => `images-upload-${name} ${unref(images).map(img => img.cropped).join(' ')}`,
-        () => Promise.all(unref(images).map(ensureImageUpload)),
+        () => ensureAllImagesUpload(unref(images)),
+        {
+          default: () => Array<string>(),
+        },
       ),
     }
   })

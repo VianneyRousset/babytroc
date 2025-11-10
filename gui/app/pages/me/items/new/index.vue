@@ -43,7 +43,9 @@ function touchAll() {
     <main>
       <Panel :max-width="600">
         <ItemImagesGallery
-          :item="{ images_names: ['dsWHU', 'pcUv7', 'mDOp0'] }"
+          :item="{ images_names: store.images.data ?? [] }"
+          editable
+          @edit="navigateTo('new/studio')"
         />
         <section class="v">
           <h2>Nom et description</h2>

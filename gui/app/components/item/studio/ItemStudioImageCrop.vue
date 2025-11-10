@@ -92,6 +92,7 @@ function stencilSize({ boundaries }: { boundaries: Boundaries }) {
     height: 40px;
     width: 40px;
     cursor: pointer;
+    z-index: 3;
 
     &.done {
       gap: 0.5rem;

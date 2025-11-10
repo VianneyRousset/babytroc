@@ -8,6 +8,9 @@ const props = withDefaults(
     disabled?: boolean
     icon?: LucideIcon
     target?: string | RouteLocationGeneric
+    size?: number
+    strokeWidth?: number
+    absoluteStrokeWidth?: boolean
   }>(),
   {
     active: false,
@@ -15,7 +18,7 @@ const props = withDefaults(
   },
 )
 
-const { disabled, active, icon, target } = toRefs(props)
+const { disabled, active, icon, target, size, strokeWidth, absoluteStrokeWidth } = toRefs(props)
 </script>
 
 <template>
@@ -29,13 +32,15 @@ const { disabled, active, icon, target } = toRefs(props)
     <component
       :is="icon"
       v-if="icon"
-      :size="32"
-      :stroke-width="1.5"
+      :size="size"
+      :stroke-width="strokeWidth"
+      :absolute-stroke-width="absoluteStrokeWidth"
     />
     <slot v-else>
       <Square
-        :size="32"
-        :stroke-width="1.5"
+        :size="size"
+        :stroke-width="strokeWidth"
+        :absolute-stroke-width="absoluteStrokeWidth"
       />
     </slot>
   </NuxtLink>
