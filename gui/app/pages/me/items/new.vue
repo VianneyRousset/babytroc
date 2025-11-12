@@ -6,16 +6,56 @@ definePageMeta({
 // auth
 useAuth({ fallbackRoute: '/me' })
 
-const store = useItemEditStore('create')
+// const store = useItemEditStore('create')
 
+// name
+const name = ref('')
+const nameValid = ref(false)
 const nameTouched = ref(false)
-const descriptionTouched = ref(false)
-const regionsTouched = ref(false)
-const imagesTouched = ref(false)
 
-const valid = computed(() => [store.nameValid, store.descriptionValid, store.regionsValid, store.imagesValid].every(v => v) && store.images.status === 'success')
+// description
+const description = ref('')
+const descriptionValid = ref(false)
+const descriptionTouched = ref(false)
+
+// age
+const targetedAgeMonths = ref<AgeRange>([null, null])
+
+// regions
+const regions = ref(new Set<number>())
+const regionsValid = ref(false)
+const regionsTouched = ref(false)
+
+// images
+const imageUploader = useImageUploader()
+
+const studioImages = ref<Array<StudioImage>>([])
+const { data: images, status: imagesStatus } = imageUploader.uploadMany(() => unref(studioImages).map(img => img.cropped).filter(img => img != null))
+const imagesTouched = ref(false)
+const imagesValid = ref(false)
+
+const valid = computed(() => (
+  [nameValid, descriptionValid, regionsValid, imagesValid].every(v => v)
+  && unref(imagesStatus) === 'success'
+))
 
 const { $toast } = useNuxtApp()
+
+const studioOverlay = ref(false)
+const tmpStudioImages = ref<Array<StudioImage>>([])
+
+function openStudioOverlay() {
+  tmpStudioImages.value = unref(studioImages).map(img => img.copy())
+  studioOverlay.value = true
+}
+
+function closeStudioOverlay() {
+  studioOverlay.value = false
+}
+
+function saveStudioImages() {
+  studioImages.value = unref(tmpStudioImages).map(img => img.copy())
+}
 
 async function onclick() {
   touchAll()
@@ -23,12 +63,17 @@ async function onclick() {
   if (!unref(valid))
     return
 
+  const _images = unref(images)
+
+  if (!_images.every(img => img != null))
+    throw new Error('Cannot create object with null image')
+
   const item = await create({
-    name: store.name,
-    description: store.description,
-    images: store.images.data,
-    targeted_age_months: range2string(store.targetedAge),
-    regions: [...store.regions],
+    name: unref(name),
+    description: unref(description),
+    images: _images,
+    targeted_age_months: range2string(unref(targetedAgeMonths)),
+    regions: [...unref(regions)],
     blocked: false,
   }).catch((err) => {
     $toast.error('Échec de la création de l\'objet')
@@ -49,9 +94,7 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
 </script>
 
 <template>
-  <AppPage
-    with-header
-  >
+  <AppPage with-header>
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
       <AppBack />
@@ -70,24 +113,24 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
     <main>
       <Panel :max-width="600">
         <ItemImagesInput
-          v-model:valid="store.imagesValid"
+          v-model:valid="imagesValid"
           v-model:touched="imagesTouched"
-          :upload-status="store.images.status"
-          :images="store.images.data"
+          :upload-status="imagesStatus"
+          :images="images.filter(img => img != null)"
           msg-placement="top"
-          @edit="navigateTo('new/studio')"
+          @edit="() => openStudioOverlay()"
         />
         <section class="v">
           <h2>Nom et description</h2>
           <ItemNameInput
-            v-model:name="store.name"
-            v-model:valid="store.nameValid"
+            v-model:name="name"
+            v-model:valid="nameValid"
             v-model:touched="nameTouched"
             msg-placement="top"
           />
           <ItemDescriptionInput
-            v-model:description="store.description"
-            v-model:valid="store.descriptionValid"
+            v-model:description="description"
+            v-model:valid="descriptionValid"
             v-model:touched="descriptionTouched"
             msg-placement="bottom"
           />
@@ -99,7 +142,7 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
               Pour quels ages cet objet convient-il ?
             </p>
           </div>
-          <AgeRangeInput v-model="store.targetedAge" />
+          <AgeRangeInput v-model="targetedAgeMonths" />
         </section>
         <section class="v">
           <div>
@@ -109,8 +152,8 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
             </p>
           </div>
           <ItemRegionsInput
-            v-model:regions="store.regions"
-            v-model:valid="store.regionsValid"
+            v-model:regions="regions"
+            v-model:valid="regionsValid"
             v-model:touched="regionsTouched"
             msg-placement="top"
           />
@@ -127,6 +170,15 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
           </TextButton>
         </section>
       </Panel>
+      <Teleport to="body">
+        <Overlay v-model="studioOverlay">
+          <ItemStudio
+            v-model="tmpStudioImages"
+            @exit="() => closeStudioOverlay()"
+            @done="() => { saveStudioImages(); closeStudioOverlay() }"
+          />
+        </Overlay>
+      </Teleport>
     </main>
   </AppPage>
 </template>
@@ -146,5 +198,14 @@ const { mutateAsync: create, isLoading } = useCreateItemMutation()
 
 .RegionsList {
   font-size: 1em;
+}
+
+.Overlay {
+  z-index: 3;
+
+  .ItemStudio {
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>

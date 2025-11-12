@@ -33,6 +33,8 @@ function readCrop(
       : crop
 }
 
+const textEncoder = new TextEncoder()
+
 export function useStudioImage(
   src: string,
   options?: UseStudioImageOptions,
@@ -83,6 +85,15 @@ export function useStudioImage(
     return canvas.toDataURL('image/jpeg')
   })
 
+  const hash = computedAsync<string | undefined>(async () => {
+    const _cropped = unref(cropped)
+    if (_cropped == null)
+      return undefined
+    const hashBuffer = await window.crypto.subtle.digest('SHA-1', textEncoder.encode(_cropped))
+    // @ts-expect-error: not included in TS now (https://github.com/microsoft/TypeScript/issues/60612)
+    return new Uint8Array(hashBuffer).toHex()
+  })
+
   const copy = (): StudioImage => useStudioImage(unref(original), { crop: unref(_crop), maxSize: unref(maxSize) })
 
   function setCrop(newCrop: StudioImageCrop) {
@@ -91,6 +102,7 @@ export function useStudioImage(
 
   return reactive({
     id: studioImageIndex++,
+    hash,
     original: src,
     width: computed(() => unref(img)?.width),
     height: computed(() => unref(img)?.height),

@@ -15,14 +15,15 @@ export type StudioImageCrop = VisibleArea
 
 export type StudioImage = {
   id: number
+  hash: string | undefined
   original: string
-  width?: number
-  height?: number
+  width: number | undefined
+  height: number | undefined
   maxWidth?: number
   crop: StudioImageCrop | undefined
   copy: () => StudioImage
   setCrop: (crop: StudioImageCrop) => void
-  cropped?: string
+  cropped: string | undefined
 }
 
 export type MsgPlacement = ('auto' | 'auto-start' | 'auto-end' | 'top' | 'top-start' | 'top-end'

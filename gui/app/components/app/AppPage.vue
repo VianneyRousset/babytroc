@@ -40,6 +40,7 @@ const props = withDefaults(
     empty: false,
     withHeader: false,
     loggedInOnly: false,
+    maxWidth: 1400,
   },
 )
 
