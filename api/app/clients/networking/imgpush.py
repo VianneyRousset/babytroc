@@ -29,11 +29,23 @@ def upload_image(config: Config, fp: io.IOBase) -> ImgpushUploadResponse:
 # READ
 
 
-def get_image(config: Config, name: str) -> bytes:
-    response = requests.get(
-        url=f"{config.imgpush.url}/{name}.jpg",
-        timeout=TIMEOUT,
-    )
+def get_image(
+    config: Config,
+    name: str,
+    *,
+    size: int | None = None,
+) -> bytes:
+    if size:
+        response = requests.get(
+            url=f"{config.imgpush.url}/{name}.jpg?w={size}",
+            timeout=TIMEOUT,
+        )
+
+    else:
+        response = requests.get(
+            url=f"{config.imgpush.url}/{name}.jpg",
+            timeout=TIMEOUT,
+        )
 
     if response.status_code == 404:
         raise ItemImageNotFoundError({"name": name})

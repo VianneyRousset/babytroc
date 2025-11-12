@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import Path, Request, Response, status
+from fastapi import Path, Query, Request, Response, status
 
 from app import services
+from app.schemas.image.query import ItemImageQuery
 
 from .router import router
 
@@ -11,10 +12,15 @@ from .router import router
 def get_item_image(
     request: Request,
     image_name: Annotated[str, Path()],
+    query: Annotated[ItemImageQuery, Query()],
 ) -> Response:
     """Get item image."""
 
-    image = services.image.get_image_data(request.app.state.config, image_name)
+    image = services.image.get_image_data(
+        config=request.app.state.config,
+        image_name=image_name,
+        size=query.size,
+    )
 
     return Response(
         content=image,
