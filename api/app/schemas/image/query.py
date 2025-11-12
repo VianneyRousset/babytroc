@@ -12,4 +12,4 @@ class ItemImageQuery(Base):
             ge=16,
             le=1024,
         ),
-    ]
+    ] = None
