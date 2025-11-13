@@ -5,14 +5,14 @@ export function formatTargetedAge(
   ageMax: Age,
 ): string {
   if (ageMin !== null && ageMin > 0) {
-    if (ageMax === null) return `À partie de ${ageMin} mois`
+    if (ageMax === null) return `À partir de ${ageMin} mois`
 
     return `De ${ageMin} à ${ageMax} mois`
   }
 
   if (ageMax !== null) return `Jusqu'à ${ageMax} mois`
 
-  return 'Pour tous âges'
+  return 'de tous âges'
 }
 
 export function range2string(range: Array<number | null>): string {
