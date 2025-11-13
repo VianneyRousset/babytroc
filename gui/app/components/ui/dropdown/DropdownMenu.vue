@@ -24,7 +24,7 @@ const open = defineModel<boolean>()
           <DropdownMenuContent
             class="DropdownMenuContent"
             :side-offset="0"
-            align="start"
+            align="center"
           >
             <DropdownMenuArrow
               class="DropdownMenuArrow"
