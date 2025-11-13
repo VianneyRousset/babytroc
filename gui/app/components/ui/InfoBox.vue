@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ChevronRight } from 'lucide-vue-next'
-import { NuxtLink } from '#components'
 import type { LucideIcon } from 'lucide-vue-next'
 import type { RouteLocationGeneric } from 'vue-router'
 
@@ -15,10 +14,12 @@ const props = withDefaults(defineProps<{
 const { icon, chevronRight, target } = toRefs(props)
 
 const slots = useSlots()
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="InfoBox"
     :to="target"
   >
@@ -56,7 +57,7 @@ const slots = useSlots()
       :size="32"
       :stroke-width="1"
     />
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">

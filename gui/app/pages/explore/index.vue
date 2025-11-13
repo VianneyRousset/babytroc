@@ -36,8 +36,6 @@ const { items, error, isLoading, loadMore } = useItemExplore({ queryParams })
 // filters are applied by updating the route query params
 const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
 
-const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
-
 // dense layout
 const dense = ref(false)
 
@@ -193,7 +191,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
           :dense="dense"
           :loading="isLoading"
           :error="error != null"
-          @select="openItem"
+          :target="itemId => `/explore/item/${itemId}`"
         />
       </Panel>
     </main>

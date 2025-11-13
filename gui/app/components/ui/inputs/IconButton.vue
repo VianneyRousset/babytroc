@@ -19,10 +19,13 @@ const props = withDefaults(
 )
 
 const { disabled, active, icon, target, size, strokeWidth, absoluteStrokeWidth } = toRefs(props)
+
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="IconButton"
     role="button"
     :disabled="disabled"
@@ -43,11 +46,11 @@ const { disabled, active, icon, target, size, strokeWidth, absoluteStrokeWidth }
         :absolute-stroke-width="absoluteStrokeWidth"
       />
     </slot>
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">
-a.IconButton {
+.IconButton {
   @include reset-button;
   @include reset-link;
   @include flex-row-center;

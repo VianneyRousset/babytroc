@@ -10,8 +10,6 @@ const { items, error, isLoading, loadMore: loadMoreItems } = useMeItems()
 
 // auth
 useAuth({ fallbackRoute: '/me' })
-
-const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 </script>
 
 <template>
@@ -57,7 +55,7 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
           :items="items"
           :loading="isLoading"
           :error="error != null"
-          @select="openItem"
+          :target="itemId => `/explore/item/${itemId}`"
         />
       </Panel>
     </main>

@@ -13,13 +13,15 @@ const props = withDefaults(defineProps<{
 const { target, icon, red } = toRefs(props)
 
 const menuOpen = inject('dropdown-menu-open')
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="DropdownMenuItem DropdownItem"
     :class="{ red }"
-    :to="target ?? ''"
+    :to="target"
     @click="() => (menuOpen = false)"
   >
     <component
@@ -31,7 +33,7 @@ const menuOpen = inject('dropdown-menu-open')
     <div>
       <slot />
     </div>
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">

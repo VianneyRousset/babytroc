@@ -14,12 +14,14 @@ const props = withDefaults(defineProps<{
 const { target, icon, chevron } = toRefs(props)
 
 const slots = useSlots()
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="Slab"
-    :to="target ?? ''"
+    :to="target"
   >
     <!-- Icon -->
     <slot name="icon">
@@ -68,7 +70,7 @@ const slots = useSlots()
       :size="32"
       :stroke-width="1.5"
     />
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">

@@ -4,7 +4,7 @@ import type { ComponentProps } from 'vue-component-type-helpers'
 
 const props = defineProps<{
   item: T
-  target: ComponentProps<typeof UserCard>['target']
+  target?: ComponentProps<typeof UserCard>['target']
 }>()
 
 const { item } = toRefs(props)

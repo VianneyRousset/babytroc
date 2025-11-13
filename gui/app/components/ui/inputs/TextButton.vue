@@ -45,11 +45,15 @@ const classes = computed(() => ({
 
   loading: unref(loading),
 }))
+
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="TextButton"
+    role="button"
     :class="classes"
     :to="target"
   >
@@ -74,11 +78,11 @@ const classes = computed(() => ({
       </div>
       <slot />
     </div>
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">
-a.TextButton {
+.TextButton {
   @include reset-link;
 
   display: block;

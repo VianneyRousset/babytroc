@@ -22,8 +22,6 @@ const { items, error: itemsError, isLoading: itemsIsLoading, loadMore: loadMoreI
 
 // auth
 const { loggedIn } = useAuth()
-
-const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
 </script>
 
 <template>
@@ -111,7 +109,7 @@ const openItem = (itemId: number) => navigateTo(`/explore/item/${itemId}`)
                 :dense="false"
                 :loading="itemsIsLoading"
                 :error="itemsError != null"
-                @select="openItem"
+                :target="itemId => `/explore/item/${itemId}`"
               />
             </section>
           </Panel>

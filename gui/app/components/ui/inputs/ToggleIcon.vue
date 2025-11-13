@@ -20,10 +20,13 @@ const props = withDefaults(
 )
 
 const { disabled, active, icon, target } = toRefs(props)
+
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <NuxtLink
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="ToggleIcon"
     role="button"
     :disabled="disabled"
@@ -43,7 +46,7 @@ const { disabled, active, icon, target } = toRefs(props)
         :stroke-width="2"
       />
     </slot>
-  </NuxtLink>
+  </component>
 </template>
 
 <style scoped lang="scss">
