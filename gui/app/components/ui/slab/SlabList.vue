@@ -30,15 +30,14 @@ const { light } = toRefs(props)
     border: 1px solid $neutral-200;
     border-left-color: transparent;
     border-right-color: transparent;
-
   }
 
   &.light>:deep(.Slab) {
-    &:first-of-type {
+    &:first-child {
       border-top-color: transparent;
     }
 
-    &:last-of-type {
+    &:last-child {
       border-bottom-color: transparent;
     }
   }

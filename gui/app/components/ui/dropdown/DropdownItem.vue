@@ -57,12 +57,13 @@ a {
 
   border-top: 1px solid $neutral-200;
 
-  &:first-of-type {
+  /* not the 1st child as it is the DropdownMenuArrow */
+  &:nth-child(2) {
     border-top: none;
     border-radius: 8px 8px 0 0;
   }
 
-  &:last-of-type {
+  &:last-child {
     border-radius: 0 0 8px 8px;
   }
 
