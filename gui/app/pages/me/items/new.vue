@@ -6,8 +6,6 @@ definePageMeta({
 // auth
 useAuth({ fallbackRoute: '/me' })
 
-// const store = useItemEditStore('create')
-
 // name
 const name = ref('')
 const nameValid = ref(false)
