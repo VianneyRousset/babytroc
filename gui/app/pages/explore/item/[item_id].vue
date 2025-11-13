@@ -42,9 +42,11 @@ const device = useDevice()
         <WithLoading :loading="!item && isLoading">
           <Panel v-if="item">
             <ItemImagesGallery :item="item" />
-            <div class="description">
+            <div class="name-description">
               <h1>{{ item.name }}</h1>
-              <p>{{ item.description }}</p>
+              <p class="description">
+                {{ item.description }}
+              </p>
             </div>
             <ItemInfoBox :item="item" />
             <ItemOwner
