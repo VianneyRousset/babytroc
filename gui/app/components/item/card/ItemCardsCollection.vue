@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T extends ItemPreview">
+import type { RouteLocationGeneric } from 'vue-router'
+
 // items: all the item cards to show
 // error: if true, an error message is shown instead of the cards
 // loading: if true, show a loading spinner after the cards
@@ -9,12 +11,13 @@ const props = withDefaults(defineProps<{
   dense?: boolean
   minColumnsCount?: number
   maxColumnsCount?: number
+  target?: (itemId: number) => string | RouteLocationGeneric
 }>(), {
   error: false,
   loading: false,
   dense: false,
 })
-const { items, error, loading, dense } = toRefs(props)
+const { items, error, loading, dense, target } = toRefs(props)
 
 // emit a 'select' event with the item id when a card is select
 const emit = defineEmits<
@@ -63,6 +66,7 @@ const fontSize = computed(() => {
         :id="`item${item.id}`"
         :key="`item${item.id}`"
         :item="item"
+        :target="target && target(item.id)"
         @click="() => emit('select', item.id)"
       />
     </div>

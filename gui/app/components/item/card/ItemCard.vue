@@ -1,11 +1,12 @@
 <script setup lang="ts" generic="T extends ItemPreview">
 import { Heart, Bookmark, Clock } from 'lucide-vue-next'
+import type { RouteLocationGeneric } from 'vue-router'
 
-// TODO query reduced image size
 // TODO "missing image" if item.image is missing
 
 const props = defineProps<{
   item: T
+  target?: string | RouteLocationGeneric
 }>()
 
 const { item } = toRefs(props)
@@ -22,12 +23,16 @@ const backgroundImage = computed(() => {
 
   return backgrounds.join(', ')
 })
+
+const NuxtLink = resolveComponent('NuxtLink')
 </script>
 
 <template>
-  <div
+  <component
+    :is="target ? NuxtLink : 'div'"
     class="ItemCard"
     :style="{ backgroundImage }"
+    :to="target"
   >
     <div class="status">
       <Heart
@@ -58,10 +63,14 @@ const backgroundImage = computed(() => {
         {{ item.name }}
       </div>
     </div>
-  </div>
+  </component>
 </template>
 
 <style scoped lang="scss">
+a {
+  @include reset-link;
+}
+
 .ItemCard {
   display: flex;
   box-sizing: border-box;
