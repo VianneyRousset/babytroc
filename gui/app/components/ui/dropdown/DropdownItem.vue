@@ -60,11 +60,13 @@ a {
   /* not the 1st child as it is the DropdownMenuArrow */
   &:nth-child(2) {
     border-top: none;
-    border-radius: 8px 8px 0 0;
+    border-top-left-radius: 8px 8px;
+    border-top-right-radius: 8px 8px;
   }
 
   &:last-child {
-    border-radius: 0 0 8px 8px;
+    border-bottom-left-radius: 8px 8px;
+    border-bottom-right-radius: 8px 8px;
   }
 
   &:hover {
