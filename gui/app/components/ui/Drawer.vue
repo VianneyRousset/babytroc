@@ -9,7 +9,7 @@ const props = withDefaults(
 
 const { position } = toRefs(props)
 
-const model = defineModel<boolean>()
+const model = defineModel<boolean>({ default: false })
 
 const slots = useSlots()
 </script>
@@ -18,6 +18,7 @@ const slots = useSlots()
   <div
     class="Drawer"
     :class="{ open: model }"
+    :position="position"
   >
     <div
       v-if="slots.header"
@@ -34,8 +35,7 @@ const slots = useSlots()
   position: fixed;
   top: 0;
   bottom: 0;
-  left: v-bind("position == 'right' ? undefined : 0");
-  right: v-bind("position == 'right' ? 0 : undefined");
+  right: 0;
 
   width: 90%;
   max-width: 400px;
@@ -46,7 +46,14 @@ const slots = useSlots()
   background: white;
 
   transition: 0.2s transform ease-out;
-  transform: translate(v-bind("position == 'right' ? '100%' : '-100%'"), 0);
+
+  &[position=right] {
+    transform: translate(100%, 0);
+  }
+
+  &[position=left] {
+    transform: translate(-100%, 0);
+  }
 
   &.open {
     transform: translate(0, 0);

@@ -110,7 +110,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         position="right"
         :drawer="drawerMode"
       >
-        <Panel style="width: 20em; align-items: stretch;">
+        <Panel style="align-items: stretch;">
           <ItemExploreFilters
             v-model="filters"
             :size="device.isMobile ? 'large' : 'normal'"

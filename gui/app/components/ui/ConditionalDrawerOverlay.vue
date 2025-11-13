@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const drawerOpen = defineModel<boolean>()
+const drawerOpen = defineModel<boolean>({ default: false })
 
 const props = withDefaults(defineProps<{
   position: 'left' | 'right'
