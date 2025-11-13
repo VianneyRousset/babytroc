@@ -34,20 +34,36 @@ const { loggedIn } = useAuth()
   >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
-      <AppBack />
-      <h1 :title="user?.name">
-        {{ user?.name }}
-      </h1>
+      <div>
+        <AppBack />
+        <h1 :title="user?.name">
+          {{ user?.name }}
+        </h1>
 
-      <!-- Dropdown menu -->
-      <DropdownMenu v-if="loggedIn === true && user">
-        <DropdownItem
-          :icon="ShieldAlert"
-          red
-        >
-          Signaler
-        </DropdownItem>
-      </DropdownMenu>
+        <!-- Dropdown menu -->
+        <DropdownMenu v-if="loggedIn === true && user">
+          <DropdownItem
+            :icon="ShieldAlert"
+            red
+          >
+            Signaler
+          </DropdownItem>
+        </DropdownMenu>
+      </div>
+      <div v-if="user">
+        <UserAvatar :seed="user.avatar_seed" />
+        <div class="counters">
+          <VerticalCounter :model-value="user.stars_count">
+            Étoiles
+          </VerticalCounter>
+          <VerticalCounter :model-value="user.likes_count">
+            Likes
+          </VerticalCounter>
+          <VerticalCounter :model-value="user.items_count">
+            Objets
+          </VerticalCounter>
+        </div>
+      </div>
     </template>
 
     <!-- Mobile page -->
@@ -89,20 +105,20 @@ const { loggedIn } = useAuth()
               </div>
               <div class="counters">
                 <VerticalCounter
-                  orientation="vertical"
                   :model-value="user.stars_count"
+                  size="large"
                 >
                   Étoiles
                 </VerticalCounter>
                 <VerticalCounter
-                  orientation="vertical"
                   :model-value="user.likes_count"
+                  size="large"
                 >
                   Likes
                 </VerticalCounter>
                 <VerticalCounter
-                  orientation="vertical"
                   :model-value="user.items_count"
+                  size="large"
                 >
                   Objets
                 </VerticalCounter>
@@ -159,6 +175,34 @@ const { loggedIn } = useAuth()
       gap: 2em;
       justify-content: center;
       flex: 5;
+    }
+  }
+}
+
+:deep(.AppHeaderMobileBar) {
+  flex-direction: column;
+  align-items: stretch;
+  height: auto;
+  gap: 0;
+
+  & > div {
+    @include flex-row;
+    align-items: center;
+    justify-content: space-between;
+
+    &:first-child {
+      height: 64px;
+      gap: 16px;
+    }
+
+    &:last-child {
+      margin: 1em;
+      gap: 2em;
+      justify-content: center;
+    }
+
+    .counters {
+      @include flex-row;
     }
   }
 }
