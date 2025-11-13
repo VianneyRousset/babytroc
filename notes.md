@@ -15,6 +15,7 @@
 - add more constraints to any API inputs (mostly str inputs)
 - add/check delete cascade to foreign key (item-regions is not working)
 - When a loan request is accepted, no other loan requests of the item should be able to be accepted
+- use [Blurhash](https://github.com/woltapp/blurhash) for image preview
 
 # GUI
 
