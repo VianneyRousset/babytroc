@@ -35,7 +35,6 @@ const slots = useSlots()
   position: fixed;
   top: 0;
   bottom: 0;
-  right: 0;
 
   width: 90%;
   max-width: 400px;
@@ -48,10 +47,12 @@ const slots = useSlots()
   transition: 0.2s transform ease-out;
 
   &[position=right] {
+    right: 0;
     transform: translate(100%, 0);
   }
 
   &[position=left] {
+    left: 0;
     transform: translate(-100%, 0);
   }
 
