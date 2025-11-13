@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ShieldAlert } from 'lucide-vue-next'
+
 definePageMeta({
   layout: 'explore',
 })
@@ -33,7 +35,14 @@ const device = useDevice()
       </h1>
 
       <!-- Dropdown menu -->
-      <ItemDropdownMenu v-if="loggedIn === true && item" />
+      <DropdownMenu v-if="loggedIn === true && item">
+        <DropdownItem
+          :icon="ShieldAlert"
+          red
+        >
+          Signaler
+        </DropdownItem>
+      </DropdownMenu>
     </template>
 
     <!-- Mobile page -->

@@ -40,15 +40,13 @@ const { loggedIn } = useAuth()
       </h1>
 
       <!-- Dropdown menu -->
-      <DropdownMenu v-if="loggedIn === true">
-        <DropdownMenuItem class="red">
-          <ShieldAlert
-            style="cursor: pointer;"
-            :size="32"
-            :stroke-width="2"
-          />
-          <div>Signaler</div>
-        </DropdownMenuItem>
+      <DropdownMenu v-if="loggedIn === true && user">
+        <DropdownItem
+          :icon="ShieldAlert"
+          red
+        >
+          Signaler
+        </DropdownItem>
       </DropdownMenu>
     </template>
 
@@ -57,7 +55,15 @@ const { loggedIn } = useAuth()
       <main>
         <WithLoading :loading="!user && isLoading">
           <Panel v-if="user">
-            <!-- Item collection -->
+            <section>
+              <ItemCardsCollection
+                :items="items"
+                :dense="false"
+                :loading="itemsIsLoading"
+                :error="itemsError != null"
+                :target="itemId => `/explore/item/${itemId}`"
+              />
+            </section>
           </Panel>
         </WithLoading>
       </main>
