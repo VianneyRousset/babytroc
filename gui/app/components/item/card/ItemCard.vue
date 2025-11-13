@@ -15,10 +15,10 @@ const { firstImagePath } = useItemFirstImage(item)
 
 const backgroundImage = computed(() => {
   const backgrounds = []
-  const params = ''
 
   backgrounds.push('linear-gradient(transparent 0 40%, #202020 100%)')
-  backgrounds.push(`url('${unref(firstImagePath)}${params}')`)
+  backgrounds.push(`url('${unref(firstImagePath)}?s=256')`)
+  backgrounds.push(`url('${unref(firstImagePath)}?s=32')`)
 
   return backgrounds.join(', ')
 })
@@ -27,7 +27,7 @@ const backgroundImage = computed(() => {
 <template>
   <div
     class="ItemCard"
-    :style="{ backgroundImage: backgroundImage }"
+    :style="{ backgroundImage }"
   >
     <div class="status">
       <Heart

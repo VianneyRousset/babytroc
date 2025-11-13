@@ -62,10 +62,11 @@ const carouselConfig = computed(() => ({
         v-for="(image, idx) in images"
         :key="idx"
       >
-        <img
+        <ProgressiveImage
           class="carousel__item"
-          :src="image"
-        >
+          :src="`${image}`"
+          :placeholder-src="`${image}?s=16`"
+        />
       </Slide>
 
       <Slide v-if="empty">
@@ -153,6 +154,7 @@ const carouselConfig = computed(() => ({
   .carousel__slide {
 
     transition: opacity 200ms ease-out;
+    aspect-ratio: 1;
 
     &:not(.carousel__slide--active) {
       opacity: 0.5;
