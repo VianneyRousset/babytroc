@@ -62,12 +62,22 @@ async function submitDeleteItem() {
       <!-- Dropdown menu -->
       <DropdownMenu v-if="loggedIn === true && item">
         <DropdownItem
+          v-if="item.owned"
           :icon="Pencil"
           @click="() => (editMode = true)"
         >
           Modifier
         </DropdownItem>
         <DropdownItem
+          v-if="item.owned"
+          :icon="Trash"
+          red
+          @click="() => (deleteItemPopup = true)"
+        >
+          Supprimer
+        </DropdownItem>
+        <DropdownItem
+          v-if="!item.owned"
           :icon="ShieldAlert"
           red
         >
@@ -80,7 +90,8 @@ async function submitDeleteItem() {
     <template #mobile>
       <main>
         <WithLoading :loading="!item && isLoading">
-          <Panel v-if="item">
+          <!-- View -->
+          <Panel v-if="item && !editMode">
             <ItemImagesGallery :item="item" />
             <div class="name-description">
               <h1>{{ item.name }}</h1>
@@ -101,6 +112,18 @@ async function submitDeleteItem() {
             <ItemRegionsMap :item="item" />
             <ItemRequestButton :item="item" />
           </Panel>
+
+          <!-- Edit -->
+          <Panel
+            v-else-if="editMode"
+            :max-width="600"
+          >
+            <ItemEditionForm
+              :item="item"
+              :is-loading="updateItemIsLoading"
+              @submit="submitUpdateItem"
+            />
+          </Panel>
         </WithLoading>
       </main>
     </template>
@@ -120,12 +143,14 @@ async function submitDeleteItem() {
         <template #buttons-right>
           <DropdownMenu v-if="loggedIn === true && item && !editMode">
             <DropdownItem
+              v-if="item.owned"
               :icon="Pencil"
               @click="() => (editMode = true)"
             >
               Modifier
             </DropdownItem>
             <DropdownItem
+              v-if="item.owned"
               :icon="Trash"
               red
               @click="() => (deleteItemPopup = true)"
@@ -198,35 +223,35 @@ async function submitDeleteItem() {
           </Panel>
         </WithLoading>
       </main>
-
-      <!-- Delete item popup -->
-      <PopupOverlay v-model="deleteItemPopup">
-        <Trash
-          :size="128"
-          :stroke-width="1"
-        />
-        <div>Êtes-vous sûr de supprimer l'objet <b>{{ item?.name }}</b> ? Cette opération est irréversible.</div>
-        <template #actions>
-          <TextButton
-            aspect="flat"
-            size="large"
-            color="red"
-            :loading="deleteItemIsLoading"
-            @click="submitDeleteItem"
-          >
-            Supprimer
-          </TextButton>
-          <TextButton
-            aspect="outline"
-            size="large"
-            color="neutral"
-            @click="deleteItemPopup = false"
-          >
-            Annuler
-          </TextButton>
-        </template>
-      </PopupOverlay>
     </template>
+
+    <!-- Delete item popup -->
+    <PopupOverlay v-model="deleteItemPopup">
+      <Trash
+        :size="128"
+        :stroke-width="1"
+      />
+      <div>Êtes-vous sûr de supprimer l'objet <b>{{ item?.name }}</b> ? Cette opération est irréversible.</div>
+      <template #actions>
+        <TextButton
+          aspect="flat"
+          size="large"
+          color="red"
+          :loading="deleteItemIsLoading"
+          @click="submitDeleteItem"
+        >
+          Supprimer
+        </TextButton>
+        <TextButton
+          aspect="outline"
+          size="large"
+          color="neutral"
+          @click="deleteItemPopup = false"
+        >
+          Annuler
+        </TextButton>
+      </template>
+    </PopupOverlay>
   </AppPage>
 </template>
 

@@ -1,7 +1,7 @@
 /* NEW */
 export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
   const { data: item, ...query } = useApiQuery('/v1/items/{item_id}', {
-    key: () => ['item', toValue(itemId)],
+    key: () => ['item', `item-${toValue(itemId)}`],
     path: () => ({
       item_id: toValue(itemId),
     }),
