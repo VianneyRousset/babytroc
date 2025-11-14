@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends ItemPreview">
-import { Heart, Bookmark, Clock } from 'lucide-vue-next'
+import { Heart, Clock } from 'lucide-vue-next'
 import type { RouteLocationGeneric } from 'vue-router'
 
 // TODO "missing image" if item.image is missing
@@ -36,12 +36,6 @@ const NuxtLink = resolveComponent('NuxtLink')
   >
     <div class="status">
       <Heart
-        v-if="item.liked"
-        class="liked"
-        :size="24"
-        :stroke-width="2"
-      />
-      <Bookmark
         v-if="item.saved"
         class="saved"
         :size="24"
@@ -105,7 +99,6 @@ a {
       color: $neutral-100;
     }
 
-    .liked,
     .saved {
       color: $neutral-100;
       fill: $neutral-100;

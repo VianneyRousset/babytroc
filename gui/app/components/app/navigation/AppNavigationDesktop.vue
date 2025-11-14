@@ -14,7 +14,7 @@ type ClassSpecifications = {
 
 const tabs = computed<Array<ClassSpecifications>>(() => [
   { section: 'explore', name: 'Explorer' },
-  { section: 'liked', name: 'Favorits' },
+  { section: 'saved', name: 'Favorits' },
   { section: 'chats', name: 'Chats', badge: unref(hot) },
 ])
 </script>

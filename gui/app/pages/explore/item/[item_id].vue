@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Pencil, ShieldAlert, X, Trash } from 'lucide-vue-next'
+import { Pencil, ShieldAlert, X, Trash, HeartPlus, HeartMinus } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'explore',
@@ -30,6 +30,9 @@ const { $toast } = useNuxtApp()
 const { mutateAsync: updateItem, isLoading: updateItemIsLoading } = useUpdateItemMutation(itemId)
 const { mutateAsync: deleteItem, isLoading: deleteItemIsLoading } = useDeleteItemMutation(itemId)
 
+// save
+const { save, unsave } = useItemSave({ itemId })
+
 async function submitUpdateItem(data: ItemUpdate) {
   await updateItem(data).catch((err) => {
     $toast.error('Échec de la modification de l\'objet')
@@ -44,6 +47,26 @@ async function submitDeleteItem() {
     throw err
   })
   return goBack()
+}
+
+async function submitSave() {
+  await save().catch((err) => {
+    $toast.error('Échec de l\'enregistrement de l\'objet')
+    throw err
+  })
+  $toast.success('Objet enregistré dans vos favorits', {
+    icon: () => h(HeartPlus),
+  })
+}
+
+async function submitUnsave() {
+  await unsave().catch((err) => {
+    $toast.error('Échec de l\'oubli de l\'objet')
+    throw err
+  })
+  $toast.success('Objet enlevé de vos favorits', {
+    icon: () => h(HeartMinus),
+  })
 }
 </script>
 
@@ -62,11 +85,18 @@ async function submitDeleteItem() {
       <!-- Dropdown menu -->
       <DropdownMenu v-if="loggedIn === true && item">
         <DropdownItem
-          v-if="item.owned"
-          :icon="Pencil"
-          @click="() => (editMode = true)"
+          v-if="!item.saved"
+          :icon="HeartPlus"
+          @click="submitSave"
         >
-          Modifier
+          Enregistrer
+        </DropdownItem>
+        <DropdownItem
+          v-else
+          :icon="HeartMinus"
+          @click="submitUnsave"
+        >
+          Oublier
         </DropdownItem>
         <DropdownItem
           v-if="item.owned"

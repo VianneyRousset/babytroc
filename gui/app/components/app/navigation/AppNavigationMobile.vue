@@ -25,7 +25,7 @@ type ClassSpecifications = {
 
 const tabs = computed<Array<ClassSpecifications>>(() => [
   { section: 'explore', name: 'Explorer', icon: Search },
-  { section: 'liked', name: 'Favorits', icon: Heart },
+  { section: 'saved', name: 'Favorits', icon: Heart },
   { section: 'newitem', target: '/me/items/new', icon: Plus, classes: { plus: true, enabled: unref(loggedIn) === true }, iconSize: 53 },
   { section: 'chats', icon: MessageSquare, name: 'Chats', badge: unref(hot) },
   { section: 'me', icon: UserRound, name: 'Moi' },

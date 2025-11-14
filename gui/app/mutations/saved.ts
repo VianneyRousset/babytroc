@@ -1,38 +1,39 @@
-export const useSaveItemMutation = defineMutation(() => {
-  const { $api, $toast } = useNuxtApp()
+export function useSaveItemMutation(itemId: MaybeRefOrGetter<number>) {
+  const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
   return useMutation({
-    mutation: (itemId: number) => {
+    mutation: () => {
       return $api('/v1/me/saved/{item_id}', {
         method: 'POST',
         path: {
-          item_id: itemId,
+          item_id: toValue(itemId),
         },
       })
     },
-    onSuccess: () => $toast.success('Objet sauvegardé.'),
-    onError: () => $toast.error('Échec de la sauvegarde de l\'objet.'),
-    onSettled: () =>
-      queryCache.invalidateQueries({ key: ['me', 'items', 'saved-items'] }),
+    onSettled: () => {
+      queryCache.invalidateQueries({ predicate: queryWithSubkey('saved') })
+      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+    },
   })
-})
+}
 
-export const useUnsaveItemMutation = defineMutation(() => {
-  const { $api, $toast } = useNuxtApp()
+export function useUnsaveItemMutation(itemId: MaybeRefOrGetter<number>) {
+  const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
 
   return useMutation({
-    mutation: (itemId: number) => {
+    mutation: () => {
       return $api('/v1/me/saved/{item_id}', {
         method: 'DELETE',
         path: {
-          item_id: itemId,
+          item_id: toValue(itemId),
         },
       })
     },
-    onSettled: () =>
-      queryCache.invalidateQueries({ key: ['me', 'items', 'saved-items'] }),
-    onError: () => $toast.error('Échec de l\'oublie de l\'objet.'),
+    onSettled: () => {
+      queryCache.invalidateQueries({ predicate: queryWithSubkey('saved') })
+      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+    },
   })
-})
+}

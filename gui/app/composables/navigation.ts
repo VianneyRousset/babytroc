@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import type { RouteLocationAsRelativeGeneric, RouteLocationAsPathGeneric } from 'vue-router'
 
-export type AppSection = 'explore' | 'liked' | 'newitem' | 'chats' | 'me'
+export type AppSection = 'explore' | 'saved' | 'newitem' | 'chats' | 'me'
 
 export function useNavigation() {
   const route = useRoute()
@@ -11,7 +11,7 @@ export function useNavigation() {
 
   const appSectionUrls = new Map<AppSection, string>([
     ['explore', '/explore'],
-    ['liked', '/liked'],
+    ['saved', '/saved'],
     ['chats', '/chats'],
     ['newitem', '/me/items/new'],
     ['me', '/me'],
