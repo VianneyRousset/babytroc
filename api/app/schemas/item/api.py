@@ -12,8 +12,11 @@ from .query import (
 )
 
 
-class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
-    # targeted_age_months
+class ItemLimitApiQueryBase(ApiQueryBase):
+    limit: Annotated[int, PageLimitField()] = 32
+
+
+class ItemTargetedAgeMonthsApiQueryBase(ApiQueryBase):
     targeted_age_months: Annotated[
         MonthRange | None,
         FieldWithAlias(
@@ -32,7 +35,8 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
         ),
     ] = None
 
-    # availability
+
+class ItemAvailabilityApiQueryBase(ApiQueryBase):
     availability: Annotated[
         ItemQueryAvailability,
         FieldWithAlias(
@@ -42,7 +46,8 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
         ),
     ] = ItemQueryAvailability.yes
 
-    # regions
+
+class ItemRegionsApiQueryBase(ApiQueryBase):
     regions: Annotated[
         list[int] | None,
         FieldWithAlias(
@@ -59,8 +64,35 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
         ),
     ] = None
 
-    limit: Annotated[int, PageLimitField()] = 32
 
+class ItemMatchingWordsApiQueryBase(ApiQueryBase):
+    words: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="words",
+            alias="q",
+            title="Words used for fuzzy search",
+            description=(
+                "An item is returned if any word in this list fuzzy-matches a word in "
+                "the item's name or description. However, the more given words that do "
+                "not match any word in the item's name or description, the higher the "
+                "word matching distance is."
+            ),
+            examples=[
+                ["chair"],
+                ["dog", "cat"],
+            ],
+        ),
+    ] = None
+
+
+class ItemApiQuery(
+    ItemLimitApiQueryBase,
+    ItemTargetedAgeMonthsApiQueryBase,
+    ItemAvailabilityApiQueryBase,
+    ItemRegionsApiQueryBase,
+    ItemQueryPageCursor,
+):
     @property
     def item_select_query_filter(self) -> ItemReadQueryFilter:
         return ItemReadQueryFilter(
@@ -83,27 +115,11 @@ class ItemApiQuery(ApiQueryBase, ItemQueryPageCursor):
         )
 
 
-class ItemMatchinWordsApiQuery(ItemApiQuery, ItemMatchingWordsQueryPageCursor):
-    # words
-    words: Annotated[
-        list[str] | None,
-        FieldWithAlias(
-            name="words",
-            alias="q",
-            title="Words used for fuzzy search",
-            description=(
-                "An item is returned if any word in this list fuzzy-matches a word in "
-                "the item's name or description. However, the more given words that do "
-                "not match any word in the item's name or description, the higher the "
-                "word matching distance is."
-            ),
-            examples=[
-                ["chair"],
-                ["dog", "cat"],
-            ],
-        ),
-    ] = None
-
+class ItemMatchinWordsApiQuery(
+    ItemApiQuery,
+    ItemMatchingWordsApiQueryBase,
+    ItemMatchingWordsQueryPageCursor,
+):
     @property
     def item_matching_words_query_page_cursor(self) -> ItemMatchingWordsQueryPageCursor:
         return ItemMatchingWordsQueryPageCursor(
@@ -121,8 +137,18 @@ class ItemMatchinWordsApiQuery(ItemApiQuery, ItemMatchingWordsQueryPageCursor):
         )
 
 
-class SavedItemApiQuery(ItemApiQuery):
-    pass
+class SavedItemApiQuery(
+    ItemApiQuery,
+):
+    # redefine with all availability by default
+    availability: Annotated[
+        ItemQueryAvailability,
+        FieldWithAlias(
+            name="availability",
+            alias="av",
+            title="Availability",
+        ),
+    ] = ItemQueryAvailability.all
 
 
 class LikedItemApiQuery(ItemApiQuery):

@@ -54,6 +54,7 @@ def list_items_saved_by_client(
                 "saved_by_user_id": client_id,
             }
         ),
+        page_options=query.item_query_page_options,
     )
 
     result.set_response_headers(response, request)
