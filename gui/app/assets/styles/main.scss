@@ -3,6 +3,15 @@ body {
   font-family: 'Inter', sans-serif;
 
   --loader-color: #69717d;
+
+  /* Toastify */
+  --toastify-font-family: "Plus Jakarta Sans", sans-serif;
+  --toastify-color-success: #729577;
+  --toastify-color-error: #c90c0c;
+  --toastify-icon-color-success: var(--toastify-color-success);
+  --toastify-icon-color-error: var(--toastify-color-error);
+  --toastify-color-progress-success: var(--toastify-color-success);
+  --toastify-color-progress-error: var(--toastify-color-error);
 }
 
 h1,

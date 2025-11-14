@@ -173,6 +173,20 @@ async function submitUnsave() {
         <template #buttons-right>
           <DropdownMenu v-if="loggedIn === true && item && !editMode">
             <DropdownItem
+              v-if="!item.saved"
+              :icon="HeartPlus"
+              @click="submitSave"
+            >
+              Enregistrer
+            </DropdownItem>
+            <DropdownItem
+              v-else
+              :icon="HeartMinus"
+              @click="submitUnsave"
+            >
+              Oublier
+            </DropdownItem>
+            <DropdownItem
               v-if="item.owned"
               :icon="Pencil"
               @click="() => (editMode = true)"
