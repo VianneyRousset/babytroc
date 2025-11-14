@@ -23,15 +23,27 @@ const editMode = ref(false)
 
 const device = useDevice()
 
-const { $toast } = useNuxtApp()
-const { mutateAsync: update, isLoading: updateIsLoading } = useUpdateItemMutation(itemId)
+const { goBack } = useNavigation()
+const deleteItemPopup = ref(false)
 
-async function submit(data: ItemUpdate) {
-  await update(data).catch((err) => {
+const { $toast } = useNuxtApp()
+const { mutateAsync: updateItem, isLoading: updateItemIsLoading } = useUpdateItemMutation(itemId)
+const { mutateAsync: deleteItem, isLoading: deleteItemIsLoading } = useDeleteItemMutation(itemId)
+
+async function submitUpdateItem(data: ItemUpdate) {
+  await updateItem(data).catch((err) => {
     $toast.error('Échec de la modification de l\'objet')
     throw err
   })
   editMode.value = false
+}
+
+async function submitDeleteItem() {
+  await deleteItem().catch((err) => {
+    $toast.error('Échec de la suppression de l\'objet')
+    throw err
+  })
+  return goBack()
 }
 </script>
 
@@ -116,6 +128,7 @@ async function submit(data: ItemUpdate) {
             <DropdownItem
               :icon="Trash"
               red
+              @click="() => (deleteItemPopup = true)"
             >
               Supprimer
             </DropdownItem>
@@ -130,6 +143,7 @@ async function submit(data: ItemUpdate) {
         </template>
       </AppHeaderDesktop>
       <main>
+        <!-- View -->
         <WithLoading :loading="!item && isLoading">
           <Panel
             v-if="item && !editMode"
@@ -170,18 +184,48 @@ async function submit(data: ItemUpdate) {
               </div>
             </section>
           </Panel>
+
+          <!-- Edit -->
           <Panel
             v-else-if="editMode"
             :max-width="600"
           >
             <ItemEditionForm
               :item="item"
-              :is-loading="updateIsLoading"
-              @submit="submit"
+              :is-loading="updateItemIsLoading"
+              @submit="submitUpdateItem"
             />
           </Panel>
         </WithLoading>
       </main>
+
+      <!-- Delete item popup -->
+      <PopupOverlay v-model="deleteItemPopup">
+        <Trash
+          :size="128"
+          :stroke-width="1"
+        />
+        <div>Êtes-vous sûr de supprimer l'objet <b>{{ item?.name }}</b> ? Cette opération est irréversible.</div>
+        <template #actions>
+          <TextButton
+            aspect="flat"
+            size="large"
+            color="red"
+            :loading="deleteItemIsLoading"
+            @click="submitDeleteItem"
+          >
+            Supprimer
+          </TextButton>
+          <TextButton
+            aspect="outline"
+            size="large"
+            color="neutral"
+            @click="deleteItemPopup = false"
+          >
+            Annuler
+          </TextButton>
+        </template>
+      </PopupOverlay>
     </template>
   </AppPage>
 </template>

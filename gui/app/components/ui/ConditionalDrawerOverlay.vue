@@ -23,14 +23,15 @@ const { position, drawer, page } = toRefs(props)
       class="ConditionalDrawerOverlay"
       :class="{ page }"
     >
-      <Overlay v-model="drawerOpen" />
-      <Drawer
-        v-model="drawerOpen"
-        :position="position"
-      >
-        <slot name="drawer-only" />
-        <slot />
-      </Drawer>
+      <Overlay v-model="drawerOpen">
+        <Drawer
+          v-model="drawerOpen"
+          :position="position"
+        >
+          <slot name="drawer-only" />
+          <slot />
+        </Drawer>
+      </Overlay>
     </div>
   </Teleport>
 

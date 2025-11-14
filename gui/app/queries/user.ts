@@ -16,7 +16,7 @@ export function useUserQuery(userId: MaybeRefOrGetter<number>) {
 
 export function useUserItemsListQuery(userId: MaybeRefOrGetter<number>) {
   return useApiPaginatedQuery('/v1/users/{user_id}/items', {
-    key: () => ['item', 'user', `user${toValue(userId)}`],
+    key: () => ['item', 'items', 'user', `user${toValue(userId)}`],
     path: {
       user_id: toValue(userId),
     },

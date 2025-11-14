@@ -36,7 +36,7 @@ export function useItemExplore({ queryParams }: { queryParams: Ref<ItemQueryPara
   const { data: items, ...query } = useApiPaginatedQuery(
     '/v1/items',
     {
-      key: ['item', 'explore'],
+      key: ['item', 'items', 'explore'],
       query: queryParams,
     },
   )

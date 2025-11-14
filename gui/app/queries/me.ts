@@ -10,6 +10,6 @@ export function useMeQuery() {
 
 export function useMeItemsListQuery() {
   return useApiPaginatedQuery('/v1/me/items', {
-    key: ['item', 'me'],
+    key: ['item', 'items', 'me'],
   })
 }

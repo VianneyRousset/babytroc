@@ -14,7 +14,7 @@ export const useSaveItemMutation = defineMutation(() => {
     onSuccess: () => $toast.success('Objet sauvegardé.'),
     onError: () => $toast.error('Échec de la sauvegarde de l\'objet.'),
     onSettled: () =>
-      queryCache.invalidateQueries({ key: ['me', 'saved-items'] }),
+      queryCache.invalidateQueries({ key: ['me', 'items', 'saved-items'] }),
   })
 })
 
@@ -32,7 +32,7 @@ export const useUnsaveItemMutation = defineMutation(() => {
       })
     },
     onSettled: () =>
-      queryCache.invalidateQueries({ key: ['me', 'saved-items'] }),
+      queryCache.invalidateQueries({ key: ['me', 'items', 'saved-items'] }),
     onError: () => $toast.error('Échec de l\'oublie de l\'objet.'),
   })
 })
