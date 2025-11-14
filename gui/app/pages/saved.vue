@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Heart } from 'lucide-vue-next'
+
 definePageMeta({
   layout: 'saved',
 })
@@ -16,6 +18,10 @@ const { items, error, isLoading, loadMore } = useSavedItems()
   >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
+      <Heart
+        :size="32"
+        :stroke-width="2"
+      />
       <h1>Favorits</h1>
     </template>
 
