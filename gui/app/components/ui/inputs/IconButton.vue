@@ -15,6 +15,7 @@ const props = withDefaults(
   {
     active: false,
     disabled: false,
+    size: 32,
   },
 )
 

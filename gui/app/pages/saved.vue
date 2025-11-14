@@ -10,6 +10,7 @@ const { items, error, isLoading, loadMore } = useSavedItems()
 
 <template>
   <AppPage
+    logged-in-only
     with-header
     :max-width="1000"
     infinite-scroll
@@ -23,6 +24,13 @@ const { items, error, isLoading, loadMore } = useSavedItems()
         :stroke-width="2"
       />
       <h1>Favorits</h1>
+    </template>
+
+    <!-- Header (desktop only) -->
+    <template #desktop>
+      <AppHeaderDesktop>
+        <h1>Mes Favorits</h1>
+      </AppHeaderDesktop>
     </template>
 
     <!-- Item cards -->
