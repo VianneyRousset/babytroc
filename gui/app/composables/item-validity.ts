@@ -24,7 +24,6 @@ export const useItemRegionsValidity = defineValidityFunction<Set<number>>(
   _regions => (_regions.size < 1) ? 'Veuillez spécifier au moins une région' : undefined,
   {
     initialValue: new Set(),
-    compare: (a: Set<number>, b: Set<number>) => a.size === b.size && [...a].every(x => b.has(x)),
   },
 )
 
@@ -32,6 +31,5 @@ export const useItemImagesValidity = defineValidityFunction<Array<string>>(
   _images => (_images.length < 1) ? 'Veuillez spécifier au moins une image' : undefined,
   {
     initialValue: [],
-    compare: (a: Array<string>, b: Array<string>) => a.length === b.length && a.every((el, i) => b[i] === el),
   },
 )

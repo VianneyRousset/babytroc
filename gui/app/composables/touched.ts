@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash'
+
 /**
  * `touched` becomes and stays true if `value` changed.
  **/
@@ -8,10 +10,10 @@ export function useTouched<T>(
 ): Ref<boolean> {
   const touched = ref(false)
   const _initialValue = initialValue ?? toValue(value)
-  const _compare = compare ?? ((a, b) => a === b)
+  const _compare = compare ?? isEqual
 
   const stop = watch(() => toValue(value), (v) => {
-    if (!_compare(v, _initialValue))
+    if (!_compare(v, _initialValue) && unref(touched) === false)
       touched.value = true
   }, { immediate: true })
 

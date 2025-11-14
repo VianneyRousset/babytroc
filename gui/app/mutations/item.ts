@@ -15,3 +15,24 @@ export const useCreateItemMutation = defineMutation(() => {
     },
   })
 })
+
+export function useUpdateItemMutation(itemId: MaybeRefOrGetter<number>) {
+  const { $api } = useNuxtApp()
+  const queryCache = useQueryCache()
+
+  return useMutation({
+    key: () => ['item', 'updaet', toValue(itemId)],
+    mutation: (context: ItemUpdate) => $api('/v1/me/items/{item_id}', {
+      method: 'POST',
+      path: {
+        item_id: toValue(itemId),
+      },
+      body: context,
+    }),
+    onSettled: (_data, _error) => {
+      queryCache.invalidateQueries({ key: ['item', toValue(itemId)] })
+      queryCache.invalidateQueries({ key: ['item', 'explore'] })
+      queryCache.invalidateQueries({ key: ['item', 'me'] })
+    },
+  })
+}

@@ -14,8 +14,6 @@ const { loggedIn } = useAuth()
 const { me } = useMe()
 const { logout } = useLogout()
 const open = ref(false)
-
-provide('dropdown-menu-open', open)
 </script>
 
 <template>

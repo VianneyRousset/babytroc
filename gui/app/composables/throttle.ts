@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash'
+
 export function useThrottle<T>(
   value: MaybeRefOrGetter<T>,
   time: MaybeRefOrGetter<number>,
@@ -8,6 +10,9 @@ export function useThrottle<T>(
   let timeout = null as null | ReturnType<typeof setTimeout>
 
   const stop = watch(() => toValue(value), (v) => {
+    if (isEqual(v, unref(result)))
+      return
+
     synced.value = false
 
     if (timeout) clearTimeout(timeout)
@@ -21,7 +26,7 @@ export function useThrottle<T>(
     )
   })
 
-  tryOnUnmounted(stop)
+  onScopeDispose(stop)
 
   return {
     synced,

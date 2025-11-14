@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ShieldAlert } from 'lucide-vue-next'
+import { Pencil, ShieldAlert, X, Trash } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'explore',
@@ -19,7 +19,20 @@ const { item, isLoading } = useItem({ itemId })
 // auth
 const { loggedIn } = useAuth()
 
+const editMode = ref(false)
+
 const device = useDevice()
+
+const { $toast } = useNuxtApp()
+const { mutateAsync: update, isLoading: updateIsLoading } = useUpdateItemMutation(itemId)
+
+async function submit(data: ItemUpdate) {
+  await update(data).catch((err) => {
+    $toast.error('Échec de la modification de l\'objet')
+    throw err
+  })
+  editMode.value = false
+}
 </script>
 
 <template>
@@ -36,6 +49,12 @@ const device = useDevice()
 
       <!-- Dropdown menu -->
       <DropdownMenu v-if="loggedIn === true && item">
+        <DropdownItem
+          :icon="Pencil"
+          @click="() => (editMode = true)"
+        >
+          Modifier
+        </DropdownItem>
         <DropdownItem
           :icon="ShieldAlert"
           red
@@ -78,13 +97,42 @@ const device = useDevice()
     <template #desktop>
       <AppHeaderDesktop>
         <template #buttons-left>
-          <AppBack />
+          <AppBack v-if="!editMode" />
+          <IconButton
+            v-else
+            :icon="X"
+            @click="() => (editMode = false)"
+          />
+        </template>
+
+        <template #buttons-right>
+          <DropdownMenu v-if="loggedIn === true && item && !editMode">
+            <DropdownItem
+              :icon="Pencil"
+              @click="() => (editMode = true)"
+            >
+              Modifier
+            </DropdownItem>
+            <DropdownItem
+              :icon="Trash"
+              red
+            >
+              Supprimer
+            </DropdownItem>
+            <DropdownItem
+              v-if="!item.owned"
+              :icon="ShieldAlert"
+              red
+            >
+              Signaler
+            </DropdownItem>
+          </DropdownMenu>
         </template>
       </AppHeaderDesktop>
       <main>
         <WithLoading :loading="!item && isLoading">
           <Panel
-            v-if="item"
+            v-if="item && !editMode"
             class="desktop"
           >
             <ItemImagesGallery
@@ -121,6 +169,16 @@ const device = useDevice()
                 <ItemRegionsMap :item="item" />
               </div>
             </section>
+          </Panel>
+          <Panel
+            v-else-if="editMode"
+            :max-width="600"
+          >
+            <ItemEditionForm
+              :item="item"
+              :is-loading="updateIsLoading"
+              @submit="submit"
+            />
           </Panel>
         </WithLoading>
       </main>

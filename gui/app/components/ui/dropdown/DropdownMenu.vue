@@ -2,6 +2,8 @@
 import { Ellipsis } from 'lucide-vue-next'
 
 const open = defineModel<boolean>()
+
+provide('dropdown-menu-open', open)
 </script>
 
 <template>
