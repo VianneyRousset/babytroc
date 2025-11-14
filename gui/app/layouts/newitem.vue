@@ -1,1 +1,1 @@
-empty.vue
+default.vue

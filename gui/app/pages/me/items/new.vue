@@ -5,9 +5,6 @@ definePageMeta({
   layout: 'newitem',
 })
 
-// auth
-useAuth({ fallbackRoute: '/me' })
-
 const { $toast } = useNuxtApp()
 const { mutateAsync: create, isLoading } = useCreateItemMutation()
 
@@ -22,7 +19,10 @@ async function submit(data: ItemCreate) {
 </script>
 
 <template>
-  <AppPage with-header>
+  <AppPage
+    logged-in-only
+    with-header
+  >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
       <AppBack
