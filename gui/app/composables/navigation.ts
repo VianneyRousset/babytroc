@@ -12,8 +12,8 @@ export function useNavigation() {
   const appSectionUrls = new Map<AppSection, string>([
     ['explore', '/explore'],
     ['liked', '/liked'],
-    ['newitem', '/newitem'],
     ['chats', '/chats'],
+    ['newitem', '/me/items/new'],
     ['me', '/me'],
   ])
 

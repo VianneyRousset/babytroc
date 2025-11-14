@@ -34,7 +34,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
   z-index: 2;
 
   position: fixed;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   top: 0;
   bottom: 0;
   left: 0;

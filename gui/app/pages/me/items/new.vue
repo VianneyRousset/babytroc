@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { X } from 'lucide-vue-next'
+
 definePageMeta({
-  layout: 'me',
+  layout: 'newitem',
 })
 
 // auth
@@ -23,7 +25,9 @@ async function submit(data: ItemCreate) {
   <AppPage with-header>
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
-      <AppBack />
+      <AppBack
+        :icon="X"
+      />
       <h1>Nouvel objet</h1>
     </template>
 

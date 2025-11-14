@@ -119,8 +119,6 @@ const carouselConfig = computed(() => ({
     z-index: 2;
     aspect-ratio: 1;
     border-radius: 50%;
-    /* box-shadow: 0 0 1em black; */
-    filter: drop-shadow(0 0 12px black);
 
     &:hover svg {
       filter: drop-shadow(0 0 12px $neutral-200);
