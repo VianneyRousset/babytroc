@@ -131,7 +131,7 @@ nav {
       }
     }
 
-    &.enabled {
+    &[logged-in=true] {
       background: $primary-200;
       border-color: $primary-300;
 
