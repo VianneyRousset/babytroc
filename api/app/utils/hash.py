@@ -1,16 +1,8 @@
-import logging
 from typing import Any, Self
 
-from passlib.context import CryptContext
+import bcrypt
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
-
-# silent passlib warning "module 'bcrypt' has no attribute '__about__'"
-# https://github.com/pyca/bcrypt/issues/684
-logging.getLogger("passlib").setLevel(logging.ERROR)
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class HashedStr(str):
@@ -33,13 +25,22 @@ class HashedStr(str):
 
         # to be hashed
         if isinstance(o, str):
-            return str.__new__(HashedStr, pwd_context.hash(o))
+            return str.__new__(
+                HashedStr,
+                bcrypt.hashpw(
+                    o.encode("utf-8"),
+                    bcrypt.gensalt(),
+                ).decode("utf-8"),
+            )
 
         msg = f"HashedStr or str is expected, got {type(o)}"
         raise TypeError(msg)
 
     def verify(self, plain: str):
-        return pwd_context.verify(plain, self)
+        return bcrypt.checkpw(
+            plain.encode("utf-8"),
+            self.encode("utf-8"),
+        )
 
     @classmethod
     def __get_pydantic_core_schema__(

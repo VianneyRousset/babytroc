@@ -86,10 +86,10 @@ version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
+    { name = "bcrypt" },
     { name = "broadcaster", extra = ["postgres"] },
     { name = "fastapi", extra = ["standard"] },
     { name = "fastapi-mail" },
-    { name = "passlib", extra = ["bcrypt"] },
     { name = "pillow" },
     { name = "pydantic", extra = ["email"] },
     { name = "pyjwt" },
@@ -124,10 +124,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.15.2" },
+    { name = "bcrypt", specifier = ">=4.3.0" },
     { name = "broadcaster", extras = ["postgres"], git = "https://github.com/encode/broadcaster.git?rev=6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d#6b3ea71d4f8fb038fa7d357a1fb3750d58ac614d" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.*" },
     { name = "fastapi-mail", specifier = ">=1.5.0" },
-    { name = "passlib", extras = ["bcrypt"] },
     { name = "pillow", specifier = ">=11.2.1" },
     { name = "pydantic", extras = ["email"] },
     { name = "pyjwt", specifier = ">=2.10.1" },
@@ -757,20 +757,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/66/94/68e2e17afaa9169cf6412ab0f28623903be73d1b32e208d9e8e541bb086d/parso-0.8.4.tar.gz", hash = "sha256:eb3a7b58240fb99099a345571deecc0f9540ea5f4dd2fe14c2a99d6b281ab92d", size = 400609 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c6/ac/dac4a63f978e4dcb3c6d3a78c4d8e0192a113d288502a1216950c41b1027/parso-0.8.4-py2.py3-none-any.whl", hash = "sha256:a418670a20291dacd2dddc80c377c5c3791378ee1e8d12bffc35420643d43f18", size = 103650 },
-]
-
-[[package]]
-name = "passlib"
-version = "1.7.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b6/06/9da9ee59a67fae7761aab3ccc84fa4f3f33f125b370f1ccdb915bf967c11/passlib-1.7.4.tar.gz", hash = "sha256:defd50f72b65c5402ab2c573830a6978e5f202ad0d984793c8dde2c4152ebe04", size = 689844 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/a4/ab6b7589382ca3df236e03faa71deac88cae040af60c071a78d254a62172/passlib-1.7.4-py2.py3-none-any.whl", hash = "sha256:aa6bca462b8d8bda89c70b382f0c298a20b5560af6cbfa2dce410c0a2fb669f1", size = 525554 },
-]
-
-[package.optional-dependencies]
-bcrypt = [
-    { name = "bcrypt" },
 ]
 
 [[package]]
