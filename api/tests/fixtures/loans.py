@@ -183,7 +183,14 @@ def many_loan_requests_for_alice_special_item(
     alice: UserPrivateRead,
     alice_special_item: ItemRead,
 ) -> list[LoanRequestRead]:
-    """Loan requests from many users for Alice new item."""
+    """Loan requests from many users for Alice new item.
+
+    90% of the many users requests Alice's special item.
+    25% of those loan requests are cancelled
+    25% of those loan requests are rejected
+    25% of those loan requests are accepted
+    25% of those loan requests are still pending
+    """
 
     random.seed(0x50E6)
 
@@ -209,22 +216,22 @@ def many_loan_requests_for_alice_special_item(
         n = round(0.2 * len(loan_requests))
         loan_request_ids_sample = random.sample(list(loan_requests.keys()), k=n)
 
-        # cancel 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[0 : n // 3]:
+        # cancel 1/4 of the selected loan requests
+        for loan_request_id in loan_request_ids_sample[0 : n // 4]:
             loan_requests[loan_request_id] = services.loan.cancel_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
             )
 
-        # reject 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[n // 3 : 2 * n // 3]:
+        # reject 1/4 of the selected loan requests
+        for loan_request_id in loan_request_ids_sample[n // 4 : 2 * n // 4]:
             loan_requests[loan_request_id] = services.loan.reject_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
             )
 
-        # accept 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[2 * n // 3 :]:
+        # accept 1/4 of the selected loan requests
+        for loan_request_id in loan_request_ids_sample[2 * n // 4 : 3 * n // 4]:
             loan_requests[loan_request_id] = services.loan.accept_loan_request(
                 db=session,
                 loan_request_id=loan_request_id,
