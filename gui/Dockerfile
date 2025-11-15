@@ -27,6 +27,9 @@ COPY tailwind.config.js ./tailwind.config.js
 RUN npx nuxi prepare
 RUN npx nuxi build
 
+# cleanup
+RUN find . -not -name '.output' -not -name 'entrypoint.sh' -delete
+
 # Expose the port the app runs on
 EXPOSE 3000
 
