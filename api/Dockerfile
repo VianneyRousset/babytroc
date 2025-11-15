@@ -8,7 +8,7 @@ WORKDIR /usr/src/api
 
 # install dependencies
 COPY pyproject.toml .
-RUN uv sync
+RUN uv sync --nogroup dev
 
 # Expose the port the app runs on
 EXPOSE 8080
