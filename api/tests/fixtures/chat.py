@@ -2,10 +2,8 @@ from contextlib import AbstractContextManager
 from types import TracebackType
 
 import pytest
-import sqlalchemy
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 from starlette.testclient import WebSocketTestSession
 
 from app.schemas.chat.base import ChatId
@@ -134,7 +132,7 @@ def alice_many_messages_to_bob_text() -> list[str]:
 
 @pytest.fixture
 def alice_many_messages_to_bob(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice_many_messages_to_bob_text: list[str],
     alice: UserRead,
     bob_new_loan_request_for_alice_new_item: LoanRequestRead,
@@ -143,8 +141,7 @@ def alice_many_messages_to_bob(
 
     chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         # get current messages
         messages: list[ChatMessageRead] = list_messages(
             db=session,
@@ -169,15 +166,14 @@ def alice_many_messages_to_bob(
 
 @pytest.fixture(scope="class")
 def alice_many_chats(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserRead,
     bob: UserRead,
     many_items: list[ItemRead],
 ) -> list[ChatRead]:
     """Many chats between Alice and Bob."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         loan_requests = [
             create_loan_request(
                 db=session,

@@ -1,9 +1,7 @@
 import random
 
 import pytest
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from app import services
 from app.schemas.item.read import ItemRead
@@ -14,7 +12,7 @@ from app.schemas.user.private import UserPrivateRead
 
 @pytest.fixture
 def bob_new_loan_request_for_alice_new_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     bob: UserPrivateRead,
@@ -24,8 +22,7 @@ def bob_new_loan_request_for_alice_new_item(
     fixture scope: function.
     """
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.loan.create_loan_request(
             db=session,
             item_id=alice_new_item.id,
@@ -35,7 +32,7 @@ def bob_new_loan_request_for_alice_new_item(
 
 @pytest.fixture
 def bob_new_loan_request_for_alice_special_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_special_item: ItemRead,
     bob: UserPrivateRead,
@@ -45,8 +42,7 @@ def bob_new_loan_request_for_alice_special_item(
     fixture scope: function.
     """
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.loan.create_loan_request(
             db=session,
             item_id=alice_special_item.id,
@@ -56,7 +52,7 @@ def bob_new_loan_request_for_alice_special_item(
 
 @pytest.fixture
 def carol_new_loan_request_for_alice_new_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     carol: UserPrivateRead,
@@ -66,8 +62,7 @@ def carol_new_loan_request_for_alice_new_item(
     fixture scope: function.
     """
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.loan.create_loan_request(
             db=session,
             item_id=alice_new_item.id,
@@ -77,7 +72,7 @@ def carol_new_loan_request_for_alice_new_item(
 
 @pytest.fixture
 def bob_new_loan_of_alice_new_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     bob: UserPrivateRead,
@@ -88,8 +83,7 @@ def bob_new_loan_of_alice_new_item(
     fixture scope: function.
     """
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         # execute loan request
         return services.loan.execute_loan_request(
             db=session,
@@ -104,7 +98,7 @@ def bob_new_loan_of_alice_new_item(
 
 @pytest.fixture(scope="class")
 def many_loan_requests_for_alice_items(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     many_items: list[ItemRead],
     alice: UserPrivateRead,
     bob: UserPrivateRead,
@@ -120,8 +114,7 @@ def many_loan_requests_for_alice_items(
         k=round(0.9 * len(items_owned_by_alice)),
     )
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         # create loan requests
         loan_requests = {
             loan_request.id: loan_request
@@ -178,7 +171,7 @@ def many_loan_requests_for_alice_items(
 
 @pytest.fixture(scope="class")
 def many_loan_requests_for_alice_special_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     many_users: list[UserPrivateRead],
     alice: UserPrivateRead,
     alice_special_item: ItemRead,
@@ -190,8 +183,7 @@ def many_loan_requests_for_alice_special_item(
     # select 90% of all the many users that will request Alice new item
     requesters = random.sample(many_users, k=round(0.9 * len(many_users)))
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         # create loan requests
         loan_requests = {
             loan_request.id: loan_request

@@ -1,9 +1,7 @@
 from typing import TypedDict
 
 import pytest
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from app import services
 from app.schemas.region.create import RegionCreate
@@ -32,13 +30,12 @@ def regions_data() -> list[RegionData]:
 
 @pytest.fixture(scope="class")
 def regions(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     regions_data: list[RegionData],
 ) -> list[RegionRead]:
     """Ensures the regions exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return [
             services.region.create_region(
                 session,
