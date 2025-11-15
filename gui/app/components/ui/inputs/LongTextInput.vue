@@ -60,7 +60,7 @@ function submit() {
   <div class="LongTextInput">
     <textarea
       ref="textarea"
-      v-model="model"
+      v-model.trim="model"
       :size="1"
       :placeholder="props.placeholder"
       :disabled="props.disabled"

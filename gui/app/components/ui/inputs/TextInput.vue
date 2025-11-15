@@ -45,7 +45,7 @@ const type = computed(() => {
   <div class="TextInput">
     <input
       ref="input"
-      v-model="model"
+      v-model.trim="model"
       :size="1"
       :placeholder="props.placeholder"
       :type="type"

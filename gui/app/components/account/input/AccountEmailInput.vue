@@ -17,7 +17,6 @@ const emit = defineEmits(['next', 'blur'])
 const { status, error, touched } = useAccountEmailValidity(email)
 
 const stop = watchEffect(() => {
-  email.value = avoidConsecutiveWhitespaces(unref(email).trim())
   valid.value = unref(status) === 'success'
 })
 

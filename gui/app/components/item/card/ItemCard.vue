@@ -18,7 +18,7 @@ const backgroundImage = computed(() => {
   const backgrounds = []
 
   backgrounds.push('linear-gradient(transparent 0 40%, #202020 100%)')
-  backgrounds.push(`url('${unref(firstImagePath)}?s=256')`)
+  backgrounds.push(`url('${unref(firstImagePath)}?s=512')`)
   backgrounds.push(`url('${unref(firstImagePath)}?s=32')`)
 
   return backgrounds.join(', ')

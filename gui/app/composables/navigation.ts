@@ -27,8 +27,22 @@ export function useNavigation() {
   })
 
   function goBack(fallback?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric | null) {
-    if (window.history.state.back == null)
+    const back = window.history.state.back
+    const res = back && [...appSectionUrls].find(([_, v]) => back.startsWith(v))
+    const previousSection = res && res[0]
+
+    const blacklist = [
+      '/me/account/pending-validation',
+      '/me/account/validate',
+    ]
+
+    if (
+      previousSection !== unref(activeAppSection)
+      || blacklist.some(bl => window.history.state.back.startsWith(bl))
+    ) {
       return router.push(fallback ?? unref(currentTabRoot))
+    }
+
     return router.go(-1)
   }
 
