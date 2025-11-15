@@ -117,7 +117,7 @@ class ItemQueryFilterSavedByUser(ReadQueryFilter):
             [ItemSave] if self.saved_by_user_id is not None else []
         )
 
-    def filter(self, stmt: Select) -> Select:
+    def _filter_read(self, stmt: Select) -> Select:
         return super()._filter_read(
             stmt.where(ItemSave.user_id == self.saved_by_user_id)
             if self.saved_by_user_id is not None
