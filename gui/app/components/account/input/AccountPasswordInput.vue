@@ -17,7 +17,6 @@ const emit = defineEmits(['next', 'blur'])
 const { status, error, touched } = useAccountPasswordValidity(password)
 
 const stop = watchEffect(() => {
-  password.value = avoidConsecutiveWhitespaces(unref(password).trim())
   valid.value = unref(status) === 'success'
 })
 

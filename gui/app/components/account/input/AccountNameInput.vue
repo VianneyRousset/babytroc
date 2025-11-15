@@ -17,7 +17,6 @@ const emit = defineEmits(['next', 'blur'])
 const { status, error, touched } = useAccountNameValidity(name)
 
 const stop = watchEffect(() => {
-  name.value = avoidConsecutiveWhitespaces(unref(name).trim())
   valid.value = unref(status) === 'success'
 })
 

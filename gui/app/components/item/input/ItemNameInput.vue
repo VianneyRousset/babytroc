@@ -19,7 +19,6 @@ const emit = defineEmits(['next', 'blur'])
 const { status, error } = useItemNameValidity(name, touched)
 
 const stop = watchEffect(() => {
-  name.value = avoidConsecutiveWhitespaces(unref(name).trim())
   valid.value = unref(status) === 'success'
 })
 
