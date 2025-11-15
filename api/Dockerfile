@@ -10,7 +10,7 @@ RUN apk add gcc python3-dev musl-dev linux-headers
 WORKDIR /usr/src/api
 
 # install dependencies
-COPY pyproject.toml .
+COPY pyproject.toml uv.lock ./
 RUN uv sync --no-group dev
 
 # Expose the port the app runs on
