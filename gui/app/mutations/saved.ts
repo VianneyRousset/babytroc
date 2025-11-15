@@ -12,8 +12,8 @@ export function useSaveItemMutation(itemId: MaybeRefOrGetter<number>) {
       })
     },
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: queryWithSubkey('saved') })
-      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('saved') })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
     },
   })
 }
@@ -32,8 +32,8 @@ export function useUnsaveItemMutation(itemId: MaybeRefOrGetter<number>) {
       })
     },
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: queryWithSubkey('saved') })
-      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('saved') })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
     },
   })
 }

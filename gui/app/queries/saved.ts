@@ -3,6 +3,6 @@
  */
 export function useSavedItemsListQuery() {
   return useApiPaginatedQuery('/v1/me/saved', {
-    key: ['item', 'items', 'saved'],
+    key: ['me', 'item', 'items', 'saved'],
   })
 }

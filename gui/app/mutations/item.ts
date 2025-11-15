@@ -11,7 +11,7 @@ export const useCreateItemMutation = defineMutation(() => {
       body: context,
     }),
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: queryWithSubkey('items') })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
     },
   })
 })
@@ -33,8 +33,8 @@ export function useUpdateItemMutation(itemId: MaybeRefOrGetter<number>) {
       body: context,
     }),
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: queryWithSubkey('items') })
-      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
     },
   })
 }
@@ -55,8 +55,8 @@ export function useDeleteItemMutation(itemId: MaybeRefOrGetter<number>) {
       },
     }),
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: queryWithSubkey('items') })
-      queryCache.invalidateQueries({ predicate: queryWithSubkey(`item-${toValue(itemId)}`) })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
     },
   })
 }

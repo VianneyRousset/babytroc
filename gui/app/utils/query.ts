@@ -1,13 +1,7 @@
 import type { paths } from '#build/types/open-fetch/schemas/api'
 import type { FetchOptions } from 'ofetch'
 import type { PathsWithMethod } from 'openapi-typescript-helpers'
-import type { UseQueryOptions, UseQueryReturn, UseQueryEntryFilter } from '@pinia/colada'
-
-type TEntry = UseQueryEntryFilter extends { predicate?: (entry: infer T) => boolean } ? T : never
-
-export function queryWithSubkey(subkey: string): (entry: TEntry) => boolean {
-  return (entry: TEntry) => Array.isArray(entry.key) && entry.key.some(k => k === subkey)
-}
+import type { UseQueryOptions, UseQueryReturn } from '@pinia/colada'
 
 // Available API query paths
 type ApiQueryPaths = Pick<paths, PathsWithMethod<paths, 'get'>>
