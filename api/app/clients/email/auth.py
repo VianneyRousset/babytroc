@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import BackgroundTasks
-from fastapi_mail import FastMail, MessageSchema, MessageType
+from fastapi_mail import FastMail, MessageSchema, MessageType, NameEmail
 from pydantic import EmailStr
 
 
@@ -17,7 +17,7 @@ def send_account_validation_email(
 ):
     message = MessageSchema(
         subject=f"{app_name} - Confirmer votre nouveau compte",
-        recipients=[email],
+        recipients=[NameEmail(username, email)],
         body=(
             "Confirmez votre compte <b>Babytroc</b> en "
             f'<a href="https://{host_name}/me/account/validate'
@@ -41,7 +41,7 @@ def send_account_password_reset_authorization(
 ):
     message = MessageSchema(
         subject=f"{app_name} - Réinitialiser votre mot de passe",
-        recipients=[email],
+        recipients=[NameEmail(username, email)],
         body=(
             "Réinitialisez votre mot de passe <b>Babytroc</b> en "
             f'<a href="https://{host_name}/me/account/reset-password'

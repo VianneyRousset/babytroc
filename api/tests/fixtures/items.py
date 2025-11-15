@@ -4,9 +4,7 @@ from string import ascii_letters
 from typing import TypedDict, TypeVar
 
 import pytest
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from app import services
 from app.config import Config
@@ -163,14 +161,13 @@ def bob_items_image_data() -> bytes:
 @pytest.fixture(scope="class")
 def alice_items_image(
     app_config: Config,
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Alice's item image exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.image.upload_image(
             db=session,
             config=app_config,
@@ -182,14 +179,13 @@ def alice_items_image(
 @pytest.fixture(scope="class")
 def alice_new_item_images(
     app_config: Config,
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
     """Ensure Alice's item image exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return [
             services.image.upload_image(
                 db=session,
@@ -204,14 +200,13 @@ def alice_new_item_images(
 @pytest.fixture(scope="class")
 def alice_special_item_images(
     app_config: Config,
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
     """Ensure Alice's item image exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return [
             services.image.upload_image(
                 db=session,
@@ -226,14 +221,13 @@ def alice_special_item_images(
 @pytest.fixture(scope="class")
 def bob_items_image(
     app_config: Config,
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     bob: UserPrivateRead,
     bob_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Bob's item image exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.image.upload_image(
             db=session,
             config=app_config,
@@ -244,14 +238,13 @@ def bob_items_image(
 
 @pytest.fixture(scope="class")
 def alice_items(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures Alice's items exist."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return [
             services.item.create_item(
                 db=session,
@@ -271,14 +264,13 @@ def alice_items(
 # scope function
 @pytest.fixture
 def alice_new_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_data: ItemData,
 ) -> ItemRead:
     """Alice's new item."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.item.create_item(
             db=session,
             owner_id=alice.id,
@@ -297,14 +289,13 @@ def alice_new_item(
 # scope function
 @pytest.fixture(scope="class")
 def alice_special_item(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     alice_special_item_data: ItemData,
 ) -> ItemRead:
     """Alice's special item."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.item.create_item(
             db=session,
             owner_id=alice.id,
@@ -322,14 +313,13 @@ def alice_special_item(
 
 @pytest.fixture(scope="class")
 def bob_items(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     bob: UserPrivateRead,
     bob_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures bob's items exist."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return [
             services.item.create_item(
                 db=session,
@@ -375,13 +365,13 @@ def random_targeted_age_months() -> MonthRange:
 T = TypeVar("T")
 
 
-def random_sample(population: list[T]) -> list[T]:
+def random_sample[T](population: list[T]) -> list[T]:
     return random.sample(population, k=random.randint(1, len(population)))
 
 
 @pytest.fixture(scope="class")
 def many_items(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
     alice_items_image: ItemImageRead,
@@ -392,8 +382,6 @@ def many_items(
 
     n = 256
     random.seed(0xBDF81829)
-
-    engine = create_engine(database)
 
     owner_ids, images = [
         list(column)
@@ -409,7 +397,7 @@ def many_items(
         )
     ]
 
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         items = services.item.create_many_items(
             db=session,
             owner_ids=owner_ids,
@@ -455,7 +443,7 @@ def some_item_french_names() -> list[str]:
 
 @pytest.fixture(scope="class")
 def some_items_with_french_names(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
     alice_items_image: ItemImageRead,
@@ -466,8 +454,6 @@ def some_items_with_french_names(
     """Many items."""
 
     random.seed(0x15976)
-
-    engine = create_engine(database)
 
     owner_ids, images = [
         list(column)
@@ -483,7 +469,7 @@ def some_items_with_french_names(
         )
     ]
 
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         items = services.item.create_many_items(
             db=session,
             owner_ids=owner_ids,

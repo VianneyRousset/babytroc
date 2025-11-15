@@ -1,32 +1,25 @@
 import os
-import random
-import string
 import warnings
 from collections.abc import Generator
 from pathlib import Path
-from threading import get_ident
+from uuid import uuid4
 
 import pytest
 import sqlalchemy
+from alembic.config import Config as AlembicConfig
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, drop_database
 
 from alembic import command
-from alembic.config import Config as AlembicConfig
 
 # make sqlalchemy warnings as errors
 warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
 
 
-def random_string(length: int):
-    """Generate a random string."""
-
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for _ in range(length))
-
-
 @pytest.fixture(scope="session")
 def primary_database() -> Generator[sqlalchemy.URL]:
-    name = "test_primary_database-" + random_string(8)
+    name = f"test-primary_database-{uuid4()}"
 
     # create URL
     url = sqlalchemy.URL.create(
@@ -58,8 +51,13 @@ def primary_database() -> Generator[sqlalchemy.URL]:
 
 
 @pytest.fixture(scope="class")
-def database(primary_database: sqlalchemy.URL) -> Generator[sqlalchemy.URL]:
+def database(
+    primary_database: sqlalchemy.URL,
+    testrun_uid: str,
+) -> Generator[sqlalchemy.URL]:
     """Create a temporary database with alembic migrations applied."""
+
+    name = f"test-{uuid4()}-{testrun_uid}"
 
     # create URL
     url = sqlalchemy.URL.create(
@@ -68,7 +66,7 @@ def database(primary_database: sqlalchemy.URL) -> Generator[sqlalchemy.URL]:
         password=primary_database.password,
         host=primary_database.host,
         port=primary_database.port,
-        database=random_string(8) + f"-{get_ident()}",
+        database=name,
     )
 
     # create database
@@ -77,5 +75,20 @@ def database(primary_database: sqlalchemy.URL) -> Generator[sqlalchemy.URL]:
     # yield database url
     yield url
 
+    return
+
     # destroy database
     drop_database(url)
+
+
+@pytest.fixture(scope="class")
+def database_sessionmaker(
+    database: sqlalchemy.URL,
+) -> Generator[sessionmaker]:
+    engine = create_engine(database, echo=False)
+
+    yield sessionmaker(
+        bind=engine,
+    )
+
+    engine.dispose()

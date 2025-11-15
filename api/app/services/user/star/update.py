@@ -21,5 +21,5 @@ def add_stars_to_user(
     # execute
     res = db.execute(stmt)
 
-    if res.rowcount == 0:
+    if res.rowcount == 0:  # type: ignore[attr-defined]
         raise UserNotFoundError({"id": user_id})

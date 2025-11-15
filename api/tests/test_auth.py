@@ -1,7 +1,7 @@
 import pytest
-import sqlalchemy
 from fastapi import status
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import sessionmaker
 
 from app.clients.database.auth import list_account_password_reset_authorizations
 from app.config import Config
@@ -122,7 +122,7 @@ class TestAuthNewAccount:
         self,
         app_config: Config,
         client: TestClient,
-        database: sqlalchemy.URL,
+        database_sessionmaker: sessionmaker,
     ):
         """Check that a new account can be created and validated."""
 
@@ -156,8 +156,7 @@ class TestAuthNewAccount:
         client.post("/v1/auth/resend-validation-email").raise_for_status()
 
         # get validation code
-        engine = sqlalchemy.create_engine(database)
-        with sqlalchemy.orm.Session(engine) as db, db.begin():
+        with database_sessionmaker.begin() as db:
             validation_code = get_user_validation_code_by_email(
                 db=db,
                 email=email,
@@ -271,7 +270,7 @@ class TestAuthPasswordReset:
 
     def test_password_reset(
         self,
-        database: sqlalchemy.URL,
+        database_sessionmaker: sessionmaker,
         client: TestClient,
         alice_user_data: UserData,
     ):
@@ -299,8 +298,7 @@ class TestAuthPasswordReset:
         resp.raise_for_status()
 
         # get authorization code manually
-        engine = sqlalchemy.create_engine(database)
-        with sqlalchemy.orm.Session(engine) as db, db.begin():
+        with database_sessionmaker.begin() as db:
             authorizations = list_account_password_reset_authorizations(db)
             authorization_code = authorizations[0].authorization_code
 
@@ -342,7 +340,7 @@ class TestAuthPasswordReset:
     @pytest.mark.parametrize("new_password", ["xX1", "abcabc1", "ABCABC1", "abcABCD"])
     def test_password_reset_invalid(
         self,
-        database: sqlalchemy.URL,
+        database_sessionmaker: sessionmaker,
         client: TestClient,
         bob_user_data: UserData,
         new_password: str,
@@ -358,8 +356,7 @@ class TestAuthPasswordReset:
         resp.raise_for_status()
 
         # get authorization code manually
-        engine = sqlalchemy.create_engine(database)
-        with sqlalchemy.orm.Session(engine) as db, db.begin():
+        with database_sessionmaker.begin() as db:
             authorizations = list_account_password_reset_authorizations(db)
             authorization_code = authorizations[0].authorization_code
 

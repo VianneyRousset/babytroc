@@ -3,9 +3,7 @@ from string import ascii_letters
 from typing import TypedDict
 
 import pytest
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
 
 from app import services
 from app.schemas.user.create import UserCreate
@@ -54,14 +52,12 @@ def carol_user_data() -> UserData:
 
 @pytest.fixture(scope="class")
 def alice(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     alice_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Alice exists."""
 
-    engine = create_engine(database)
-
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.user.create_many_users_without_validation(
             session,
             [UserCreate(**alice_user_data)],
@@ -71,13 +67,12 @@ def alice(
 
 @pytest.fixture(scope="class")
 def bob(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     bob_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Bob exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.user.create_many_users_without_validation(
             session,
             [UserCreate(**bob_user_data)],
@@ -87,13 +82,12 @@ def bob(
 
 @pytest.fixture(scope="class")
 def carol(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     carol_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Carol exists."""
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.user.create_many_users_without_validation(
             session,
             [UserCreate(**carol_user_data)],
@@ -107,7 +101,7 @@ def random_str(length: int) -> str:
 
 @pytest.fixture(scope="class")
 def many_users(
-    database: sqlalchemy.URL,
+    database_sessionmaker: sessionmaker,
     bob_user_data: UserData,
 ) -> list[UserPrivateRead]:
     """Many users."""
@@ -126,8 +120,7 @@ def many_users(
         for _ in range(n)
     ]
 
-    engine = create_engine(database)
-    with Session(engine) as session, session.begin():
+    with database_sessionmaker.begin() as session:
         return services.user.create_many_users_without_validation(
             session,
             user_creates=user_creates,

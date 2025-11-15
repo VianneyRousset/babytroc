@@ -23,5 +23,5 @@ def delete_item(
 
     res = db.execute(stmt)
 
-    if res.rowcount == 0:
+    if res.rowcount == 0:  # type: ignore[attr-defined]
         raise ItemNotFoundError({"id": item_id})
