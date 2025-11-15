@@ -37,7 +37,10 @@ const { size } = toRefs(props)
     </section>
     <section>
       <h2>Régions</h2>
-      <RegionsMap v-model="filters.regions" />
+      <RegionsMap
+        v-model="filters.regions"
+        editable
+      />
       <RegionsCheckboxes
         v-model="filters.regions"
         :size="size"
