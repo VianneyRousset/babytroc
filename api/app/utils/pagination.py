@@ -52,7 +52,7 @@ class IterChunksStop:
     pass
 
 
-def iter_chunks(
+def iter_chunks[T](
     iterable: Iterable[T],
     count: int,
     *,
