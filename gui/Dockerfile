@@ -5,7 +5,7 @@ FROM node:lts-alpine
 WORKDIR /usr/src/gui
 
 # copy configs
-COPY package*.json ./
+COPY package.json package-lock.json ./
 COPY patches ./patches
 
 # install nodejs dependencies
@@ -13,16 +13,15 @@ RUN npm ci
 
 # copy app
 COPY app ./app
+COPY openapi ./openapi
 COPY public ./public
 COPY server ./server
-COPY types ./types
 
 COPY entrypoint.sh ./entrypoint.sh
 
 COPY tsconfig.json ./tsconfig.json
 COPY nuxt.config.ts ./nuxt.config.ts
 COPY tailwind.config.js ./tailwind.config.js
-
 
 # build nuxt
 RUN npx nuxi prepare
