@@ -28,7 +28,7 @@ RUN npx nuxi prepare
 RUN npx nuxi build
 
 # cleanup
-RUN find . -not -name '.output' -not -name 'entrypoint.sh' -delete
+RUN rm -rf `find . -maxdepth 1 -not -name '.output' -not -name 'entrypoint.sh' -not -name '..' -not -name '.'`
 
 # Expose the port the app runs on
 EXPOSE 3000
