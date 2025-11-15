@@ -75,9 +75,9 @@ async function reset() {
           class="vbox"
         >
           <!-- <AccountPasswordInput -->
-            <!-- v-model="password" -->
-            <!-- @update:status="_status => (passwordStatus = _status)" -->
-            <!-- @enter="reset" -->
+          <!-- v-model="password" -->
+          <!-- @update:status="_status => (passwordStatus = _status)" -->
+          <!-- @enter="reset" -->
           <!-- /> -->
           <TextButton
             aspect="flat"

@@ -174,10 +174,5 @@ tryOnUnmounted(stop)
     color: $neutral-400;
   }
 
-
-
-
-
-  
 }
 </style>

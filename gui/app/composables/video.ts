@@ -1,5 +1,3 @@
-import { useImage } from '@vueuse/core'
-
 export function useVideoCamera(video: MaybeRefOrGetter<HTMLVideoElement | null | undefined>) {
   const canvas: HTMLCanvasElement = document.createElement('canvas')
   const { stream, enabled } = useUserMedia({
