@@ -261,7 +261,6 @@ def alice_items(
         ]
 
 
-# scope function
 @pytest.fixture
 def alice_new_item(
     database_sessionmaker: sessionmaker,
@@ -286,7 +285,6 @@ def alice_new_item(
         )
 
 
-# scope function
 @pytest.fixture(scope="class")
 def alice_special_item(
     database_sessionmaker: sessionmaker,
@@ -309,6 +307,38 @@ def alice_special_item(
                 regions=alice_special_item_data["regions"],
             ),
         )
+
+
+@pytest.fixture(scope="class")
+def alice_many_items(
+    database_sessionmaker: sessionmaker,
+    alice: UserPrivateRead,
+    alice_items_image: ItemImageRead,
+    regions: list[RegionRead],
+) -> list[ItemRead]:
+    """Many items owned by Alice."""
+
+    n = 256
+    random.seed(0x25D4)
+
+    with database_sessionmaker.begin() as session:
+        items = services.item.create_many_items(
+            db=session,
+            owner_ids=[alice.id] * n,
+            item_creates=[
+                ItemCreate(
+                    name=random_str(8),
+                    description=random_str(50),
+                    targeted_age_months=random_targeted_age_months(),
+                    regions=random_sample([reg.id for reg in regions]),
+                    images=[alice_items_image.name],
+                    blocked=False,
+                )
+                for _ in range(n)
+            ],
+        )
+
+        return items
 
 
 @pytest.fixture(scope="class")
