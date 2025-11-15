@@ -34,7 +34,6 @@ class DelayMiddleware(BaseHTTPMiddleware):
 def create_app(config: Config) -> FastAPI:
     app = FastAPI(
         lifespan=lifespan,
-        root_path="/api",
     )
 
     app.state.config = config
