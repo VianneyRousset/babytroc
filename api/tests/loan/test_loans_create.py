@@ -1,7 +1,5 @@
 from datetime import UTC, datetime, timedelta
 
-import pytest
-from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.schemas.item.read import ItemRead
@@ -10,17 +8,21 @@ from app.schemas.user.read import UserRead
 
 
 class TestLoanCreate:
-    """Tests loan requests create."""
+    """Tests loans create."""
 
     def test_execute_loan_request(
         self,
         bob_accepted_loan_request_for_alice_special_item: LoanRequestRead,
         alice: UserRead,
         bob: UserRead,
+        alice_client: TestClient,
         bob_client: TestClient,
+        carol_client: TestClient,
         alice_special_item: ItemRead,
     ):
-        """Check an accepted loan request can be executed into a loan."""
+        """Check an accepted loan request can be executed into a loan.
+        - Check only Bob can execute the loan request
+        """
 
         loan_request_id = bob_accepted_loan_request_for_alice_special_item.id
 
@@ -29,6 +31,16 @@ class TestLoanCreate:
         print(resp.text)
         resp.raise_for_status()
         loan = LoanRead.model_validate(resp.json())
+
+        # check only Bob can execute the loan request
+        resp = alice_client.post(
+            f"/v1/me/borrowings/requests/{loan_request_id}/execute"
+        )
+        assert resp.is_error
+        resp = carol_client.post(
+            f"/v1/me/borrowings/requests/{loan_request_id}/execute"
+        )
+        assert resp.is_error
 
         # check item
         assert loan.item.id == bob_accepted_loan_request_for_alice_special_item.item.id
