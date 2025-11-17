@@ -26,12 +26,6 @@ class TestLoanCreate:
 
         loan_request_id = bob_accepted_loan_request_for_alice_special_item.id
 
-        # accept loan request
-        resp = bob_client.post(f"/v1/me/borrowings/requests/{loan_request_id}/execute")
-        print(resp.text)
-        resp.raise_for_status()
-        loan = LoanRead.model_validate(resp.json())
-
         # check only Bob can execute the loan request
         resp = alice_client.post(
             f"/v1/me/borrowings/requests/{loan_request_id}/execute"
@@ -41,6 +35,12 @@ class TestLoanCreate:
             f"/v1/me/borrowings/requests/{loan_request_id}/execute"
         )
         assert resp.is_error
+
+        # accept loan request
+        resp = bob_client.post(f"/v1/me/borrowings/requests/{loan_request_id}/execute")
+        print(resp.text)
+        resp.raise_for_status()
+        loan = LoanRead.model_validate(resp.json())
 
         # check item
         assert loan.item.id == bob_accepted_loan_request_for_alice_special_item.item.id
