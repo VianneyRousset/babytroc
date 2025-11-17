@@ -51,6 +51,40 @@ def bob_new_loan_request_for_alice_special_item(
 
 
 @pytest.fixture
+def bob_accepted_loan_request_for_alice_special_item(
+    database_sessionmaker: sessionmaker,
+    bob_new_loan_request_for_alice_special_item: LoanRequestRead,
+) -> LoanRequestRead:
+    """An accepted loan request made by Bob for the special item of Alice.
+
+    fixture scope: function.
+    """
+
+    with database_sessionmaker.begin() as session:
+        return services.loan.accept_loan_request(
+            db=session,
+            loan_request_id=bob_new_loan_request_for_alice_special_item.id,
+        )
+
+
+@pytest.fixture
+def bob_new_loan_for_alice_special_item(
+    database_sessionmaker: sessionmaker,
+    bob_accepted_loan_request_for_alice_special_item: LoanRequestRead,
+) -> LoanRead:
+    """An active loan to Bob for the special item of Alice.
+
+    fixture scope: function.
+    """
+
+    with database_sessionmaker.begin() as session:
+        return services.loan.execute_loan_request(
+            db=session,
+            loan_request_id=bob_accepted_loan_request_for_alice_special_item.id,
+        )
+
+
+@pytest.fixture
 def carol_new_loan_request_for_alice_new_item(
     database_sessionmaker: sessionmaker,
     alice: UserPrivateRead,
@@ -274,11 +308,11 @@ def alice_many_loans(
     alice_many_items: list[ItemRead],
     alice: UserPrivateRead,
     bob: UserPrivateRead,
-    carole: UserPrivateRead,
+    carol: UserPrivateRead,
 ) -> list[LoanRead]:
     """Many loans made by Alice.
 
-    90% of the many items owned by Alice are loaned to either Bob or Carole.
+    90% of the many items owned by Alice are loaned to either Bob or carol.
     Among those loans, 70% of them are ended.
     Among those ended loans, 50% of the loaned items are loaned again.
     Among those new loans, 50% of the loaned are ended again.
@@ -299,7 +333,7 @@ def alice_many_loans(
             )
             for item, requester in zip(
                 items,
-                random.choices([bob, carole], k=len(items)),
+                random.choices([bob, carol], k=len(items)),
                 strict=True,
             )
         ]
@@ -334,7 +368,7 @@ def alice_many_loans(
             )
             for loan, requester in zip(
                 loans,
-                random.choices([bob, carole], k=len(ended_loans)),
+                random.choices([bob, carol], k=len(ended_loans)),
                 strict=True,
             )
         ]
