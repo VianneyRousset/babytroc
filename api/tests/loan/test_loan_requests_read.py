@@ -22,6 +22,8 @@ class TestLoanRequestRead:
         count: int | None,
         active: bool | None,
     ):
+        """Check /me/borrowings/request paginated read"""
+
         params: dict[str, Any] = {
             **({"n": count} if count is not None else {}),
             **({"a": active} if active is not None else {}),
@@ -64,6 +66,8 @@ class TestLoanRequestRead:
         count: int | None,
         active: bool | None,
     ):
+        """Check /me/loans/request paginated read"""
+
         params: dict[str, Any] = {
             **({"n": count} if count is not None else {}),
             **({"a": active} if active is not None else {}),
@@ -107,6 +111,8 @@ class TestLoanRequestRead:
         count: int | None,
         active: bool | None,
     ):
+        """Check /me/items/{item_id}/loans/request paginated read"""
+
         params: dict[str, Any] = {
             **({"n": count} if count is not None else {}),
             **({"a": active} if active is not None else {}),

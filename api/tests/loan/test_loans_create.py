@@ -43,7 +43,7 @@ class TestLoanCreate:
         loan = LoanRead.model_validate(resp.json())
 
         # check item
-        assert loan.item.id == bob_accepted_loan_request_for_alice_special_item.item.id
+        assert loan.item.id == alice_special_item.id
 
         # check owner and borrower
         assert loan.owner.id == alice.id
