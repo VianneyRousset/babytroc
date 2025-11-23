@@ -1,180 +1,95 @@
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
-from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanRequestReadQueryFilter
-from app.schemas.loan.read import LoanRequestRead
-from app.services.chat import (
-    send_message_loan_request_accepted,
-    send_message_loan_request_cancelled,
-    send_message_loan_request_rejected,
+from app.models.loan import LoanRequest
+from app.schemas.loan.query import (
+    LoanRequestReadQueryFilter,
+    LoanRequestUpdateQueryFilter,
 )
+from app.schemas.loan.read import LoanRequestRead
+from app.services.loan.request.read import get_loan_request
 
 
-def cancel_active_loan_request(
+def update_loan_request_state(
     db: Session,
+    loan_request_id: int,
+    state: LoanRequestState,
     *,
-    item_id: int,
-    borrower_id: int,
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
 ) -> LoanRequestRead:
-    """Cancel the active loan request made by `borrower_id` to `item_id`.
+    """Set the state of given loan requests.
 
-    An active loan request is defined as being in 'pending' or 'accepted' state.
+    Errors are raised if any of the given loan requests does not match the
+    given query_filter.
     """
 
-    # find pending loan request
-    loan_request = database.loan.get_loan_request(
+    loan_requests = update_many_loan_requests_state(
         db=db,
-        query_filter=LoanRequestReadQueryFilter(
-            item_id=item_id,
-            borrower_id=borrower_id,
-            states={LoanRequestState.pending, LoanRequestState.accepted},
-        ),
-    )
-
-    return cancel_loan_request(
-        db=db,
-        loan_request_id=loan_request.id,
-    )
-
-
-def cancel_loan_request(
-    db: Session,
-    loan_request_id: int,
-    query_filter: LoanRequestReadQueryFilter | None = None,
-    check_state: bool = True,
-) -> LoanRequestRead:
-    """Set loan request state to `cancelled`.
-
-    Loan request state must be `pending` if `check_state` is `True` (default).
-    """
-
-    # get loan request from database
-    loan_request = database.loan.get_loan_request(
-        db=db,
-        loan_request_id=loan_request_id,
+        loan_request_ids={loan_request_id},
+        state=state,
         query_filter=query_filter,
     )
 
-    # check loan request state
-    active_states = LoanRequestState.get_active_states()
-    if check_state and loan_request.state not in active_states:
-        raise LoanRequestStateError(
-            expected_state=active_states,
-            actual_state=loan_request.state,
-        )
-
-    # update loan request state
-    loan_request = database.loan.update_loan_request(
-        db=db,
-        loan_request=loan_request,
-        attributes={"state": LoanRequestState.cancelled},
-    )
-
-    # create chat message
-    send_message_loan_request_cancelled(
-        db=db,
-        chat_id=ChatId.from_values(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-        loan_request_id=loan_request.id,
-    )
-
-    return LoanRequestRead.model_validate(loan_request)
+    return loan_requests[0]
 
 
-def accept_loan_request(
+def update_many_loan_requests_state(
     db: Session,
-    loan_request_id: int,
-    query_filter: LoanRequestReadQueryFilter | None = None,
-    check_state: bool = True,
-) -> LoanRequestRead:
-    """Set loan request state to `accepted`.
+    loan_request_ids: set[int],
+    state: LoanRequestState,
+    *,
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
+) -> list[LoanRequestRead]:
+    """Set the state of given loan requests.
 
-    Loan request state must be `pending` if `check_state` is `True` (default).
+    Errors are raised if any of the given loan requests does not match the
+    given query_filter.
     """
 
-    # get loan request from database
-    loan_request = database.loan.get_loan_request(
-        db=db,
-        loan_request_id=loan_request_id,
-        query_filter=query_filter,
-    )
+    query_filter = query_filter or LoanRequestUpdateQueryFilter()
 
-    # check loan request state
-    if check_state and loan_request.state != LoanRequestState.pending:
-        raise LoanRequestStateError(
-            expected_state=LoanRequestState.pending,
-            actual_state=loan_request.state,
+    # update all loan requests states to executed
+    stmt = query_filter.filter_update(
+        update(LoanRequest)
+        .values(state=state)
+        .where(LoanRequest.id.in_(loan_request_ids))
+    ).returning(LoanRequest)
+
+    loan_requests = db.execute(stmt).unique().scalars().all()
+
+    # if not all given loan requests were updated it means either:
+    # 1. the given loan request matching the query_filter does not exist
+    # 2. the given loan request state is wrong
+    if len(loan_requests) != len(loan_request_ids):
+        # find missing loan request ids
+        missing_loan_request_ids = loan_request_ids - {req.id for req in loan_requests}
+        first_missing_loan_request_id = next(iter(sorted(missing_loan_request_ids)))
+
+        # raise LoanRequestNotFoundError if loan request does not exist (1.)
+        loan_request = get_loan_request(
+            db=db,
+            loan_request_id=first_missing_loan_request_id,
+            query_filter=LoanRequestReadQueryFilter.model_validate(
+                {**query_filter.model_dump(exclude={"states"})}
+            ),
         )
 
-    # update loan request state
-    loan_request = database.loan.update_loan_request(
-        db=db,
-        loan_request=loan_request,
-        attributes={"state": LoanRequestState.accepted},
-    )
+        # raise LoanRequestStateError if loan request state is wrong (2.)
+        if (
+            query_filter.states is not None
+            and loan_request.state not in query_filter.states
+        ):
+            raise LoanRequestStateError(
+                expected_state=query_filter.states,
+                actual_state=loan_request.state,
+            )
 
-    # create chat message
-    send_message_loan_request_accepted(
-        db=db,
-        chat_id=ChatId.from_values(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-        loan_request_id=loan_request.id,
-    )
-
-    return LoanRequestRead.model_validate(loan_request)
-
-
-def reject_loan_request(
-    db: Session,
-    loan_request_id: int,
-    query_filter: LoanRequestReadQueryFilter | None = None,
-    check_state: bool = True,
-) -> LoanRequestRead:
-    """Set loan request state to `rejected`.
-
-    Loan request state must be `pending` if `check_state` is `True` (default).
-    """
-
-    # get loan request from database
-    loan_request = database.loan.get_loan_request(
-        db=db,
-        loan_request_id=loan_request_id,
-        query_filter=query_filter,
-    )
-
-    # check loan request state
-    active_states = {
-        LoanRequestState.pending,
-        LoanRequestState.accepted,
-    }
-    if check_state and loan_request.state not in active_states:
-        raise LoanRequestStateError(
-            expected_state=active_states,
-            actual_state=loan_request.state,
+        msg = (
+            "The number of updated loan requests does not match the number of given "
+            "loan request ids. The reason is unexpected."
         )
+        raise RuntimeError(msg)
 
-    # update loan request state
-    loan_request = database.loan.update_loan_request(
-        db=db,
-        loan_request=loan_request,
-        attributes={"state": LoanRequestState.rejected},
-    )
-
-    # create chat message
-    send_message_loan_request_rejected(
-        db=db,
-        chat_id=ChatId.from_values(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-        loan_request_id=loan_request.id,
-    )
-
-    return LoanRequestRead.model_validate(loan_request)
+    return [LoanRequestRead.model_validate(req) for req in loan_requests]

@@ -1,8 +1,7 @@
-from . import auth, image, loan, region
+from . import auth, image, region
 
 __all__ = [
     "auth",
     "image",
-    "loan",
     "region",
 ]

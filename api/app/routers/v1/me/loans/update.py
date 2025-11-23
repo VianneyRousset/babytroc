@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.loan.query import LoanReadQueryFilter
+from app.schemas.loan.query import LoanUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
 
 from .annotations import loan_id_annotation
@@ -24,7 +24,7 @@ def end_client_loan(
     return services.loan.end_loan(
         db=db,
         loan_id=loan_id,
-        query_filter=LoanReadQueryFilter(
+        query_filter=LoanUpdateQueryFilter(
             owner_id=client_id,
         ),
     )

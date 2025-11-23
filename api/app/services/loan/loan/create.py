@@ -1,69 +1,110 @@
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.enums import LoanRequestState
-from app.errors.loan import LoanRequestStateError
+from app.models.loan import Loan, LoanRequest
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanRequestReadQueryFilter
+from app.schemas.chat.send import SendChatMessageLoanStarted
+from app.schemas.loan.query import LoanRequestUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
-from app.services.chat import send_message_loan_started
+from app.services.chat import send_many_chat_messages
+from app.services.loan.request.update import update_many_loan_requests_state
 
 
 def execute_loan_request(
     db: Session,
     *,
     loan_request_id: int,
-    query_filter: LoanRequestReadQueryFilter | None = None,
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
 ) -> LoanRead:
-    """Create a loan from an accepted loan request.
+    """Create a loan from the given loan request.
 
     Loan request state must be `accepted` if `check_state` is `True`.
 
     The loan request state is changed to `executed`.
-
-    If `borrower_id` is given, the loan request must have this user as
-    borrower.
     """
 
-    # get loan request from database
-    loan_request = database.loan.get_loan_request(
+    loans = execute_many_loan_requests(
         db=db,
-        loan_request_id=loan_request_id,
+        loan_request_ids={loan_request_id},
+        query_filter=query_filter,
+        check_state=check_state,
+    )
+
+    return loans[0]
+
+
+def execute_many_loan_requests(
+    db: Session,
+    *,
+    loan_request_ids: set[int],
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
+    check_state: bool = True,
+    send_messages: bool = True,
+) -> list[LoanRead]:
+    """Create a loan from each given loan request id.
+
+    Loan request states must be `accepted` if `check_state` is `True`.
+
+    The loan requests states are changed to `executed`.
+    """
+
+    query_filter = query_filter or LoanRequestUpdateQueryFilter()
+
+    # only update accepted loan requests
+    # the number of updated loan requests are then checked against the given ids
+    # to ensure not state were different than `accepted`
+    if check_state:
+        query_filter.states = (query_filter.states or set()) | {
+            LoanRequestState.accepted
+        }
+
+    # update state
+    loan_requests = update_many_loan_requests_state(
+        db=db,
+        loan_request_ids=loan_request_ids,
+        state=LoanRequestState.executed,
         query_filter=query_filter,
     )
 
-    # check loan request state
-    if check_state and loan_request.state != LoanRequestState.accepted:
-        raise LoanRequestStateError(
-            expected_state=LoanRequestState.accepted,
-            actual_state=loan_request.state,
+    # insert loan for each given loan request and set the `loan_request_id` field for
+    # each new loan
+    create_loans_stmt = (
+        insert(Loan)
+        .from_select(
+            [Loan.item_id, Loan.borrower_id, Loan.loan_request_id],
+            select(LoanRequest.item_id, LoanRequest.borrower_id, LoanRequest.id).where(
+                LoanRequest.id.in_(loan_request_ids)
+            ),
         )
-
-    # create loan from loan request
-    loan = database.loan.create_loan(
-        db=db,
-        item_id=loan_request.item_id,
-        borrower_id=loan_request.borrower_id,
+        .returning(Loan)
     )
 
-    database.loan.update_loan_request(
-        db=db,
-        loan_request=loan_request,
-        attributes={
-            "state": LoanRequestState.executed,
-            "loan": loan,
-        },
-    )
+    loans = db.execute(create_loans_stmt).unique().scalars().all()
+
+    # check the number of created loans matched the number of given loan requests
+    if len(loans) != len(loan_request_ids):
+        msg = (
+            "The number of created loans does not match the number of given "
+            "loan request ids. The reason is unexpected."
+        )
+        raise RuntimeError(msg)
 
     # create messages
-    send_message_loan_started(
-        db=db,
-        chat_id=ChatId.from_values(
-            item_id=loan_request.item_id,
-            borrower_id=loan_request.borrower_id,
-        ),
-        loan_id=loan.id,
-    )
+    if send_messages:
+        send_many_chat_messages(
+            db=db,
+            messages=[
+                SendChatMessageLoanStarted(
+                    chat_id=ChatId.from_values(
+                        item_id=loan_request.item.id,
+                        borrower_id=loan_request.borrower.id,
+                    ),
+                    loan_id=loan.id,
+                )
+                for loan_request, loan in zip(loan_requests, loans, strict=True)
+            ],
+        )
 
-    return LoanRead.model_validate(loan)
+    return [LoanRead.model_validate(loan) for loan in loans]

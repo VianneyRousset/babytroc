@@ -1,294 +1,235 @@
-from sqlalchemy import insert, select
+from typing import cast
+
+from sqlalchemy import (
+    ColumnClause,
+    Enum,
+    Integer,
+    Text,
+    Values,
+    case,
+    column,
+    insert,
+    select,
+    values,
+)
+from sqlalchemy import (
+    cast as sqlcast,
+)
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.enums import ChatMessageType
 from app.models.chat import ChatMessage
 from app.models.item import Item
-from app.pubsub import notify_user
-from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatMessageRead
-from app.schemas.pubsub import PubsubMessageNewChatMessage
-from app.services.chat import get_chat
-from app.services.chat.chat.create import ensure_chat as _ensure_chat
+from app.schemas.chat.send import SendChatMessage
+from app.services.chat.chat.create import ensure_many_chats
 
 
-def send_message_text(
+def send_chat_message(
     db: Session,
+    message: SendChatMessage,
     *,
-    chat_id: ChatId,
-    sender_id: int,
-    text: str,
+    ensure_chat: bool = False,
 ) -> ChatMessageRead:
-    """Send `text` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-    """
-
-    return send_message(
+    chat_messages = send_many_chat_messages(
         db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.text,
-        sender_id=sender_id,
-        text=text,
-        ensure_chat=False,
+        messages=[message],
+        ensure_chats=ensure_chat,
     )
 
+    return chat_messages[0]
 
-def send_message_loan_request_created(
+
+def send_many_chat_messages(
     db: Session,
-    chat_id: ChatId,
-    loan_request_id: int,
-) -> ChatMessageRead:
-    """Send `loan_request_created` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item borrower.
-    """
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_request_created,
-        sender_id=chat_id.borrower_id,
-        loan_request_id=loan_request_id,
-    )
-
-
-def send_message_loan_request_cancelled(
-    db: Session,
-    chat_id: ChatId,
-    loan_request_id: int,
-) -> ChatMessageRead:
-    """Send `loan_request_cancelled` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item borrower.
-    """
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_request_cancelled,
-        sender_id=chat_id.borrower_id,
-        loan_request_id=loan_request_id,
-    )
-
-
-def send_message_loan_request_accepted(
-    db: Session,
-    chat_id: ChatId,
-    loan_request_id: int,
-) -> ChatMessageRead:
-    """Send `loan_request_accepted` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item owner.
-    """
-
-    owner_id = _get_item_owner_id(db, chat_id.item_id)
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_request_accepted,
-        sender_id=owner_id,
-        loan_request_id=loan_request_id,
-    )
-
-
-def send_message_loan_request_rejected(
-    db: Session,
-    chat_id: ChatId,
-    loan_request_id: int,
-) -> ChatMessageRead:
-    """Send `loan_request_rejected` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item owner.
-    """
-
-    owner_id = _get_item_owner_id(db, chat_id.item_id)
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_request_rejected,
-        sender_id=owner_id,
-        loan_request_id=loan_request_id,
-    )
-
-
-def send_message_loan_started(
-    db: Session,
-    chat_id: ChatId,
-    loan_id: int,
-) -> ChatMessageRead:
-    """Send `loan_started` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item borrower.
-    """
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_started,
-        sender_id=chat_id.borrower_id,
-        loan_id=loan_id,
-    )
-
-
-def send_message_loan_ended(
-    db: Session,
-    chat_id: ChatId,
-    loan_id: int,
-) -> ChatMessageRead:
-    """Send `loan_ended` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item owner.
-    """
-
-    owner_id = _get_item_owner_id(db, chat_id.item_id)
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.loan_ended,
-        sender_id=owner_id,
-        loan_id=loan_id,
-    )
-
-
-def send_message_item_not_available(
-    db: Session,
-    chat_id: ChatId,
-) -> ChatMessageRead:
-    """Send `item_not_available` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item owner.
-    """
-
-    owner_id = _get_item_owner_id(db, chat_id.item_id)
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.item_not_available,
-        sender_id=owner_id,
-    )
-
-
-def send_message_item_available(
-    db: Session,
-    chat_id: ChatId,
-) -> ChatMessageRead:
-    """Send `item_available` message to chat.
-
-    The chat is identified with `item_id` and `borrower_id`. If the chat does not exist,
-    the latter is created.
-
-    The message is sent from the item owner.
-    """
-
-    owner_id = _get_item_owner_id(db, chat_id.item_id)
-
-    return send_message(
-        db=db,
-        chat_id=chat_id,
-        message_type=ChatMessageType.item_available,
-        sender_id=owner_id,
-    )
-
-
-def send_message(
-    db: Session,
+    messages: list[SendChatMessage],
     *,
-    chat_id: ChatId,
-    message_type: ChatMessageType,
-    sender_id: int,
-    text: str | None = None,
-    loan_request_id: int | None = None,
-    loan_id: int | None = None,
-    ensure_chat: bool = True,
-) -> ChatMessageRead:
-    # ensure chat does exist
-    if ensure_chat:
-        chat = _ensure_chat(
+    ensure_chats: bool = False,
+) -> list[ChatMessageRead]:
+    """
+    Insert all the given chat messages.
+
+    If `ensure_chats` is True, all chat refered by the messages `chat_id` are first
+    created if not existing before sending any message.
+
+    Implementation
+    --------------
+    - The data of the messages to send are converted into a SQL VALUES expression.
+    - The `sender_id` value of the inserted row are computed using an SQL CASE
+      expression depending on the value of `message_type` (e.g. for a
+      `loan_request_created` message, the `sender_id` is set to be the `borrower_id`).
+      Only `text` messages use the given `sender_id` in the inserted row.
+    - The data also specifies a generated `order` column to preserve the order of the
+      inserted rows.
+    """
+
+    data = as_sql_values(messages)
+
+    if ensure_chats:
+        ensure_many_chats(
             db=db,
-            chat_id=chat_id,
+            chat_ids={msg.chat_id for msg in messages},
         )
-    else:
-        chat = get_chat(
-            db=db,
-            chat_id=chat_id,
-        )
+
+    sender_id_case_expr = case(
+        (
+            data.c.message_type == ChatMessageType.text,
+            data.c.sender_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_request_created,
+            data.c.borrower_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_request_cancelled,
+            data.c.borrower_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_request_accepted,
+            Item.owner_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_request_rejected,
+            Item.owner_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_started,
+            data.c.borrower_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.loan_ended,
+            Item.owner_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.item_not_available,
+            Item.owner_id,
+        ),
+        (
+            data.c.message_type == ChatMessageType.item_available,
+            Item.owner_id,
+        ),
+        else_=None,
+    )
 
     # insert new message in chat messages
     stmt = (
         insert(ChatMessage)
-        .values(
-            item_id=chat_id.item_id,
-            borrower_id=chat_id.borrower_id,
-            message_type=message_type,
-            sender_id=sender_id,
-            text=text,
-            loan_request_id=loan_request_id,
-            loan_id=loan_id,
+        .from_select(
+            [
+                ChatMessage.item_id,
+                ChatMessage.borrower_id,
+                ChatMessage.message_type,
+                ChatMessage.sender_id,
+                ChatMessage.text,
+                ChatMessage.loan_request_id,
+                ChatMessage.loan_id,
+            ],
+            select(
+                data.c.item_id,
+                data.c.borrower_id,
+                data.c.message_type,
+                sender_id_case_expr,
+                data.c.text,
+                data.c.loan_request_id,
+                data.c.loan_id,
+            )
+            .join(Item, Item.id == data.c.item_id)
+            .order_by(data.c.order),
         )
         .returning(ChatMessage)
     )
 
-    # TODO handle constraints violations
-    message = db.execute(stmt).unique().scalars().one()
+    try:
+        with db.begin_nested():
+            sent_messages = db.execute(stmt).unique().scalars().all()
 
-    pubsub_message = PubsubMessageNewChatMessage(
-        chat_message_id=message.id,
+    # if an IntegrityError is raise, it means either:
+    # 1. The refered Chat does not exists (equivalent to item and borrower)
+    # 2. The sender user does not exist
+    # 3. The loan request does not exist
+    # 4. The loan does not exist
+    except IntegrityError as error:
+        from app.services.chat import get_many_chats
+        from app.services.loan import get_many_loan_requests, get_many_loans
+        from app.services.user import get_many_users
+
+        # raise ChatNotFoundError if not all chats exist (1.)
+        get_many_chats(
+            db=db,
+            chat_ids={msg.chat_id for msg in messages},
+        )
+
+        # raise UserNotFoundError if not all senders exist (2.)
+        get_many_users(
+            db=db,
+            user_ids={
+                msg.sender_id
+                for msg in messages
+                if msg.type == ChatMessageType.text and msg.sender_id is not None
+            },
+        )
+
+        # raise LoanRequestNotFound if not all loan requests exist (3.)
+        get_many_loan_requests(
+            db=db,
+            loan_request_ids={
+                msg.loan_request_id
+                for msg in messages
+                if msg.type
+                in {
+                    ChatMessageType.loan_request_created,
+                    ChatMessageType.loan_request_cancelled,
+                    ChatMessageType.loan_request_accepted,
+                    ChatMessageType.loan_request_rejected,
+                }
+                and msg.loan_request_id is not None
+            },
+        )
+
+        # raise LoanNotFound if not all loans exist (4.)
+        get_many_loans(
+            db=db,
+            loan_ids={
+                msg.loan_id
+                for msg in messages
+                if msg.type
+                in {
+                    ChatMessageType.loan_started,
+                    ChatMessageType.loan_ended,
+                }
+                and msg.loan_id is not None
+            },
+        )
+
+        raise error
+
+    return [ChatMessageRead.model_validate(msg) for msg in sent_messages]
+
+
+def as_sql_values(messages: list[SendChatMessage]) -> Values:
+    return values(
+        column("order", Integer),
+        cast("ColumnClause[int]", ChatMessage.item_id),
+        cast("ColumnClause[int]", ChatMessage.borrower_id),
+        cast("ColumnClause[ChatMessageType]", ChatMessage.message_type),
+        cast("ColumnClause[int]", ChatMessage.sender_id),
+        cast("ColumnClause[str]", ChatMessage.text),
+        cast("ColumnClause[int]", ChatMessage.loan_request_id),
+        cast("ColumnClause[int]", ChatMessage.loan_id),
+        name="message_data",
+    ).data(
+        [
+            (
+                i,
+                sqlcast(msg.chat_id.item_id, Integer),
+                sqlcast(msg.chat_id.borrower_id, Integer),
+                sqlcast(msg.type, Enum(ChatMessageType)),
+                sqlcast(msg.sender_id, Integer),
+                sqlcast(msg.text, Text),
+                sqlcast(msg.loan_request_id, Integer),
+                sqlcast(msg.loan_id, Integer),
+            )
+            for i, msg in enumerate(messages)
+        ]
     )
-
-    # notify owner
-    notify_user(
-        db=db,
-        user_id=chat.item.owner_id,
-        message=pubsub_message,
-    )
-
-    # notify borrower
-    notify_user(
-        db=db,
-        user_id=chat.id.borrower_id,
-        message=pubsub_message,
-    )
-
-    return ChatMessageRead.model_validate(message)
-
-
-def _get_item_owner_id(
-    db: Session,
-    item_id: int,
-) -> int:
-    """Get the user_id of the owner of the item with `item_id`."""
-
-    stmt = select(Item.owner_id).where(Item.id == item_id)
-
-    # execute
-    # TODO handle not found
-    owner_id = db.execute(stmt).unique().scalars().one()
-
-    return owner_id

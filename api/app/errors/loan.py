@@ -2,6 +2,7 @@ from collections.abc import Collection, Mapping
 from typing import Any
 
 from app.enums import LoanRequestState
+from app.schemas.loan.base import ItemBorrowerId
 
 from .base import ApiError, BadRequestError, ConflictError, NotFoundError
 
@@ -67,12 +68,16 @@ class LoanRequestStateError(LoanRequestError, ConflictError):
 
 
 class LoanRequestAlreadyExistsError(LoanRequestError, ConflictError):
-    def __init__(self):
-        super().__init__("Loan request already exists.")
+    def __init__(self, item_borrower_id: ItemBorrowerId | set[ItemBorrowerId]):
+        super().__init__(
+            "Loan request already exists. Loan requests (item_id, borrower_id): "
+            f"{item_borrower_id}."
+        )
 
 
 class LoanRequestOwnItemError(LoanRequestError, BadRequestError):
-    def __init__(self):
+    def __init__(self, item_id: int):
         super().__init__(
-            "Cannot add loan request where the borrower is also the owner."
+            "Cannot add loan request where the borrower is also the owner "
+            f"(item {item_id})."
         )

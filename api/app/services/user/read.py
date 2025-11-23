@@ -26,6 +26,27 @@ def get_user(
     )
 
 
+def get_many_users(
+    db: Session,
+    user_ids: set[int],
+) -> list[UserRead]:
+    """Get all users with the given user ids.
+
+    Raises UserNotFoundError if not all chats matching criterias exist.
+    """
+
+    stmt = select(User).where(User.id.in_(user_ids))
+
+    users = db.execute(stmt).unique().scalars().all()
+
+    missing_user_ids = user_ids - {user.id for user in users}
+    if missing_user_ids:
+        key = {"user_ids": missing_user_ids}
+        raise UserNotFoundError(key)
+
+    return [UserRead.model_validate(user) for user in users]
+
+
 def get_user_private(
     db: Session,
     user_id: int,

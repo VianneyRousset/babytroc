@@ -1,6 +1,7 @@
 from typing import Annotated
 
-from sqlalchemy import Select, func
+from pydantic import field_validator
+from sqlalchemy import func, tuple_
 
 from app.enums import LoanRequestState
 from app.models.item import Item
@@ -9,23 +10,59 @@ from app.schemas.base import (
     FieldWithAlias,
     Joins,
     QueryFilter,
-    ReadQueryFilter,
     StatementT,
 )
+from app.schemas.loan.base import ItemBorrowerId
 from app.schemas.query import QueryPageCursor
+
+
+class LoanRequestQueryFilterItemBorrower(QueryFilter):
+    """Filter loan requests by item."""
+
+    item_borrower_id: set[ItemBorrowerId] | None = None
+
+    def _filter(self, stmt: StatementT) -> StatementT:
+        if self.item_borrower_id is None:
+            return super()._filter(stmt)
+
+        return super()._filter(
+            stmt.where(
+                tuple_(LoanRequest.item_id, LoanRequest.borrower_id).in_(
+                    [
+                        tuple_(
+                            item_borrower_id.item_id,
+                            item_borrower_id.borrower_id,
+                        )
+                        for item_borrower_id in self.item_borrower_id
+                    ]
+                )
+            )
+        )
+
+    @field_validator("item_borrower_id", mode="before")
+    def validate_item_borrower_id(
+        cls,  # noqa: N805
+        v: ItemBorrowerId | set[ItemBorrowerId] | None,
+    ) -> set[ItemBorrowerId] | None:
+        if v is None or isinstance(v, set):
+            return v
+
+        return {v}
 
 
 class LoanRequestQueryFilterItem(QueryFilter):
     """Filter loan requests by item."""
 
-    item_id: int | None = None
+    item_id: int | set[int] | None = None
 
     def _filter(self, stmt: StatementT) -> StatementT:
-        return super()._filter(
-            stmt.where(LoanRequest.item_id == self.item_id)
-            if self.item_id is not None
-            else stmt
-        )
+        if self.item_id is None:
+            return super()._filter(stmt)
+
+        if isinstance(self.item_id, set):
+            return super()._filter(stmt.where(LoanRequest.item_id.in_(self.item_id)))
+
+        return super()._filter(stmt.where(LoanRequest.item_id == self.item_id))
 
 
 class LoanRequestQueryFilterStates(QueryFilter):
@@ -54,7 +91,7 @@ class LoanRequestQueryFilterBorrower(QueryFilter):
         )
 
 
-class LoanRequestQueryFilterOwner(ReadQueryFilter):
+class LoanRequestQueryFilterOwner(QueryFilter):
     """Filter loan requests by owner."""
 
     owner_id: int | None = None
@@ -63,15 +100,18 @@ class LoanRequestQueryFilterOwner(ReadQueryFilter):
     def _joins(self) -> Joins:
         return super()._joins + ([Item] if self.owner_id is not None else [])
 
-    def _filter_read(self, stmt: Select) -> Select:
-        return super()._filter_read(
-            stmt.where(Item.owner_id == self.owner_id)
+    def _filter(self, stmt: StatementT) -> StatementT:
+        return super()._filter(
+            stmt.where(Item.owner_id == self.owner_id).where(
+                Item.id == LoanRequest.item_id
+            )
             if self.owner_id is not None
             else stmt
         )
 
 
 class LoanRequestReadQueryFilter(
+    LoanRequestQueryFilterItemBorrower,
     LoanRequestQueryFilterItem,
     LoanRequestQueryFilterStates,
     LoanRequestQueryFilterOwner,
@@ -81,14 +121,17 @@ class LoanRequestReadQueryFilter(
 
 
 class LoanRequestUpdateQueryFilter(
+    LoanRequestQueryFilterItemBorrower,
     LoanRequestQueryFilterItem,
     LoanRequestQueryFilterStates,
+    LoanRequestQueryFilterOwner,
     LoanRequestQueryFilterBorrower,
 ):
     """Filter of the loan requests update query."""
 
 
 class LoanRequestDeleteQueryFilter(
+    LoanRequestQueryFilterItemBorrower,
     LoanRequestQueryFilterItem,
     LoanRequestQueryFilterStates,
     LoanRequestQueryFilterBorrower,
@@ -147,9 +190,9 @@ class LoanQueryFilterOwner(QueryFilter):
     def _joins(self) -> Joins:
         return super()._joins + ([Item] if self.owner_id is not None else [])
 
-    def _filter_read(self, stmt: Select) -> Select:
+    def _filter(self, stmt: StatementT) -> StatementT:
         return super()._filter(
-            stmt.where(Item.owner_id == self.owner_id)
+            stmt.where(Item.owner_id == self.owner_id).where(Item.id == Loan.item_id)
             if self.owner_id is not None
             else stmt
         )
@@ -167,6 +210,7 @@ class LoanReadQueryFilter(
 class LoanUpdateQueryFilter(
     LoanQueryFilterItem,
     LoanQueryFilterActivity,
+    LoanQueryFilterOwner,
     LoanQueryFilterBorrower,
 ):
     """Filter of the loan update query."""

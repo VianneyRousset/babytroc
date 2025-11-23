@@ -1,56 +1,44 @@
-from sqlalchemy import insert
+from sqlalchemy import Integer, column, exists, insert, select, values
 from sqlalchemy.orm import Session
 
-from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.read import ChatRead
-
-from .read import get_chat
-
-
-def create_chat(
-    db: Session,
-    chat_id: ChatId,
-) -> ChatRead:
-    """Create a chat."""
-
-    stmt = (
-        insert(Chat)
-        .values(
-            item_id=chat_id.item_id,
-            borrower_id=chat_id.borrower_id,
-        )
-        .returning(Chat)
-    )
-
-    chat = db.execute(stmt).unique().scalars().one()
-
-    return ChatRead.model_validate(
-        {
-            "id": chat.id,
-            "borrower": chat.borrower,
-            "owner": chat.owner,
-            "item": chat.item,
-            "last_message_id": None,
-        }
-    )
 
 
 def ensure_chat(
     db: Session,
     chat_id: ChatId,
-) -> ChatRead:
-    """Create chat if non-existing."""
+) -> None:
+    """Create chat with `chat_id`. Skip already if already exists."""
 
-    try:
-        return get_chat(
-            db=db,
-            chat_id=chat_id,
-        )
+    ensure_many_chats(
+        db=db,
+        chat_ids={chat_id},
+    )
 
-    except ChatNotFoundError:
-        return create_chat(
-            db=db,
-            chat_id=chat_id,
+
+def ensure_many_chats(
+    db: Session,
+    chat_ids: set[ChatId],
+) -> None:
+    """Create chats for all `chat_ids`. Skip already existing chats."""
+
+    # values to insert
+    chat_values = values(
+        column("item_id", Integer),
+        column("borrower_id", Integer),
+        name="chat_values",
+    ).data([(chat_id.item_id, chat_id.borrower_id) for chat_id in chat_ids])
+
+    # insert chats when non-existing
+    db.execute(
+        insert(Chat).from_select(
+            [Chat.item_id, Chat.borrower_id],
+            select(chat_values).where(
+                ~exists().where(
+                    Chat.item_id == chat_values.columns.item_id,
+                    Chat.borrower_id == chat_values.columns.borrower_id,
+                )
+            ),
         )
+    )

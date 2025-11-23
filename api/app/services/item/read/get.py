@@ -1,5 +1,4 @@
 from sqlalchemy import and_, func, or_, select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.enums import LoanRequestState
@@ -20,59 +19,78 @@ def get_item(
 ) -> ItemRead:
     """Get item by id."""
 
+    items = get_many_items(
+        db=db,
+        item_ids={item_id},
+        query_filter=query_filter,
+        client_id=client_id,
+    )
+
+    return items[0]
+
+
+def get_many_items(
+    db: Session,
+    item_ids: set[int],
+    *,
+    query_filter: ItemReadQueryFilter | None = None,
+    client_id: int | None = None,
+) -> list[ItemRead]:
+    """Get all items with the given item ids.
+
+    Raises ItemNotFoundError if not all items matching criterias exist.
+    """
+
     # default empty query filter
     query_filter = query_filter or ItemReadQueryFilter()
 
     # no client id
     if client_id is None:
-        return _get_item_without_client_specific_fields(
+        return _get_many_items_without_client_specific_fields(
             db=db,
-            item_id=item_id,
+            item_ids=item_ids,
             query_filter=query_filter,
         )
 
     # with client id
-    return _get_item_with_client_specific_fields(
+    return _get_many_items_with_client_specific_fields(
         db=db,
-        item_id=item_id,
+        item_ids=item_ids,
         query_filter=query_filter,
         client_id=client_id,
     )
 
 
-def _get_item_without_client_specific_fields(
+def _get_many_items_without_client_specific_fields(
     db: Session,
-    item_id: int,
+    item_ids: set[int],
     *,
     query_filter: ItemReadQueryFilter,
-) -> ItemRead:
+) -> list[ItemRead]:
     """Get item tuned without client-specific fields."""
 
-    stmt = select(Item).where(Item.id == item_id)
+    stmt = query_filter.filter_read(select(Item).where(Item.id.in_(item_ids)))
 
-    # apply filtering
-    stmt = query_filter.filter_read(stmt)
+    items = db.execute(stmt).unique().scalars().all()
 
-    try:
-        item = db.execute(stmt).unique().scalars().one()
+    missing_item_ids = item_ids - {item.id for item in items}
+    if missing_item_ids:
+        key = {"item_ids": missing_item_ids}
+        raise ItemNotFoundError(key)
 
-    except NoResultFound as error:
-        key = query_filter.key | {"id": item_id}
-        raise ItemNotFoundError(key) from error
-
-    return ItemRead.model_validate(item)
+    return [ItemRead.model_validate(item) for item in items]
 
 
-def _get_item_with_client_specific_fields(
+def _get_many_items_with_client_specific_fields(
     db: Session,
-    item_id: int,
+    item_ids: set[int],
     *,
     query_filter: ItemReadQueryFilter,
     client_id: int,
-) -> ItemRead:
+) -> list[ItemRead]:
     """Get item tuned with client-specific fields."""
 
-    stmt = (
+    stmt = query_filter.filter_read(
         select(Item, ItemLike.id, ItemSave.id, LoanRequest, Loan)
         .outerjoin(
             ItemLike, and_(ItemLike.item_id == Item.id, ItemLike.user_id == client_id)
@@ -99,28 +117,30 @@ def _get_item_with_client_specific_fields(
                 func.upper(Loan.during).is_(None),
             ),
         )
-        .where(Item.id == item_id)
+        .where(Item.id.in_(item_ids))
     )
 
-    # apply filtering
-    stmt = query_filter.filter_read(stmt)
+    rows = db.execute(stmt).unique().all()
 
-    try:
-        item, like_id, save_id, loan_request, loan = db.execute(stmt).unique().one()
+    items = [
+        ItemRead.model_validate(
+            {
+                **ItemRead.model_validate(item).model_dump(),
+                "owned": item.owner_id == client_id,
+                "liked": like_id is not None,
+                "saved": save_id is not None,
+                "active_loan_request": (
+                    loan_request and LoanRequestRead.model_validate(loan_request)
+                ),
+                "active_loan": (loan and LoanRead.model_validate(loan)),
+            }
+        )
+        for item, like_id, save_id, loan_request, loan in rows
+    ]
 
-    except NoResultFound as error:
-        key = query_filter.key | {"id": item_id}
-        raise ItemNotFoundError(key) from error
+    missing_item_ids = item_ids - {item.id for item in items}
+    if missing_item_ids:
+        key = {"item_ids": missing_item_ids}
+        raise ItemNotFoundError(key)
 
-    return ItemRead.model_validate(
-        {
-            **ItemRead.model_validate(item).model_dump(),
-            "owned": item.owner_id == client_id,
-            "liked": like_id is not None,
-            "saved": save_id is not None,
-            "active_loan_request": (
-                loan_request and LoanRequestRead.model_validate(loan_request)
-            ),
-            "active_loan": (loan and LoanRead.model_validate(loan)),
-        }
-    )
+    return items

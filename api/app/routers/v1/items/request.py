@@ -34,7 +34,7 @@ def create_loan_request(
 
 
 @router.delete("/{item_id}/request", status_code=status.HTTP_200_OK)
-def cancel_loan_request(
+def cancel_item_active_loan_request(
     client_id: client_id_annotation,
     request: Request,
     item_id: item_id_annotation,
@@ -42,7 +42,7 @@ def cancel_loan_request(
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
-    return services.loan.cancel_active_loan_request(
+    return services.loan.cancel_item_active_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,

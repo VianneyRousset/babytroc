@@ -7,7 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
-from app.schemas.loan.query import LoanRequestReadQueryFilter
+from app.schemas.loan.query import LoanRequestUpdateQueryFilter
 from app.schemas.loan.read import LoanRequestRead
 
 from .annotations import loan_request_id_annotation
@@ -26,7 +26,7 @@ def accept_client_item_loan_request(
     return services.loan.accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestReadQueryFilter(
+        query_filter=LoanRequestUpdateQueryFilter(
             item_id=item_id,
             owner_id=client_id,
         ),
@@ -45,7 +45,7 @@ def reject_client_item_loan_request(
     return services.loan.reject_loan_request(
         db=db,
         loan_request_id=loan_request_id,
-        query_filter=LoanRequestReadQueryFilter(
+        query_filter=LoanRequestUpdateQueryFilter(
             item_id=item_id,
             owner_id=client_id,
         ),

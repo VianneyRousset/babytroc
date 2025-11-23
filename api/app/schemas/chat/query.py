@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from sqlalchemy import Select
+from sqlalchemy import Select, tuple_
 
 from app.models.chat import Chat, ChatMessage
 from app.models.item import Item
@@ -15,6 +15,33 @@ from app.schemas.base import (
 )
 from app.schemas.chat.base import ChatId
 from app.schemas.query import QueryPageCursor
+
+
+class ChatQueryFilterChatId(QueryFilter):
+    """Filter chats by chat id."""
+
+    chat_id: ChatId | set[ChatId] | None = None
+
+    def _filter(self, stmt: StatementT) -> StatementT:
+        if self.chat_id is None:
+            return super()._filter(stmt)
+
+        if isinstance(self.chat_id, ChatId):
+            return super()._filter(
+                stmt.where(
+                    tuple_(Chat.item_id, Chat.borrower_id)
+                    == tuple_(self.chat_id.item_id, self.chat_id.borrower_id)
+                )
+            )
+
+        return super()._filter(
+            stmt.where(
+                tuple_(Chat.item_id, Chat.borrower_id).in_(
+                    tuple_(chat_id.item_id, chat_id.borrower_id)
+                    for chat_id in self.chat_id
+                )
+            )
+        )
 
 
 class ChatQueryFilterItem(QueryFilter):
@@ -80,6 +107,7 @@ class ChatQueryFilterMember(ReadQueryFilter):
 
 
 class ChatReadQueryFilter(
+    ChatQueryFilterChatId,
     ChatQueryFilterItem,
     ChatQueryFilterBorrower,
     ChatQueryFilterOwner,
@@ -90,6 +118,7 @@ class ChatReadQueryFilter(
 
 
 class ChatUpdateQueryFilter(
+    ChatQueryFilterChatId,
     ChatQueryFilterItem,
     ChatQueryFilterBorrower,
     UpdateQueryFilter,
@@ -98,6 +127,7 @@ class ChatUpdateQueryFilter(
 
 
 class ChatDeleteQueryFilter(
+    ChatQueryFilterChatId,
     ChatQueryFilterItem,
     ChatQueryFilterBorrower,
     DeleteQueryFilter,

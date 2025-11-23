@@ -1,48 +1,100 @@
+from sqlalchemy import text, update
 from sqlalchemy.orm import Session
 
-from app.clients import database
 from app.errors.loan import LoanAlreadyInactiveError
+from app.models.loan import Loan
 from app.schemas.chat.base import ChatId
-from app.schemas.loan.query import LoanReadQueryFilter
+from app.schemas.chat.send import SendChatMessageLoanEnded
+from app.schemas.loan.query import LoanReadQueryFilter, LoanUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
-from app.services.chat import send_message_loan_ended
+from app.services.chat import send_many_chat_messages
+
+from .read import get_loan
 
 
 def end_loan(
     db: Session,
     loan_id: int,
-    query_filter: LoanReadQueryFilter | None = None,
-):
+    *,
+    query_filter: LoanUpdateQueryFilter | None = None,
+    send_message: bool = True,
+) -> LoanRead:
     """Set loan end date to now.
-
     The loan must be active.
     """
 
-    # get loan from database
-    loan = database.loan.get_loan(
+    loans = end_many_loans(
         db=db,
-        loan_id=loan_id,
+        loan_ids={loan_id},
         query_filter=query_filter,
+        send_messages=send_message,
     )
 
-    # check loan state
-    if loan.during.upper is not None:
-        raise LoanAlreadyInactiveError()
+    return loans[0]
+
+
+def end_many_loans(
+    db: Session,
+    loan_ids: set[int],
+    *,
+    query_filter: LoanUpdateQueryFilter | None = None,
+    send_messages: bool = True,
+) -> list[LoanRead]:
+    """Set many loan end date to now.
+    The loans must be active.
+    """
+
+    query_filter = query_filter or LoanUpdateQueryFilter()
+
+    stmt = query_filter.filter_update(
+        update(Loan)
+        .values(during=Loan.during * text("tstzrange(NULL, now(), '()')"))
+        .where(Loan.id.in_(loan_ids))
+    ).returning(Loan)
+
+    loans = db.execute(stmt).unique().scalars().all()
+
+    # if not all given loans were updated it means either:
+    # 1. the given loan matching the query_filter does not exist
+    # 2. the given loan were not active (non-null upper bound of range `during`)
+    if len(loans) != len(loan_ids):
+        # find missing loan request ids
+        missing_loan_ids = loan_ids - {loan.id for loan in loans}
+        first_missing_loan_id = next(iter(sorted(missing_loan_ids)))
+
+        # raise LoanNotFoundError if loan request does not exist (1.)
+        loan_causing_issue = get_loan(
+            db=db,
+            loan_id=first_missing_loan_id,
+            query_filter=LoanReadQueryFilter.model_validate(query_filter.model_dump()),
+        )
+
+        # raise LoanAlreadyInactiveError if the loan were already inactive (2.)
+        if loan_causing_issue.during[1] is not None:
+            raise LoanAlreadyInactiveError()
+
+        msg = (
+            "The number of updated loans does not match the number of given "
+            "loan ids. The reason is unexpected."
+        )
+        raise RuntimeError(msg)
+
+    loan_reads = [LoanRead.model_validate(loan) for loan in loans]
 
     # create chat message
-    send_message_loan_ended(
-        db=db,
-        chat_id=ChatId.from_values(
-            item_id=loan.item_id,
-            borrower_id=loan.borrower_id,
-        ),
-        loan_id=loan.id,
-    )
+    if send_messages:
+        send_many_chat_messages(
+            db=db,
+            messages=[
+                SendChatMessageLoanEnded(
+                    chat_id=ChatId.from_values(
+                        item_id=loan.item.id,
+                        borrower_id=loan.borrower.id,
+                    ),
+                    loan_id=loan.id,
+                )
+                for loan in loan_reads
+            ],
+        )
 
-    # set loan.during upper bound to now()
-    loan = database.loan.end_loan(
-        db=db,
-        loan=loan,
-    )
-
-    return LoanRead.model_validate(loan)
+    return loan_reads

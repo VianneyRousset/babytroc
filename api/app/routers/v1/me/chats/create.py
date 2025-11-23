@@ -9,6 +9,7 @@ from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.create import ChatMessageCreate
 from app.schemas.chat.read import ChatMessageRead
+from app.schemas.chat.send import SendChatMessageText
 
 from .annotations import chat_id_annotation
 from .router import router
@@ -32,9 +33,11 @@ def send_message_to_chat(
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
-    return services.chat.send_message_text(
+    return services.chat.send_chat_message(
         db=db,
-        chat_id=parsed_chat_id,
-        sender_id=client_id,
-        text=chat_message_create.text,
+        message=SendChatMessageText(
+            chat_id=parsed_chat_id,
+            sender_id=client_id,
+            text=chat_message_create.text,
+        ),
     )
