@@ -34,12 +34,18 @@ class TestForbiddenChatOperations:
         ), "chat should not exist"
 
         # ensure cannot send message
-        assert alice_client.post(
-            f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
-        ).is_error, "Alice should not be able to post in non-existing chat"
-        assert bob_client.post(
-            f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
-        ).is_error, "Bob should not be able to post in non-existing chat"
+        assert (
+            alice_client.post(
+                f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
+            ).status_code
+            == status.HTTP_404_NOT_FOUND
+        ), "Alice should not be able to post in non-existing chat"
+        assert (
+            bob_client.post(
+                f"/v1/me/chats/{chat_id}/messages", json={"text": "test"}
+            ).status_code
+            == status.HTTP_404_NOT_FOUND
+        ), "Bob should not be able to post in non-existing chat"
 
     def test_send_message_not_member(
         self,

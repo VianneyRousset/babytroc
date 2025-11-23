@@ -11,9 +11,7 @@ from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.chat import ReceivedChatMessageChecker
 
 
-class TestChatNonTextMessages:
-    """Test non-text chat messages."""
-
+class TestChatMessageLoanRequestCreated:
     def test_message_loan_request_created(
         self,
         bob: UserPrivateRead,
@@ -59,6 +57,8 @@ class TestChatNonTextMessages:
             exclude=["id", "creation_date"],
         )
 
+
+class TestChatMessageLoanRequestCancelled:
     def test_loan_request_cancelled_message(
         self,
         bob: UserPrivateRead,
@@ -106,6 +106,8 @@ class TestChatNonTextMessages:
             exclude=["id", "creation_date"],
         )
 
+
+class TestChatMessageLoanRequestRejected:
     def test_loan_request_rejected_message(
         self,
         alice: UserPrivateRead,
@@ -156,6 +158,8 @@ class TestChatNonTextMessages:
             exclude=["id", "creation_date"],
         )
 
+
+class TestChatMessageLoanRequestAccepted:
     def test_loan_request_accepted_message(
         self,
         alice: UserPrivateRead,
@@ -206,6 +210,8 @@ class TestChatNonTextMessages:
             exclude=["id", "creation_date"],
         )
 
+
+class TestChatMessageLoanStarted:
     def test_loan_started_message(
         self,
         alice: UserPrivateRead,
@@ -261,6 +267,8 @@ class TestChatNonTextMessages:
             exclude=["id", "creation_date"],
         )
 
+
+class TestChatMessageLoanEnded:
     def test_loan_ended_message(
         self,
         alice: UserPrivateRead,

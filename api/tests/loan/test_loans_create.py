@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRead, LoanRequestRead
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 
 
 class TestLoanCreate:
@@ -13,8 +13,8 @@ class TestLoanCreate:
     def test_execute_loan_request(
         self,
         bob_accepted_loan_request_for_alice_special_item: LoanRequestRead,
-        alice: UserRead,
-        bob: UserRead,
+        alice: UserPrivateRead,
+        bob: UserPrivateRead,
         alice_client: TestClient,
         bob_client: TestClient,
         carol_client: TestClient,

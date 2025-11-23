@@ -4,10 +4,13 @@ import pytest
 from sqlalchemy.orm import sessionmaker
 
 from app import services
+from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
-from app.schemas.loan.query import LoanRequestReadQueryFilter
+from app.schemas.loan.base import ItemBorrowerId
+from app.schemas.loan.query import LoanRequestUpdateQueryFilter
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
+from tests.utils import split
 
 
 @pytest.fixture
@@ -122,7 +125,7 @@ def bob_new_loan_of_alice_new_item(
         return services.loan.execute_loan_request(
             db=session,
             loan_request_id=bob_new_loan_request_for_alice_new_item.id,
-            query_filter=LoanRequestReadQueryFilter(
+            query_filter=LoanRequestUpdateQueryFilter(
                 owner_id=alice.id,
                 borrower_id=bob.id,
             ),
@@ -136,8 +139,17 @@ def many_loan_requests_for_alice_items(
     many_items: list[ItemRead],
     alice: UserPrivateRead,
     bob: UserPrivateRead,
+    carol: UserPrivateRead,
 ) -> list[LoanRequestRead]:
-    """Many loan requests made by Bob for Alice's many items."""
+    """Many loan requests made by Bob and Carol for Alice's many items.
+
+    90% of the items owned by Alice are requested
+    50% of the loan requests are pending
+    1/3 of the loan requests are cancelled
+    1/3 of the loan requests are rejected
+    1/3 of the loan requests are accepted
+    1 loan request is executed
+    """
 
     random.seed(0x32D1)
 
@@ -148,59 +160,116 @@ def many_loan_requests_for_alice_items(
         k=round(0.9 * len(items_owned_by_alice)),
     )
 
+    borrowers = [bob, carol]
+
+    # create all loan requests
     with database_sessionmaker.begin() as session:
         # create loan requests
-        loan_requests = {
-            loan_request.id: loan_request
-            for loan_request in [
-                services.loan.create_loan_request(
-                    db=session,
+        new_loan_requests = services.loan.create_many_loan_requests(
+            db=session,
+            loan_requests={
+                ItemBorrowerId.from_values(
                     item_id=item.id,
-                    borrower_id=bob.id,
+                    borrower_id=borrower.id,
                 )
-                for item in items_to_request
-            ]
-        }
-
-        # select 20% of the loan request to be either cancelled, rejected or accept
-        n = round(0.2 * len(loan_requests))
-        loan_request_ids_sample = random.sample(list(loan_requests.keys()), k=n)
-
-        # cancel 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[0 : n // 3]:
-            loan_requests[loan_request_id] = services.loan.cancel_loan_request(
-                db=session,
-                loan_request_id=loan_request_id,
-            )
-
-        # reject 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[n // 3 : 2 * n // 3]:
-            loan_requests[loan_request_id] = services.loan.reject_loan_request(
-                db=session,
-                loan_request_id=loan_request_id,
-            )
-
-        # accept 1/3 of the selected loan requests
-        for loan_request_id in loan_request_ids_sample[2 * n // 3 :]:
-            loan_requests[loan_request_id] = services.loan.accept_loan_request(
-                db=session,
-                loan_request_id=loan_request_id,
-            )
-
-        # execute one loan request
-        executed_loan_request_id = loan_request_ids_sample[-1]
-        services.loan.execute_loan_request(
-            db=session,
-            loan_request_id=executed_loan_request_id,
+                for item, borrower in zip(
+                    items_to_request,
+                    random.choices(borrowers, k=len(items_to_request)),
+                    strict=True,
+                )
+            },
         )
 
-        # read updated loan request
-        loan_requests[executed_loan_request_id] = services.loan.get_loan_request(
-            db=session,
-            loan_request_id=loan_request_id,
+    # select 50% of the loan request to be either cancelled, rejected or accept
+    # select 1/3 of the selected loan requests to be cancelled
+    # select 1/3 of the selected loan requests to be rejected
+    # select 1/3 of the selected loan requests to be accepted
+    # select 1 of the selected loan requests to be executed
+    (
+        selected_loan_requests,
+        remaing_loan_requests,
+    ) = split(random.sample(new_loan_requests, k=len(new_loan_requests)), 2)
+
+    loan_requests_to_execute, selected_loan_requests = (
+        selected_loan_requests[:1],
+        selected_loan_requests[1:],
+    )
+
+    (
+        loan_requests_to_cancel,
+        loan_requests_to_reject,
+        loan_requests_to_accept,
+    ) = split(selected_loan_requests, 3)
+
+    # cancel seleced loan
+    with database_sessionmaker.begin() as session:
+        cancelled_loan_requests: list[LoanRequestRead] = (
+            services.loan.cancel_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_cancel},
+                send_messages=False,
+            )
         )
 
-        return list(loan_requests.values())
+    # reject seleced loan
+    with database_sessionmaker.begin() as session:
+        rejected_loan_requests: list[LoanRequestRead] = (
+            services.loan.reject_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_reject},
+                send_messages=False,
+            )
+        )
+
+    # accept seleced loan
+    with database_sessionmaker.begin() as session:
+        accepted_loan_requests: list[LoanRequestRead] = (
+            services.loan.accept_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_accept},
+                send_messages=False,
+            )
+        )
+
+    # execute one of the accepted loan request
+    with database_sessionmaker.begin() as session:
+        executed_loan_requests: list[LoanRequestRead] = [
+            loan.loan_request
+            for loan in services.loan.execute_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_execute},
+                send_messages=False,
+                check_state=False,
+            )
+        ]
+
+    # merge loan requests
+    loan_requests: list[LoanRequestRead] = [
+        *cancelled_loan_requests,
+        *accepted_loan_requests,
+        *rejected_loan_requests,
+        *executed_loan_requests,
+        *remaing_loan_requests,
+    ]
+
+    if len(loan_requests) != len(new_loan_requests):
+        msg = "Incoherent numbre of loan requests"
+        raise ValueError(msg)
+
+    # suffle loan requests
+    random.shuffle(loan_requests)
+
+    # check there is at least 10 loan request of each state except `executed`
+    for state in LoanRequestState:
+        nmin = 10
+        if (
+            state != LoanRequestState.executed
+            and len([req for req in loan_requests if req.state == state]) < 10
+        ):
+            msg = f"There must be at least {nmin} {state.name} loan requests"
+            raise ValueError(msg)
+
+    return loan_requests
 
 
 @pytest.fixture(scope="class")
@@ -212,94 +281,117 @@ def many_loan_requests_for_alice_special_item(
 ) -> list[LoanRequestRead]:
     """Loan requests from many users for Alice new item.
 
-    ~90% of the many users requests Alice's special item.
-    ~25% of those loan requests are cancelled
-    ~25% of those loan requests are rejected
-    ~25% of those loan requests are accepted
-    ~25% of those loan requests are still pending
-
-    1 loan request is executed into a loan
+    90% of the many users requests Alice's special item.
+    50% of the loan requests are pending
+    1/3 of the loan requests are cancelled
+    1/3 of the loan requests are rejected
+    1/3 of the loan requests are accepted
+    1 of the loan requests is executed
     """
 
     random.seed(0x50E6)
 
     # select 90% of all the many users that will request Alice new item
-    requesters = random.sample(many_users, k=round(0.9 * len(many_users)))
+    borrowers = random.sample(many_users, k=round(0.9 * len(many_users)))
 
     with database_sessionmaker.begin() as session:
         # create loan requests (shuffled)
-        loan_requests = [
-            services.loan.create_loan_request(
-                db=session,
-                item_id=alice_special_item.id,
-                borrower_id=requester.id,
-            )
-            for requester in requesters
-        ]
-
-        n = len(loan_requests)
-
-        # cancel 1/4 of the selected loan requests
-        cancelled_loan_requests = [
-            services.loan.cancel_loan_request(
-                db=session,
-                loan_request_id=loan_request.id,
-            )
-            for loan_request in loan_requests[0 : n // 4]
-        ]
-        if not cancelled_loan_requests:
-            msg = "At least one loan request should be cancelled"
-            raise ValueError(msg)
-
-        # reject 1/4 of the selected loan requests
-        rejected_loan_requests = [
-            services.loan.reject_loan_request(
-                db=session,
-                loan_request_id=loan_request.id,
-            )
-            for loan_request in loan_requests[n // 4 : 2 * n // 4]
-        ]
-        if not rejected_loan_requests:
-            msg = "At least one loan request should be rejected"
-            raise ValueError(msg)
-
-        # accept 1/4 of the selected loan requests
-        accepted_loan_requests = [
-            services.loan.accept_loan_request(
-                db=session,
-                loan_request_id=loan_request.id,
-            )
-            for loan_request in loan_requests[2 * n // 4 : 3 * n // 4]
-        ]
-        if not accepted_loan_requests:
-            msg = "At least one loan request should be accepted"
-            raise ValueError(msg)
-
-        # execute one loan request
-        executed_loan_request_id = loan_requests[3 * n // 4].id
-        services.loan.execute_loan_request(
+        new_loan_requests = services.loan.create_many_loan_requests(
             db=session,
-            loan_request_id=executed_loan_request_id,
-        )
-        # read updated loan request
-        executed_loan_request = services.loan.get_loan_request(
-            db=session,
-            loan_request_id=executed_loan_request_id,
+            item_ids=alice_special_item.id,
+            borrower_ids={user.id for user in borrowers},
         )
 
-        # leave the remaining loan requests pending
-        pending_loan_requests = loan_requests[3 * n // 4 + 1 :]
+    # select 50% of the loan request to be either cancelled, rejected or accept
+    # select 1/3 of the selected loan requests to be cancelled
+    # select 1/3 of the selected loan requests to be rejected
+    # select 1/3 of the selected loan requests to be accepted
+    # select 1 of the selected loan requests to be executed
+    (
+        selected_loan_requests,
+        remaing_loan_requests,
+    ) = split(random.sample(new_loan_requests, k=len(new_loan_requests)), 2)
 
-        return random.sample(
-            [
-                *cancelled_loan_requests,
-                *rejected_loan_requests,
-                *accepted_loan_requests,
-                *pending_loan_requests,
-                executed_loan_request,
-            ],
-            k=n,
+    loan_requests_to_execute, selected_loan_requests = (
+        selected_loan_requests[:1],
+        selected_loan_requests[1:],
+    )
+
+    (
+        loan_requests_to_cancel,
+        loan_requests_to_reject,
+        loan_requests_to_accept,
+    ) = split(selected_loan_requests, 3)
+
+    # cancel seleced loan
+    with database_sessionmaker.begin() as session:
+        cancelled_loan_requests: list[LoanRequestRead] = (
+            services.loan.cancel_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_cancel},
+                send_messages=False,
+            )
         )
+
+    # reject seleced loan
+    with database_sessionmaker.begin() as session:
+        rejected_loan_requests: list[LoanRequestRead] = (
+            services.loan.reject_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_reject},
+                send_messages=False,
+            )
+        )
+
+    # accept seleced loan
+    with database_sessionmaker.begin() as session:
+        accepted_loan_requests: list[LoanRequestRead] = (
+            services.loan.accept_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_accept},
+                send_messages=False,
+            )
+        )
+
+    # execute one of the accepted loan request
+    with database_sessionmaker.begin() as session:
+        executed_loan_requests: list[LoanRequestRead] = [
+            loan.loan_request
+            for loan in services.loan.execute_many_loan_requests(
+                db=session,
+                loan_request_ids={req.id for req in loan_requests_to_execute},
+                send_messages=False,
+                check_state=False,
+            )
+        ]
+
+    # merge loan requests
+    loan_requests: list[LoanRequestRead] = [
+        *cancelled_loan_requests,
+        *accepted_loan_requests,
+        *rejected_loan_requests,
+        *executed_loan_requests,
+        *remaing_loan_requests,
+    ]
+
+    if len(loan_requests) != len(new_loan_requests):
+        msg = "Incoherent number of loan requests"
+        raise ValueError(msg)
+
+    # suffle loan requests
+    random.shuffle(loan_requests)
+
+    # check there is at least 10 loan request of each state except `executed`
+    for state in LoanRequestState:
+        nmin = 10
+        if (
+            state != LoanRequestState.executed
+            and len([req for req in loan_requests if req.state == state]) < 10
+        ):
+            msg = f"There must be at least {nmin} {state.name} loan requests"
+            raise ValueError(msg)
+
+    return loan_requests
 
 
 @pytest.fixture(scope="class")
@@ -312,95 +404,99 @@ def alice_many_loans(
 ) -> list[LoanRead]:
     """Many loans made by Alice.
 
-    90% of the many items owned by Alice are loaned to either Bob or carol.
+    50% of the many items owned by Alice are loaned to either Bob or carol.
     Among those loans, 70% of them are ended.
     Among those ended loans, 50% of the loaned items are loaned again.
     Among those new loans, 50% of the loaned are ended again.
     """
 
     random.seed(0x50E6)
+    borrowers = [bob, carol]
 
     # select 90% of all the many users that will request Alice new item
-    items = random.sample(alice_many_items, k=round(0.9 * len(alice_many_items)))
+    items = random.sample(alice_many_items, k=round(0.5 * len(alice_many_items)))
 
+    # create loan requests
     with database_sessionmaker.begin() as session:
         # create loan requests
-        loan_requests = [
-            services.loan.create_loan_request(
-                db=session,
-                item_id=item.id,
-                borrower_id=requester.id,
-            )
-            for item, requester in zip(
-                items,
-                random.choices([bob, carol], k=len(items)),
-                strict=True,
-            )
-        ]
-
-        # accept and execute all loan requests
-        loans = [
-            services.loan.execute_loan_request(
-                db=session,
-                loan_request_id=services.loan.accept_loan_request(
-                    db=session,
-                    loan_request_id=loan_request.id,
-                ).id,
-            )
-            for loan_request in loan_requests
-        ]
-
-        # end 70% of the loans
-        ended_loans = [
-            services.loan.end_loan(
-                db=session,
-                loan_id=loan.id,
-            )
-            for loan in loans
-        ]
-
-        # request 50% of the ended loans
-        loan_requests = [
-            services.loan.create_loan_request(
-                db=session,
-                item_id=loan.item.id,
-                borrower_id=requester.id,
-            )
-            for loan, requester in zip(
-                loans,
-                random.choices([bob, carol], k=len(ended_loans)),
-                strict=True,
-            )
-        ]
-
-        # accept and execute all new loan requests
-        restarted_loans = [
-            services.loan.execute_loan_request(
-                db=session,
-                loan_request_id=services.loan.accept_loan_request(
-                    db=session,
-                    loan_request_id=loan_request.id,
-                ).id,
-            )
-            for loan_request in loan_requests
-        ]
-
-        # end 50% of those restarted loans
-        ended_twice_loans = [
-            services.loan.end_loan(
-                db=session,
-                loan_id=loan.id,
-            )
-            for loan in restarted_loans[: len(restarted_loans) // 2]
-        ]
-
-        # merge
-        loans = list(
-            {
-                **{loan.id: loan for loan in loans},
-                **{loan.id: loan for loan in ended_loans},
-                **{loan.id: loan for loan in restarted_loans},
-                **{loan.id: loan for loan in ended_twice_loans},
-            }.values()
+        loan_requests = services.loan.create_many_loan_requests(
+            db=session,
+            loan_requests={
+                ItemBorrowerId.from_values(
+                    item_id=item.id,
+                    borrower_id=borrower.id,
+                )
+                for item, borrower in zip(
+                    items,
+                    random.choices(borrowers, k=len(items)),
+                    strict=True,
+                )
+            },
         )
-        return random.sample(loans, k=len(loans))
+
+    # execute all loan requests
+    with database_sessionmaker.begin() as session:
+        loans = services.loan.execute_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests},
+            check_state=False,
+        )
+
+    # end 70% of the loans
+    with database_sessionmaker.begin() as session:
+        ended_loans = services.loan.end_many_loans(
+            db=session,
+            loan_ids={
+                loan.id for loan in random.sample(loans, k=round(len(loans) * 0.7))
+            },
+        )
+
+    # request 50% of the ended loans
+    with database_sessionmaker.begin() as session:
+        items_to_request_again = [
+            loan.item for loan in random.sample(ended_loans, k=len(ended_loans) // 2)
+        ]
+
+        loan_requests = services.loan.create_many_loan_requests(
+            db=session,
+            loan_requests={
+                ItemBorrowerId.from_values(
+                    item_id=item.id,
+                    borrower_id=borrower.id,
+                )
+                for item, borrower in zip(
+                    items_to_request_again,
+                    random.choices(
+                        borrowers,
+                        k=len(items_to_request_again),
+                    ),
+                    strict=True,
+                )
+            },
+        )
+    # execute all new loan requests
+    with database_sessionmaker.begin() as session:
+        restarted_loans = services.loan.execute_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests},
+            check_state=False,
+        )
+
+    # end 50% of those restarted loans
+    restarted_loans, ended_twice_loans = split(restarted_loans, 2)
+    with database_sessionmaker.begin() as session:
+        ended_twice_loans = services.loan.end_many_loans(
+            db=session,
+            loan_ids={loan.id for loan in ended_twice_loans},
+        )
+
+    # merge
+    loans = list(
+        {
+            **{loan.id: loan for loan in loans},
+            **{loan.id: loan for loan in ended_loans},
+            **{loan.id: loan for loan in restarted_loans},
+            **{loan.id: loan for loan in ended_twice_loans},
+        }.values()
+    )
+    return random.sample(loans, k=len(loans))

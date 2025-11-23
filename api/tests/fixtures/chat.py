@@ -9,14 +9,15 @@ from starlette.testclient import WebSocketTestSession
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
+from app.schemas.chat.send import SendChatMessageText
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.read import UserRead
+from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from app.services.chat import get_chat, list_messages, send_message_text
+from app.services.chat import get_chat, list_messages, send_many_chat_messages
 from app.services.loan import create_loan_request
 from tests.fixtures.websockets import WebSocketRecorder
 
@@ -46,7 +47,7 @@ class ReceivedChatMessageChecker(AbstractContextManager):
         traceback: TracebackType | None,
     ) -> bool | None:
         for recorder in self.websocket_recorders:
-            recorder.__exit__(None, None, None)
+            recorder.__exit__(type, value, traceback)
 
         return None
 
@@ -134,7 +135,7 @@ def alice_many_messages_to_bob_text() -> list[str]:
 def alice_many_messages_to_bob(
     database_sessionmaker: sessionmaker,
     alice_many_messages_to_bob_text: list[str],
-    alice: UserRead,
+    alice: UserPrivateRead,
     bob_new_loan_request_for_alice_new_item: LoanRequestRead,
 ) -> list[ChatMessageRead]:
     """Many messages in the same chat sent by Alice to Bob."""
@@ -151,15 +152,17 @@ def alice_many_messages_to_bob(
         ).data
 
         # create extra messages
-        extra_messages: list[ChatMessageRead] = [
-            send_message_text(
-                db=session,
-                chat_id=chat_id,
-                sender_id=alice.id,
-                text=text,
-            )
-            for text in alice_many_messages_to_bob_text
-        ]
+        extra_messages: list[ChatMessageRead] = send_many_chat_messages(
+            db=session,
+            messages=[
+                SendChatMessageText(
+                    chat_id=chat_id,
+                    sender_id=alice.id,
+                    text=text,
+                )
+                for text in alice_many_messages_to_bob_text
+            ],
+        )
 
         return messages + extra_messages
 
@@ -167,8 +170,8 @@ def alice_many_messages_to_bob(
 @pytest.fixture(scope="class")
 def alice_many_chats(
     database_sessionmaker: sessionmaker,
-    alice: UserRead,
-    bob: UserRead,
+    alice: UserPrivateRead,
+    bob: UserPrivateRead,
     many_items: list[ItemRead],
 ) -> list[ChatRead]:
     """Many chats between Alice and Bob."""

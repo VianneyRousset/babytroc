@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
+from app.schemas.user.private import UserPrivateRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 
 
@@ -18,6 +19,7 @@ class TestLoanRequestRead:
     def test_client_borrowing_requests_read_pages(
         self,
         bob_client: TestClient,
+        bob: UserPrivateRead,
         many_loan_requests_for_alice_items: list[LoanRequestRead],
         count: int | None,
         active: bool | None,
@@ -34,6 +36,7 @@ class TestLoanRequestRead:
                 loan_request
                 for loan_request in many_loan_requests_for_alice_items
                 if self.check_loan_request_state_active(loan_request.state, active)
+                if loan_request.borrower.id == bob.id
             ],
             key=lambda loan_request: loan_request.id,
         )

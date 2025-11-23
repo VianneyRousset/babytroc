@@ -57,7 +57,7 @@ depends = ["lint:*"]
 [tasks.test]
 description = "Test the code"
 depends = ["deps", "deps-dev"]
-run = "pytest -n auto --dist loadscope"
+run = "pytest -n logical --dist loadscope -maxfail=1"
 
 [tasks.build]
 description = "Build docker image"

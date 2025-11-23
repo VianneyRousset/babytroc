@@ -19,8 +19,6 @@ class TestLoansRead:
         count: int | None,
         active: bool | None,
     ):
-        print(alice_many_loans)
-
         params: dict[str, Any] = {
             **({"n": count} if count is not None else {}),
             **({"a": active} if active is not None else {}),

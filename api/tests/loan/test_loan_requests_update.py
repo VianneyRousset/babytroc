@@ -3,24 +3,26 @@ from fastapi.testclient import TestClient
 from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
 
+"""Test loan request state diagram.
 
-class TestLoanRequestUpdate:
-    """Test loan request state diagram.
+         1   ┌───────┐   2
+      ┌──────┤pending├────────┐
+      │      └───┬───┘        │
+      │          │ 3,4,5      │
+      ▼          ▼            ▼
+┌────────┐ 3 ┌────────┐ 4 ┌─────────┐
+│rejected│◄──┤accepted├──►│cancelled│
+└────────┘   └───┬────┘   └─────────┘
+                 │ 5
+                 ▼
+             ┌────────┐
+             │executed│
+             └────────┘
+"""
 
-             1   ┌───────┐   2
-          ┌──────┤pending├────────┐
-          │      └───┬───┘        │
-          │          │ 3,4,5      │
-          ▼          ▼            ▼
-    ┌────────┐ 3 ┌────────┐ 4 ┌─────────┐
-    │rejected│◄──┤accepted├──►│cancelled│
-    └────────┘   └───┬────┘   └─────────┘
-                     │ 5
-                     ▼
-                 ┌────────┐
-                 │executed│
-                 └────────┘
-    """
+
+class TestLoanRequestUpdatePath1:
+    """Test path 1, pending -> rejected."""
 
     def test_path1_pending_rejected(
         self,
@@ -28,7 +30,7 @@ class TestLoanRequestUpdate:
         alice_client: TestClient,
         bob_client: TestClient,
     ):
-        """Test path 1, reject a loan request."""
+        """Test path 1, pending -> rejected."""
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -49,13 +51,17 @@ class TestLoanRequestUpdate:
         request = resp.json()
         assert request["state"] == LoanRequestState.rejected
 
+
+class TestLoanRequestUpdatePath2:
+    """Test path 2, pending -> cancelled."""
+
     def test_path2_pending_cancelled(
         self,
         alice_new_item: ItemRead,
         alice_client: TestClient,
         bob_client: TestClient,
     ):
-        """Test path 2, cancel a loan request."""
+        """Test path 2, pending -> cancelled."""
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -74,13 +80,17 @@ class TestLoanRequestUpdate:
         request = resp.json()
         assert request["state"] == LoanRequestState.cancelled
 
+
+class TestLoanRequestUpdatePath3:
+    """Test path 3, pending -> accepted -> rejected."""
+
     def test_path3_pending_accepted_rejected(
         self,
         alice_new_item: ItemRead,
         alice_client: TestClient,
         bob_client: TestClient,
     ):
-        """Test path 3, accept then reject a loan request."""
+        """Test path 3, pending -> accepted -> rejected."""
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -114,13 +124,17 @@ class TestLoanRequestUpdate:
         request = resp.json()
         assert request["state"] == LoanRequestState.rejected
 
+
+class TestLoanRequestUpdatePath4:
+    """Test path 4, pending -> accepted -> cancelled."""
+
     def test_path4_pending_accepted_cancelled(
         self,
         alice_new_item: ItemRead,
         alice_client: TestClient,
         bob_client: TestClient,
     ):
-        """Test path 4, accept then cancel a loan request."""
+        """Test path 4, pending -> accepted -> cancelled."""
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -152,6 +166,10 @@ class TestLoanRequestUpdate:
         request = resp.json()
         assert request["state"] == LoanRequestState.cancelled
 
+
+class TestLoanRequestUpdatePath5:
+    """Test path 5, pending -> accepted -> executed."""
+
     def test_path5_pending_accepted_executed(
         self,
         alice_new_item: ItemRead,
@@ -159,7 +177,7 @@ class TestLoanRequestUpdate:
         bob_client: TestClient,
         carol_client: TestClient,
     ):
-        """Test path 5, accept then execute a loan request."""
+        """Test path 5, pending -> accepted -> executed."""
 
         # request item
         resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
@@ -212,6 +230,10 @@ class TestLoanRequestUpdate:
             "Carol shouldn't have access to the active loan"
         )
 
+
+class TestLoanRequestUpdatePendingInvalidTransitions:
+    """Test path invalid transitions from pending state."""
+
     def test_state_pending_invalid_transitions(
         self,
         alice_new_item: ItemRead,
@@ -235,6 +257,10 @@ class TestLoanRequestUpdate:
         # check pending loan request cannot be executed
         resp = bob_client.post(f"/v1/me/borrowings/requests/{request['id']}/execute")
         assert not resp.is_success
+
+
+class TestLoanRequestUpdateCancelledInvalidTransitions:
+    """Test path invalid transitions from cancelled state."""
 
     def test_state_cancelled_invalid_transitions(
         self,
@@ -274,6 +300,10 @@ class TestLoanRequestUpdate:
         # check cancelled loan request cannot be executed
         resp = bob_client.post(f"/v1/me/borrowings/requests/{request['id']}/execute")
         assert not resp.is_success
+
+
+class TestLoanRequestUpdateRejectedInvalidTransitions:
+    """Test path invalid transitions from rejected state."""
 
     def test_state_rejected_invalid_transitions(
         self,
@@ -315,6 +345,10 @@ class TestLoanRequestUpdate:
         # check cancelled loan request cannot be executed
         resp = bob_client.post(f"/v1/me/borrowings/requests/{request['id']}/execute")
         assert not resp.is_success
+
+
+class TestLoanRequestUpdateExecutedInvalidTransitions:
+    """Test path invalid transitions from executed state."""
 
     def test_state_executed_invalid_transitions(
         self,
