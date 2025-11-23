@@ -2,12 +2,15 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Enum,
     ForeignKey,
     ForeignKeyConstraint,
     Integer,
     PrimaryKeyConstraint,
     Text,
+    and_,
+    or_,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
@@ -174,5 +177,40 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
             refcolumns=[Chat.item_id, Chat.borrower_id],
             ondelete="CASCADE",
             onupdate="CASCADE",
+        ),
+        CheckConstraint(
+            or_(
+                and_(
+                    message_type == ChatMessageType.text,
+                    text.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_request_created,
+                    loan_request_id.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_request_cancelled,
+                    loan_request_id.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_request_accepted,
+                    loan_request_id.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_request_rejected,
+                    loan_request_id.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_started,
+                    loan_id.is_not(None),
+                ),
+                and_(
+                    message_type == ChatMessageType.loan_ended,
+                    loan_id.is_not(None),
+                ),
+                message_type == ChatMessageType.item_not_available,
+                message_type == ChatMessageType.item_available,
+            ),
+            name="message_type_non_null_attributes",
         ),
     )

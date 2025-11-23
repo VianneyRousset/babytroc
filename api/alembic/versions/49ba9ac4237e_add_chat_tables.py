@@ -70,6 +70,7 @@ def create_chat_message_table():
                 "loan_started",
                 "loan_ended",
                 "item_not_available",
+                "item_available",
                 name="chatmessagetype",
             ),
             nullable=False,
@@ -115,6 +116,18 @@ def create_chat_message_table():
             ["loan.id"],
             ondelete="SET NULL",
             onupdate="CASCADE",
+        ),
+        sa.CheckConstraint(
+            """message_type = 'text' AND text IS NOT NULL
+            OR message_type = 'loan_request_created' AND loan_request_id IS NOT NULL
+            OR message_type = 'loan_request_cancelled' AND loan_request_id IS NOT NULL
+            OR message_type = 'loan_request_accepted' AND loan_request_id IS NOT NULL
+            OR message_type = 'loan_request_rejected' AND loan_request_id IS NOT NULL
+            OR message_type = 'loan_started' AND loan_id IS NOT NULL
+            OR message_type = 'loan_ended' AND loan_id IS NOT NULL
+            OR message_type = 'item_not_available'
+            OR message_type = 'item_available'""",
+            name="message_type_non_null_attributes",
         ),
         sa.PrimaryKeyConstraint("id"),
     )
