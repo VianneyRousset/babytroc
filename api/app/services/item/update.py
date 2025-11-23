@@ -71,9 +71,9 @@ def update_item(
         insert_item_image_associations_stmt = insert(ItemImageAssociation).values(
             [
                 {
+                    "order": i,
                     "item_id": item_id,
                     "image_name": image_name,
-                    "order": i,
                 }
                 for i, image_name in enumerate(item_update.images)
             ]

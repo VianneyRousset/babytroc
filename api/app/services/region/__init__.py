@@ -1,11 +1,10 @@
-from .create import create_region
-from .delete import delete_region
-from .read import list_regions
-from .update import update_region
+from .create import create_many_regions, create_region
+from .read import get_many_regions, get_region, list_regions
 
 __all__ = [
+    "create_many_regions",
     "create_region",
-    "delete_region",
+    "get_many_regions",
+    "get_region",
     "list_regions",
-    "update_region",
 ]

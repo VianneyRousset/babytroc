@@ -2,8 +2,11 @@ from itertools import groupby
 
 from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from app.services.region import get_many_regions
+from sqlalchemy.orm import AsyncSession
+from app.services.user.read import get_many_users
 
+from app.services.region import list_regions
 from app.domain.star import stars_gain_when_adding_item
 from app.errors.image import ItemImageNotFoundError
 from app.errors.region import RegionNotFoundError
@@ -16,14 +19,14 @@ from app.schemas.item.read import ItemRead
 from app.services.user.star import add_stars_to_user
 
 
-def create_item(
-    db: Session,
+async def create_item(
+    db: AsyncSession,
     owner_id: int,
     item_create: ItemCreate,
 ) -> ItemRead:
     """Create a new item in the database."""
 
-    items = create_many_items(
+    items = await create_many_items(
         db=db,
         owner_ids=[owner_id],
         item_creates=[item_create],
@@ -32,19 +35,37 @@ def create_item(
     return items[0]
 
 
-def create_many_items(
-    db: Session,
+async def create_many_items(
+    db: AsyncSession,
     owner_ids: list[int],
     item_creates: list[ItemCreate],
 ) -> list[ItemRead]:
     """Create many new items in the database."""
 
+    items = await _insert_items(
+        db=db,
+        owner_ids=owner_ids,
+        item_creates=item_creates,
+    )
+    await _insert_item_region_associations()
+    await _insert_item_image_associations()
+
+    return get_many_items()
+
+
+async def _insert_items(
+    db: AsyncSession,
+    owner_ids: list[int],
+    item_creates: list[ItemCreate],
+) -> list[int]:
+    """Insert items in database."""
+
     if len(owner_ids) != len(item_creates):
         msg = "owner_id and item_create lists must be of the same length."
         raise ValueError(msg)
 
-    # insert item
-    insert_item_stmt = (
+    # insert from values given by `item_creates`
+    stmt = (
         insert(Item)
         .values(
             [
@@ -58,42 +79,68 @@ def create_many_items(
                 for owner_id, item_create in zip(owner_ids, item_creates, strict=True)
             ]
         )
-        .returning(Item)
+        .returning(Item.id)
     )
 
     # execute
     try:
-        items = db.execute(insert_item_stmt).unique().scalars().all()
+        with db.begin_nested():
+            item_ids = db.execute(stmt).unique().scalars().all()
 
+    # If an IntegrityError is raised, it means either:
+    # 1. The owner does not exist
+    # 2. Unexpected error
     except IntegrityError as error:
-        raise UserNotFoundError({"id": owner_ids}) from error
+        # raises UserNotFoundError if any owner does not exist (1.)
+        await get_many_users(
+            db=db,
+            user_ids=set(owner_ids),
+        )
+
+        # unexpected error (2.)
+        raise error
+
+    return item_ids
+
+
+def _insert_item_region_associations(
+    db: AsyncSession,
+    item_ids: list[int],
+    item_creates: list[ItemCreate],
+) -> None:
+    """Insert item-region associations."""
+
+    if len(item_ids) != len(item_creates):
+        msg = "item_ids and item_create lists must be of the same length."
+        raise ValueError(msg)
 
     # insert item-region association
-    insert_item_region_associations_stmt = insert(ItemRegionAssociation).values(
+    stmt = insert(ItemRegionAssociation).values(
         [
             {
-                "item_id": item.id,
+                "item_id": item_id,
                 "region_id": region_id,
             }
-            for item, item_create in zip(items, item_creates, strict=True)
+            for item_id, item_create in zip(item_ids, item_creates, strict=True)
             for region_id in item_create.regions
         ]
     )
 
     # execute
     try:
-        db.execute(insert_item_region_associations_stmt)
+        db.execute(stmt)
 
+    # If an IntegrityError is raised, it means either:
+    # 1. The regions does not exist
+    # 2. Unexpected error
     except IntegrityError as error:
-        raise RegionNotFoundError(
-            {
-                "id": [
-                    region_id
-                    for item_create in item_creates
-                    for region_id in item_create.regions
-                ]
-            }
-        ) from error
+        # raise RegionNotFoundError if a region is missing
+        await get_many_regions(
+            db=db,
+            regions_ids={
+                reg for item_create in item_creates for reg in item_create.regions
+            },
+        )
 
     # TODO check all images are owned by the user
 

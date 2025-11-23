@@ -32,7 +32,7 @@ def get_many_users(
 ) -> list[UserRead]:
     """Get all users with the given user ids.
 
-    Raises UserNotFoundError if not all chats matching criterias exist.
+    Raises UserNotFoundError if not all users matching criterias exist.
     """
 
     stmt = select(User).where(User.id.in_(user_ids))
