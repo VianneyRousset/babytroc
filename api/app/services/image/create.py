@@ -1,19 +1,23 @@
 from typing import IO
 
-from sqlalchemy.orm import Session
+from sqlalchemy import insert
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import utils
-from app.clients import database
 from app.clients.networking import imgpush
 from app.config import Config
+from app.models.item.image import ItemImage
 from app.schemas.image.read import ItemImageRead
+from app.services.user.read import get_user
 
 from .constants import MAX_DIMENSION
 
 
-def upload_image(
+# TODO those image manipulation should be done asynchronously (e.g. by another process)
+async def upload_image(
     config: Config,
-    db: Session,
+    db: AsyncSession,
     *,
     owner_id: int,
     fp: IO[bytes],
@@ -28,13 +32,31 @@ def upload_image(
 
     # serialize and upload image to imgpush
     fp = utils.image.serialize_image(image)
-    name = imgpush.upload_image(config, fp).name
+    resp = await imgpush.upload_image(config, fp)
+    name = resp.name
 
     # create item in database
-    item = database.image.create_image(
-        db=db,
-        name=name,
-        owner_id=owner_id,
+    stmt = insert(ItemImage).values(
+        {
+            "name": name,
+            "owner_id": owner_id,
+        }
     )
 
-    return ItemImageRead.model_validate(item)
+    try:
+        item_image = (await db.execute(stmt)).unique().scalars().one()
+
+    # If an IntegrityError is raised, it means either:
+    # 1. The owner does not exist
+    # 2. Unexpected error
+    except IntegrityError as error:
+        # raises UserNotFoundError if owner does not exist (1.)
+        await get_user(
+            db=db,
+            user_id=owner_id,
+        )
+
+        # unexpected error (2.)
+        raise error
+
+    return ItemImageRead.model_validate(item_image)

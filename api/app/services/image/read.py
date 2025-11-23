@@ -2,7 +2,7 @@ from app.clients.networking import imgpush
 from app.config import Config
 
 
-def get_image_data(
+async def get_image_data(
     config: Config,
     image_name: str,
     *,
@@ -11,7 +11,7 @@ def get_image_data(
     """Get item by name."""
 
     # get item from databse
-    image = imgpush.get_image(
+    image = await imgpush.get_image(
         config=config,
         name=image_name,
         size=size,
