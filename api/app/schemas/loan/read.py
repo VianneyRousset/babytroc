@@ -28,6 +28,7 @@ class LoanRead(LoanBase, ReadBase):
     borrower: UserPreviewRead
     chat_id: ChatId
     during: tuple[datetime | None, datetime | None]
+    loan_request: LoanRequestRead
     active: bool
 
     @field_validator("during", mode="before")
