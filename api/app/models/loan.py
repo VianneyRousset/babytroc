@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
-    CheckConstraint,
     Enum,
     ForeignKey,
     Integer,
@@ -63,19 +62,6 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         single_parent=True,
     )
 
-    # once executed, referes to the created loan
-    loan_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(
-            "loan.id",
-            ondelete="SET NULL",
-            onupdate="CASCADE",
-        ),
-        nullable=True,
-        server_default=None,
-        comment="The created loan originating from this loan request.",
-    )
-
     loan: Mapped["Loan"] = relationship(
         "Loan",
         back_populates="loan_request",
@@ -93,20 +79,12 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
         ExcludeConstraint(
             (item_id, "="),
             (borrower_id, "="),
-            where=(state == LoanRequestState.pending),
-            name="loan_request_unique_pending_request",
+            where=(state.in_(LoanRequestState.get_active_states())),
+            name="loan_request_unique_active_request",
             comment=(
                 "Ensure borrower cannot emit two pending loan requests "
                 "of the same item."
             ),
-        ),
-        CheckConstraint(
-            (
-                ((state == LoanRequestState.executed) & (loan_id.is_not(None)))
-                | ((state != LoanRequestState.executed) & (loan_id.is_(None)))
-            ),
-            name="loan_request_executed_or_not",
-            comment="Ensure loan_id is NULL iff state != 'executed'.",
         ),
     )
 
@@ -152,6 +130,15 @@ class Loan(IntegerIdentifier, Base):
     )
 
     # the executed loan request that created this loan
+    loan_request_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "loan_request.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        comment="The id of the loan request that created this loan.",
+    )
     loan_request: Mapped[LoanRequest] = relationship(
         LoanRequest,
         back_populates="loan",

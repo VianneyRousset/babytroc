@@ -21,13 +21,13 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    create_loan_table()
     create_loan_request_table()
+    create_loan_table()
 
 
 def downgrade() -> None:
-    drop_loan_request_table()
     drop_loan_table()
+    drop_loan_request_table()
 
 
 def create_loan_table():
@@ -48,6 +48,12 @@ def create_loan_table():
             autoincrement=True,
             nullable=False,
         ),
+        sa.Column(
+            "loan_request_id",
+            sa.Integer(),
+            nullable=False,
+            comment="The id of the loan request that created this loan.",
+        ),
         postgresql.ExcludeConstraint(
             (sa.column("item_id"), "="),
             (sa.column("during"), "&&"),
@@ -63,6 +69,12 @@ def create_loan_table():
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["loan_request_id"],
+            ["loan_request.id"],
             onupdate="CASCADE",
             ondelete="CASCADE",
         ),
@@ -99,12 +111,6 @@ def create_loan_request_table():
             nullable=False,
         ),
         sa.Column(
-            "loan_id",
-            sa.Integer(),
-            nullable=True,
-            comment="The created loan originating from this loan request.",
-        ),
-        sa.Column(
             "id",
             sa.Integer(),
             sa.Identity(always=True),
@@ -120,14 +126,9 @@ def create_loan_request_table():
         postgresql.ExcludeConstraint(
             (sa.column("item_id"), "="),
             (sa.column("borrower_id"), "="),
-            where=sa.text("state = 'pending'"),
+            where=sa.text("state IN ('pending', 'accepted')"),
             using="gist",
-            name="loan_request_unique_pending_request",
-        ),
-        sa.CheckConstraint(
-            "state = 'executed' AND loan_id IS NOT NULL "
-            "OR state != 'executed' AND loan_id IS NULL",
-            name="loan_request_executed_or_not",
+            name="loan_request_unique_active_request",
         ),
         sa.ForeignKeyConstraint(
             ["borrower_id"],
@@ -139,12 +140,6 @@ def create_loan_request_table():
             ["item_id"],
             ["item.id"],
             ondelete="CASCADE",
-            onupdate="CASCADE",
-        ),
-        sa.ForeignKeyConstraint(
-            ["loan_id"],
-            ["loan.id"],
-            ondelete="SET NULL",
             onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
