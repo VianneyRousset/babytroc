@@ -8,7 +8,8 @@ from sqlalchemy import (
     func,
     select,
 )
-from sqlalchemy.orm import InstrumentedAttribute, Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute
 
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.preview import ItemPreviewRead
@@ -20,7 +21,7 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
 def list_items_matching_words(
-    db: Session,
+    db: AsyncSession,
     words: list[str],
     *,
     query_filter: ItemReadQueryFilter | None = None,
@@ -57,7 +58,7 @@ def list_items_matching_words(
 
 
 def _list_items_matching_words_without_client_specific_fields(
-    db: Session,
+    db: AsyncSession,
     words: list[str],
     *,
     query_filter: ItemReadQueryFilter,
@@ -97,7 +98,7 @@ def _list_items_matching_words_without_client_specific_fields(
         stmt = stmt.where(Item.id < page_options.cursor.item_id)
 
     # execute
-    rows = db.execute(stmt).unique().all()
+    rows = (await db.execute(stmt)).unique().all()
 
     return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
         data=[ItemPreviewRead.model_validate(item) for item, _ in rows],
@@ -111,7 +112,7 @@ def _list_items_matching_words_without_client_specific_fields(
 
 
 def _list_items_matching_words_with_client_specific_fields(
-    db: Session,
+    db: AsyncSession,
     words: list[str],
     *,
     query_filter: ItemReadQueryFilter,
@@ -160,7 +161,7 @@ def _list_items_matching_words_with_client_specific_fields(
         stmt = stmt.where(Item.id < page_options.cursor.item_id)
 
     # execute
-    rows = db.execute(stmt).unique().all()
+    rows = (await db.execute(stmt)).unique().all()
 
     return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
         data=[

@@ -1,5 +1,5 @@
 from sqlalchemy import and_, desc, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.item import Item, ItemLike, ItemSave
 from app.schemas.item.preview import ItemPreviewRead
@@ -10,8 +10,8 @@ from app.schemas.item.query import (
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def list_items(
-    db: Session,
+async def list_items(
+    db: AsyncSession,
     *,
     query_filter: ItemReadQueryFilter | None = None,
     page_options: QueryPageOptions[ItemQueryPageCursor] | None = None,
@@ -44,8 +44,8 @@ def list_items(
     )
 
 
-def _list_items_without_client_specific_fields(
-    db: Session,
+async def _list_items_without_client_specific_fields(
+    db: AsyncSession,
     *,
     query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemQueryPageCursor],
@@ -68,7 +68,7 @@ def _list_items_without_client_specific_fields(
         stmt = stmt.where(Item.id < page_options.cursor.item_id)
 
     # execute
-    items = db.execute(stmt).unique().scalars().all()
+    items = (await db.execute(stmt)).unique().scalars().all()
 
     return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
         data=[ItemPreviewRead.model_validate(item) for item in items],
@@ -80,8 +80,8 @@ def _list_items_without_client_specific_fields(
     )
 
 
-def _list_items_with_client_specific_fields(
-    db: Session,
+async def _list_items_with_client_specific_fields(
+    db: AsyncSession,
     *,
     query_filter: ItemReadQueryFilter,
     page_options: QueryPageOptions[ItemQueryPageCursor],
@@ -113,7 +113,7 @@ def _list_items_with_client_specific_fields(
         stmt = stmt.where(Item.id < page_options.cursor.item_id)
 
     # execute
-    rows = db.execute(stmt).unique().all()
+    rows = (await db.execute(stmt)).unique().all()
 
     return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
         data=[

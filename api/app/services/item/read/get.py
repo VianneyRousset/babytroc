@@ -1,5 +1,5 @@
 from sqlalchemy import and_, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
@@ -10,8 +10,8 @@ from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRead, LoanRequestRead
 
 
-def get_item(
-    db: Session,
+async def get_item(
+    db: AsyncSession,
     item_id: int,
     *,
     query_filter: ItemReadQueryFilter | None = None,
@@ -19,7 +19,7 @@ def get_item(
 ) -> ItemRead:
     """Get item by id."""
 
-    items = get_many_items(
+    items = await get_many_items(
         db=db,
         item_ids={item_id},
         query_filter=query_filter,
@@ -29,8 +29,8 @@ def get_item(
     return items[0]
 
 
-def get_many_items(
-    db: Session,
+async def get_many_items(
+    db: AsyncSession,
     item_ids: set[int],
     *,
     query_filter: ItemReadQueryFilter | None = None,
@@ -46,14 +46,14 @@ def get_many_items(
 
     # no client id
     if client_id is None:
-        return _get_many_items_without_client_specific_fields(
+        return await _get_many_items_without_client_specific_fields(
             db=db,
             item_ids=item_ids,
             query_filter=query_filter,
         )
 
     # with client id
-    return _get_many_items_with_client_specific_fields(
+    return await _get_many_items_with_client_specific_fields(
         db=db,
         item_ids=item_ids,
         query_filter=query_filter,
@@ -61,8 +61,8 @@ def get_many_items(
     )
 
 
-def _get_many_items_without_client_specific_fields(
-    db: Session,
+async def _get_many_items_without_client_specific_fields(
+    db: AsyncSession,
     item_ids: set[int],
     *,
     query_filter: ItemReadQueryFilter,
@@ -71,7 +71,7 @@ def _get_many_items_without_client_specific_fields(
 
     stmt = query_filter.filter_read(select(Item).where(Item.id.in_(item_ids)))
 
-    items = db.execute(stmt).unique().scalars().all()
+    items = (await db.execute(stmt)).unique().scalars().all()
 
     missing_item_ids = item_ids - {item.id for item in items}
     if missing_item_ids:
@@ -81,8 +81,8 @@ def _get_many_items_without_client_specific_fields(
     return [ItemRead.model_validate(item) for item in items]
 
 
-def _get_many_items_with_client_specific_fields(
-    db: Session,
+async def _get_many_items_with_client_specific_fields(
+    db: AsyncSession,
     item_ids: set[int],
     *,
     query_filter: ItemReadQueryFilter,
@@ -120,7 +120,7 @@ def _get_many_items_with_client_specific_fields(
         .where(Item.id.in_(item_ids))
     )
 
-    rows = db.execute(stmt).unique().all()
+    rows = (await db.execute(stmt)).unique().all()
 
     items = [
         ItemRead.model_validate(
