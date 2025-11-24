@@ -1,6 +1,7 @@
-from .update import add_stars_to_user, add_many_stars_to_users
+from .update import AddUserStars, add_many_stars_to_users, add_stars_to_user
 
 __all__ = [
-    "add_stars_to_user",
+    "AddUserStars",
     "add_many_stars_to_users",
+    "add_stars_to_user",
 ]

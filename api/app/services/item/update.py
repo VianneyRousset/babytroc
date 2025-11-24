@@ -1,32 +1,79 @@
-from sqlalchemy import delete, insert, update
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy import update
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.errors.image import ItemImageNotFoundError
 from app.errors.item import ItemNotFoundError
-from app.errors.region import RegionNotFoundError
 from app.models.item import Item
-from app.models.item.image import ItemImageAssociation
-from app.models.item.region import ItemRegionAssociation
 from app.schemas.item.query import ItemUpdateQueryFilter
 from app.schemas.item.read import ItemRead
 from app.schemas.item.update import ItemUpdate
 
+from .create import (
+    InsertItemImageAssociation,
+    InsertItemRegionAssociation,
+    _insert_item_image_associations,
+    _insert_item_region_associations,
+)
+from .delete import (
+    _delete_all_item_image_associations_of_item,
+    _delete_all_item_region_associations_of_item,
+)
+from .read import get_item
 
-def update_item(
-    db: Session,
+
+async def update_item(
+    db: AsyncSession,
     *,
     item_id: int,
     item_update: ItemUpdate,
     query_filter: ItemUpdateQueryFilter | None = None,
 ) -> ItemRead:
-    """Update item with `item_id`."""
+    """Update item with `item_id`.
+
+    Raise ItemNotFoundError if no item with `item_id` matches the filters.
+    """
+
+    item = await _update_item_attributes(
+        db=db,
+        item_id=item_id,
+        item_update=item_update,
+        query_filter=query_filter,
+    )
+
+    if item_update.regions is not None:
+        await _update_item_region_associations(
+            db=db,
+            item_id=item_id,
+            region_ids=set(item_update.regions),
+        )
+
+    if item_update.images is not None:
+        await _update_item_image_associations(
+            db=db,
+            item_id=item_id,
+            owner_id=item.owner_id,
+            image_names=item_update.images,
+        )
+
+    return await get_item(
+        db=db,
+        item_id=item_id,
+    )
+
+
+async def _update_item_attributes(
+    db: AsyncSession,
+    *,
+    item_id: int,
+    item_update: ItemUpdate,
+    query_filter: ItemUpdateQueryFilter | None = None,
+) -> Item:
+    """Update the attributes of the item with `item_id`."""
 
     # default empty query filter
     query_filter = query_filter or ItemUpdateQueryFilter()
 
-    # update item fields
-    update_item_stmt = query_filter.filter_update(
+    stmt = query_filter.filter_update(
         update(Item)
         .where(Item.id == item_id)
         .values(item_update.as_sql_values(exclude={"images", "regions"}))
@@ -34,56 +81,53 @@ def update_item(
 
     # execute item update
     try:
-        item = db.execute(update_item_stmt).unique().scalars().one()
+        return (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise ItemNotFoundError({**query_filter.key, "id": item_id}) from error
 
-    # delete and insert item-region associations
-    if item_update.regions is not None:
-        delete_item_region_associations_stmt = delete(ItemRegionAssociation).where(
-            ItemRegionAssociation.item_id == item_id
-        )
-        db.execute(delete_item_region_associations_stmt)
-        insert_item_region_associations_stmt = insert(ItemRegionAssociation).values(
-            [
-                {
-                    "item_id": item_id,
-                    "region_id": region_id,
-                }
-                for region_id in item_update.regions
-            ]
-        )
 
-        # execute item-regions associations insert
-        try:
-            db.execute(insert_item_region_associations_stmt)
+async def _update_item_region_associations(
+    db: AsyncSession,
+    *,
+    item_id: int,
+    region_ids: set[int],
+) -> None:
+    # delete previous item-region associations
+    await _delete_all_item_region_associations_of_item(
+        db=db,
+        item_id=item_id,
+    )
 
-        except IntegrityError as error:
-            raise RegionNotFoundError({"id": item_update.regions}) from error
+    # re-insert new item-region associattions
+    await _insert_item_region_associations(
+        db=db,
+        associations=InsertItemRegionAssociation.from_item_regions(
+            item_id=item_id,
+            region_ids=region_ids,
+        ),
+    )
 
-    # delete and insert item-image associations
-    if item_update.images is not None:
-        delete_item_image_associations_stmt = delete(ItemImageAssociation).where(
-            ItemImageAssociation.item_id == item_id
-        )
-        db.execute(delete_item_image_associations_stmt)
-        insert_item_image_associations_stmt = insert(ItemImageAssociation).values(
-            [
-                {
-                    "order": i,
-                    "item_id": item_id,
-                    "image_name": image_name,
-                }
-                for i, image_name in enumerate(item_update.images)
-            ]
-        )
 
-        # execute item-images associations insert
-        try:
-            db.execute(insert_item_image_associations_stmt)
+async def _update_item_image_associations(
+    db: AsyncSession,
+    *,
+    item_id: int,
+    owner_id: int,
+    image_names: list[str],
+) -> None:
+    # delete previous item-image associations
+    await _delete_all_item_image_associations_of_item(
+        db=db,
+        item_id=item_id,
+    )
 
-        except IntegrityError as error:
-            raise ItemImageNotFoundError({"id": item_update.images}) from error
-
-    return ItemRead.model_validate(item)
+    # re-insert new item-image associattions
+    await _insert_item_image_associations(
+        db=db,
+        associations=InsertItemImageAssociation.from_item_images(
+            item_id=item_id,
+            owner_id=owner_id,
+            image_names=image_names,
+        ),
+    )

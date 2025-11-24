@@ -31,7 +31,7 @@ class ItemCreate(ItemBase, CreateBase):
     ]
     targeted_age_months: MonthRange
     regions: Annotated[
-        list[int],
+        set[int],
         Field(min_length=1),
     ]
     blocked: bool | None = False

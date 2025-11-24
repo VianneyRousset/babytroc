@@ -2,10 +2,11 @@ import asyncio
 import io
 
 import aiohttp
-from .constants import TIMEOUT
 
 from app.config import Config
 from app.schemas.networking.imgpush import ImgpushUploadResponse
+
+from .constants import TIMEOUT
 
 
 async def upload_image(

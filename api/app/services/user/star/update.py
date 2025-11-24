@@ -4,7 +4,13 @@ from sqlalchemy import ColumnClause, Integer, column, update, values
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
+from app.schemas.base import Base as SchemaBase
 from app.services.user.read import get_many_users
+
+
+class AddUserStars(SchemaBase):
+    user_id: int
+    stars_count: int
 
 
 async def add_stars_to_user(
@@ -16,19 +22,28 @@ async def add_stars_to_user(
 
     await add_many_stars_to_users(
         db=db,
-        user_ids_stars_counts={user_id: count},
+        stars=[
+            AddUserStars(
+                user_id=user_id,
+                stars_count=count,
+            )
+        ],
     )
 
 
 async def add_many_stars_to_users(
     db: AsyncSession,
-    user_ids_stars_counts: dict[int, int],
+    stars: list[AddUserStars],
 ):
+    if len({s.user_id for s in stars}) != len(stars):
+        msg = "Non-unique user in `stars`."
+        raise ValueError(msg)
+
     data = values(
         cast("ColumnClause[int]", User.id),
         column("added_stars_count", Integer),
         name="user_add_star_data",
-    ).data(list(user_ids_stars_counts.items()))
+    ).data([(s.user_id, s.stars_count) for s in stars])
 
     stmt = (
         update(User)
@@ -44,11 +59,11 @@ async def add_many_stars_to_users(
     # If not all users has been updated, it means either:
     # 1. Some users do not exist
     # 2. Unexpected error
-    if res.rowcount == len(user_ids_stars_counts):  # type: ignore[attr-defined]
+    if res.rowcount == len(stars):  # type: ignore[attr-defined]
         # raises UserNotFoundError if a user does not exist (1.)
         await get_many_users(
             db=db,
-            user_ids=set(user_ids_stars_counts.keys()),
+            user_ids={s.user_id for s in stars},
         )
 
         # unexpected error
