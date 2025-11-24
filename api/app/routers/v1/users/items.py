@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.schemas.item.api import ItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemReadQueryFilter
@@ -15,16 +15,16 @@ from .router import router
 
 
 @router.get("/{user_id}/items", status_code=status.HTTP_200_OK)
-def list_items_owned_by_user(
+async def list_items_owned_by_user(
     request: Request,
     response: Response,
     user_id: user_id_annotation,
     query: Annotated[ItemApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[ItemPreviewRead]:
     """List items owned by user."""
 
-    result = services.item.list_items(
+    result = await services.item.list_items(
         db=db,
         query_filter=ItemReadQueryFilter.model_validate(
             {
@@ -41,15 +41,15 @@ def list_items_owned_by_user(
 
 
 @router.get("/{user_id}/items/{item_id}", status_code=status.HTTP_200_OK)
-def get_client_item_by_id(
+async def get_client_item_by_id(
     request: Request,
     user_id: user_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ItemRead:
     """Get user's item by id."""
 
-    return services.item.get_item(
+    return await services.item.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(

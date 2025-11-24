@@ -29,14 +29,14 @@ async def list_items(
 
     # no client id
     if client_id is None:
-        return _list_items_without_client_specific_fields(
+        return await _list_items_without_client_specific_fields(
             db=db,
             query_filter=query_filter,
             page_options=page_options,
         )
 
     # with client id
-    return _list_items_with_client_specific_fields(
+    return await _list_items_with_client_specific_fields(
         db=db,
         query_filter=query_filter,
         page_options=page_options,

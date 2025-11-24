@@ -137,7 +137,7 @@ async def create_many_items(
 
     return await get_many_items(
         db=db,
-        item_ids=item_ids,
+        item_ids=set(item_ids),
     )
 
 
@@ -170,7 +170,9 @@ async def _insert_items(
     # execute
     try:
         async with db.begin_nested():
-            item_ids: list[int] = (await db.execute(stmt)).unique().scalars().all()
+            item_ids: list[int] = list(
+                (await db.execute(stmt)).unique().scalars().all()
+            )
 
     # If an IntegrityError is raised, it means either:
     # 1. The owner does not exist
