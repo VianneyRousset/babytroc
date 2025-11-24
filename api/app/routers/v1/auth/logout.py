@@ -5,7 +5,7 @@ from .router import router
 
 
 @router.post("/logout")
-def logout(
+async def logout(
     request: Request,
     response: Response,
 ) -> None:
