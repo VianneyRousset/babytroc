@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
 from app.schemas.loan.api import LoanApiQuery
@@ -16,17 +16,17 @@ from .router import router
 
 
 @router.get("", status_code=status.HTTP_200_OK)
-def list_item_loans(
+async def list_item_loans(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     request: Request,
     response: Response,
     query: Annotated[LoanApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[LoanRead]:
     """List loans of the item owned by the client."""
 
-    result = services.loan.list_loans(
+    result = await services.loan.list_loans(
         db=db,
         query_filter=LoanReadQueryFilter.model_validate(
             {
@@ -44,15 +44,15 @@ def list_item_loans(
 
 
 @router.get("/{loan_id}", status_code=status.HTTP_200_OK)
-def get_client_loan(
+async def get_client_loan(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_id: loan_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> LoanRead:
     """Get loan where the client is the owner."""
 
-    return services.loan.get_loan(
+    return await services.loan.get_loan(
         db=db,
         loan_id=loan_id,
         query_filter=LoanReadQueryFilter(

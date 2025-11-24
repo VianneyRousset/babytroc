@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
 from app.schemas.loan.query import LoanRequestUpdateQueryFilter
@@ -15,15 +15,15 @@ from .router import router
 
 
 @router.post("/{loan_request_id}/accept", status_code=status.HTTP_200_OK)
-def accept_client_item_loan_request(
+async def accept_client_item_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
-    return services.loan.accept_loan_request(
+    return await services.loan.accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestUpdateQueryFilter(
@@ -34,15 +34,15 @@ def accept_client_item_loan_request(
 
 
 @router.post("/{loan_request_id}/reject", status_code=status.HTTP_200_OK)
-def reject_client_item_loan_request(
+async def reject_client_item_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 
-    return services.loan.reject_loan_request(
+    return await services.loan.reject_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestUpdateQueryFilter(

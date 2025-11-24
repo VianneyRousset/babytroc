@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
 from app.schemas.chat.base import ChatId
@@ -16,16 +16,16 @@ from .router import router
 
 
 @router.get("", status_code=status.HTTP_200_OK)
-def list_client_chats(
+async def list_client_chats(
     client_id: client_id_annotation,
     request: Request,
     response: Response,
     query: Annotated[ChatApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[ChatRead]:
     """List all chats where the client is a member."""
 
-    result = services.chat.list_chats(
+    result = await services.chat.list_chats(
         db=db,
         query_filter=ChatReadQueryFilter.model_validate(
             {
@@ -42,16 +42,16 @@ def list_client_chats(
 
 
 @router.get("/{chat_id}", status_code=status.HTTP_200_OK)
-def get_client_chat(
+async def get_client_chat(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ChatRead:
     """Get client chat info by chat id."""
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
-    return services.chat.get_chat(
+    return await services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -61,20 +61,20 @@ def get_client_chat(
 
 
 @router.get("/{chat_id}/messages", status_code=status.HTTP_200_OK)
-def list_client_chat_messages(
+async def list_client_chat_messages(
     client_id: client_id_annotation,
     request: Request,
     response: Response,
     chat_id: chat_id_annotation,
     query: Annotated[ChatMessageApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[ChatMessageRead]:
     """List messages in the chat."""
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
     # check that client is member of the chat
-    chat = services.chat.get_chat(
+    chat = await services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -83,7 +83,7 @@ def list_client_chat_messages(
     )
 
     # get messages in the chat
-    result = services.chat.list_messages(
+    result = await services.chat.list_messages(
         db=db,
         query_filter=ChatMessageReadQueryFilter.model_validate(
             {
@@ -103,18 +103,18 @@ def list_client_chat_messages(
     "/{chat_id}/messages/{message_id}",
     status_code=status.HTTP_200_OK,
 )
-def get_client_chat_message_by_id(
+async def get_client_chat_message_by_id(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
     message_id: message_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ChatMessageRead:
     """Get client's chat message by id."""
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
     # check that client is member of the chat
-    chat = services.chat.get_chat(
+    chat = await services.chat.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -122,7 +122,7 @@ def get_client_chat_message_by_id(
         ),
     )
 
-    return services.chat.get_message(
+    return await services.chat.get_message(
         db=db,
         message_id=message_id,
         query_filter=ChatMessageReadQueryFilter(
