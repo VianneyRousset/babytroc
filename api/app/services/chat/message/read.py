@@ -1,7 +1,6 @@
 from sqlalchemy import desc, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from app.errors.chat import ChatMessageNotFoundError
 from app.models.chat import ChatMessage
@@ -13,32 +12,7 @@ from app.schemas.chat.read import ChatMessageRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def get_message(
-    db: Session,
-    message_id: int,
-    *,
-    query_filter: ChatMessageReadQueryFilter | None = None,
-) -> ChatMessageRead:
-    """Get message with `message_id`."""
-
-    # default query filter
-    query_filter = query_filter or ChatMessageReadQueryFilter()
-
-    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
-
-    stmt = query_filter.filter_read(stmt)
-
-    try:
-        message = db.execute(stmt).unique().scalars().one()
-
-    except NoResultFound as error:
-        key = query_filter.key | {"id": message_id}
-        raise ChatMessageNotFoundError(key) from error
-
-    return ChatMessageRead.model_validate(message)
-
-
-async def get_message_async(
+async def get_message(
     db: AsyncSession,
     message_id: int,
     *,
@@ -54,7 +28,7 @@ async def get_message_async(
     stmt = query_filter.filter_read(stmt)
 
     try:
-        message = (await db.execute(stmt)).scalars().one()
+        message = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": message_id}
@@ -63,8 +37,8 @@ async def get_message_async(
     return ChatMessageRead.model_validate(message)
 
 
-def list_messages(
-    db: Session,
+async def list_messages(
+    db: AsyncSession,
     *,
     query_filter: ChatMessageReadQueryFilter | None = None,
     page_options: QueryPageOptions[ChatMessageQueryPageCursor] | None = None,
@@ -93,7 +67,7 @@ def list_messages(
     if page_options.cursor.message_id:
         stmt = stmt.where(ChatMessage.id < page_options.cursor.message_id)
 
-    messages = list(db.execute(stmt).scalars().all())
+    messages = list((await db.execute(stmt)).scalars().all())
 
     return QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor](
         data=[ChatMessageRead.model_validate(message) for message in messages],

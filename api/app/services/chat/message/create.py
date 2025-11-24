@@ -16,7 +16,7 @@ from sqlalchemy import (
     cast as sqlcast,
 )
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import ChatMessageType
 from app.models.chat import ChatMessage
@@ -26,8 +26,8 @@ from app.schemas.chat.send import SendChatMessage
 from app.services.chat.chat.create import ensure_many_chats
 
 
-def send_chat_message(
-    db: Session,
+async def send_chat_message(
+    db: AsyncSession,
     message: SendChatMessage,
     *,
     ensure_chat: bool = False,
@@ -41,8 +41,8 @@ def send_chat_message(
     return chat_messages[0]
 
 
-def send_many_chat_messages(
-    db: Session,
+async def send_many_chat_messages(
+    db: AsyncSession,
     messages: list[SendChatMessage],
     *,
     ensure_chats: bool = False,
@@ -142,7 +142,7 @@ def send_many_chat_messages(
 
     try:
         with db.begin_nested():
-            sent_messages = db.execute(stmt).unique().scalars().all()
+            sent_messages = (await db.execute(stmt)).unique().scalars().all()
 
     # if an IntegrityError is raise, it means either:
     # 1. The refered Chat does not exists (equivalent to item and borrower)
@@ -207,7 +207,7 @@ def send_many_chat_messages(
     return [ChatMessageRead.model_validate(msg) for msg in sent_messages]
 
 
-def as_sql_values(messages: list[SendChatMessage]) -> Values:
+async def as_sql_values(messages: list[SendChatMessage]) -> Values:
     return values(
         column("order", Integer),
         cast("ColumnClause[int]", ChatMessage.item_id),

@@ -1,6 +1,6 @@
 from sqlalchemy import desc, func, select, tuple_
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
@@ -10,8 +10,8 @@ from app.schemas.chat.read import ChatRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def get_chat(
-    db: Session,
+async def get_chat(
+    db: AsyncSession,
     chat_id: ChatId,
     *,
     query_filter: ChatReadQueryFilter | None = None,
@@ -32,7 +32,7 @@ def get_chat(
     stmt = query_filter.filter_read(stmt)
 
     try:
-        chat, last_message_id = db.execute(stmt).one()
+        chat, last_message_id = (await db.execute(stmt)).one()
 
     except NoResultFound as error:
         key = query_filter.key | {"chat_id": str(chat_id)}
@@ -49,8 +49,8 @@ def get_chat(
     )
 
 
-def get_many_chats(
-    db: Session,
+async def get_many_chats(
+    db: AsyncSession,
     chat_ids: set[ChatId],
     *,
     query_filter: ChatReadQueryFilter | None = None,
@@ -74,7 +74,7 @@ def get_many_chats(
         .group_by(Chat.item_id, Chat.borrower_id)
     )
 
-    rows = db.execute(stmt).all()
+    rows = (await db.execute(stmt)).all()
 
     chats = [
         ChatRead.model_validate(
@@ -99,8 +99,8 @@ def get_many_chats(
     return chats
 
 
-def list_chats(
-    db: Session,
+async def list_chats(
+    db: AsyncSession,
     *,
     query_filter: ChatReadQueryFilter | None = None,
     page_options: QueryPageOptions[ChatQueryPageCursor] | None = None,
@@ -134,7 +134,7 @@ def list_chats(
             func.max(ChatMessage.id) < page_options.cursor.last_message_id
         )
 
-    rows = list(db.execute(stmt).all())
+    rows = list((await db.execute(stmt)).all())
 
     return QueryPageResult[ChatRead, ChatQueryPageCursor](
         data=[

@@ -1,12 +1,12 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatReadQueryFilter
 from app.schemas.report.create import ReportCreate
 
 
-def report_chat(
-    db: Session,
+async def report_chat(
+    db: AsyncSession,
     chat_id: ChatId,
     *,
     query_filter: ChatReadQueryFilter | None = None,
