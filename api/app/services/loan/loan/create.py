@@ -1,5 +1,5 @@
 from sqlalchemy import insert, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.models.loan import Loan, LoanRequest
@@ -11,8 +11,8 @@ from app.services.chat import send_many_chat_messages
 from app.services.loan.request.update import update_many_loan_requests_state
 
 
-def execute_loan_request(
-    db: Session,
+async def execute_loan_request(
+    db: AsyncSession,
     *,
     loan_request_id: int,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
@@ -25,7 +25,7 @@ def execute_loan_request(
     The loan request state is changed to `executed`.
     """
 
-    loans = execute_many_loan_requests(
+    loans = await execute_many_loan_requests(
         db=db,
         loan_request_ids={loan_request_id},
         query_filter=query_filter,
@@ -35,8 +35,8 @@ def execute_loan_request(
     return loans[0]
 
 
-def execute_many_loan_requests(
-    db: Session,
+async def execute_many_loan_requests(
+    db: AsyncSession,
     *,
     loan_request_ids: set[int],
     query_filter: LoanRequestUpdateQueryFilter | None = None,
@@ -61,7 +61,7 @@ def execute_many_loan_requests(
         }
 
     # update state
-    loan_requests = update_many_loan_requests_state(
+    loan_requests = await update_many_loan_requests_state(
         db=db,
         loan_request_ids=loan_request_ids,
         state=LoanRequestState.executed,
@@ -81,7 +81,7 @@ def execute_many_loan_requests(
         .returning(Loan)
     )
 
-    loans = db.execute(create_loans_stmt).unique().scalars().all()
+    loans = (await db.execute(create_loans_stmt)).unique().scalars().all()
 
     # check the number of created loans matched the number of given loan requests
     if len(loans) != len(loan_request_ids):
@@ -93,7 +93,7 @@ def execute_many_loan_requests(
 
     # create messages
     if send_messages:
-        send_many_chat_messages(
+        await send_many_chat_messages(
             db=db,
             messages=[
                 SendChatMessageLoanStarted(

@@ -1,5 +1,5 @@
 from sqlalchemy import text, update
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.loan import LoanAlreadyInactiveError
 from app.models.loan import Loan
@@ -12,8 +12,8 @@ from app.services.chat import send_many_chat_messages
 from .read import get_loan
 
 
-def end_loan(
-    db: Session,
+async def end_loan(
+    db: AsyncSession,
     loan_id: int,
     *,
     query_filter: LoanUpdateQueryFilter | None = None,
@@ -23,7 +23,7 @@ def end_loan(
     The loan must be active.
     """
 
-    loans = end_many_loans(
+    loans = await end_many_loans(
         db=db,
         loan_ids={loan_id},
         query_filter=query_filter,
@@ -33,8 +33,8 @@ def end_loan(
     return loans[0]
 
 
-def end_many_loans(
-    db: Session,
+async def end_many_loans(
+    db: AsyncSession,
     loan_ids: set[int],
     *,
     query_filter: LoanUpdateQueryFilter | None = None,
@@ -52,7 +52,7 @@ def end_many_loans(
         .where(Loan.id.in_(loan_ids))
     ).returning(Loan)
 
-    loans = db.execute(stmt).unique().scalars().all()
+    loans = (await db.execute(stmt)).unique().scalars().all()
 
     # if not all given loans were updated it means either:
     # 1. the given loan matching the query_filter does not exist
@@ -63,7 +63,7 @@ def end_many_loans(
         first_missing_loan_id = next(iter(sorted(missing_loan_ids)))
 
         # raise LoanNotFoundError if loan request does not exist (1.)
-        loan_causing_issue = get_loan(
+        loan_causing_issue = await get_loan(
             db=db,
             loan_id=first_missing_loan_id,
             query_filter=LoanReadQueryFilter.model_validate(query_filter.model_dump()),
@@ -83,7 +83,7 @@ def end_many_loans(
 
     # create chat message
     if send_messages:
-        send_many_chat_messages(
+        await send_many_chat_messages(
             db=db,
             messages=[
                 SendChatMessageLoanEnded(

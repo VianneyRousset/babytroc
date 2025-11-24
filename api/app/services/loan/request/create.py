@@ -4,7 +4,7 @@ from typing import cast
 
 from sqlalchemy import ColumnClause, insert, select, values
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestAlreadyExistsError, LoanRequestOwnItemError
@@ -20,8 +20,8 @@ from app.services.item import get_item, get_many_items
 from app.services.loan.request.read import list_loan_requests
 
 
-def create_loan_request(
-    db: Session,
+async def create_loan_request(
+    db: AsyncSession,
     *,
     item_id: int,
     borrower_id: int,
@@ -29,7 +29,7 @@ def create_loan_request(
 ) -> LoanRequestRead:
     """Create a loan request."""
 
-    loan_requests = create_many_loan_requests(
+    loan_requests = await create_many_loan_requests(
         db=db,
         item_ids=item_id,
         borrower_ids=borrower_id,
@@ -39,8 +39,8 @@ def create_loan_request(
     return loan_requests[0]
 
 
-def create_many_loan_requests(
-    db: Session,
+async def create_many_loan_requests(
+    db: AsyncSession,
     *,
     loan_requests: set[ItemBorrowerId] | None = None,
     item_ids: int | set[int] | None = None,
@@ -77,8 +77,8 @@ def create_many_loan_requests(
 
     # execute
     try:
-        with db.begin_nested():
-            inserted_loan_requests = db.execute(stmt).unique().scalars().all()
+        async with db.begin_nested():
+            inserted_loan_requests = (await db.execute(stmt)).unique().scalars().all()
 
     # integrity error can be raise:
     # 1. if the borrower does not exist
@@ -88,24 +88,26 @@ def create_many_loan_requests(
         from app.services.user import get_many_users
 
         # raise UserNotFoundError if borrower does not exist (1.)
-        get_many_users(
+        await get_many_users(
             db=db,
             user_ids={req.borrower_id for req in loan_requests},
         )
 
         # raise ItemNotFoundError if item does not exist (2.)
-        get_many_items(
+        await get_many_items(
             db=db,
             item_ids={req.item_id for req in loan_requests},
         )
 
         # raise LoanRequestAlreadyExistsError if a loan request already exists (3.)
-        existing_active_loan_requests = list_loan_requests(
-            db=db,
-            query_filter=LoanRequestReadQueryFilter(
-                item_borrower_id=loan_requests,
-                states=LoanRequestState.get_active_states(),
-            ),
+        existing_active_loan_requests = (
+            await list_loan_requests(
+                db=db,
+                query_filter=LoanRequestReadQueryFilter(
+                    item_borrower_id=loan_requests,
+                    states=LoanRequestState.get_active_states(),
+                ),
+            )
         ).data
 
         if existing_active_loan_requests:
@@ -135,7 +137,7 @@ def create_many_loan_requests(
         first_missing_loan_request = next(iter(sorted(missing_loan_requests)))
 
         # raise ItemNotFoundError if the item does not exist
-        item = get_item(
+        item = await get_item(
             db=db,
             item_id=first_missing_loan_request.item_id,
         )
@@ -152,7 +154,7 @@ def create_many_loan_requests(
 
     # create messages
     if send_messages:
-        send_many_chat_messages(
+        await send_many_chat_messages(
             db=db,
             messages=[
                 SendChatMessageLoanRequestCreated(

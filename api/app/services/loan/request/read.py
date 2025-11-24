@@ -1,6 +1,6 @@
 from sqlalchemy import desc, select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.loan import LoanRequestNotFoundError
 from app.models.loan import LoanRequest
@@ -12,8 +12,8 @@ from app.schemas.loan.read import LoanRequestRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def get_loan_request(
-    db: Session,
+async def get_loan_request(
+    db: AsyncSession,
     loan_request_id: int | None = None,
     *,
     query_filter: LoanRequestReadQueryFilter | None = None,
@@ -31,7 +31,7 @@ def get_loan_request(
     stmt = query_filter.filter_read(stmt)
 
     try:
-        loan_request = db.execute(stmt).unique().scalars().one()
+        loan_request = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": loan_request_id}
@@ -40,8 +40,8 @@ def get_loan_request(
     return LoanRequestRead.model_validate(loan_request)
 
 
-def get_many_loan_requests(
-    db: Session,
+async def get_many_loan_requests(
+    db: AsyncSession,
     loan_request_ids: set[int],
     *,
     query_filter: LoanRequestReadQueryFilter | None = None,
@@ -58,7 +58,7 @@ def get_many_loan_requests(
         select(LoanRequest).where(LoanRequest.id.in_(loan_request_ids))
     )
 
-    loan_requests = db.execute(stmt).unique().scalars().all()
+    loan_requests = (await db.execute(stmt)).unique().scalars().all()
 
     missing_loan_request_ids = loan_request_ids - {req.id for req in loan_requests}
     if missing_loan_request_ids:
@@ -68,8 +68,8 @@ def get_many_loan_requests(
     return [LoanRequestRead.model_validate(req) for req in loan_requests]
 
 
-def list_loan_requests(
-    db: Session,
+async def list_loan_requests(
+    db: AsyncSession,
     *,
     query_filter: LoanRequestReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
@@ -107,7 +107,7 @@ def list_loan_requests(
     if page_options.cursor.loan_request_id is not None:
         stmt = stmt.where(LoanRequest.id < page_options.cursor.loan_request_id)
 
-    loan_requests = list(db.execute(stmt).scalars().all())
+    loan_requests = list((await db.execute(stmt)).scalars().all())
 
     return QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor](
         data=[LoanRequestRead.model_validate(req) for req in loan_requests],

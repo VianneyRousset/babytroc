@@ -1,5 +1,5 @@
 from sqlalchemy import update
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
@@ -12,8 +12,8 @@ from app.schemas.loan.read import LoanRequestRead
 from app.services.loan.request.read import get_loan_request
 
 
-def update_loan_request_state(
-    db: Session,
+async def update_loan_request_state(
+    db: AsyncSession,
     loan_request_id: int,
     state: LoanRequestState,
     *,
@@ -25,7 +25,7 @@ def update_loan_request_state(
     given query_filter.
     """
 
-    loan_requests = update_many_loan_requests_state(
+    loan_requests = await update_many_loan_requests_state(
         db=db,
         loan_request_ids={loan_request_id},
         state=state,
@@ -35,8 +35,8 @@ def update_loan_request_state(
     return loan_requests[0]
 
 
-def update_many_loan_requests_state(
-    db: Session,
+async def update_many_loan_requests_state(
+    db: AsyncSession,
     loan_request_ids: set[int],
     state: LoanRequestState,
     *,
@@ -57,7 +57,7 @@ def update_many_loan_requests_state(
         .where(LoanRequest.id.in_(loan_request_ids))
     ).returning(LoanRequest)
 
-    loan_requests = db.execute(stmt).unique().scalars().all()
+    loan_requests = (await db.execute(stmt)).unique().scalars().all()
 
     # if not all given loan requests were updated it means either:
     # 1. the given loan request matching the query_filter does not exist
@@ -68,7 +68,7 @@ def update_many_loan_requests_state(
         first_missing_loan_request_id = next(iter(sorted(missing_loan_request_ids)))
 
         # raise LoanRequestNotFoundError if loan request does not exist (1.)
-        loan_request = get_loan_request(
+        loan_request = await get_loan_request(
             db=db,
             loan_request_id=first_missing_loan_request_id,
             query_filter=LoanRequestReadQueryFilter.model_validate(

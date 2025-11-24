@@ -1,6 +1,6 @@
 from sqlalchemy import desc, select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.loan import LoanNotFoundError
 from app.models.loan import Loan
@@ -9,8 +9,8 @@ from app.schemas.loan.read import LoanRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def get_loan(
-    db: Session,
+async def get_loan(
+    db: AsyncSession,
     loan_id: int,
     *,
     query_filter: LoanReadQueryFilter | None = None,
@@ -23,7 +23,7 @@ def get_loan(
     stmt = query_filter.filter_read(select(Loan).where(Loan.id == loan_id))
 
     try:
-        loan = db.execute(stmt).unique().scalars().one()
+        loan = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"loan_id": loan_id}
@@ -32,8 +32,8 @@ def get_loan(
     return LoanRead.model_validate(loan)
 
 
-def get_many_loans(
-    db: Session,
+async def get_many_loans(
+    db: AsyncSession,
     loan_ids: set[int],
     *,
     query_filter: LoanReadQueryFilter | None = None,
@@ -48,7 +48,7 @@ def get_many_loans(
 
     stmt = query_filter.filter_read(select(Loan).where(Loan.id.in_(loan_ids)))
 
-    loans = db.execute(stmt).unique().scalars().all()
+    loans = (await db.execute(stmt)).unique().scalars().all()
 
     missing_loan_ids = loan_ids - {loan.id for loan in loans}
     if missing_loan_ids:
@@ -58,8 +58,8 @@ def get_many_loans(
     return [LoanRead.model_validate(loan) for loan in loans]
 
 
-def list_loans(
-    db: Session,
+async def list_loans(
+    db: AsyncSession,
     *,
     query_filter: LoanReadQueryFilter | None = None,
     page_options: QueryPageOptions | None = None,
@@ -88,7 +88,7 @@ def list_loans(
     if page_options.cursor.loan_id is not None:
         stmt = stmt.where(Loan.id < page_options.cursor.loan_id)
 
-    loans = list(db.execute(stmt).scalars().all())
+    loans = list((await db.execute(stmt)).scalars().all())
 
     return QueryPageResult[LoanRead, LoanQueryPageCursor](
         data=[LoanRead.model_validate(loan) for loan in loans],

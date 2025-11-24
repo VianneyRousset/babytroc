@@ -1,6 +1,6 @@
 from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.errors.loan import LoanRequestStateError
@@ -18,8 +18,8 @@ from .read import get_loan_request
 from .update import update_many_loan_requests_state
 
 
-def cancel_item_active_loan_request(
-    db: Session,
+async def cancel_item_active_loan_request(
+    db: AsyncSession,
     *,
     item_id: int,
     borrower_id: int,
@@ -40,14 +40,14 @@ def cancel_item_active_loan_request(
     ).returning(LoanRequest)
 
     try:
-        loan_request = db.execute(stmt).unique().scalars().one()
+        loan_request = (await db.execute(stmt)).unique().scalars().one()
 
     # if no loan request matches, it means either:
     # 1. No loan request with the given `item_id` and `borrower_id` exists
     # 2. the loan request exists but is inactive
     except NoResultFound as error:
         # raise LoanRequestNotFound if loan request does not exist (1.)
-        loan_request_causing_issue = get_loan_request(
+        loan_request_causing_issue = await get_loan_request(
             db=db,
             query_filter=LoanRequestReadQueryFilter(
                 item_id=item_id,
@@ -66,7 +66,7 @@ def cancel_item_active_loan_request(
 
     # create chat message
     if send_message:
-        send_chat_message(
+        await send_chat_message(
             db=db,
             message=SendChatMessageLoanRequestCancelled(
                 chat_id=ChatId.from_values(
@@ -80,8 +80,8 @@ def cancel_item_active_loan_request(
     return LoanRequestRead.model_validate(loan_request)
 
 
-def cancel_loan_request(
-    db: Session,
+async def cancel_loan_request(
+    db: AsyncSession,
     loan_request_id: int,
     *,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
@@ -93,7 +93,7 @@ def cancel_loan_request(
     Loan request state must be `pending` if `check_state` is `True` (default).
     """
 
-    loan_requests = cancel_many_loan_requests(
+    loan_requests = await cancel_many_loan_requests(
         db=db,
         loan_request_ids={loan_request_id},
         query_filter=query_filter,
@@ -103,8 +103,8 @@ def cancel_loan_request(
     return loan_requests[0]
 
 
-def cancel_many_loan_requests(
-    db: Session,
+async def cancel_many_loan_requests(
+    db: AsyncSession,
     loan_request_ids: set[int],
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
@@ -124,7 +124,7 @@ def cancel_many_loan_requests(
         }
 
     # update state
-    loan_requests = update_many_loan_requests_state(
+    loan_requests = await update_many_loan_requests_state(
         db=db,
         loan_request_ids=loan_request_ids,
         state=LoanRequestState.cancelled,
@@ -133,7 +133,7 @@ def cancel_many_loan_requests(
 
     # create chat message
     if send_messages:
-        send_many_chat_messages(
+        await send_many_chat_messages(
             db=db,
             messages=[
                 SendChatMessageLoanRequestCancelled(

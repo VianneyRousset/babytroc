@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
 from app.schemas.chat.base import ChatId
@@ -10,8 +10,8 @@ from app.services.chat import send_many_chat_messages
 from .update import update_many_loan_requests_state
 
 
-def accept_loan_request(
-    db: Session,
+async def accept_loan_request(
+    db: AsyncSession,
     loan_request_id: int,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
@@ -22,7 +22,7 @@ def accept_loan_request(
     (default).
     """
 
-    loan_requests = accept_many_loan_requests(
+    loan_requests = await accept_many_loan_requests(
         db=db,
         loan_request_ids={loan_request_id},
         query_filter=query_filter,
@@ -32,8 +32,8 @@ def accept_loan_request(
     return loan_requests[0]
 
 
-def accept_many_loan_requests(
-    db: Session,
+async def accept_many_loan_requests(
+    db: AsyncSession,
     loan_request_ids: set[int],
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
@@ -54,7 +54,7 @@ def accept_many_loan_requests(
         }
 
     # update state
-    loan_requests = update_many_loan_requests_state(
+    loan_requests = await update_many_loan_requests_state(
         db=db,
         loan_request_ids=loan_request_ids,
         state=LoanRequestState.accepted,
@@ -63,7 +63,7 @@ def accept_many_loan_requests(
 
     # create chat message
     if send_messages:
-        send_many_chat_messages(
+        await send_many_chat_messages(
             db=db,
             messages=[
                 SendChatMessageLoanRequestAccepted(
