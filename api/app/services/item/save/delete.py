@@ -1,11 +1,11 @@
 from sqlalchemy import delete
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.item.save import ItemSave
 
 
-def remove_item_from_user_saved_items(
-    db: Session,
+async def remove_item_from_user_saved_items(
+    db: AsyncSession,
     user_id: int,
     item_id: int,
 ) -> None:
@@ -16,4 +16,4 @@ def remove_item_from_user_saved_items(
         ItemSave.user_id == user_id,
     )
 
-    db.execute(stmt)
+    await db.execute(stmt)

@@ -1,11 +1,11 @@
 from sqlalchemy import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.item.like import ItemLike
 
 
-def add_item_to_user_liked_items(
-    db: Session,
+async def add_item_to_user_liked_items(
+    db: AsyncSession,
     *,
     item_id: int,
     user_id: int,
@@ -20,4 +20,4 @@ def add_item_to_user_liked_items(
 
     # execute
     # TODO handle foreign key violation
-    db.execute(stmt)
+    await db.execute(stmt)

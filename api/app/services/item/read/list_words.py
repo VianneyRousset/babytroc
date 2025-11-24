@@ -20,7 +20,7 @@ from app.schemas.item.query import (
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
 
-def list_items_matching_words(
+async def list_items_matching_words(
     db: AsyncSession,
     words: list[str],
     *,
@@ -40,7 +40,7 @@ def list_items_matching_words(
 
     # no client id
     if client_id is None:
-        return _list_items_matching_words_without_client_specific_fields(
+        return await _list_items_matching_words_without_client_specific_fields(
             db=db,
             words=words,
             query_filter=query_filter,
@@ -48,7 +48,7 @@ def list_items_matching_words(
         )
 
     # with client id
-    return _list_items_matching_words_with_client_specific_fields(
+    return await _list_items_matching_words_with_client_specific_fields(
         db=db,
         words=words,
         query_filter=query_filter,
@@ -57,7 +57,7 @@ def list_items_matching_words(
     )
 
 
-def _list_items_matching_words_without_client_specific_fields(
+async def _list_items_matching_words_without_client_specific_fields(
     db: AsyncSession,
     words: list[str],
     *,
@@ -111,7 +111,7 @@ def _list_items_matching_words_without_client_specific_fields(
     )
 
 
-def _list_items_matching_words_with_client_specific_fields(
+async def _list_items_matching_words_with_client_specific_fields(
     db: AsyncSession,
     words: list[str],
     *,

@@ -1,11 +1,11 @@
 from sqlalchemy import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.item.save import ItemSave
 
 
-def add_item_to_user_saved_items(
-    db: Session,
+async def add_item_to_user_saved_items(
+    db: AsyncSession,
     *,
     item_id: int,
     user_id: int,
@@ -20,4 +20,4 @@ def add_item_to_user_saved_items(
 
     # execute
     # TODO handle foreign key violation
-    db.execute(stmt)
+    await db.execute(stmt)
