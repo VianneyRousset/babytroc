@@ -2,6 +2,7 @@ from typing import Annotated
 
 from broadcaster import Broadcast
 from fastapi import Depends, FastAPI, Request, WebSocket
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
@@ -34,6 +35,21 @@ def notify_user(
 ):
     channel = f"user{user_id}"
     db.execute(
+        text("SELECT pg_notify(:channel, :payload)"),
+        {
+            "channel": channel,
+            "payload": message.model_dump_json(),
+        },
+    )
+
+
+async def notify_user_async(
+    db: AsyncSession,
+    user_id: int,
+    message: PubsubMessage,
+):
+    channel = f"user{user_id}"
+    await db.execute(
         text("SELECT pg_notify(:channel, :payload)"),
         {
             "channel": channel,

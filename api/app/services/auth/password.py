@@ -1,14 +1,14 @@
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.auth import IncorrectUsernameOrPasswordError
 from app.models.user import User
 from app.schemas.user.private import UserPrivateRead
 
 
-def verify_user_password(
-    db: Session,
+async def verify_user_password(
+    db: AsyncSession,
     email: str,
     password: str,
 ) -> UserPrivateRead:
@@ -21,10 +21,10 @@ def verify_user_password(
     """
 
     # get user by email
+    stmt = select(User).where(User.email == email)
+
     try:
-        user = (
-            db.execute(select(User).where(User.email == email)).unique().scalars().one()
-        )
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise IncorrectUsernameOrPasswordError() from error

@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import AuthConfig
 from app.errors.user import UserNotFoundError
@@ -16,21 +16,21 @@ from .refresh_token import (
 )
 
 
-def login_user(
-    db: Session,
+async def login_user(
+    db: AsyncSession,
     email: str,
     password: str,
     config: AuthConfig,
 ) -> UserCredentials:
     """Verifies password and create new credentials."""
 
-    user = verify_user_password(
+    user = await verify_user_password(
         db=db,
         email=email,
         password=password,
     )
 
-    return create_user_credentials(
+    return await create_user_credentials(
         db=db,
         user_id=user.id,
         validated=user.validated,
@@ -38,31 +38,27 @@ def login_user(
     )
 
 
-def refresh_user_credentials(
-    db: Session,
+async def refresh_user_credentials(
+    db: AsyncSession,
     refresh_token: str,
     config: AuthConfig,
 ) -> UserCredentials:
     """Verifies `refresh_token` and returns credentials with refreshed access token."""
 
-    refresh_token_read = verify_refresh_token(
+    refresh_token_read = await verify_refresh_token(
         db=db,
         token=refresh_token,
         config=config,
     )
 
+    stmt = select(User).where(User.id == refresh_token_read.user_id)
     try:
-        user = (
-            db.execute(select(User).where(User.id == refresh_token_read.user_id))
-            .unique()
-            .scalars()
-            .one()
-        )
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"id": refresh_token_read.user_id}) from error
 
-    return create_user_credentials(
+    return await create_user_credentials(
         db=db,
         user_id=refresh_token_read.user_id,
         validated=user.validated,
@@ -71,8 +67,8 @@ def refresh_user_credentials(
     )
 
 
-def create_user_credentials(
-    db: Session,
+async def create_user_credentials(
+    db: AsyncSession,
     user_id: int,
     *,
     validated: bool,
@@ -90,7 +86,7 @@ def create_user_credentials(
     """
 
     if refresh_token is None:
-        refresh_token = create_refresh_token(
+        refresh_token = await create_refresh_token(
             db=db,
             user_id=user_id,
         )
@@ -102,7 +98,7 @@ def create_user_credentials(
             validated=validated,
         )
 
-    clean_user_refresh_tokens(
+    await clean_user_refresh_tokens(
         db=db,
         user_id=user_id,
         config=config,

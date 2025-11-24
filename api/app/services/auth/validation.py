@@ -4,7 +4,7 @@ from fastapi import BackgroundTasks
 from fastapi_mail import FastMail
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients import email
 from app.config import Config
@@ -13,12 +13,12 @@ from app.errors.auth import (
     AuthInvalidValidationCodeError,
 )
 from app.models.user import User
-from app.pubsub import notify_user
+from app.pubsub import notify_user_async
 from app.schemas.pubsub import PubsubMessageUpdatedAccountValidation
 
 
-def validate_user_account(
-    db: Session,
+async def validate_user_account(
+    db: AsyncSession,
     validation_code: UUID,
 ) -> None:
     """Mark user account with `validation_code` as validated."""
@@ -32,13 +32,15 @@ def validate_user_account(
     )
 
     try:
-        user = db.execute(stmt).unique().scalars().one()
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         # check if validation code exists
         try:
-            db.execute(
-                select(User.id).where(User.validation_code == validation_code)
+            (
+                await db.execute(
+                    select(User.id).where(User.validation_code == validation_code)
+                )
             ).unique().one()
 
         except NoResultFound:
@@ -48,7 +50,7 @@ def validate_user_account(
         # is already validated
         raise AuthAccountAlreadyValidatedError() from error
 
-    notify_user(
+    await notify_user_async(
         db=db,
         user_id=user.id,
         message=PubsubMessageUpdatedAccountValidation(
@@ -57,8 +59,8 @@ def validate_user_account(
     )
 
 
-def send_validation_email(
-    db: Session,
+async def send_validation_email(
+    db: AsyncSession,
     user_id: int,
     *,
     email_client: FastMail,
@@ -69,7 +71,8 @@ def send_validation_email(
     """Send validation code to user with `user_id`."""
 
     # get user
-    user = db.execute(select(User).where(User.id == user_id)).unique().scalars().one()
+    stmt = select(User).where(User.id == user_id)
+    user = (await db.execute(stmt)).unique().scalars().one()
 
     # check if user account is already validated
     if check_validation_state and user.validated:
