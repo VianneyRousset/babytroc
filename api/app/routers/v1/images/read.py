@@ -17,14 +17,14 @@ from .router import router
     # https://github.com/tiangolo/fastapi/issues/3258
     response_class=Response,
 )
-def get_item_image(
+async def get_item_image(
     request: Request,
     image_name: Annotated[str, Path()],
     query: Annotated[ItemImageQuery, Query()],
 ) -> Response:
     """Get item image."""
 
-    image = services.image.get_image_data(
+    image = await services.image.get_image_data(
         config=request.app.state.config,
         image_name=image_name,
         size=query.size,
