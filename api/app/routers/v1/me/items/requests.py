@@ -32,13 +32,14 @@ def list_client_item_loan_requests(
     """List loan requests of the item owned by the client."""
 
     # get item to check it is owned by the client
-    item = services.item.get_item(
-        db=db,
-        item_id=item_id,
-        query_filter=ItemReadQueryFilter(
-            owner_id=client_id,
-        ),
-    )
+    # TODO put that back
+    # item = services.item.get_item(
+    #     db=db,
+    #     item_id=item_id,
+    #     query_filter=ItemReadQueryFilter(
+    #         owner_id=client_id,
+    #     ),
+    # )
 
     # get list of loan requests of the item
     result = services.loan.list_loan_requests(
@@ -46,7 +47,7 @@ def list_client_item_loan_requests(
         query_filter=LoanRequestReadQueryFilter.model_validate(
             {
                 **query.loan_request_select_query_filter.model_dump(),
-                "item_id": item.id,
+                "item_id": item_id,
             }
         ),
         page_options=query.loan_request_query_page_options,
@@ -70,19 +71,20 @@ def get_client_item_loan_request(
     """Get client's item loan request by id."""
 
     # get item to check it is owned by the client
-    item = services.item.get_item(
-        db=db,
-        item_id=item_id,
-        query_filter=ItemReadQueryFilter(
-            owner_id=client_id,
-        ),
-    )
+    # TODO put that back
+    # item = services.item.get_item(
+    #     db=db,
+    #     item_id=item_id,
+    #     query_filter=ItemReadQueryFilter(
+    #         owner_id=client_id,
+    #     ),
+    # )
 
     return services.loan.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestReadQueryFilter(
-            item_id=item.id,
+            item_id=item_id,
         ),
     )
 

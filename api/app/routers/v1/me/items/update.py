@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Body, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.query import ItemUpdateQueryFilter
 from app.schemas.item.read import ItemRead
@@ -15,18 +15,18 @@ from .router import router
 
 
 @router.post("/{item_id}", status_code=status.HTTP_200_OK)
-def update_client_item(
+async def update_client_item(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     item_update: Annotated[
         ItemUpdate,
         Body(title="Item fields to update."),
     ],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ItemRead:
     """Update client's item."""
 
-    return services.item.update_item(
+    return await services.item.update_item(
         db=db,
         item_id=item_id,
         item_update=item_update,

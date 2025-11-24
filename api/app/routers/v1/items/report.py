@@ -1,9 +1,9 @@
 from typing import Annotated
 
 from fastapi import Body, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.report.create import ReportCreate
 
@@ -19,7 +19,7 @@ def report_item(
         ReportCreate,
         Body(title="Report creation fields."),
     ],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ):
     """Report the specified item."""
     raise NotImplementedError()

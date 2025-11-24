@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio.ext import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.api import LikedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
@@ -21,11 +21,11 @@ from .me import router
 async def add_item_to_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> None:
     """Add the specified item to client liked items."""
 
-    services.item.like.add_item_to_user_liked_items(
+    await services.item.like.add_item_to_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
@@ -36,16 +36,16 @@ async def add_item_to_client_liked_items(
 
 
 @router.get("/liked", status_code=status.HTTP_200_OK)
-def list_items_liked_by_client(
+async def list_items_liked_by_client(
     client_id: client_id_annotation,
     request: Request,
     response: Response,
     query: Annotated[LikedItemApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[ItemPreviewRead]:
     """List items like by client."""
 
-    result = services.item.list_items(
+    result = await services.item.list_items(
         db=db,
         query_filter=ItemReadQueryFilter.model_validate(
             {
@@ -61,15 +61,15 @@ def list_items_liked_by_client(
 
 
 @router.get("/liked/{item_id}", status_code=status.HTTP_200_OK)
-def get_client_liked_item_by_id(
+async def get_client_liked_item_by_id(
     client_id: client_id_annotation,
     request: Request,
     item_id: item_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ItemRead:
     """Get item liked by client."""
 
-    return services.item.get_item(
+    return await services.item.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(
@@ -82,14 +82,14 @@ def get_client_liked_item_by_id(
 
 
 @router.delete("/liked/{item_id}", status_code=status.HTTP_200_OK)
-def remove_item_from_client_liked_items(
+async def remove_item_from_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> None:
     """Remove the specified item from client liked items."""
 
-    services.item.like.remove_item_from_user_liked_items(
+    await services.item.like.remove_item_from_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,

@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.routers.v1.auth import maybe_client_id_annotation
 from app.schemas.item.api import ItemMatchinWordsApiQuery
 from app.schemas.item.preview import ItemPreviewRead
@@ -15,17 +15,17 @@ from .router import router
 
 
 @router.get("", status_code=status.HTTP_200_OK)
-def list_items(
+async def list_items(
     request: Request,
     response: Response,
     query: Annotated[ItemMatchinWordsApiQuery, Query()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> list[ItemPreviewRead]:
     """List items."""
 
     # words fuzzy search
     if query.words:
-        fuzzy_search_result = services.item.list_items_matching_words(
+        fuzzy_search_result = await services.item.list_items_matching_words(
             db=db,
             words=query.words,
             query_filter=query.item_select_query_filter,
@@ -36,7 +36,7 @@ def list_items(
 
         return fuzzy_search_result.data
 
-    result = services.item.list_items(
+    result = await services.item.list_items(
         db=db,
         query_filter=query.item_select_query_filter,
         page_options=query.item_query_page_options,
@@ -48,14 +48,14 @@ def list_items(
 
 
 @router.get("/{item_id}", status_code=status.HTTP_200_OK)
-def get_item(
+async def get_item(
     item_id: item_id_annotation,
     client_id: maybe_client_id_annotation,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> ItemRead:
     """Get item."""
 
-    return services.item.get_item(
+    return await services.item.get_item(
         db=db,
         item_id=item_id,
         client_id=client_id,
