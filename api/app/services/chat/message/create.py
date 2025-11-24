@@ -32,7 +32,7 @@ async def send_chat_message(
     *,
     ensure_chat: bool = False,
 ) -> ChatMessageRead:
-    chat_messages = send_many_chat_messages(
+    chat_messages = await send_many_chat_messages(
         db=db,
         messages=[message],
         ensure_chats=ensure_chat,
@@ -67,7 +67,7 @@ async def send_many_chat_messages(
     data = as_sql_values(messages)
 
     if ensure_chats:
-        ensure_many_chats(
+        await ensure_many_chats(
             db=db,
             chat_ids={msg.chat_id for msg in messages},
         )
@@ -141,7 +141,7 @@ async def send_many_chat_messages(
     )
 
     try:
-        with db.begin_nested():
+        async with db.begin_nested():
             sent_messages = (await db.execute(stmt)).unique().scalars().all()
 
     # if an IntegrityError is raise, it means either:
@@ -155,13 +155,13 @@ async def send_many_chat_messages(
         from app.services.user import get_many_users
 
         # raise ChatNotFoundError if not all chats exist (1.)
-        get_many_chats(
+        await get_many_chats(
             db=db,
             chat_ids={msg.chat_id for msg in messages},
         )
 
         # raise UserNotFoundError if not all senders exist (2.)
-        get_many_users(
+        await get_many_users(
             db=db,
             user_ids={
                 msg.sender_id
@@ -171,7 +171,7 @@ async def send_many_chat_messages(
         )
 
         # raise LoanRequestNotFound if not all loan requests exist (3.)
-        get_many_loan_requests(
+        await get_many_loan_requests(
             db=db,
             loan_request_ids={
                 msg.loan_request_id
@@ -188,7 +188,7 @@ async def send_many_chat_messages(
         )
 
         # raise LoanNotFound if not all loans exist (4.)
-        get_many_loans(
+        await get_many_loans(
             db=db,
             loan_ids={
                 msg.loan_id
@@ -207,7 +207,7 @@ async def send_many_chat_messages(
     return [ChatMessageRead.model_validate(msg) for msg in sent_messages]
 
 
-async def as_sql_values(messages: list[SendChatMessage]) -> Values:
+def as_sql_values(messages: list[SendChatMessage]) -> Values:
     return values(
         column("order", Integer),
         cast("ColumnClause[int]", ChatMessage.item_id),

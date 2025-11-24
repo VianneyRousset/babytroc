@@ -59,7 +59,7 @@ async def relay_broacast_events_to_websocket(
 
             if isinstance(pubsub_message, PubsubMessageNewChatMessage):
                 async with websocket.app.state.db_async_session_maker.begin() as db:
-                    chat_message = await services.chat.get_message_async(
+                    chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
                         query_filter=ChatMessageReadQueryFilter(
@@ -74,7 +74,7 @@ async def relay_broacast_events_to_websocket(
 
             elif isinstance(pubsub_message, PubsubMessageUpdatedChatMessage):
                 async with websocket.app.state.db_async_session_maker.begin() as db:
-                    chat_message = await services.chat.get_message_async(
+                    chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
                         query_filter=ChatMessageReadQueryFilter(
