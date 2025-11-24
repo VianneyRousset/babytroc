@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Form, Request, Response
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.schemas.auth.credentials import UserCredentialsInfo
 from app.schemas.auth.form import AuthPasswordForm
 
@@ -13,15 +13,15 @@ from .router import router
 
 
 @router.post("/login")
-def login(
+async def login(
     request: Request,
     response: Response,
     form_data: Annotated[AuthPasswordForm, Form()],
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> UserCredentialsInfo:
     """Get credentials from password."""
 
-    credentials = services.auth.login_user(
+    credentials = await services.auth.login_user(
         db=db,
         email=form_data.username,
         password=form_data.password,

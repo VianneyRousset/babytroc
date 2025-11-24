@@ -3,10 +3,10 @@ from uuid import UUID
 
 from fastapi import BackgroundTasks, Depends, Request
 from fastapi_mail import FastMail
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.email import get_email_client
 from app.schemas.auth.create import AuthAccountPasswordResetAuthorizationCreate
 from app.schemas.auth.reset import (
@@ -19,16 +19,16 @@ from .router import router
 
 
 @router.post("/reset-password")
-def create_account_password_reset_authorization(
+async def create_account_password_reset_authorization(
     request: Request,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
     authorization_create: AuthAccountPasswordResetAuthorizationCreate,
 ) -> AuthAccountPasswordResetAuthorizationCreated:
     """Send a account password reset authorization by email."""
 
-    services.auth.create_account_password_reset_authrorization(
+    await services.auth.create_account_password_reset_authrorization(
         db=db,
         user_email=authorization_create.email,
         email_client=email_client,
@@ -41,9 +41,9 @@ def create_account_password_reset_authorization(
 
 
 @router.post("/reset-password/{authorization_code}")
-def apply_account_password_reset(
+async def apply_account_password_reset(
     request: Request,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
     authorization_code: UUID,
@@ -51,7 +51,7 @@ def apply_account_password_reset(
 ) -> AuthAccountPasswordResetDone:
     """Apply the account password reset with `authorization_code`."""
 
-    services.auth.apply_account_password_reset(
+    await services.auth.apply_account_password_reset(
         db=db,
         authorization_code=authorization_code,
         new_password=user_password_update.password,

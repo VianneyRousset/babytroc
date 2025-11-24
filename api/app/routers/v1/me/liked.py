@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, Request, Response, status
-from sqlalchemy.ext.asyncio.ext import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
 from app.database import get_db_async_session

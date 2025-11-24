@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import Depends, Request, Response
 from fastapi.security.utils import get_authorization_scheme_param
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.errors.auth import InvalidCredentialError
 from app.schemas.auth.credentials import UserCredentialsInfo
 
@@ -14,10 +14,10 @@ from .router import router
 
 
 @router.post("/refresh")
-def refresh_credentials(
+async def refresh_credentials(
     request: Request,
     response: Response,
-    db: Annotated[Session, Depends(get_db_session)],
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
 ) -> UserCredentialsInfo:
     """Refresh credentials."""
 
@@ -32,7 +32,7 @@ def refresh_credentials(
     if not authorization or scheme.lower() != "bearer":
         raise InvalidCredentialError()
 
-    credentials = services.auth.refresh_user_credentials(
+    credentials = await services.auth.refresh_user_credentials(
         db=db,
         refresh_token=token,
         config=request.app.state.config.auth,

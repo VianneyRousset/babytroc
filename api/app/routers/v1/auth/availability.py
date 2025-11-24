@@ -1,10 +1,10 @@
 from typing import Annotated
 
 from fastapi import Depends, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_session
+from app.database import get_db_async_session
 from app.schemas.auth.api import AuthAccountAvailabilityApiQuery
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.user.query import UserReadQueryFilter
@@ -13,13 +13,13 @@ from .router import router
 
 
 @router.get("/available")
-def get_account_availability(
-    db: Annotated[Session, Depends(get_db_session)],
+async def get_account_availability(
+    db: Annotated[AsyncSession, Depends(get_db_async_session)],
     query: Annotated[AuthAccountAvailabilityApiQuery, Query()],
 ) -> AuthAccountAvailability:
     """Get account availability to be created."""
 
-    user_exists = services.user.list_users(
+    user_exists = await services.user.list_users(
         db=db,
         query_filter=UserReadQueryFilter(
             name=query.name,
