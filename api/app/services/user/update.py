@@ -1,6 +1,6 @@
 from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.user import UserNotFoundError
 from app.models.user import User
@@ -9,8 +9,8 @@ from app.schemas.user.update import UserUpdate
 from app.utils.hash import HashedStr
 
 
-def update_user(
-    db: Session,
+async def update_user(
+    db: AsyncSession,
     user_id: int,
     user_update: UserUpdate,
 ) -> UserPrivateRead:
@@ -26,7 +26,7 @@ def update_user(
 
     try:
         # execute
-        user = db.execute(stmt).unique().scalars().one()
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
@@ -34,8 +34,8 @@ def update_user(
     return UserPrivateRead.model_validate(user)
 
 
-def update_user_password(
-    db: Session,
+async def update_user_password(
+    db: AsyncSession,
     user_id: int,
     new_password: str | HashedStr,
 ) -> UserPrivateRead:
@@ -53,7 +53,7 @@ def update_user_password(
 
     try:
         # execute
-        user = db.execute(stmt).unique().scalars().one()
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
@@ -61,8 +61,8 @@ def update_user_password(
     return UserPrivateRead.model_validate(user)
 
 
-def update_user_validation(
-    db: Session,
+async def update_user_validation(
+    db: AsyncSession,
     user_id: int,
     validated: bool,
 ) -> UserPrivateRead:
@@ -77,7 +77,7 @@ def update_user_validation(
 
     try:
         # execute
-        user = db.execute(stmt).unique().scalars().one()
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error

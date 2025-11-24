@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.user import UserNotFoundError
 from app.models.user import User
@@ -12,22 +12,22 @@ from app.schemas.user.query import UserReadQueryFilter
 from app.schemas.user.read import UserRead
 
 
-def get_user(
-    db: Session,
+async def get_user(
+    db: AsyncSession,
     user_id: int,
 ) -> UserRead:
     """Get user with `user_id`."""
 
     return UserRead.model_validate(
-        _get_user(
+        await _get_user(
             db=db,
             user_id=user_id,
         )
     )
 
 
-def get_many_users(
-    db: Session,
+async def get_many_users(
+    db: AsyncSession,
     user_ids: set[int],
 ) -> list[UserRead]:
     """Get all users with the given user ids.
@@ -37,7 +37,7 @@ def get_many_users(
 
     stmt = select(User).where(User.id.in_(user_ids))
 
-    users = db.execute(stmt).unique().scalars().all()
+    users = (await db.execute(stmt)).unique().scalars().all()
 
     missing_user_ids = user_ids - {user.id for user in users}
     if missing_user_ids:
@@ -47,22 +47,22 @@ def get_many_users(
     return [UserRead.model_validate(user) for user in users]
 
 
-def get_user_private(
-    db: Session,
+async def get_user_private(
+    db: AsyncSession,
     user_id: int,
 ) -> UserPrivateRead:
     """Get user with `user_id`."""
 
     return UserPrivateRead.model_validate(
-        _get_user(
+        await _get_user(
             db=db,
             user_id=user_id,
         )
     )
 
 
-def get_user_by_email_private(
-    db: Session,
+async def get_user_by_email_private(
+    db: AsyncSession,
     email: str,
 ) -> UserPrivateRead:
     """Get user with `email`."""
@@ -71,7 +71,7 @@ def get_user_by_email_private(
 
     try:
         # execute
-        user = db.execute(stmt).unique().scalars().one()
+        user = (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"email": email}) from error
@@ -79,8 +79,8 @@ def get_user_by_email_private(
     return UserPrivateRead.model_validate(user)
 
 
-def get_user_validation_code_by_email(
-    db: Session,
+async def get_user_validation_code_by_email(
+    db: AsyncSession,
     email: str,
 ) -> UUID:
     """Get validation code for user with `email`."""
@@ -89,14 +89,14 @@ def get_user_validation_code_by_email(
 
     try:
         # execute
-        return db.execute(stmt).unique().scalar_one()
+        return (await db.execute(stmt)).unique().scalar_one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"email": email}) from error
 
 
-def list_users(
-    db: Session,
+async def list_users(
+    db: AsyncSession,
     *,
     query_filter: UserReadQueryFilter | None = None,
     limit: int | None = None,
@@ -112,13 +112,13 @@ def list_users(
         stmt = stmt.limit(limit)
 
     # execute
-    users = db.execute(stmt).unique().scalars().all()
+    users = (await db.execute(stmt)).unique().scalars().all()
 
     return [UserPreviewRead.model_validate(user) for user in users]
 
 
-def _get_user(
-    db: Session,
+async def _get_user(
+    db: AsyncSession,
     user_id: int,
 ) -> User:
     """Get db user model with `user_id`."""
@@ -127,7 +127,7 @@ def _get_user(
 
     try:
         # execute
-        return db.execute(stmt).unique().scalars().one()
+        return (await db.execute(stmt)).unique().scalars().one()
 
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error

@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
 from app.schemas.loan.query import (
     LoanRequestReadQueryFilter,

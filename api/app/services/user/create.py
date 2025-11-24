@@ -1,7 +1,7 @@
 from fastapi import BackgroundTasks
 from fastapi_mail import FastMail
 from sqlalchemy import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.clients import email
 from app.models.user import User
@@ -10,8 +10,8 @@ from app.schemas.user.private import UserPrivateRead
 from app.utils.hash import HashedStr
 
 
-def create_user(
-    db: Session,
+async def create_user(
+    db: AsyncSession,
     email_client: FastMail,
     background_tasks: BackgroundTasks,
     host_name: str,
@@ -37,7 +37,7 @@ def create_user(
         .returning(User)
     )
 
-    user = db.execute(stmt).unique().scalars().one()
+    user = (await db.execute(stmt)).unique().scalars().one()
 
     if send_validation_email:
         email.send_account_validation_email(
@@ -53,22 +53,24 @@ def create_user(
     return UserPrivateRead.model_validate(user)
 
 
-def create_user_without_validation(
-    db: Session,
+async def create_user_without_validation(
+    db: AsyncSession,
     user_create: UserCreate,
     validated: bool = False,
 ) -> UserPrivateRead:
     """Create user without sending a validation email."""
 
-    return create_many_users_without_validation(
+    users = await create_many_users_without_validation(
         db=db,
         user_creates=[user_create],
         validated=validated,
-    )[0]
+    )
+
+    return users[0]
 
 
-def create_many_users_without_validation(
-    db: Session,
+async def create_many_users_without_validation(
+    db: AsyncSession,
     user_creates: list[UserCreate],
     validated: bool = False,
 ) -> list[UserPrivateRead]:
@@ -92,9 +94,7 @@ def create_many_users_without_validation(
         )
         .returning(User)
     )
+    users = (await db.execute(stmt)).unique().scalars().all()
 
     # execute
-    return [
-        UserPrivateRead.model_validate(user)
-        for user in db.execute(stmt).unique().scalars().all()
-    ]
+    return [UserPrivateRead.model_validate(user) for user in users]

@@ -1,10 +1,10 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.report.create import ReportCreate
 
 
-def report_user(
-    db: Session,
+async def report_user(
+    db: AsyncSession,
     user_id: int,
     reported_by_user_id: int,
     report_create: ReportCreate,
