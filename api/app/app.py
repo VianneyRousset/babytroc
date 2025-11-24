@@ -13,11 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.errors import ApiError
 
 from .config import Config
-from .database import (
-    create_async_session_maker,
-    create_session_maker,
-    define_functions_and_triggers,
-)
+from .database import create_session_maker, define_functions_and_triggers
 from .routers.v1 import router
 
 
@@ -35,22 +31,19 @@ class DelayMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-def create_app(config: Config) -> FastAPI:
+async def create_app(config: Config) -> FastAPI:
     app = FastAPI(
         lifespan=lifespan,
     )
 
     app.state.config = config
-    app.state.db_async_session_maker = create_async_session_maker(
-        config.database.async_url
-    )
 
     # database session maker
     app.state.db_session_maker = create_session_maker(config.database.url)
 
     # setup SQL functions and triggers
     with app.state.db_session_maker.begin() as db:
-        define_functions_and_triggers(db)
+        await define_functions_and_triggers(db)
 
     # broadcaster
     app.state.broadcast = Broadcast(

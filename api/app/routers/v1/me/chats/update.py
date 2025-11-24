@@ -4,7 +4,7 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageReadQueryFilter
@@ -22,7 +22,7 @@ async def mark_client_chat_message_as_seen(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
     message_id: message_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ChatMessageRead:
     """Mark client's chat message as seen."""
 

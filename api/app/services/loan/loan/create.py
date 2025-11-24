@@ -73,7 +73,7 @@ async def execute_many_loan_requests(
     create_loans_stmt = (
         insert(Loan)
         .from_select(
-            [Loan.item_id, Loan.borrower_id, Loan.loan_request_id],
+            [Loan.item_id, Loan.borrower_id, Loan.loan_request_id],  # type: ignore[list-item]
             select(LoanRequest.item_id, LoanRequest.borrower_id, LoanRequest.id).where(
                 LoanRequest.id.in_(loan_request_ids)
             ),

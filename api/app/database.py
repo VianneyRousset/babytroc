@@ -1,12 +1,11 @@
 import warnings
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Request, WebSocket
-from sqlalchemy import URL, create_engine, text
+from sqlalchemy import URL, text
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import Session, sessionmaker
 
 # make sqlalchemy warnings as errors
 warnings.simplefilter("error", SAWarning)
@@ -27,49 +26,36 @@ def get_app(
     raise ValueError(msg)
 
 
-def create_session_maker(db_url: URL) -> sessionmaker:
-    engine = create_engine(db_url, echo=False)
-
-    return sessionmaker(
-        bind=engine,
+def create_session_maker(db_url: URL) -> async_sessionmaker:
+    engine = create_async_engine(
+        url=db_url,
+        echo=False,
     )
-
-
-def create_async_session_maker(db_url: URL) -> async_sessionmaker:
-    engine = create_async_engine(db_url, echo=False)
 
     return async_sessionmaker(
         bind=engine,
     )
 
 
-# TODO switch to connections pool ?
-def get_db_session(
-    app: Annotated[FastAPI, Depends(get_app)],
-) -> Generator[Session]:
-    with app.state.db_session_maker.begin() as session:
-        yield session
-
-
-async def get_db_async_session(
+async def get_db_session(
     app: Annotated[FastAPI, Depends(get_app)],
 ) -> AsyncGenerator[AsyncSession]:
     async with app.state.db_async_session_maker.begin() as session:
         yield session
 
 
-def define_functions_and_triggers(
-    db: Session,
+async def define_functions_and_triggers(
+    db: AsyncSession,
 ) -> None:
-    funcname = define_function_notify_chat_members_new_message(db)
-    define_trigger_notify_chat_members_new_message(
+    funcname = await define_function_notify_chat_members_new_message(db)
+    await define_trigger_notify_chat_members_new_message(
         db=db,
         funcname=funcname,
     )
 
 
-def define_function_notify_chat_members_new_message(
-    db: Session,
+async def define_function_notify_chat_members_new_message(
+    db: AsyncSession,
 ) -> str:
     funcname = "notify_chat_members_new_message"
 
@@ -98,13 +84,13 @@ def define_function_notify_chat_members_new_message(
         )
     )
 
-    db.execute(stmt)
+    await db.execute(stmt)
 
     return funcname
 
 
-def define_trigger_notify_chat_members_new_message(
-    db: Session,
+async def define_trigger_notify_chat_members_new_message(
+    db: AsyncSession,
     *,
     funcname: str,
 ) -> None:
@@ -119,4 +105,4 @@ def define_trigger_notify_chat_members_new_message(
         )
     )
 
-    db.execute(stmt)
+    await db.execute(stmt)

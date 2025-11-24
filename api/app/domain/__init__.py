@@ -1,3 +1,3 @@
-from . import item, star
+from . import star
 
-__all__ = ["item", "star"]
+__all__ = ["star"]

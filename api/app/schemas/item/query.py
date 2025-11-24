@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from sqlalchemy import Select, and_, not_, or_
+from sqlalchemy import Select, and_, func, not_, or_, select
 from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
+from app.models.loan import Loan
 from app.schemas.base import (
     DeleteQueryFilter,
     FieldWithAlias,
@@ -49,26 +50,34 @@ class ItemQueryFilterRegions(QueryFilter):
         )
 
 
-class ItemQueryFilterAvailability(QueryFilter):
+class ItemQueryFilterAvailability(ReadQueryFilter):
     """Filters by availability of the items query."""
 
     availability: ItemQueryAvailability | None = None
 
-    def _filter(self, stmt: StatementT) -> StatementT:
+    def _filter_read(self, stmt: Select) -> Select:
         match self.availability:
             case ItemQueryAvailability.yes:
                 stmt = stmt.where(
-                    and_(
-                        not_(Item.blocked),
-                        Item.active_loans_count == 0,
+                    ~select(Loan)
+                    .where(
+                        and_(
+                            Loan.item_id == Item.id,
+                            func.upper(Loan.during).is_(None),
+                        ),
                     )
+                    .exists()
                 )
             case ItemQueryAvailability.no:
                 stmt = stmt.where(
-                    or_(
-                        Item.blocked,
-                        Item.active_loans_count > 0,
+                    select(Loan)
+                    .where(
+                        and_(
+                            Loan.item_id == Item.id,
+                            func.upper(Loan.during).is_(None),
+                        ),
                     )
+                    .exists()
                 )
 
         return super()._filter(stmt)

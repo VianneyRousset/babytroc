@@ -5,7 +5,7 @@ from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.errors.auth import InvalidCredentialError
 from app.schemas.auth.credentials import UserCredentialsInfo
 
@@ -17,7 +17,7 @@ from .router import router
 async def refresh_credentials(
     request: Request,
     response: Response,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> UserCredentialsInfo:
     """Refresh credentials."""
 

@@ -117,13 +117,13 @@ async def send_many_chat_messages(
         insert(ChatMessage)
         .from_select(
             [
-                ChatMessage.item_id,
-                ChatMessage.borrower_id,
-                ChatMessage.message_type,
-                ChatMessage.sender_id,
-                ChatMessage.text,
-                ChatMessage.loan_request_id,
-                ChatMessage.loan_id,
+                ChatMessage.item_id,  # type: ignore[list-item]
+                ChatMessage.borrower_id,  # type: ignore[list-item]
+                ChatMessage.message_type,  # type: ignore[list-item]
+                ChatMessage.sender_id,  # type: ignore[list-item]
+                ChatMessage.text,  # type: ignore[list-item]
+                ChatMessage.loan_request_id,  # type: ignore[list-item]
+                ChatMessage.loan_id,  # type: ignore[list-item]
             ],
             select(
                 data.c.item_id,

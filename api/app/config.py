@@ -7,13 +7,11 @@ import sqlalchemy
 
 class DatabaseConfig(NamedTuple):
     url: sqlalchemy.URL
-    async_url: sqlalchemy.URL
 
     @classmethod
     def from_env(
         cls,
         url: sqlalchemy.URL | None = None,
-        async_url: sqlalchemy.URL | None = None,
     ) -> Self:
         if url is None:
             user = os.environ["POSTGRES_USER"]
@@ -23,34 +21,14 @@ class DatabaseConfig(NamedTuple):
             database = os.environ["POSTGRES_DATABASE"]
 
             url = sqlalchemy.URL.create(
-                "postgresql+psycopg2",
+                "postgresql+asyncpg",
                 username=user,
                 password=password,
                 host=host,
                 port=port,
                 database=database,
             )
-
-        if async_url is None:
-            user = os.environ["POSTGRES_USER"]
-            password = os.environ["POSTGRES_PASSWORD"]
-            host = os.environ["POSTGRES_HOST"]
-            port = int(os.environ["POSTGRES_PORT"])
-            database = os.environ["POSTGRES_DATABASE"]
-
-            async_url = sqlalchemy.URL.create(
-                "postgresql+psycopg_async",
-                username=user,
-                password=password,
-                host=host,
-                port=port,
-                database=database,
-            )
-
-        return cls(
-            url=url,
-            async_url=async_url,
-        )
+        return cls(url=url)
 
 
 class PubsubConfig(NamedTuple):

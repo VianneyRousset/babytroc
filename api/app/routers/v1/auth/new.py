@@ -5,7 +5,7 @@ from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.email import get_email_client
 from app.schemas.auth.credentials import UserCredentialsInfo
 from app.schemas.user.create import UserCreate
@@ -16,7 +16,7 @@ from .router import router
 
 @router.post("/new")
 async def create_user(
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
     user_create: UserCreate,

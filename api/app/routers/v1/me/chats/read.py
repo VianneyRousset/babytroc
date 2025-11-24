@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
 from app.schemas.chat.base import ChatId
@@ -21,7 +21,7 @@ async def list_client_chats(
     request: Request,
     response: Response,
     query: Annotated[ChatApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[ChatRead]:
     """List all chats where the client is a member."""
 
@@ -45,7 +45,7 @@ async def list_client_chats(
 async def get_client_chat(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ChatRead:
     """Get client chat info by chat id."""
 
@@ -67,7 +67,7 @@ async def list_client_chat_messages(
     response: Response,
     chat_id: chat_id_annotation,
     query: Annotated[ChatMessageApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[ChatMessageRead]:
     """List messages in the chat."""
 
@@ -107,7 +107,7 @@ async def get_client_chat_message_by_id(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
     message_id: message_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ChatMessageRead:
     """Get client's chat message by id."""
 

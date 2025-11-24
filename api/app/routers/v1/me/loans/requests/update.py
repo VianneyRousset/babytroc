@@ -4,7 +4,7 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.query import LoanRequestUpdateQueryFilter
 from app.schemas.loan.read import LoanRequestRead
@@ -17,7 +17,7 @@ from .router import router
 async def accept_client_item_loan_request(
     client_id: client_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Accept loan request where the client is the owner."""
 
@@ -34,7 +34,7 @@ async def accept_client_item_loan_request(
 async def reject_client_item_loan_request(
     client_id: client_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Reject loan request where the client is the owner."""
 

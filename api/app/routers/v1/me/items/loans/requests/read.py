@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
 from app.schemas.loan.api import LoanRequestApiQuery
@@ -22,7 +22,7 @@ async def list_loan_requests_for_items_owned_by_the_client(
     request: Request,
     response: Response,
     query: Annotated[LoanRequestApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[LoanRequestRead]:
     """List loan request of the item owned by the client."""
 
@@ -48,7 +48,7 @@ async def get_client_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Get loan request of the item owned by the client."""
 

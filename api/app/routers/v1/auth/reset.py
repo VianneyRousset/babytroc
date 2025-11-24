@@ -6,7 +6,7 @@ from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.email import get_email_client
 from app.schemas.auth.create import AuthAccountPasswordResetAuthorizationCreate
 from app.schemas.auth.reset import (
@@ -21,7 +21,7 @@ from .router import router
 @router.post("/reset-password")
 async def create_account_password_reset_authorization(
     request: Request,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
     authorization_create: AuthAccountPasswordResetAuthorizationCreate,
@@ -43,7 +43,7 @@ async def create_account_password_reset_authorization(
 @router.post("/reset-password/{authorization_code}")
 async def apply_account_password_reset(
     request: Request,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
     authorization_code: UUID,

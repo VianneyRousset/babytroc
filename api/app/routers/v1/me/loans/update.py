@@ -4,7 +4,7 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.query import LoanUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
@@ -17,7 +17,7 @@ from .router import router
 async def end_client_loan(
     client_id: client_id_annotation,
     loan_id: loan_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRead:
     """End the loan where the client is the owner."""
 

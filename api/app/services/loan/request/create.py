@@ -67,7 +67,7 @@ async def create_many_loan_requests(
     stmt = (
         insert(LoanRequest)
         .from_select(
-            [LoanRequest.item_id, LoanRequest.borrower_id],
+            [LoanRequest.item_id, LoanRequest.borrower_id],  # type: ignore[list-item]
             select(data.c.item_id, data.c.borrower_id)
             .join(Item, Item.id == data.c.item_id)
             .where(Item.owner_id != data.c.borrower_id),

@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.schemas.item.api import ItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemReadQueryFilter
@@ -20,7 +20,7 @@ async def list_items_owned_by_user(
     response: Response,
     user_id: user_id_annotation,
     query: Annotated[ItemApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items owned by user."""
 
@@ -45,7 +45,7 @@ async def get_client_item_by_id(
     request: Request,
     user_id: user_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ItemRead:
     """Get user's item by id."""
 

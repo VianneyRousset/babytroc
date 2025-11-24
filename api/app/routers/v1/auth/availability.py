@@ -4,7 +4,7 @@ from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.schemas.auth.api import AuthAccountAvailabilityApiQuery
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.user.query import UserReadQueryFilter
@@ -14,7 +14,7 @@ from .router import router
 
 @router.get("/available")
 async def get_account_availability(
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     query: Annotated[AuthAccountAvailabilityApiQuery, Query()],
 ) -> AuthAccountAvailability:
     """Get account availability to be created."""

@@ -4,7 +4,7 @@ from fastapi import Depends, Form, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.schemas.auth.credentials import UserCredentialsInfo
 from app.schemas.auth.form import AuthPasswordForm
 
@@ -17,7 +17,7 @@ async def login(
     request: Request,
     response: Response,
     form_data: Annotated[AuthPasswordForm, Form()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> UserCredentialsInfo:
     """Get credentials from password."""
 

@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.loan.api import LoanRequestApiQuery
@@ -27,7 +27,7 @@ async def list_client_item_loan_requests(
     response: Response,
     item_id: item_id_annotation,
     query: Annotated[LoanRequestApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[LoanRequestRead]:
     """List loan requests of the item owned by the client."""
 
@@ -65,7 +65,7 @@ async def get_client_item_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Get client's item loan request by id."""
 
@@ -95,7 +95,7 @@ async def accept_client_item_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
@@ -117,7 +117,7 @@ async def reject_client_item_loan_request(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 

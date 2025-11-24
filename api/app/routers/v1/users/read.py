@@ -4,7 +4,7 @@ from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.report.create import ReportCreate
 from app.schemas.user.read import UserRead
@@ -16,7 +16,7 @@ from .router import router
 @router.get("/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user(
     user_id: user_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> UserRead:
     """Get user."""
 
@@ -35,7 +35,7 @@ async def report_user(
         ReportCreate,
         Body(title="Report fields."),
     ],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ):
     """Report user."""
 

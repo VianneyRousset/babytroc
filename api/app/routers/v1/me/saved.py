@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.api import SavedItemApiQuery
 from app.schemas.item.preview import ItemPreviewRead
@@ -22,7 +22,7 @@ async def add_item_to_client_saved_items(
     client_id: client_id_annotation,
     request: Request,
     item_id: item_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> None:
     """Add item to client saved items."""
 
@@ -42,7 +42,7 @@ async def list_items_saved_by_client(
     request: Request,
     response: Response,
     query: Annotated[SavedItemApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items saved by client."""
 
@@ -66,7 +66,7 @@ async def list_items_saved_by_client(
 async def get_client_saved_item_by_id(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item saved by client."""
 
@@ -86,7 +86,7 @@ async def get_client_saved_item_by_id(
 async def remove_item_from_client_saved_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> None:
     """Remove the specified item from client saved items."""
 

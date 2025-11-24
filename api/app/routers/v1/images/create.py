@@ -4,7 +4,7 @@ from fastapi import Depends, Request, Response, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.image.read import ItemImageRead
 
@@ -19,7 +19,7 @@ async def upload_image(
     request: Request,
     response: Response,
     file: UploadFile,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ItemImageRead:
     """Upload item image."""
 

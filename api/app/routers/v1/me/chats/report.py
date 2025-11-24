@@ -4,7 +4,7 @@ from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.read import ChatRead
@@ -25,7 +25,7 @@ async def report_client_chat(
         ReportCreate,
         Body(title="Report fields."),
     ],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ChatRead:
     """Report client's chat by id."""
 

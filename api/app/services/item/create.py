@@ -279,7 +279,7 @@ async def _insert_item_image_associations(
     stmt = (
         insert(ItemImageAssociation)
         .from_select(
-            [ItemImageAssociation.item_id, ItemImageAssociation.image_name],
+            [ItemImageAssociation.item_id, ItemImageAssociation.image_name],  # type: ignore[list-item]
             select(data)
             .join(Item)
             .join(ItemImage)

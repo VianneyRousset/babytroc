@@ -4,7 +4,7 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import maybe_client_id_annotation
 from app.schemas.item.api import ItemMatchinWordsApiQuery
 from app.schemas.item.preview import ItemPreviewRead
@@ -19,7 +19,7 @@ async def list_items(
     request: Request,
     response: Response,
     query: Annotated[ItemMatchinWordsApiQuery, Query()],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> list[ItemPreviewRead]:
     """List items."""
 
@@ -51,7 +51,7 @@ async def list_items(
 async def get_item(
     item_id: item_id_annotation,
     client_id: maybe_client_id_annotation,
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ItemRead:
     """Get item."""
 

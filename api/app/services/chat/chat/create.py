@@ -33,7 +33,7 @@ async def ensure_many_chats(
     # insert chats when non-existing
 
     stmt = insert(Chat).from_select(
-        [Chat.item_id, Chat.borrower_id],
+        [Chat.item_id, Chat.borrower_id],  # type: ignore[list-item]
         select(chat_values).where(
             ~exists().where(
                 Chat.item_id == chat_values.columns.item_id,

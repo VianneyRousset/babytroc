@@ -4,7 +4,7 @@ from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.query import ItemUpdateQueryFilter
 from app.schemas.item.read import ItemRead
@@ -22,7 +22,7 @@ async def update_client_item(
         ItemUpdate,
         Body(title="Item fields to update."),
     ],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ItemRead:
     """Update client's item."""
 

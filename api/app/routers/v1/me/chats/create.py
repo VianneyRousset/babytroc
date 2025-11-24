@@ -4,7 +4,7 @@ from fastapi import Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
-from app.database import get_db_async_session
+from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.create import ChatMessageCreate
@@ -27,7 +27,7 @@ async def send_message_to_chat(
         ChatMessageCreate,
         Body(),
     ],
-    db: Annotated[AsyncSession, Depends(get_db_async_session)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> ChatMessageRead:
     """Send message to chat."""
 

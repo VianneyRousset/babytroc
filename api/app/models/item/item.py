@@ -117,30 +117,11 @@ class Item(CreationDate, UpdateDate, Base):
         cascade="all, delete-orphan",
     )
 
-    # all active loans (should be unique or empty)
-    active_loans_count: Mapped[int] = deferred(
-        column_property(
-            select(func.count(Loan.id))
-            .where(Loan.item_id == id)
-            .where(func.upper(Loan.during).is_(None))
-            .scalar_subquery()
-        )
-    )
-
     # all loan requests of the item
     loan_requests: Mapped[list[LoanRequest]] = relationship(
         LoanRequest,
         back_populates="item",
         cascade="all, delete-orphan",
-    )
-
-    # number of users liking of the item
-    likes_count: Mapped[int] = deferred(
-        column_property(
-            select(func.count(ItemLike.item_id))
-            .where(ItemLike.item_id == id)
-            .scalar_subquery()
-        )
     )
 
     # content used for fuzzy search
@@ -162,13 +143,6 @@ class Item(CreationDate, UpdateDate, Base):
     @hybrid_property
     def images_names(self):
         return [img.name for img in self.images]
-
-    @hybrid_property
-    def available(self):
-        return domain.item.compute_item_available(
-            is_blocked=self.blocked,
-            active_loans_count=self.active_loans_count,
-        )
 
     __table_args__ = (
         Index(
