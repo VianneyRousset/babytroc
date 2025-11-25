@@ -9,26 +9,21 @@ from sqlalchemy import (
     Integer,
     String,
     func,
-    select,
     text,
 )
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
-    column_property,
-    deferred,
     mapped_column,
     relationship,
 )
 
-from app import domain
 from app.models.base import Base, CreationDate, UpdateDate
 from app.models.chat import Chat
 from app.models.loan import Loan, LoanRequest
 
 from .image import ItemImage
-from .like import ItemLike
 from .region import Region
 
 if TYPE_CHECKING:
