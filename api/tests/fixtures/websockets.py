@@ -1,94 +1,81 @@
-from collections.abc import Generator
-from contextlib import AbstractContextManager
-from time import sleep
+import asyncio
+from collections.abc import AsyncGenerator
+from contextlib import AbstractAsyncContextManager
 from types import TracebackType
 
 import pytest
-from starlette.testclient import WebSocketTestSession
-from starlette.websockets import WebSocketDisconnect
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession, WebSocketDisconnect, aconnect_ws
 
-from app.config import Config
 from app.schemas.user.private import UserPrivateRead
-from app.schemas.websocket import (
-    WebSocketMessage,
-    WebSocketMessageTypeAdapter,
-)
+from app.schemas.websocket import WebSocketMessage, WebSocketMessageTypeAdapter
 
-from .clients import create_client, login_as_user
 from .users import UserData
 
 
 @pytest.fixture
-def alice_websocket(
-    app_config: Config,
+async def alice_websocket(
+    alice_client: AsyncClient,
     alice: UserPrivateRead,
     alice_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
+) -> AsyncGenerator[AsyncWebSocketSession]:
     """Websocket with Alice's credentials."""
 
-    with create_client(app_config) as client:
-        alice_client = login_as_user(
-            client=client,
-            username=alice_user_data["email"],
-            password=alice_user_data["password"],
-        )
-        yield alice_client.websocket_connect("/v1/me/websocket")
+    ws: AsyncWebSocketSession
+    async with aconnect_ws("/v1/me/websocket", alice_client) as ws:
+        yield ws
 
 
 @pytest.fixture
-def bob_websocket(
-    app_config: Config,
+async def bob_websocket(
+    bob_client: AsyncClient,
     bob: UserPrivateRead,
     bob_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
+) -> AsyncGenerator[AsyncWebSocketSession]:
     """Websocket with Bob's credentials."""
 
-    with create_client(app_config) as client:
-        bob_client = login_as_user(
-            client=client,
-            username=bob_user_data["email"],
-            password=bob_user_data["password"],
-        )
-
-        yield bob_client.websocket_connect("/v1/me/websocket")
+    ws: AsyncWebSocketSession
+    async with aconnect_ws("/v1/me/websocket", bob_client) as ws:
+        yield ws
 
 
 @pytest.fixture
-def carol_websocket(
-    app_config: Config,
+async def carol_websocket(
+    carol_client: AsyncClient,
     carol: UserPrivateRead,
     carol_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
-    """Websocket with carol's credentials."""
+) -> AsyncGenerator[AsyncWebSocketSession]:
+    """Websocket with Carol's credentials."""
 
-    with create_client(app_config) as client:
-        carol_client = login_as_user(
-            client=client,
-            username=carol_user_data["email"],
-            password=carol_user_data["password"],
-        )
-
-        yield carol_client.websocket_connect("/v1/me/websocket")
+    ws: AsyncWebSocketSession
+    async with aconnect_ws("/v1/me/websocket", carol_client) as ws:
+        yield ws
 
 
-class WebSocketRecorder(AbstractContextManager):
+class WebSocketRecorder(AbstractAsyncContextManager):
     """Helper to record one message from websocket."""
 
     WEBSOCKET_PATH = "/v1/me/websocket"
 
-    def __init__(self, websocket: WebSocketTestSession):
+    def __init__(
+        self,
+        websocket: AsyncWebSocketSession,
+        *,
+        timeout: float | None = 2.0,
+    ):
         self.websocket = websocket
+        self.timeout = timeout
         self.message: WebSocketMessage | None = None
 
-    def __enter__(self):
-        self.websocket.__enter__()
+    async def __aenter__(self):
+        await self.websocket.__aenter__()
 
         # trying to avoid some concurrency issues
-        sleep(0.2)
+        await asyncio.sleep(0.2)
 
         return self
 
-    def __exit__(
+    async def __aexit__(
         self,
         type: type[BaseException] | None,
         value: BaseException | None,
@@ -96,17 +83,17 @@ class WebSocketRecorder(AbstractContextManager):
     ) -> bool | None:
         # record  message and close websocket
         if type is None:
-            content = self.websocket.receive_text()
+            content = await self.websocket.receive_text()
             self.message = WebSocketMessageTypeAdapter.validate_json(content)
 
-        self.websocket.close()
+        await self.websocket.close()
 
         # wait for websocket close message
         try:
-            self.websocket.receive_text()
+            await self.websocket.receive_text(timeout=self.timeout)
         except WebSocketDisconnect:
             pass
 
-        self.websocket.__exit__(None, None, None)
+        await self.websocket.__aexit__(type, value, traceback)
 
         return None

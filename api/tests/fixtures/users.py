@@ -3,7 +3,7 @@ from string import ascii_letters
 from typing import TypedDict
 
 import pytest
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app import services
 from app.schemas.user.create import UserCreate
@@ -51,47 +51,53 @@ def carol_user_data() -> UserData:
 
 
 @pytest.fixture(scope="class")
-def alice(
-    database_sessionmaker: sessionmaker,
+async def alice(
+    database_sessionmaker: async_sessionmaker,
     alice_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Alice exists."""
 
-    with database_sessionmaker.begin() as session:
-        return services.user.create_many_users_without_validation(
-            session,
-            [UserCreate(**alice_user_data)],
-            validated=True,
+    async with database_sessionmaker.begin() as session:
+        return (
+            await services.user.create_many_users_without_validation(
+                session,
+                [UserCreate(**alice_user_data)],
+                validated=True,
+            )
         )[0]
 
 
 @pytest.fixture(scope="class")
-def bob(
-    database_sessionmaker: sessionmaker,
+async def bob(
+    database_sessionmaker: async_sessionmaker,
     bob_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Bob exists."""
 
-    with database_sessionmaker.begin() as session:
-        return services.user.create_many_users_without_validation(
-            session,
-            [UserCreate(**bob_user_data)],
-            validated=True,
+    async with database_sessionmaker.begin() as session:
+        return (
+            await services.user.create_many_users_without_validation(
+                session,
+                [UserCreate(**bob_user_data)],
+                validated=True,
+            )
         )[0]
 
 
 @pytest.fixture(scope="class")
-def carol(
-    database_sessionmaker: sessionmaker,
+async def carol(
+    database_sessionmaker: async_sessionmaker,
     carol_user_data: UserData,
 ) -> UserPrivateRead:
     """Ensures Carol exists."""
 
-    with database_sessionmaker.begin() as session:
-        return services.user.create_many_users_without_validation(
-            session,
-            [UserCreate(**carol_user_data)],
-            validated=True,
+    async with database_sessionmaker.begin() as session:
+        return (
+            await services.user.create_many_users_without_validation(
+                session,
+                [UserCreate(**carol_user_data)],
+                validated=True,
+            )
         )[0]
 
 
@@ -100,8 +106,8 @@ def random_str(length: int) -> str:
 
 
 @pytest.fixture(scope="class")
-def many_users(
-    database_sessionmaker: sessionmaker,
+async def many_users(
+    database_sessionmaker: async_sessionmaker,
     bob_user_data: UserData,
 ) -> list[UserPrivateRead]:
     """Many users."""
@@ -120,8 +126,8 @@ def many_users(
         for _ in range(n)
     ]
 
-    with database_sessionmaker.begin() as session:
-        return services.user.create_many_users_without_validation(
+    async with database_sessionmaker.begin() as session:
+        return await services.user.create_many_users_without_validation(
             session,
             user_creates=user_creates,
             validated=True,

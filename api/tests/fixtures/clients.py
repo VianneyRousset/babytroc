@@ -1,8 +1,7 @@
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 
 import pytest
-from fastapi.testclient import TestClient
-from starlette.testclient import WebSocketTestSession
+from httpx import ASGITransport, AsyncClient
 
 from app.app import create_app
 from app.config import Config
@@ -12,136 +11,87 @@ from .users import UserData
 
 
 @pytest.fixture
-def client(
+async def client(
     app_config: Config,
-) -> Generator[TestClient]:
+) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app."""
-    with create_client(app_config) as client:
+    async with await create_client(app_config) as client:
         yield client
 
 
 @pytest.fixture
-def alice_client(
-    app_config: Config,
+async def alice_client(
+    client: AsyncClient,
     alice: UserPrivateRead,
     alice_user_data: UserData,
-) -> Generator[TestClient]:
+) -> AsyncClient:
     """HTTP client to the app with Alice's credentials."""
 
-    with create_client(app_config) as client:
-        yield login_as_user(
-            client=client,
-            username=alice_user_data["email"],
-            password=alice_user_data["password"],
-        )
+    return await login_as_user(
+        client=client,
+        username=alice_user_data["email"],
+        password=alice_user_data["password"],
+    )
 
 
 @pytest.fixture
-def bob_client(
-    app_config: Config,
+async def bob_client(
+    client: AsyncClient,
     bob: UserPrivateRead,
     bob_user_data: UserData,
-) -> Generator[TestClient]:
+) -> AsyncClient:
     """HTTP client to the app with Bob's credentials."""
 
-    with create_client(app_config) as client:
-        yield login_as_user(
-            client=client,
-            username=bob_user_data["email"],
-            password=bob_user_data["password"],
-        )
+    return await login_as_user(
+        client=client,
+        username=bob_user_data["email"],
+        password=bob_user_data["password"],
+    )
 
 
 @pytest.fixture
-def carol_client(
-    app_config: Config,
+async def carol_client(
+    client: AsyncClient,
     carol: UserPrivateRead,
     carol_user_data: UserData,
-) -> Generator[TestClient]:
+) -> AsyncClient:
     """HTTP client to the app with Carol's credentials."""
 
-    with create_client(app_config) as client:
-        yield login_as_user(
-            client=client,
-            username=carol_user_data["email"],
-            password=carol_user_data["password"],
-        )
+    return await login_as_user(
+        client=client,
+        username=carol_user_data["email"],
+        password=carol_user_data["password"],
+    )
 
 
-@pytest.fixture
-def alice_websocket(
+async def create_client(
     app_config: Config,
-    alice: UserPrivateRead,
-    alice_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
-    """Websocket with Alice's credentials."""
-
-    with create_client(app_config) as client:
-        alice_client = login_as_user(
-            client=client,
-            username=alice_user_data["email"],
-            password=alice_user_data["password"],
-        )
-        yield alice_client.websocket_connect("/v1/me/websocket")
-
-
-@pytest.fixture
-def bob_websocket(
-    app_config: Config,
-    bob: UserPrivateRead,
-    bob_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
-    """Websocket with Bob's credentials."""
-
-    with create_client(app_config) as client:
-        bob_client = login_as_user(
-            client=client,
-            username=bob_user_data["email"],
-            password=bob_user_data["password"],
-        )
-
-        yield bob_client.websocket_connect("/v1/me/websocket")
-
-
-@pytest.fixture
-def carol_websocket(
-    app_config: Config,
-    carol: UserPrivateRead,
-    carol_user_data: UserData,
-) -> Generator[WebSocketTestSession]:
-    """Websocket with Carol's credentials."""
-
-    with create_client(app_config) as client:
-        carol_client = login_as_user(
-            client=client,
-            username=carol_user_data["email"],
-            password=carol_user_data["password"],
-        )
-
-        yield carol_client.websocket_connect("/v1/me/websocket")
-
-
-def create_client(
-    app_config: Config,
-) -> TestClient:
+) -> AsyncClient:
     """Return a new http test client to the app."""
-    return TestClient(create_app(app_config))
+
+    app = await create_app(app_config)
+
+    return AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://babytroc.ch/api",
+    )
 
 
-def login_as_user(
-    client: TestClient,
+async def login_as_user(
+    client: AsyncClient,
     username: str,
     password: str,
-) -> TestClient:
+) -> AsyncClient:
     """Login with `client` using `username` and `password`."""
 
-    client.post(
+    resp = await client.post(
         "/v1/auth/login",
         data={
             "grant_type": "password",
             "username": username,
             "password": password,
         },
-    ).raise_for_status()
+    )
+    resp.raise_for_status()
 
     return client

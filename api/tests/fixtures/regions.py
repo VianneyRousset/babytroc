@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 import pytest
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app import services
 from app.schemas.region.create import RegionCreate
@@ -29,15 +29,15 @@ def regions_data() -> list[RegionData]:
 
 
 @pytest.fixture(scope="class")
-def regions(
-    database_sessionmaker: sessionmaker,
+async def regions(
+    database_sessionmaker: async_sessionmaker,
     regions_data: list[RegionData],
 ) -> list[RegionRead]:
     """Ensures the regions exists."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         return [
-            services.region.create_region(
+            await services.region.create_region(
                 session,
                 RegionCreate(**region),
             )

@@ -1,29 +1,28 @@
 import os
 import warnings
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
-import sqlalchemy
 from alembic.config import Config as AlembicConfig
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import create_database, drop_database
+from sqlalchemy import URL, text
+from sqlalchemy.exc import SAWarning
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from alembic import command
 
 # make sqlalchemy warnings as errors
-warnings.simplefilter("error", sqlalchemy.exc.SAWarning)
+warnings.simplefilter("error", SAWarning)
 
 
 @pytest.fixture(scope="session")
-def primary_database() -> Generator[sqlalchemy.URL]:
+async def primary_database() -> AsyncGenerator[URL]:
     name = f"test-primary_database-{uuid4()}"
 
     # create URL
-    url = sqlalchemy.URL.create(
-        drivername="postgresql+psycopg2",
+    url = URL.create(
+        drivername="postgresql+asyncpg",
         username=os.environ["POSTGRES_USER"],
         password=os.environ["POSTGRES_PASSWORD"],
         host=os.environ["POSTGRES_HOST"],
@@ -32,7 +31,7 @@ def primary_database() -> Generator[sqlalchemy.URL]:
     )
 
     # create database
-    create_database(url)
+    await create_database(url)
 
     # apply alembic migrations
     app_root = Path(__file__).parent.parent.parent
@@ -47,20 +46,20 @@ def primary_database() -> Generator[sqlalchemy.URL]:
     yield url
 
     # destroy database
-    drop_database(url)
+    await drop_database(url)
 
 
 @pytest.fixture(scope="class")
-def database(
-    primary_database: sqlalchemy.URL,
+async def database(
+    primary_database: URL,
     testrun_uid: str,
-) -> Generator[sqlalchemy.URL]:
+) -> AsyncGenerator[URL]:
     """Create a temporary database with alembic migrations applied."""
 
     name = f"test-{uuid4()}-{testrun_uid}"
 
     # create URL
-    url = sqlalchemy.URL.create(
+    url = URL.create(
         drivername=primary_database.drivername,
         username=primary_database.username,
         password=primary_database.password,
@@ -70,7 +69,7 @@ def database(
     )
 
     # create database
-    create_database(url, template=primary_database.database)
+    await create_database(url, template=primary_database.database)
 
     # yield database url
     yield url
@@ -78,17 +77,65 @@ def database(
     return
 
     # destroy database
-    drop_database(url)
+    await drop_database(url)
 
 
 @pytest.fixture(scope="class")
-def database_sessionmaker(
-    database: sqlalchemy.URL,
-) -> Generator[sessionmaker]:
-    engine = create_engine(database, echo=False)
+async def database_sessionmaker(
+    database: URL,
+) -> AsyncGenerator[async_sessionmaker]:
+    engine = create_async_engine(
+        url=database,
+        echo=False,
+    )
 
-    yield sessionmaker(
+    yield async_sessionmaker(
         bind=engine,
     )
 
-    engine.dispose()
+    await engine.dispose()
+
+
+async def create_database(
+    url: URL,
+    *,
+    encoding="utf8",
+    template=None,
+) -> None:
+    database = url.database
+    url = url._replace(database="postgres")
+
+    engine = create_async_engine(url)
+
+    # postgres default database template
+    if template is None:
+        template = "template1"
+
+    try:
+        async with engine.begin() as conn:
+            stmt = text(
+                f'CREATE DATABASE "{database}" '
+                f"ENCODING '{encoding}' "
+                f'TEMPLATE "{template}"'
+            )
+            await conn.execute(stmt)
+
+    finally:
+        await engine.dispose()
+
+
+async def drop_database(url: URL) -> None:
+    database = url.database
+    url = url._replace(database="postgres")
+
+    engine = create_async_engine(url)
+
+    try:
+        async with engine.begin() as conn:
+            stmt = text(f'DROP DATABASE "{database}"')
+            await conn.execute(stmt)
+
+    finally:
+        await engine.dispose()
+
+    await engine.dispose()

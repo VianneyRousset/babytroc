@@ -1,10 +1,9 @@
 import random
 from io import BytesIO
-from string import ascii_letters
-from typing import TypedDict, TypeVar
+from typing import TypedDict
 
 import pytest
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app import services
 from app.config import Config
@@ -14,6 +13,7 @@ from app.schemas.item.create import ItemCreate
 from app.schemas.item.read import ItemRead
 from app.schemas.region.read import RegionRead
 from app.schemas.user.private import UserPrivateRead
+from tests.utils import random_sample, random_str, random_targeted_age_months
 
 
 class UserData(TypedDict):
@@ -26,12 +26,12 @@ class ItemData(TypedDict):
     name: str
     description: str
     targeted_age_months: str
-    regions: list[int]
+    regions: set[int]
     images: list[str]
 
 
 @pytest.fixture(scope="class")
-def alice_items_data(
+async def alice_items_data(
     alice_items_image: ItemImageRead,
     regions: list[RegionRead],
 ) -> list[ItemData]:
@@ -42,14 +42,14 @@ def alice_items_data(
             "name": "candle",
             "description": "dwell into a flowerbed",
             "targeted_age_months": "4-10",
-            "regions": [regions[0].id],
+            "regions": {regions[0].id},
             "images": [alice_items_image.name],
         },
     ]
 
 
 @pytest.fixture(scope="class")
-def alice_new_item_data(
+async def alice_new_item_data(
     alice_new_item_images: list[ItemImageRead],
     regions: list[RegionRead],
 ) -> ItemData:
@@ -59,13 +59,13 @@ def alice_new_item_data(
         "name": "new-item",
         "description": "This is the latest new item created by alice.",
         "targeted_age_months": "7-",
-        "regions": [regions[1].id],
+        "regions": {regions[1].id},
         "images": [image.name for image in alice_new_item_images],
     }
 
 
 @pytest.fixture(scope="class")
-def alice_special_item_data(
+async def alice_special_item_data(
     alice_special_item_images: list[ItemImageRead],
     regions: list[RegionRead],
 ) -> ItemData:
@@ -75,13 +75,13 @@ def alice_special_item_data(
         "name": "Special item",
         "description": "This is the special item created by alice.",
         "targeted_age_months": "2-5",
-        "regions": [regions[0].id],
+        "regions": {regions[0].id},
         "images": [image.name for image in alice_special_item_images],
     }
 
 
 @pytest.fixture(scope="class")
-def bob_items_data(
+async def bob_items_data(
     bob_items_image: ItemImageRead,
     regions: list[RegionRead],
 ) -> list[ItemData]:
@@ -92,14 +92,14 @@ def bob_items_data(
             "name": "Dark side",
             "description": "Breathe, breathe in the air. Don't be afraid to care",
             "targeted_age_months": "16-",
-            "regions": [regions[0].id, regions[1].id],
+            "regions": {regions[0].id, regions[1].id},
             "images": [bob_items_image.name],
         },
     ]
 
 
 @pytest.fixture(scope="class")
-def alice_items_image_data() -> bytes:
+async def alice_items_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -114,7 +114,7 @@ def alice_items_image_data() -> bytes:
 
 
 @pytest.fixture(scope="class")
-def alice_new_item_image_data() -> bytes:
+async def alice_new_item_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -129,7 +129,7 @@ def alice_new_item_image_data() -> bytes:
 
 
 @pytest.fixture(scope="class")
-def alice_special_item_image_data() -> bytes:
+async def alice_special_item_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -144,7 +144,7 @@ def alice_special_item_image_data() -> bytes:
 
 
 @pytest.fixture(scope="class")
-def bob_items_image_data() -> bytes:
+async def bob_items_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -159,16 +159,16 @@ def bob_items_image_data() -> bytes:
 
 
 @pytest.fixture(scope="class")
-def alice_items_image(
+async def alice_items_image(
     app_config: Config,
-    database_sessionmaker: sessionmaker,
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Alice's item image exists."""
 
-    with database_sessionmaker.begin() as session:
-        return services.image.upload_image(
+    async with database_sessionmaker.begin() as session:
+        return await services.image.upload_image(
             db=session,
             config=app_config,
             owner_id=alice.id,
@@ -177,17 +177,17 @@ def alice_items_image(
 
 
 @pytest.fixture(scope="class")
-def alice_new_item_images(
+async def alice_new_item_images(
     app_config: Config,
-    database_sessionmaker: sessionmaker,
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
     """Ensure Alice's item image exists."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         return [
-            services.image.upload_image(
+            await services.image.upload_image(
                 db=session,
                 config=app_config,
                 owner_id=alice.id,
@@ -198,17 +198,17 @@ def alice_new_item_images(
 
 
 @pytest.fixture(scope="class")
-def alice_special_item_images(
+async def alice_special_item_images(
     app_config: Config,
-    database_sessionmaker: sessionmaker,
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
     """Ensure Alice's item image exists."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         return [
-            services.image.upload_image(
+            await services.image.upload_image(
                 db=session,
                 config=app_config,
                 owner_id=alice.id,
@@ -219,16 +219,16 @@ def alice_special_item_images(
 
 
 @pytest.fixture(scope="class")
-def bob_items_image(
+async def bob_items_image(
     app_config: Config,
-    database_sessionmaker: sessionmaker,
+    database_sessionmaker: async_sessionmaker,
     bob: UserPrivateRead,
     bob_items_image_data: bytes,
 ) -> ItemImageRead:
     """Ensure Bob's item image exists."""
 
-    with database_sessionmaker.begin() as session:
-        return services.image.upload_image(
+    async with database_sessionmaker.begin() as session:
+        return await services.image.upload_image(
             db=session,
             config=app_config,
             owner_id=bob.id,
@@ -237,16 +237,16 @@ def bob_items_image(
 
 
 @pytest.fixture(scope="class")
-def alice_items(
-    database_sessionmaker: sessionmaker,
+async def alice_items(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures Alice's items exist."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         return [
-            services.item.create_item(
+            await services.item.create_item(
                 db=session,
                 owner_id=alice.id,
                 item_create=ItemCreate(
@@ -262,15 +262,15 @@ def alice_items(
 
 
 @pytest.fixture
-def alice_new_item(
-    database_sessionmaker: sessionmaker,
+async def alice_new_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item_data: ItemData,
 ) -> ItemRead:
     """Alice's new item."""
 
-    with database_sessionmaker.begin() as session:
-        return services.item.create_item(
+    async with database_sessionmaker.begin() as session:
+        return await services.item.create_item(
             db=session,
             owner_id=alice.id,
             item_create=ItemCreate(
@@ -286,15 +286,15 @@ def alice_new_item(
 
 
 @pytest.fixture(scope="class")
-def alice_special_item(
-    database_sessionmaker: sessionmaker,
+async def alice_special_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_special_item_data: ItemData,
 ) -> ItemRead:
     """Alice's special item."""
 
-    with database_sessionmaker.begin() as session:
-        return services.item.create_item(
+    async with database_sessionmaker.begin() as session:
+        return await services.item.create_item(
             db=session,
             owner_id=alice.id,
             item_create=ItemCreate(
@@ -310,8 +310,8 @@ def alice_special_item(
 
 
 @pytest.fixture(scope="class")
-def alice_many_items(
-    database_sessionmaker: sessionmaker,
+async def alice_many_items(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_items_image: ItemImageRead,
     regions: list[RegionRead],
@@ -321,18 +321,20 @@ def alice_many_items(
     n = 256
     random.seed(0x25D4)
 
-    with database_sessionmaker.begin() as session:
-        items = services.item.create_many_items(
+    async with database_sessionmaker.begin() as session:
+        items = await services.item.create_many_items(
             db=session,
-            owner_ids=[alice.id] * n,
-            item_creates=[
-                ItemCreate(
-                    name=random_str(8),
-                    description=random_str(50),
-                    targeted_age_months=random_targeted_age_months(),
-                    regions=random_sample([reg.id for reg in regions]),
-                    images=[alice_items_image.name],
-                    blocked=False,
+            items=[
+                services.item.create.CreateItem(
+                    owner_id=alice.id,
+                    item_create=ItemCreate(
+                        name=random_str(8),
+                        description=random_str(50),
+                        targeted_age_months=random_targeted_age_months(),
+                        regions=set(random_sample([reg.id for reg in regions])),
+                        images=[alice_items_image.name],
+                        blocked=False,
+                    ),
                 )
                 for _ in range(n)
             ],
@@ -342,16 +344,16 @@ def alice_many_items(
 
 
 @pytest.fixture(scope="class")
-def bob_items(
-    database_sessionmaker: sessionmaker,
+async def bob_items(
+    database_sessionmaker: async_sessionmaker,
     bob: UserPrivateRead,
     bob_items_data: list[ItemData],
 ) -> list[ItemRead]:
     """Ensures bob's items exist."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         return [
-            services.item.create_item(
+            await services.item.create_item(
                 db=session,
                 owner_id=bob.id,
                 item_create=ItemCreate(
@@ -367,7 +369,7 @@ def bob_items(
 
 
 @pytest.fixture(scope="class")
-def items(
+async def items(
     alice_items: list[ItemRead],
     bob_items: list[ItemRead],
 ) -> list[ItemRead]:
@@ -379,29 +381,9 @@ def items(
     ]
 
 
-def random_str(length: int) -> str:
-    return "".join(random.choices(ascii_letters, k=length))
-
-
-def random_targeted_age_months() -> MonthRange:
-    lower = random.randint(0, 32)
-    upper = random.randint(lower, 33)
-    return MonthRange.from_values(
-        lower=None if lower == 0 else lower,
-        upper=None if upper > 32 else upper,
-    )
-
-
-T = TypeVar("T")
-
-
-def random_sample[T](population: list[T]) -> list[T]:
-    return random.sample(population, k=random.randint(1, len(population)))
-
-
 @pytest.fixture(scope="class")
-def many_items(
-    database_sessionmaker: sessionmaker,
+async def many_items(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
     alice_items_image: ItemImageRead,
@@ -427,20 +409,26 @@ def many_items(
         )
     ]
 
-    with database_sessionmaker.begin() as session:
-        items = services.item.create_many_items(
+    async with database_sessionmaker.begin() as session:
+        items = await services.item.create_many_items(
             db=session,
-            owner_ids=owner_ids,
-            item_creates=[
-                ItemCreate(
-                    name=random_str(8),
-                    description=random_str(50),
-                    targeted_age_months=random_targeted_age_months(),
-                    regions=random_sample([reg.id for reg in regions]),
-                    images=[image.name],
-                    blocked=random.choice([False] * 3 + [True]),
+            items=[
+                services.item.create.CreateItem(
+                    owner_id=owner_id,
+                    item_create=ItemCreate(
+                        name=random_str(8),
+                        description=random_str(50),
+                        targeted_age_months=random_targeted_age_months(),
+                        regions=set(random_sample([reg.id for reg in regions])),
+                        images=[image.name],
+                        blocked=random.choice([False] * 3 + [True]),
+                    ),
                 )
-                for image in images
+                for owner_id, image in zip(
+                    owner_ids,
+                    images,
+                    strict=True,
+                )
             ],
         )
 
@@ -448,7 +436,7 @@ def many_items(
 
 
 @pytest.fixture(scope="class")
-def some_item_french_names() -> list[str]:
+async def some_item_french_names() -> list[str]:
     """Some item French names."""
 
     random.seed(0xA19F)
@@ -472,8 +460,8 @@ def some_item_french_names() -> list[str]:
 
 
 @pytest.fixture(scope="class")
-def some_items_with_french_names(
-    database_sessionmaker: sessionmaker,
+async def some_items_with_french_names(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
     alice_items_image: ItemImageRead,
@@ -499,20 +487,27 @@ def some_items_with_french_names(
         )
     ]
 
-    with database_sessionmaker.begin() as session:
-        items = services.item.create_many_items(
+    async with database_sessionmaker.begin() as session:
+        items = await services.item.create_many_items(
             db=session,
-            owner_ids=owner_ids,
-            item_creates=[
-                ItemCreate(
-                    name=name,
-                    description=random_str(50),
-                    targeted_age_months=random_targeted_age_months(),
-                    regions=random_sample([reg.id for reg in regions]),
-                    images=[image.name],
-                    blocked=random.choice([False] * 3 + [True]),
+            items=[
+                services.item.create.CreateItem(
+                    owner_id=owner_id,
+                    item_create=ItemCreate(
+                        name=name,
+                        description=random_str(50),
+                        targeted_age_months=random_targeted_age_months(),
+                        regions=set(random_sample([reg.id for reg in regions])),
+                        images=[image.name],
+                        blocked=random.choice([False] * 3 + [True]),
+                    ),
                 )
-                for name, image in zip(some_item_french_names, images, strict=True)
+                for name, owner_id, image in zip(
+                    some_item_french_names,
+                    owner_ids,
+                    images,
+                    strict=True,
+                )
             ],
         )
 

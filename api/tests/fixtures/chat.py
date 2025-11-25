@@ -1,11 +1,13 @@
+import asyncio
 from contextlib import AbstractContextManager
 from types import TracebackType
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import sessionmaker
-from starlette.testclient import WebSocketTestSession
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from app import services
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead, ChatRead
@@ -17,8 +19,6 @@ from app.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from app.services.chat import get_chat, list_messages, send_many_chat_messages
-from app.services.loan import create_loan_request
 from tests.fixtures.websockets import WebSocketRecorder
 
 
@@ -28,30 +28,35 @@ class ReceivedChatMessageChecker(AbstractContextManager):
     def __init__(
         self,
         *,
-        clients: list[TestClient],
-        websockets: list[WebSocketTestSession],
+        clients: list[AsyncClient],
+        websockets: list[AsyncWebSocketSession],
     ):
         self.clients = clients
         self.websocket_recorders = [WebSocketRecorder(ws) for ws in websockets]
 
-    def __enter__(self):
-        for recorder in self.websocket_recorders:
-            recorder.__enter__()
+    async def __aenter__(self):
+        await asyncio.gather(
+            *(recorder.__aenter__() for recorder in self.websocket_recorders)
+        )
 
         return self
 
-    def __exit__(
+    async def __aexit__(
         self,
         type: type[BaseException] | None,
         value: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool | None:
-        for recorder in self.websocket_recorders:
-            recorder.__exit__(type, value, traceback)
+        await asyncio.gather(
+            *(
+                recorder.__aexit__(type, value, traceback)
+                for recorder in self.websocket_recorders
+            )
+        )
 
         return None
 
-    def check(
+    async def check(
         self,
         chat_id: ChatId,
         *,
@@ -75,7 +80,7 @@ class ReceivedChatMessageChecker(AbstractContextManager):
             expected_websocket_message,
             exclude=exclude,
         )
-        self.check_client_message(
+        await self.check_client_message(
             chat_id,
             expected_message,
             exclude=exclude,
@@ -107,7 +112,7 @@ class ReceivedChatMessageChecker(AbstractContextManager):
                 ),
             }, "Unexpected websocket message"
 
-    def check_client_message(
+    async def check_client_message(
         self,
         chat_id: ChatId,
         expected_message: ChatMessageRead,
@@ -115,7 +120,7 @@ class ReceivedChatMessageChecker(AbstractContextManager):
         exclude: list[str] | None = None,
     ):
         for client in self.clients:
-            resp = client.get(f"/v1/me/chats/{chat_id}/messages")
+            resp = await client.get(f"/v1/me/chats/{chat_id}/messages")
             resp.raise_for_status()
             last_chat_message = ChatMessageRead.model_validate(resp.json()[0])
             assert last_chat_message.model_dump(
@@ -132,8 +137,8 @@ def alice_many_messages_to_bob_text() -> list[str]:
 
 
 @pytest.fixture
-def alice_many_messages_to_bob(
-    database_sessionmaker: sessionmaker,
+async def alice_many_messages_to_bob(
+    database_sessionmaker: async_sessionmaker,
     alice_many_messages_to_bob_text: list[str],
     alice: UserPrivateRead,
     bob_new_loan_request_for_alice_new_item: LoanRequestRead,
@@ -142,17 +147,21 @@ def alice_many_messages_to_bob(
 
     chat_id = bob_new_loan_request_for_alice_new_item.chat_id
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         # get current messages
-        messages: list[ChatMessageRead] = list_messages(
-            db=session,
-            query_filter=ChatMessageReadQueryFilter(
-                chat_id=chat_id,
-            ),
+        messages: list[ChatMessageRead] = (
+            await services.chat.list_messages(
+                db=session,
+                query_filter=ChatMessageReadQueryFilter(
+                    chat_id=chat_id,
+                ),
+            )
         ).data
 
         # create extra messages
-        extra_messages: list[ChatMessageRead] = send_many_chat_messages(
+        extra_messages: list[
+            ChatMessageRead
+        ] = await services.chat.send_many_chat_messages(
             db=session,
             messages=[
                 SendChatMessageText(
@@ -168,17 +177,17 @@ def alice_many_messages_to_bob(
 
 
 @pytest.fixture(scope="class")
-def alice_many_chats(
-    database_sessionmaker: sessionmaker,
+async def alice_many_chats(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
     many_items: list[ItemRead],
 ) -> list[ChatRead]:
     """Many chats between Alice and Bob."""
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         loan_requests = [
-            create_loan_request(
+            await services.loan.create_loan_request(
                 db=session,
                 item_id=item.id,
                 borrower_id=alice.id if item.owner_id == bob.id else bob.id,
@@ -187,7 +196,7 @@ def alice_many_chats(
             if item.owner_id in [alice.id, bob.id]
         ]
         return [
-            get_chat(
+            await services.chat.get_chat(
                 db=session,
                 chat_id=loan_request.chat_id,
             )

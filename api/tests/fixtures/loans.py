@@ -1,7 +1,7 @@
 import random
 
 import pytest
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app import services
 from app.enums import LoanRequestState
@@ -14,8 +14,8 @@ from tests.utils import split
 
 
 @pytest.fixture
-def bob_new_loan_request_for_alice_new_item(
-    database_sessionmaker: sessionmaker,
+async def bob_new_loan_request_for_alice_new_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     bob: UserPrivateRead,
@@ -25,8 +25,8 @@ def bob_new_loan_request_for_alice_new_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
-        return services.loan.create_loan_request(
+    async with database_sessionmaker.begin() as session:
+        return await services.loan.create_loan_request(
             db=session,
             item_id=alice_new_item.id,
             borrower_id=bob.id,
@@ -34,8 +34,8 @@ def bob_new_loan_request_for_alice_new_item(
 
 
 @pytest.fixture
-def bob_new_loan_request_for_alice_special_item(
-    database_sessionmaker: sessionmaker,
+async def bob_new_loan_request_for_alice_special_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_special_item: ItemRead,
     bob: UserPrivateRead,
@@ -45,8 +45,8 @@ def bob_new_loan_request_for_alice_special_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
-        return services.loan.create_loan_request(
+    async with database_sessionmaker.begin() as session:
+        return await services.loan.create_loan_request(
             db=session,
             item_id=alice_special_item.id,
             borrower_id=bob.id,
@@ -54,8 +54,8 @@ def bob_new_loan_request_for_alice_special_item(
 
 
 @pytest.fixture
-def bob_accepted_loan_request_for_alice_special_item(
-    database_sessionmaker: sessionmaker,
+async def bob_accepted_loan_request_for_alice_special_item(
+    database_sessionmaker: async_sessionmaker,
     bob_new_loan_request_for_alice_special_item: LoanRequestRead,
 ) -> LoanRequestRead:
     """An accepted loan request made by Bob for the special item of Alice.
@@ -63,16 +63,16 @@ def bob_accepted_loan_request_for_alice_special_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
-        return services.loan.accept_loan_request(
+    async with database_sessionmaker.begin() as session:
+        return await services.loan.accept_loan_request(
             db=session,
             loan_request_id=bob_new_loan_request_for_alice_special_item.id,
         )
 
 
 @pytest.fixture
-def bob_new_loan_for_alice_special_item(
-    database_sessionmaker: sessionmaker,
+async def bob_new_loan_for_alice_special_item(
+    database_sessionmaker: async_sessionmaker,
     bob_accepted_loan_request_for_alice_special_item: LoanRequestRead,
 ) -> LoanRead:
     """An active loan to Bob for the special item of Alice.
@@ -80,16 +80,16 @@ def bob_new_loan_for_alice_special_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
-        return services.loan.execute_loan_request(
+    async with database_sessionmaker.begin() as session:
+        return await services.loan.execute_loan_request(
             db=session,
             loan_request_id=bob_accepted_loan_request_for_alice_special_item.id,
         )
 
 
 @pytest.fixture
-def carol_new_loan_request_for_alice_new_item(
-    database_sessionmaker: sessionmaker,
+async def carol_new_loan_request_for_alice_new_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     carol: UserPrivateRead,
@@ -99,8 +99,8 @@ def carol_new_loan_request_for_alice_new_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
-        return services.loan.create_loan_request(
+    async with database_sessionmaker.begin() as session:
+        return await services.loan.create_loan_request(
             db=session,
             item_id=alice_new_item.id,
             borrower_id=carol.id,
@@ -108,8 +108,8 @@ def carol_new_loan_request_for_alice_new_item(
 
 
 @pytest.fixture
-def bob_new_loan_of_alice_new_item(
-    database_sessionmaker: sessionmaker,
+async def bob_new_loan_of_alice_new_item(
+    database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     alice_new_item: ItemRead,
     bob: UserPrivateRead,
@@ -120,9 +120,9 @@ def bob_new_loan_of_alice_new_item(
     fixture scope: function.
     """
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         # execute loan request
-        return services.loan.execute_loan_request(
+        return await services.loan.execute_loan_request(
             db=session,
             loan_request_id=bob_new_loan_request_for_alice_new_item.id,
             query_filter=LoanRequestUpdateQueryFilter(
@@ -134,8 +134,8 @@ def bob_new_loan_of_alice_new_item(
 
 
 @pytest.fixture(scope="class")
-def many_loan_requests_for_alice_items(
-    database_sessionmaker: sessionmaker,
+async def many_loan_requests_for_alice_items(
+    database_sessionmaker: async_sessionmaker,
     many_items: list[ItemRead],
     alice: UserPrivateRead,
     bob: UserPrivateRead,
@@ -163,9 +163,9 @@ def many_loan_requests_for_alice_items(
     borrowers = [bob, carol]
 
     # create all loan requests
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         # create loan requests
-        new_loan_requests = services.loan.create_many_loan_requests(
+        new_loan_requests = await services.loan.create_many_loan_requests(
             db=session,
             loan_requests={
                 ItemBorrowerId.from_values(
@@ -202,40 +202,40 @@ def many_loan_requests_for_alice_items(
     ) = split(selected_loan_requests, 3)
 
     # cancel seleced loan
-    with database_sessionmaker.begin() as session:
-        cancelled_loan_requests: list[LoanRequestRead] = (
-            services.loan.cancel_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_cancel},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        cancelled_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.cancel_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_cancel},
+            send_messages=False,
         )
 
     # reject seleced loan
-    with database_sessionmaker.begin() as session:
-        rejected_loan_requests: list[LoanRequestRead] = (
-            services.loan.reject_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_reject},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        rejected_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.reject_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_reject},
+            send_messages=False,
         )
 
     # accept seleced loan
-    with database_sessionmaker.begin() as session:
-        accepted_loan_requests: list[LoanRequestRead] = (
-            services.loan.accept_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_accept},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        accepted_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.accept_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_accept},
+            send_messages=False,
         )
 
     # execute one of the accepted loan request
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         executed_loan_requests: list[LoanRequestRead] = [
             loan.loan_request
-            for loan in services.loan.execute_many_loan_requests(
+            for loan in await services.loan.execute_many_loan_requests(
                 db=session,
                 loan_request_ids={req.id for req in loan_requests_to_execute},
                 send_messages=False,
@@ -273,8 +273,8 @@ def many_loan_requests_for_alice_items(
 
 
 @pytest.fixture(scope="class")
-def many_loan_requests_for_alice_special_item(
-    database_sessionmaker: sessionmaker,
+async def many_loan_requests_for_alice_special_item(
+    database_sessionmaker: async_sessionmaker,
     many_users: list[UserPrivateRead],
     alice: UserPrivateRead,
     alice_special_item: ItemRead,
@@ -294,9 +294,9 @@ def many_loan_requests_for_alice_special_item(
     # select 90% of all the many users that will request Alice new item
     borrowers = random.sample(many_users, k=round(0.9 * len(many_users)))
 
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         # create loan requests (shuffled)
-        new_loan_requests = services.loan.create_many_loan_requests(
+        new_loan_requests = await services.loan.create_many_loan_requests(
             db=session,
             item_ids=alice_special_item.id,
             borrower_ids={user.id for user in borrowers},
@@ -324,40 +324,40 @@ def many_loan_requests_for_alice_special_item(
     ) = split(selected_loan_requests, 3)
 
     # cancel seleced loan
-    with database_sessionmaker.begin() as session:
-        cancelled_loan_requests: list[LoanRequestRead] = (
-            services.loan.cancel_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_cancel},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        cancelled_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.cancel_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_cancel},
+            send_messages=False,
         )
 
     # reject seleced loan
-    with database_sessionmaker.begin() as session:
-        rejected_loan_requests: list[LoanRequestRead] = (
-            services.loan.reject_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_reject},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        rejected_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.reject_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_reject},
+            send_messages=False,
         )
 
     # accept seleced loan
-    with database_sessionmaker.begin() as session:
-        accepted_loan_requests: list[LoanRequestRead] = (
-            services.loan.accept_many_loan_requests(
-                db=session,
-                loan_request_ids={req.id for req in loan_requests_to_accept},
-                send_messages=False,
-            )
+    async with database_sessionmaker.begin() as session:
+        accepted_loan_requests: list[
+            LoanRequestRead
+        ] = await services.loan.accept_many_loan_requests(
+            db=session,
+            loan_request_ids={req.id for req in loan_requests_to_accept},
+            send_messages=False,
         )
 
     # execute one of the accepted loan request
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         executed_loan_requests: list[LoanRequestRead] = [
             loan.loan_request
-            for loan in services.loan.execute_many_loan_requests(
+            for loan in await services.loan.execute_many_loan_requests(
                 db=session,
                 loan_request_ids={req.id for req in loan_requests_to_execute},
                 send_messages=False,
@@ -395,8 +395,8 @@ def many_loan_requests_for_alice_special_item(
 
 
 @pytest.fixture(scope="class")
-def alice_many_loans(
-    database_sessionmaker: sessionmaker,
+async def alice_many_loans(
+    database_sessionmaker: async_sessionmaker,
     alice_many_items: list[ItemRead],
     alice: UserPrivateRead,
     bob: UserPrivateRead,
@@ -417,9 +417,9 @@ def alice_many_loans(
     items = random.sample(alice_many_items, k=round(0.5 * len(alice_many_items)))
 
     # create loan requests
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         # create loan requests
-        loan_requests = services.loan.create_many_loan_requests(
+        loan_requests = await services.loan.create_many_loan_requests(
             db=session,
             loan_requests={
                 ItemBorrowerId.from_values(
@@ -435,16 +435,16 @@ def alice_many_loans(
         )
 
     # execute all loan requests
-    with database_sessionmaker.begin() as session:
-        loans = services.loan.execute_many_loan_requests(
+    async with database_sessionmaker.begin() as session:
+        loans = await services.loan.execute_many_loan_requests(
             db=session,
             loan_request_ids={req.id for req in loan_requests},
             check_state=False,
         )
 
     # end 70% of the loans
-    with database_sessionmaker.begin() as session:
-        ended_loans = services.loan.end_many_loans(
+    async with database_sessionmaker.begin() as session:
+        ended_loans = await services.loan.end_many_loans(
             db=session,
             loan_ids={
                 loan.id for loan in random.sample(loans, k=round(len(loans) * 0.7))
@@ -452,12 +452,12 @@ def alice_many_loans(
         )
 
     # request 50% of the ended loans
-    with database_sessionmaker.begin() as session:
+    async with database_sessionmaker.begin() as session:
         items_to_request_again = [
             loan.item for loan in random.sample(ended_loans, k=len(ended_loans) // 2)
         ]
 
-        loan_requests = services.loan.create_many_loan_requests(
+        loan_requests = await services.loan.create_many_loan_requests(
             db=session,
             loan_requests={
                 ItemBorrowerId.from_values(
@@ -475,8 +475,8 @@ def alice_many_loans(
             },
         )
     # execute all new loan requests
-    with database_sessionmaker.begin() as session:
-        restarted_loans = services.loan.execute_many_loan_requests(
+    async with database_sessionmaker.begin() as session:
+        restarted_loans = await services.loan.execute_many_loan_requests(
             db=session,
             loan_request_ids={req.id for req in loan_requests},
             check_state=False,
@@ -484,8 +484,8 @@ def alice_many_loans(
 
     # end 50% of those restarted loans
     restarted_loans, ended_twice_loans = split(restarted_loans, 2)
-    with database_sessionmaker.begin() as session:
-        ended_twice_loans = services.loan.end_many_loans(
+    async with database_sessionmaker.begin() as session:
+        ended_twice_loans = await services.loan.end_many_loans(
             db=session,
             loan_ids={loan.id for loan in ended_twice_loans},
         )
