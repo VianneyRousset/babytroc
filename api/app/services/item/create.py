@@ -279,7 +279,11 @@ async def _insert_item_image_associations(
     stmt = (
         insert(ItemImageAssociation)
         .from_select(
-            [ItemImageAssociation.item_id, ItemImageAssociation.image_name],  # type: ignore[list-item]
+            [
+                ItemImageAssociation.item_id,
+                ItemImageAssociation.order,
+                ItemImageAssociation.image_name,
+            ],
             select(data)
             .join(Item)
             .join(ItemImage)
@@ -291,7 +295,8 @@ async def _insert_item_image_associations(
     # execute
     try:
         async with db.begin_nested():
-            inserted_associations = (await db.execute(stmt)).unique().scalars().all()
+            res = await db.execute(stmt)
+            inserted_associations = res.unique().scalars().all()
 
     # If an IntegrityError is raised, it means either:
     # 1. Some images do not exist
