@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.user import UserNotFoundError
+from app.models.item import Item, ItemLike
 from app.models.user import User
 from app.schemas.user.preview import UserPreviewRead
 from app.schemas.user.private import UserPrivateRead
@@ -18,12 +19,12 @@ async def get_user(
 ) -> UserRead:
     """Get user with `user_id`."""
 
-    return UserRead.model_validate(
-        await _get_user(
-            db=db,
-            user_id=user_id,
-        )
+    users = await get_many_users(
+        db=db,
+        user_ids={user_id},
     )
+
+    return users[0]
 
 
 async def get_many_users(
@@ -35,14 +36,10 @@ async def get_many_users(
     Raises UserNotFoundError if not all users matching criterias exist.
     """
 
-    stmt = select(User).where(User.id.in_(user_ids))
-
-    users = (await db.execute(stmt)).unique().scalars().all()
-
-    missing_user_ids = user_ids - {user.id for user in users}
-    if missing_user_ids:
-        key = {"user_ids": missing_user_ids}
-        raise UserNotFoundError(key)
+    users = await get_many_users_private(
+        db=db,
+        user_ids=user_ids,
+    )
 
     return [UserRead.model_validate(user) for user in users]
 
@@ -51,14 +48,65 @@ async def get_user_private(
     db: AsyncSession,
     user_id: int,
 ) -> UserPrivateRead:
-    """Get user with `user_id`."""
+    """Get user (including private info) with `user_id`."""
 
-    return UserPrivateRead.model_validate(
-        await _get_user(
-            db=db,
-            user_id=user_id,
-        )
+    users = await get_many_users_private(
+        db=db,
+        user_ids={user_id},
     )
+
+    return users[0]
+
+
+async def get_many_users_private(
+    db: AsyncSession,
+    user_ids: set[int],
+) -> list[UserPrivateRead]:
+    """Get all users (including private info) with the given user ids.
+
+    Raises UserNotFoundError if not all users matching criterias exist.
+    """
+
+    stmt = (
+        select(User, func.count(Item.id), func.count(ItemLike.id))
+        .join(
+            Item,
+            onclause=Item.owner_id == User.id,
+            isouter=True,
+        )
+        .join(
+            ItemLike,
+            onclause=ItemLike.item_id == Item.id,
+            isouter=True,
+        )
+        .group_by(User.id)
+    )
+
+    print(stmt.compile(compile_kwargs={"literal_binds": True}), flush=True)
+
+    res = await db.execute(stmt)
+    rows = res.all()
+
+    users = [
+        UserPrivateRead(
+            id=user.id,
+            validated=user.validated,
+            name=user.name,
+            email=user.email,
+            avatar_seed=user.avatar_seed,
+            items_count=items_count,
+            stars_count=user.stars_count,
+            likes_count=likes_count,
+        )
+        for user, items_count, likes_count in rows
+    ]
+
+    missing_user_ids = user_ids - {user.id for user in users}
+    if missing_user_ids:
+        key = {"user_ids": missing_user_ids}
+        raise UserNotFoundError(key)
+
+    return users
 
 
 async def get_user_by_email_private(
@@ -115,19 +163,3 @@ async def list_users(
     users = (await db.execute(stmt)).unique().scalars().all()
 
     return [UserPreviewRead.model_validate(user) for user in users]
-
-
-async def _get_user(
-    db: AsyncSession,
-    user_id: int,
-) -> User:
-    """Get db user model with `user_id`."""
-
-    stmt = select(User).where(User.id == user_id)
-
-    try:
-        # execute
-        return (await db.execute(stmt)).unique().scalars().one()
-
-    except NoResultFound as error:
-        raise UserNotFoundError({"id": user_id}) from error

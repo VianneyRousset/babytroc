@@ -9,6 +9,8 @@ from app.schemas.user.create import UserCreate
 from app.schemas.user.private import UserPrivateRead
 from app.utils.hash import HashedStr
 
+from .read import get_many_users_private
+
 
 async def create_user(
     db: AsyncSession,
@@ -22,22 +24,15 @@ async def create_user(
 ) -> UserPrivateRead:
     """Create a user."""
 
-    # insert user
-    stmt = (
-        insert(User)
-        .values(
-            **{
-                **user_create.model_dump(
-                    exclude={"password"},
-                    exclude_none=True,
-                ),
-                "password_hash": HashedStr(user_create.password),
-            }
-        )
-        .returning(User)
+    db_users = await _create_many_users(
+        db=db,
+        user_creates=[user_create],
+        validated=validated,
     )
 
-    user = (await db.execute(stmt)).unique().scalars().one()
+    db_user = db_users[0]
+
+    await db.flush()
 
     if send_validation_email:
         email.send_account_validation_email(
@@ -45,12 +40,15 @@ async def create_user(
             background_tasks=background_tasks,
             host_name=host_name,
             app_name=app_name,
-            username=user.name,
-            email=user.email,
-            validation_code=user.validation_code,
+            username=db_user.name,
+            email=db_user.email,
+            validation_code=db_user.validation_code,
         )
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(
+        db=db,
+        user_id=db_user.id,
+    )
 
 
 async def create_user_without_validation(
@@ -76,6 +74,27 @@ async def create_many_users_without_validation(
 ) -> list[UserPrivateRead]:
     """Create many users without sending a validation email."""
 
+    users = await _create_many_users(
+        db=db,
+        user_creates=user_creates,
+        validated=validated,
+    )
+
+    await db.flush()
+
+    return await get_many_users_private(
+        db=db,
+        user_ids={user.id for user in users},
+    )
+
+
+async def _create_many_users(
+    db: AsyncSession,
+    user_creates: list[UserCreate],
+    validated: bool = False,
+) -> list[User]:
+    """Create many db users."""
+
     # insert users
     stmt = (
         insert(User)
@@ -94,7 +113,8 @@ async def create_many_users_without_validation(
         )
         .returning(User)
     )
-    users = (await db.execute(stmt)).unique().scalars().all()
 
-    # execute
-    return [UserPrivateRead.model_validate(user) for user in users]
+    res = await db.execute(stmt)
+    users = list(res.unique().scalars().all())
+
+    return users

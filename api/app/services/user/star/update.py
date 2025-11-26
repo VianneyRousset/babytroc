@@ -40,7 +40,7 @@ async def add_many_stars_to_users(
         raise ValueError(msg)
 
     data = values(
-        cast("ColumnClause[int]", User.id),
+        column("user_id", Integer),
         column("added_stars_count", Integer),
         name="user_add_star_data",
     ).data([(s.user_id, s.stars_count) for s in stars])
@@ -59,7 +59,7 @@ async def add_many_stars_to_users(
     # If not all users has been updated, it means either:
     # 1. Some users do not exist
     # 2. Unexpected error
-    if res.rowcount == len(stars):  # type: ignore[attr-defined]
+    if res.rowcount != len(stars):  # type: ignore[attr-defined]
         # raises UserNotFoundError if a user does not exist (1.)
         await get_many_users(
             db=db,
@@ -68,7 +68,7 @@ async def add_many_stars_to_users(
 
         # unexpected error
         msg = (
-            "The number of updated users does not match the number of "
-            "(user_id, stars_count) tuples. Unexpected reason."
+            f"The number of updated users ({res.rowcount}) does not match the number "  # type: ignore[attr-defined]
+            f"of (user_id, stars_count) tuples ({len(stars)}). Unexpected reason."
         )
         raise RuntimeError(msg)
