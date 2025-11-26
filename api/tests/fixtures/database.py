@@ -1,9 +1,12 @@
+import asyncio
 import os
 import warnings
 from collections.abc import AsyncGenerator
+from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
+import alembic.config
 import pytest
 from alembic.config import Config as AlembicConfig
 from sqlalchemy import URL, text
@@ -14,6 +17,18 @@ from alembic import command
 
 # make sqlalchemy warnings as errors
 warnings.simplefilter("error", SAWarning)
+
+
+def run_alembic_upgrade_head(url: URL):
+    # apply alembic migrations
+    app_root = Path(__file__).parent.parent.parent
+    alembic_cfg = AlembicConfig(app_root / "alembic.ini")
+    alembic_cfg.set_main_option("script_location", str(app_root / "alembic"))
+    alembic_cfg.set_main_option(
+        "sqlalchemy.url", url.render_as_string(hide_password=False)
+    )
+    alembic.config.main(["upgrade", "head"])
+    command.upgrade(alembic_cfg, "head")
 
 
 @pytest.fixture(scope="session")
@@ -33,14 +48,8 @@ async def primary_database() -> AsyncGenerator[URL]:
     # create database
     await create_database(url)
 
-    # apply alembic migrations
-    app_root = Path(__file__).parent.parent.parent
-    alembic_cfg = AlembicConfig(app_root / "alembic.ini")
-    alembic_cfg.set_main_option("script_location", str(app_root / "alembic"))
-    alembic_cfg.set_main_option(
-        "sqlalchemy.url", url.render_as_string(hide_password=False)
-    )
-    command.upgrade(alembic_cfg, "head")
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, partial(run_alembic_upgrade_head, url))
 
     # yield database url
     yield url
@@ -105,7 +114,7 @@ async def create_database(
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(url)
+    engine = create_async_engine(url, isolation_level="AUTOCOMMIT")
 
     # postgres default database template
     if template is None:
@@ -128,7 +137,7 @@ async def drop_database(url: URL) -> None:
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(url)
+    engine = create_async_engine(url, isolation_level="AUTOCOMMIT")
 
     try:
         async with engine.begin() as conn:
