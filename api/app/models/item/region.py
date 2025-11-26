@@ -1,17 +1,12 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import (
     ForeignKey,
     Identity,
     Integer,
     String,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
-
-if TYPE_CHECKING:
-    from .item import Item
 
 
 class Region(Base):
@@ -27,12 +22,6 @@ class Region(Base):
 
     name: Mapped[str] = mapped_column(
         String,
-    )
-
-    items: Mapped[list["Item"]] = relationship(
-        "Item",
-        secondary="item_region_association",
-        back_populates="regions",
     )
 
     def __repr__(self):

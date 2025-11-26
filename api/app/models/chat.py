@@ -48,7 +48,6 @@ class Chat(Base):
 
     item: Mapped["Item"] = relationship(
         "Item",
-        back_populates="chats",
         foreign_keys=[item_id],
         single_parent=True,
     )
@@ -56,11 +55,6 @@ class Chat(Base):
         "User",
         foreign_keys=[borrower_id],
         single_parent=True,
-    )
-
-    messages: Mapped[list["ChatMessage"]] = relationship(
-        "ChatMessage",
-        cascade="all, delete-orphan",
     )
 
     @hybrid_property
@@ -109,7 +103,6 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
 
     chat: Mapped[Chat] = relationship(
         Chat,
-        back_populates="messages",
         foreign_keys=[item_id, borrower_id],
         single_parent=True,
     )

@@ -1,16 +1,7 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-)
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, CreationDate
-
-if TYPE_CHECKING:
-    from .item import Item
 
 
 class ItemImage(Base, CreationDate):
@@ -36,12 +27,6 @@ class ItemImage(Base, CreationDate):
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
-    )
-
-    items: Mapped[set["Item"]] = relationship(
-        "Item",
-        secondary="item_image_association",
-        back_populates="images",
     )
 
     def __repr__(self):
