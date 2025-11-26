@@ -49,5 +49,9 @@ async def _post_image_to_imgpush(
     url: str,
     fp: io.IOBase,
 ) -> dict:
-    async with session.post(url, timeout=TIMEOUT) as response:
+    async with session.post(
+        url,
+        timeout=TIMEOUT,
+        data={"file": fp},
+    ) as response:
         return await response.json()
