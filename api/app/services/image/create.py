@@ -36,15 +36,20 @@ async def upload_image(
     name = resp.name
 
     # create item in database
-    stmt = insert(ItemImage).values(
-        {
-            "name": name,
-            "owner_id": owner_id,
-        }
+    stmt = (
+        insert(ItemImage)
+        .values(
+            {
+                "name": name,
+                "owner_id": owner_id,
+            }
+        )
+        .returning(ItemImage)
     )
 
     try:
-        item_image = (await db.execute(stmt)).unique().scalars().one()
+        res = await db.execute(stmt)
+        item_image = res.unique().scalars().one()
 
     # If an IntegrityError is raised, it means either:
     # 1. The owner does not exist
