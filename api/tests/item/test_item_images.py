@@ -1,5 +1,5 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from tests.fixtures.items import ItemData
 
@@ -8,15 +8,15 @@ from tests.fixtures.items import ItemData
 class TestItemImages:
     """Test item iamges."""
 
-    def test_created_image_can_be_read(
+    async def test_created_image_can_be_read(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_items_image_data: str,
     ):
-        """Upload image from client 0 and retrieve it from public client."""
+        """Upload image from client 0 and retrieve it from public await client."""
 
         # upload image
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/images",
             files={"file": alice_items_image_data},
         )
@@ -24,12 +24,12 @@ class TestItemImages:
         name = resp.json()["name"]
 
         # request image
-        resp = alice_client.get(f"/v1/images/{name}")
+        resp = await alice_client.get(f"/v1/images/{name}")
         resp.raise_for_status()
 
-    def test_item_images_order(
+    async def test_item_images_order(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_items_image_data: bytes,
         alice_new_item_data: ItemData,
     ):
@@ -43,7 +43,7 @@ class TestItemImages:
         shuffled_names = [names[i] for i in [3, 4, 1, 0, 2]]
 
         # create item with revsere custom order (different than upload order)
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json={
                 **alice_new_item_data,
@@ -55,7 +55,7 @@ class TestItemImages:
         item_id = item["id"]
 
         # get item by id from global list
-        resp = alice_client.get(f"/v1/items/{item_id}")
+        resp = await alice_client.get(f"/v1/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
         item = resp.json()
@@ -64,9 +64,9 @@ class TestItemImages:
         assert item["images_names"] == shuffled_names
 
     @staticmethod
-    def upload_image(client: TestClient, img: bytes) -> str:
+    async def upload_image(client: AsyncClient, img: bytes) -> str:
         # upload image
-        resp = client.post(
+        resp = await client.post(
             "/v1/images",
             files={"file": img},
         )

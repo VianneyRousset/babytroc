@@ -1,7 +1,7 @@
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from unidecode import unidecode
 
 from app.schemas.item.preview import ItemPreviewRead
@@ -9,6 +9,7 @@ from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
 from app.schemas.user.private import UserPrivateRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
+from tests.utils import azip
 
 
 @pytest.mark.usefixtures("many_items")
@@ -16,9 +17,9 @@ class TestItemsRead:
     """Test items read with no filtering."""
 
     @pytest.mark.parametrize("count", [None, 16, 7])
-    def test_read_pages(
+    async def test_read_pages(
         self,
-        client: TestClient,
+        client: AsyncClient,
         many_items: list[ItemRead],
         count: int | None,
     ):
@@ -29,7 +30,7 @@ class TestItemsRead:
 
         assert len(many_items) >= 5, "poor data for testing"
 
-        for items, expected_items in zip(
+        async for items, expected_items in azip(
             iter_paginated_endpoint(
                 client=client,
                 url="/v1/items",
@@ -49,12 +50,12 @@ class TestItemsRead:
 
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadUserItems:
-    """Test reading list of items owned by a user / the client."""
+    """Test reading list of items owned by a user / the await client."""
 
-    def test_list_items_owned_by_alice(
+    async def test_list_items_owned_by_alice(
         self,
         many_items: list[ItemPreviewRead],
-        client: TestClient,
+        client: AsyncClient,
         alice: UserPrivateRead,
     ):
         """List items owned by Alice."""
@@ -75,10 +76,10 @@ class TestItemsReadUserItems:
 
         assert item_ids == expected_item_ids
 
-    def test_read_single_item_owned_by_alice(
+    async def test_read_single_item_owned_by_alice(
         self,
         many_items: list[ItemPreviewRead],
-        client: TestClient,
+        client: AsyncClient,
         alice: UserPrivateRead,
     ):
         """List items owned by Alice."""
@@ -87,16 +88,16 @@ class TestItemsReadUserItems:
             iter([item for item in many_items if item.owner_id == alice.id])
         )
 
-        resp = client.get(f"/v1/users/{alice.id}/items/{expected_item.id}")
+        resp = await client.get(f"/v1/users/{alice.id}/items/{expected_item.id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
         assert item == expected_item
 
-    def test_list_items_owned_by_client(
+    async def test_list_items_owned_by_client(
         self,
         many_items: list[ItemPreviewRead],
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice: UserPrivateRead,
     ):
         """List items owned by Alice."""
@@ -119,10 +120,10 @@ class TestItemsReadUserItems:
 
         assert item_ids == expected_item_ids
 
-    def test_read_single_item_owned_by_client(
+    async def test_read_single_item_owned_by_client(
         self,
         many_items: list[ItemPreviewRead],
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice: UserPrivateRead,
     ):
         """List items owned by Alice."""
@@ -131,7 +132,7 @@ class TestItemsReadUserItems:
             iter([item for item in many_items if item.owner_id == alice.id])
         )
 
-        resp = alice_client.get(f"/v1/me/items/{expected_item.id}")
+        resp = await alice_client.get(f"/v1/me/items/{expected_item.id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -144,9 +145,9 @@ class TestItemsReadFilterTargetedAgeMonth:
 
     @pytest.mark.parametrize("lower", [None, 0, 5, 10, 15, 20])
     @pytest.mark.parametrize("upper", [None, 0, 5, 10, 15, 20])
-    def test_list_item_filter_targeted_age_month(
+    async def test_list_item_filter_targeted_age_month(
         self,
-        client: TestClient,
+        client: AsyncClient,
         many_items: list[ItemRead],
         lower: int | None,
         upper: int | None,
@@ -184,7 +185,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         assert item_ids == expected_item_ids
 
     @staticmethod
-    def format_range(r: tuple[int | None, int | None]) -> str:
+    async def format_range(r: tuple[int | None, int | None]) -> str:
         """Format range into string."""
 
         lower, upper = r
@@ -195,7 +196,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         return f"{lower_str}-{upper_str}"
 
     @staticmethod
-    def intersect(
+    async def intersect(
         a: tuple[int | None, int | None],
         b: tuple[int | None, int | None],
     ) -> bool:
@@ -220,9 +221,9 @@ class TestItemsReadFilterAvailability:
     """Test item read with availability filtering."""
 
     @pytest.mark.parametrize("availability", [None, "a", "y", "n"])
-    def test_list_item_filter_availability(
+    async def test_list_item_filter_availability(
         self,
-        client: TestClient,
+        client: AsyncClient,
         many_items: list[ItemRead],
         availability: ItemQueryAvailability | None,
     ):
@@ -256,7 +257,7 @@ class TestItemsReadFilterAvailability:
         assert item_ids == expected_item_ids
 
     @staticmethod
-    def check_availability(
+    async def check_availability(
         item: ItemRead,
         availability: ItemQueryAvailability | None,
     ) -> bool:
@@ -281,9 +282,9 @@ class TestItemsReadFilterRegions:
     """Test item read with availability filtering."""
 
     @pytest.mark.parametrize("filter_regions", [None, [1], [2], [1, 2]])
-    def test_list_item_filter_regions(
+    async def test_list_item_filter_regions(
         self,
-        client: TestClient,
+        client: AsyncClient,
         many_items: list[ItemRead],
         filter_regions: set[int] | None,
     ):
@@ -329,9 +330,9 @@ class TestItemsReadFilterWords:
     @pytest.mark.parametrize(
         "words", [["senat"], ["sénat"], ["Sénats"], ["senat", "xxxyyyzzz"]]
     )
-    def test_list_item_with_french_word_senat(
+    async def test_list_item_with_french_word_senat(
         self,
-        client: TestClient,
+        client: AsyncClient,
         words: list[str],
         some_items_with_french_names: list[ItemRead],
     ):
@@ -363,9 +364,9 @@ class TestItemsReadFilterWords:
     @pytest.mark.parametrize(
         "words", [["lecon"], ["leçon"], ["Leçon"], ["Lecon", "xxxyyyzzz"]]
     )
-    def test_list_item_with_french_word_lecon(
+    async def test_list_item_with_french_word_lecon(
         self,
-        client: TestClient,
+        client: AsyncClient,
         words: list[str],
         some_items_with_french_names: list[ItemRead],
     ):
@@ -394,9 +395,9 @@ class TestItemsReadFilterWords:
 
         assert item_ids == expected_item_ids
 
-    def test_list_item_with_french_word_bleu(
+    async def test_list_item_with_french_word_bleu(
         self,
-        client: TestClient,
+        client: AsyncClient,
         some_items_with_french_names: list[ItemRead],
     ):
         """Filter many item with words like 'bleu' to test pagination."""
@@ -424,9 +425,9 @@ class TestItemsReadFilterWords:
 
         assert item_ids == expected_item_ids
 
-    def test_order_of_list_item_with_french_word_senat_and_bleu(
+    async def test_order_of_list_item_with_french_word_senat_and_bleu(
         self,
-        client: TestClient,
+        client: AsyncClient,
         some_items_with_french_names: list[ItemRead],
     ):
         """Check words matching order."""
@@ -439,7 +440,7 @@ class TestItemsReadFilterWords:
         ]
 
         # get client items list
-        resp = client.get(
+        resp = await client.get(
             url="/v1/items",
             params={
                 "av": "a",

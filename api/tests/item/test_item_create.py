@@ -1,6 +1,6 @@
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.items import ItemData
@@ -10,22 +10,22 @@ from tests.fixtures.items import ItemData
 class TestItemCreate:
     """Test item create endpoints."""
 
-    def test_created_item_is_public(
+    async def test_created_item_is_public(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice: UserPrivateRead,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item_data: ItemData,
     ):
         """Check created item is then accessible in various lists."""
 
         # get current number of stars for alice
-        resp = alice_client.get("/v1/me")
+        resp = await alice_client.get("/v1/me")
         resp.raise_for_status()
         old_stars_count = resp.json()["stars_count"]
 
         # create item
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json=alice_new_item_data,
         )
@@ -35,7 +35,7 @@ class TestItemCreate:
         item_id = added["id"]
 
         # get item by id from global list
-        resp = client.get(f"/v1/items/{item_id}")
+        resp = await client.get(f"/v1/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -50,7 +50,7 @@ class TestItemCreate:
         )
 
         # get item in alice's list of items
-        resp = client.get(f"/v1/users/{alice.id}/items/{item_id}")
+        resp = await client.get(f"/v1/users/{alice.id}/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -65,7 +65,7 @@ class TestItemCreate:
         )
 
         # get item by id from client list
-        resp = alice_client.get(f"/v1/me/items/{item_id}")
+        resp = await alice_client.get(f"/v1/me/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -80,7 +80,7 @@ class TestItemCreate:
         )
 
         # check number of stars increment
-        resp = alice_client.get("/v1/me")
+        resp = await alice_client.get("/v1/me")
         resp.raise_for_status()
         new_stars_count = resp.json()["stars_count"]
         assert new_stars_count == old_stars_count + 20
@@ -89,9 +89,9 @@ class TestItemCreate:
 class TestItemCreateInvalid:
     """Test invalid item creation."""
 
-    def test_no_region(
+    async def test_no_region(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item_data: ItemData,
     ):
         """Check an item without region cannot be created."""
@@ -103,16 +103,16 @@ class TestItemCreateInvalid:
         }
 
         # create item
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json=alice_new_item_data,
         )
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_no_image(
+    async def test_no_image(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item_data: ItemData,
     ):
         """Check an item without image cannot be created."""
@@ -124,16 +124,16 @@ class TestItemCreateInvalid:
         }
 
         # create item
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json=alice_new_item_data,
         )
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_non_existing_image(
+    async def test_non_existing_image(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item_data: ItemData,
     ):
         # remove images
@@ -143,7 +143,7 @@ class TestItemCreateInvalid:
         }
 
         # create item
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json=alice_new_item_data,
         )
@@ -151,9 +151,9 @@ class TestItemCreateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_non_existing_region(
+    async def test_non_existing_region(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item_data: ItemData,
     ):
         # remove images
@@ -163,7 +163,7 @@ class TestItemCreateInvalid:
         }
 
         # create item
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items",
             json=alice_new_item_data,
         )

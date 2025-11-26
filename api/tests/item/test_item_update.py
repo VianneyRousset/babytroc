@@ -1,6 +1,6 @@
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.image.read import ItemImageRead
 from app.schemas.item.read import ItemRead
@@ -10,17 +10,17 @@ from app.schemas.item.read import ItemRead
 class TestItemsUpdate:
     """Test items update endpoints."""
 
-    def test_item_can_be_updated(
+    async def test_item_can_be_updated(
         self,
-        client: TestClient,
-        alice_client: TestClient,
+        client: AsyncClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
         alice_items_image: ItemImageRead,
     ):
         """Check that an item can be updated."""
 
         # update item name
-        resp = alice_client.post(
+        resp = await alice_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={
                 "name": "forest",
@@ -33,7 +33,7 @@ class TestItemsUpdate:
         resp.raise_for_status()
 
         # get item by id from global list
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -52,30 +52,30 @@ class TestItemsUpdate:
 class TestItemUpdateInvalid:
     """Test invalid item update."""
 
-    def test_no_credentials(
+    async def test_no_credentials(
         self,
-        client: TestClient,
-        bob_client: TestClient,
+        client: AsyncClient,
+        bob_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
         """Check that neither Bob nor an unlogged client can update Alice's item."""
 
         # bob trying to update item name
-        resp = bob_client.post(
+        resp = await bob_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
         print(resp.text)
 
         # unlogged client trying to update item name
-        resp = client.post(
+        resp = await client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
         print(resp.text)
 
         # get item by id from global list
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -89,13 +89,13 @@ class TestItemUpdateInvalid:
         )
         assert read["owner_id"] == alice_new_item.owner_id
 
-    def test_non_existing_item(
+    async def test_non_existing_item(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
     ):
         """Check that updating an non-existing item returns 404."""
 
-        resp = alice_client.post(
+        resp = await alice_client.post(
             "/v1/me/items/9999",
             json={"name": "New item name"},
         )
@@ -103,14 +103,14 @@ class TestItemUpdateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_no_region(
+    async def test_no_region(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
         """Check an item without region cannot be created."""
 
-        resp = alice_client.post(
+        resp = await alice_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={"regions": []},
         )
@@ -118,14 +118,14 @@ class TestItemUpdateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_no_image(
+    async def test_no_image(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
         """Check an item without image cannot be created."""
 
-        resp = alice_client.post(
+        resp = await alice_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={"images": []},
         )
@@ -133,12 +133,12 @@ class TestItemUpdateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    def test_non_existing_image(
+    async def test_non_existing_image(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
-        resp = alice_client.post(
+        resp = await alice_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={
                 "images": [*alice_new_item.images_names, "xxxxxxxxxxxxxxxxxxxx"],
@@ -148,12 +148,12 @@ class TestItemUpdateInvalid:
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_non_existing_region(
+    async def test_non_existing_region(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
-        resp = alice_client.post(
+        resp = await alice_client.post(
             f"/v1/me/items/{alice_new_item.id}",
             json={
                 "regions": [*[reg.id for reg in alice_new_item.regions], 9999],

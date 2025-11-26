@@ -1,6 +1,6 @@
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.item.read import ItemRead
 
@@ -9,58 +9,60 @@ from app.schemas.item.read import ItemRead
 class TestItemDelete:
     """Test items delete endpoints."""
 
-    def test_created_item_can_be_deleted(
+    async def test_created_item_can_be_deleted(
         self,
-        client: TestClient,
-        alice_client: TestClient,
+        client: AsyncClient,
+        alice_client: AsyncClient,
         alice_new_item: ItemRead,
-        bob_client: TestClient,
+        bob_client: AsyncClient,
     ):
         """Create an item and delete it."""
 
         # check item exists
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
 
         # like and save item (check if the item can be deleted even if liked and saved)
-        bob_client.post(f"/v1/me/liked/{alice_new_item.id}").raise_for_status()
-        bob_client.post(f"/v1/me/saved/{alice_new_item.id}").raise_for_status()
+        resp = bob_client.post(f"/v1/me/liked/{alice_new_item.id}")
+        resp.raise_for_status()
+        resp = await bob_client.post(f"/v1/me/saved/{alice_new_item.id}")
+        resp.raise_for_status()
 
         # delete item by id
-        resp = alice_client.delete(f"/v1/me/items/{alice_new_item.id}")
+        resp = await alice_client.delete(f"/v1/me/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
 
         # check item does not exists
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
-    def test_created_item_cannot_be_deleted(
+    async def test_created_item_cannot_be_deleted(
         self,
-        client: TestClient,
-        alice_client: TestClient,
-        bob_client: TestClient,
+        client: AsyncClient,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
         alice_new_item: ItemRead,
     ):
         """Check that neither Bob nor an unlogged client can delete an unowned item."""
 
         # check item exists
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
 
         # bob trying to delete item
-        resp = bob_client.delete(f"/v1/me/items/{alice_new_item.id}")
+        resp = await bob_client.delete(f"/v1/me/items/{alice_new_item.id}")
         print(resp.text)
 
         # unlogged client trying to delete item
-        resp = client.delete(f"/v1/me/items/{alice_new_item.id}")
+        resp = await client.delete(f"/v1/me/items/{alice_new_item.id}")
         print(resp.text)
 
         # get item by id from global list
-        resp = client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()

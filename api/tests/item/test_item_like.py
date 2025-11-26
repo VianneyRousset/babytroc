@@ -1,5 +1,5 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.item.read import ItemRead
 
@@ -8,22 +8,23 @@ from app.schemas.item.read import ItemRead
 class TestItemLike:
     """Test item likes."""
 
-    def test_read_pages(
+    async def test_read_pages(
         self,
-        bob_client: TestClient,
+        bob_client: AsyncClient,
         alice_items: list[ItemRead],
     ):
         item = alice_items[-1]
 
         # like alice items
-        bob_client.post(url=f"/v1/me/liked/{item.id}").raise_for_status()
+        resp = await bob_client.post(url=f"/v1/me/liked/{item.id}")
+        resp.raise_for_status()
 
         # check flagged as liked in item read
-        resp = bob_client.get(f"/v1/items/{item.id}")
+        resp = await bob_client.get(f"/v1/items/{item.id}")
         resp.raise_for_status()
         assert resp.json()["liked"], "ItemRead should mark item as liked"
 
         # check appears in the list of liked items
-        resp = bob_client.get("/v1/me/liked")
+        resp = await bob_client.get("/v1/me/liked")
         resp.raise_for_status()
         assert [item["id"] for item in resp.json()] == [item.id]
