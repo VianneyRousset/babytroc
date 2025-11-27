@@ -72,8 +72,11 @@ async def create_client(
     app = await create_app(app_config)
 
     return AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://babytroc.ch/api",
+        transport=ASGITransport(
+            app=app,
+            root_path="/api",
+        ),
+        base_url="https://babytroc.ch",
     )
 
 
@@ -85,7 +88,7 @@ async def login_as_user(
     """Login with `client` using `username` and `password`."""
 
     resp = await client.post(
-        "/v1/auth/login",
+        "https://babytroc.ch/api/v1/auth/login",
         data={
             "grant_type": "password",
             "username": username,
