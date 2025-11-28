@@ -69,6 +69,7 @@ async def get_many_users_private(
 
     stmt = (
         select(User, func.count(Item.id), func.count(ItemLike.id))
+        .where(User.id.in_(user_ids))
         .join(
             Item,
             onclause=Item.owner_id == User.id,
@@ -81,8 +82,6 @@ async def get_many_users_private(
         )
         .group_by(User.id)
     )
-
-    print(stmt.compile(compile_kwargs={"literal_binds": True}), flush=True)
 
     res = await db.execute(stmt)
     rows = res.all()
@@ -101,10 +100,22 @@ async def get_many_users_private(
         for user, items_count, likes_count in rows
     ]
 
-    missing_user_ids = user_ids - {user.id for user in users}
-    if missing_user_ids:
-        key = {"user_ids": missing_user_ids}
-        raise UserNotFoundError(key)
+    # If the number of queried users  does not match the number of given users ids,
+    # it means either:
+    # 1. Some users do not exist
+    # 2. Unexpected error
+    if len(users) != len(user_ids):
+        # check missing users (1.)
+        if missing_user_ids := user_ids - {user.id for user in users}:
+            key = {"user_ids": missing_user_ids}
+            raise UserNotFoundError(key)
+
+        # Unexpected error (2.)
+        msg = (
+            f"The number of queried users ({len(users)}) does not match the number "
+            f"of given user ids ({len(user_ids)}). Unexpected reason"
+        )
+        raise RuntimeError(msg)
 
     return users
 

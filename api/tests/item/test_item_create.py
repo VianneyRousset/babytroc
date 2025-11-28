@@ -2,6 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
+from app.schemas.item.read import ItemRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.items import ItemData
 
@@ -19,14 +20,17 @@ class TestItemCreate:
     ):
         """Check created item is then accessible in various lists."""
 
+        print("alice", alice.id)
+        print("images", alice_new_item_data["images"])
+
         # get current number of stars for alice
-        resp = await alice_client.get("/v1/me")
+        resp = await alice_client.get("https://babytroc.ch/api/v1/me")
         resp.raise_for_status()
         old_stars_count = resp.json()["stars_count"]
 
         # create item
         resp = await alice_client.post(
-            "/v1/me/items",
+            "https://babytroc.ch/api/v1/me/items",
             json=alice_new_item_data,
         )
         print(resp.text)
@@ -35,52 +39,54 @@ class TestItemCreate:
         item_id = added["id"]
 
         # get item by id from global list
-        resp = await client.get(f"/v1/items/{item_id}")
+        resp = await client.get(f"https://babytroc.ch/api/v1/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
-        read = resp.json()
+        item = ItemRead.model_validate(resp.json())
 
-        assert read["name"] == alice_new_item_data["name"]
-        assert read["description"] == alice_new_item_data["description"]
-        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
-        assert read["owner_id"] == alice.id
-        assert read["images_names"] == alice_new_item_data["images"]
-        assert {reg["id"] for reg in read["regions"]} == set(
-            alice_new_item_data["regions"]
+        assert item.name == alice_new_item_data["name"]
+        assert item.description == alice_new_item_data["description"]
+        assert (
+            str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
+        assert item.owner.id == alice.id
+        assert item.images == alice_new_item_data["images"]
+        assert item.regions == set(alice_new_item_data["regions"])
 
         # get item in alice's list of items
-        resp = await client.get(f"/v1/users/{alice.id}/items/{item_id}")
+        resp = await client.get(
+            f"https://babytroc.ch/api/v1/users/{alice.id}/items/{item_id}"
+        )
         print(resp.text)
         resp.raise_for_status()
-        read = resp.json()
+        item = ItemRead.model_validate(resp.json())
 
-        assert read["name"] == alice_new_item_data["name"]
-        assert read["description"] == alice_new_item_data["description"]
-        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
-        assert read["owner_id"] == alice.id
-        assert read["images_names"] == alice_new_item_data["images"]
-        assert {reg["id"] for reg in read["regions"]} == set(
-            alice_new_item_data["regions"]
+        assert item.name == alice_new_item_data["name"]
+        assert item.description == alice_new_item_data["description"]
+        assert (
+            str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
+        assert item.owner.id == alice.id
+        assert item.images == alice_new_item_data["images"]
+        assert item.regions == set(alice_new_item_data["regions"])
 
         # get item by id from client list
-        resp = await alice_client.get(f"/v1/me/items/{item_id}")
+        resp = await alice_client.get(f"https://babytroc.ch/api/v1/me/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
-        read = resp.json()
+        item = ItemRead.model_validate(resp.json())
 
-        assert read["name"] == alice_new_item_data["name"]
-        assert read["description"] == alice_new_item_data["description"]
-        assert read["targeted_age_months"] == alice_new_item_data["targeted_age_months"]
-        assert read["owner_id"] == alice.id
-        assert read["images_names"] == alice_new_item_data["images"]
-        assert {reg["id"] for reg in read["regions"]} == set(
-            alice_new_item_data["regions"]
+        assert item.name == alice_new_item_data["name"]
+        assert item.description == alice_new_item_data["description"]
+        assert (
+            str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
+        assert item.owner.id == alice.id
+        assert item.images == alice_new_item_data["images"]
+        assert item.regions == set(alice_new_item_data["regions"])
 
         # check number of stars increment
-        resp = await alice_client.get("/v1/me")
+        resp = await alice_client.get("https://babytroc.ch/api/v1/me")
         resp.raise_for_status()
         new_stars_count = resp.json()["stars_count"]
         assert new_stars_count == old_stars_count + 20
@@ -96,16 +102,13 @@ class TestItemCreateInvalid:
     ):
         """Check an item without region cannot be created."""
 
-        # remove images
-        alice_new_item_data = {
-            **alice_new_item_data,
-            "regions": [],
-        }
-
         # create item
         resp = await alice_client.post(
-            "/v1/me/items",
-            json=alice_new_item_data,
+            "https://babytroc.ch/api/v1/me/items",
+            json={
+                **alice_new_item_data,
+                "regions": [],
+            },
         )
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
@@ -125,7 +128,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "/v1/me/items",
+            "https://babytroc.ch/api/v1/me/items",
             json=alice_new_item_data,
         )
         assert resp.is_error
@@ -144,7 +147,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "/v1/me/items",
+            "https://babytroc.ch/api/v1/me/items",
             json=alice_new_item_data,
         )
 
@@ -159,12 +162,12 @@ class TestItemCreateInvalid:
         # remove images
         alice_new_item_data = {
             **alice_new_item_data,
-            "regions": [*alice_new_item_data["regions"], 99999],
+            "regions": list({*alice_new_item_data["regions"], 99999}),
         }
 
         # create item
         resp = await alice_client.post(
-            "/v1/me/items",
+            "https://babytroc.ch/api/v1/me/items",
             json=alice_new_item_data,
         )
 

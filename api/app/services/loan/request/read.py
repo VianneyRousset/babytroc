@@ -90,15 +90,6 @@ async def list_loan_requests(
     # apply filtering
     stmt = query_filter.filter_read(stmt)
 
-    from sqlalchemy.dialects import postgresql
-
-    print(
-        stmt.compile(
-            dialect=postgresql.dialect(),
-            compile_kwargs={"literal_binds": True},
-        )
-    )
-
     # apply ordering
     stmt = stmt.order_by(desc(LoanRequest.id))
 

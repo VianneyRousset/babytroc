@@ -16,10 +16,12 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, CreationDate, UpdateDate
-from app.models.user import User
 
 from .image import ItemImage
 from .region import Region
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 # TODO use passive_delete=True to let the db handle cascade deletions
 
@@ -55,7 +57,7 @@ class Item(CreationDate, UpdateDate, Base):
         ),
     )
 
-    owner: Mapped[User] = relationship(
+    owner: Mapped["User"] = relationship(
         "User",
         single_parent=True,
     )

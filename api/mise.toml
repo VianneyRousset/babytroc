@@ -54,6 +54,10 @@ run = "mypy stubs app seed tests"
 description = "Lint the code"
 depends = ["lint:*"]
 
+[tasks.ipython]
+description = "Run ipython"
+run = "ipython"
+
 [tasks.test]
 description = "Test the code"
 depends = ["deps", "deps-dev"]

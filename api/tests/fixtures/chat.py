@@ -190,10 +190,10 @@ async def alice_many_chats(
             await services.loan.create_loan_request(
                 db=session,
                 item_id=item.id,
-                borrower_id=alice.id if item.owner_id == bob.id else bob.id,
+                borrower_id=alice.id if item.owner.id == bob.id else bob.id,
             )
             for item in many_items
-            if item.owner_id in [alice.id, bob.id]
+            if item.owner.id in [alice.id, bob.id]
         ]
         return [
             await services.chat.get_chat(

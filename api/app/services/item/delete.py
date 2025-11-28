@@ -24,7 +24,7 @@ async def delete_item(
     res = await db.execute(stmt)
 
     if res.rowcount == 0:  # type: ignore[attr-defined]
-        raise ItemNotFoundError({"id": item_id})
+        raise ItemNotFoundError({**query_filter.key, "id": item_id})
 
 
 async def _delete_all_item_region_associations_of_item(

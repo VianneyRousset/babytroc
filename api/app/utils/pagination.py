@@ -1,21 +1,21 @@
-from collections.abc import Generator, Iterable
+from collections.abc import AsyncGenerator, Generator, Iterable
 from itertools import count, zip_longest
 from typing import Any, TypeVar, cast
 from urllib.parse import parse_qsl, urlparse
 
-from httpx import Client
+from httpx import AsyncClient
 
 T = TypeVar("T")
 
 
-def iter_paginated_endpoint(
-    client: Client,
+async def iter_paginated_endpoint(
+    client: AsyncClient,
     url: str,
     *,
     max_iteration: int | None = 1000,
     params: dict[str, Any] | None = None,
     **kwargs,
-) -> Generator[dict]:
+) -> AsyncGenerator[dict]:
     """Iter over all pages available at `url`."""
 
     params = params or {}
@@ -27,7 +27,7 @@ def iter_paginated_endpoint(
             raise RuntimeError(msg)
 
         # get page
-        resp = client.get(
+        resp = await client.get(
             url=url,
             params=params,
             **kwargs,

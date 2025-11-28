@@ -31,7 +31,10 @@ class DelayMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-async def create_app(config: Config) -> FastAPI:
+async def create_app(config: Config | None = None) -> FastAPI:
+    if config is None:
+        config = Config.from_env()
+
     app = FastAPI(
         lifespan=lifespan,
     )
@@ -42,7 +45,7 @@ async def create_app(config: Config) -> FastAPI:
     app.state.db_session_maker = create_session_maker(config.database.url)
 
     # setup SQL functions and triggers
-    with app.state.db_session_maker.begin() as db:
+    async with app.state.db_session_maker.begin() as db:
         await define_functions_and_triggers(db)
 
     # broadcaster

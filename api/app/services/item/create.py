@@ -131,7 +131,7 @@ async def create_many_items(
                 user_id=user_id,
                 stars_count=stars_gain_when_adding_item(len(list(group))),
             )
-            for user_id, group in groupby([item.owner_id for item in items])
+            for user_id, group in groupby(sorted([item.owner_id for item in items]))
         ],
     )
 
@@ -170,9 +170,8 @@ async def _insert_items(
     # execute
     try:
         async with db.begin_nested():
-            item_ids: list[int] = list(
-                (await db.execute(stmt)).unique().scalars().all()
-            )
+            res = await db.execute(stmt)
+            item_ids: list[int] = list(res.unique().scalars().all())
 
     # If an IntegrityError is raised, it means either:
     # 1. The owner does not exist
@@ -287,7 +286,8 @@ async def _insert_item_image_associations(
             select(data)
             .join(Item)
             .join(ItemImage)
-            .where(Item.owner_id == ItemImage.owner_id),
+            .where(Item.owner_id == ItemImage.owner_id)
+            .order_by(data.c.item_id, data.c.order),
         )
         .returning(ItemImageAssociation)
     )

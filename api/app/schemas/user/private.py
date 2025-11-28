@@ -1,7 +1,6 @@
 from pydantic import EmailStr
 
 from app.schemas.base import ReadBase
-from app.schemas.item.preview import ItemPreviewRead
 
 from .base import UserBase
 
@@ -12,6 +11,6 @@ class UserPrivateRead(UserBase, ReadBase):
     name: str
     email: EmailStr
     avatar_seed: str
+    items_count: int
     stars_count: int
     likes_count: int
-    items: list[ItemPreviewRead]

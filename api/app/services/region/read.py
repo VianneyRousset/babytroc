@@ -38,7 +38,7 @@ async def get_many_regions(
 
     # If the number of queried regions  does not match the number of given region ids,
     # it means either:
-    # 1. Some regions does not exist
+    # 1. Some regions do not exist
     # 2. Unexpected error
     if len(regions) != len(region_ids):
         # check missing regions (1.)
@@ -47,8 +47,8 @@ async def get_many_regions(
 
         # Unexpected error (2.)
         msg = (
-            "The number of regions read does not match the number of region ids. "
-            "Unexpected reason"
+            f"The number of queried regions ({len(regions)}) does not match the number "
+            f"of given region ids ({len(region_ids)}). Unexpected reason"
         )
         raise RuntimeError(msg)
 

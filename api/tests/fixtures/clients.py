@@ -21,47 +21,50 @@ async def client(
 
 @pytest.fixture
 async def alice_client(
-    client: AsyncClient,
+    app_config: Config,
     alice: UserPrivateRead,
     alice_user_data: UserData,
-) -> AsyncClient:
+) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Alice's credentials."""
 
-    return await login_as_user(
-        client=client,
-        username=alice_user_data["email"],
-        password=alice_user_data["password"],
-    )
+    async with await create_client(app_config) as client:
+        yield await login_as_user(
+            client=client,
+            username=alice_user_data["email"],
+            password=alice_user_data["password"],
+        )
 
 
 @pytest.fixture
 async def bob_client(
-    client: AsyncClient,
+    app_config: Config,
     bob: UserPrivateRead,
     bob_user_data: UserData,
-) -> AsyncClient:
+) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Bob's credentials."""
 
-    return await login_as_user(
-        client=client,
-        username=bob_user_data["email"],
-        password=bob_user_data["password"],
-    )
+    async with await create_client(app_config) as client:
+        yield await login_as_user(
+            client=client,
+            username=bob_user_data["email"],
+            password=bob_user_data["password"],
+        )
 
 
 @pytest.fixture
 async def carol_client(
-    client: AsyncClient,
+    app_config: Config,
     carol: UserPrivateRead,
     carol_user_data: UserData,
-) -> AsyncClient:
+) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Carol's credentials."""
 
-    return await login_as_user(
-        client=client,
-        username=carol_user_data["email"],
-        password=carol_user_data["password"],
-    )
+    async with await create_client(app_config) as client:
+        yield await login_as_user(
+            client=client,
+            username=carol_user_data["email"],
+            password=carol_user_data["password"],
+        )
 
 
 async def create_client(

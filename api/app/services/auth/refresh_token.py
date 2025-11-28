@@ -86,7 +86,7 @@ async def clean_user_refresh_tokens(
             await delete_refresh_token(db, token.token)
 
 
-async def is_refresh_token_expired(
+def is_refresh_token_expired(
     token_creation_date: datetime,
     config: AuthConfig,
 ) -> bool:

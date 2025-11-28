@@ -1,6 +1,5 @@
-from typing import cast
 
-from sqlalchemy import ColumnClause, Integer, column, update, values
+from sqlalchemy import Integer, column, update, values
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User

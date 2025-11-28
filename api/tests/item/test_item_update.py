@@ -21,11 +21,11 @@ class TestItemsUpdate:
 
         # update item name
         resp = await alice_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={
                 "name": "forest",
                 "targeted_age_months": "10-14",
-                "images": [*alice_new_item.images_names, alice_items_image.name],
+                "images": [*alice_new_item.images, alice_items_image.name],
                 "regions": [1, 2],
             },
         )
@@ -33,7 +33,7 @@ class TestItemsUpdate:
         resp.raise_for_status()
 
         # get item by id from global list
-        resp = await client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -41,9 +41,9 @@ class TestItemsUpdate:
         assert read["name"] == "forest"
         assert read["description"] == alice_new_item.description
         assert read["targeted_age_months"] == "10-14"
-        assert read["owner_id"] == alice_new_item.owner_id
-        assert read["images_names"] == [
-            *alice_new_item.images_names,
+        assert read["owner"]["id"] == alice_new_item.owner.id
+        assert read["images"] == [
+            *alice_new_item.images,
             alice_items_image.name,
         ]
         assert {reg["id"] for reg in read["regions"]} == {1, 2}
@@ -62,20 +62,20 @@ class TestItemUpdateInvalid:
 
         # bob trying to update item name
         resp = await bob_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
         print(resp.text)
 
         # unlogged client trying to update item name
         resp = await client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
         print(resp.text)
 
         # get item by id from global list
-        resp = await client.get(f"/v1/items/{alice_new_item.id}")
+        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
         read = resp.json()
@@ -87,7 +87,7 @@ class TestItemUpdateInvalid:
             read["targeted_age_months"]
             == alice_new_item.targeted_age_months.model_dump()
         )
-        assert read["owner_id"] == alice_new_item.owner_id
+        assert read["owner"]["id"] == alice_new_item.owner.id
 
     async def test_non_existing_item(
         self,
@@ -96,7 +96,7 @@ class TestItemUpdateInvalid:
         """Check that updating an non-existing item returns 404."""
 
         resp = await alice_client.post(
-            "/v1/me/items/9999",
+            "https://babytroc.ch/api/v1/me/items/9999",
             json={"name": "New item name"},
         )
         print(resp.text)
@@ -111,7 +111,7 @@ class TestItemUpdateInvalid:
         """Check an item without region cannot be created."""
 
         resp = await alice_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={"regions": []},
         )
         print(resp.text)
@@ -126,7 +126,7 @@ class TestItemUpdateInvalid:
         """Check an item without image cannot be created."""
 
         resp = await alice_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={"images": []},
         )
         print(resp.text)
@@ -139,9 +139,9 @@ class TestItemUpdateInvalid:
         alice_new_item: ItemRead,
     ):
         resp = await alice_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={
-                "images": [*alice_new_item.images_names, "xxxxxxxxxxxxxxxxxxxx"],
+                "images": [*alice_new_item.images, "xxxxxxxxxxxxxxxxxxxx"],
             },
         )
         print(resp.text)
@@ -154,9 +154,9 @@ class TestItemUpdateInvalid:
         alice_new_item: ItemRead,
     ):
         resp = await alice_client.post(
-            f"/v1/me/items/{alice_new_item.id}",
+            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={
-                "regions": [*[reg.id for reg in alice_new_item.regions], 9999],
+                "regions": [*alice_new_item.regions, 9999],
             },
         )
         print(resp.text)

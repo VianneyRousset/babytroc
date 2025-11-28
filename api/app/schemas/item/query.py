@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from sqlalchemy import Select, and_, func, select
+from sqlalchemy import Select, and_, func, select, or_
 from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability
@@ -56,31 +56,25 @@ class ItemQueryFilterAvailability(ReadQueryFilter):
     availability: ItemQueryAvailability | None = None
 
     def _filter_read(self, stmt: Select) -> Select:
+        not_available = or_(
+            select(Loan)
+            .where(
+                and_(
+                    Loan.item_id == Item.id,
+                    func.upper(Loan.during).is_(None),
+                ),
+            )
+            .exists(),
+            Item.blocked,
+        )
+
         match self.availability:
             case ItemQueryAvailability.yes:
-                stmt = stmt.where(
-                    ~select(Loan)
-                    .where(
-                        and_(
-                            Loan.item_id == Item.id,
-                            func.upper(Loan.during).is_(None),
-                        ),
-                    )
-                    .exists()
-                )
+                stmt = stmt.where(~not_available)
             case ItemQueryAvailability.no:
-                stmt = stmt.where(
-                    select(Loan)
-                    .where(
-                        and_(
-                            Loan.item_id == Item.id,
-                            func.upper(Loan.during).is_(None),
-                        ),
-                    )
-                    .exists()
-                )
+                stmt = stmt.where(not_available)
 
-        return super()._filter(stmt)
+        return super()._filter_read(stmt)
 
 
 class ItemQueryFilterOwner(QueryFilter):

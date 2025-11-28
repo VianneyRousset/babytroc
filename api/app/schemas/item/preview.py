@@ -8,7 +8,7 @@ class ItemPreviewRead(ItemBase, ReadBase):
     id: int
     name: str
     targeted_age_months: MonthRange
-    first_image_name: str
+    first_image: str
     available: bool
     owner_id: int
 

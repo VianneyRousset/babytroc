@@ -26,7 +26,7 @@ class ItemData(TypedDict):
     name: str
     description: str
     targeted_age_months: str
-    regions: set[int]
+    regions: list[int]
     images: list[str]
 
 
@@ -42,7 +42,7 @@ async def alice_items_data(
             "name": "candle",
             "description": "dwell into a flowerbed",
             "targeted_age_months": "4-10",
-            "regions": {regions[0].id},
+            "regions": [regions[0].id],
             "images": [alice_items_image.name],
         },
     ]
@@ -59,7 +59,7 @@ async def alice_new_item_data(
         "name": "new-item",
         "description": "This is the latest new item created by alice.",
         "targeted_age_months": "7-",
-        "regions": {regions[1].id},
+        "regions": [regions[1].id],
         "images": [image.name for image in alice_new_item_images],
     }
 
@@ -75,7 +75,7 @@ async def alice_special_item_data(
         "name": "Special item",
         "description": "This is the special item created by alice.",
         "targeted_age_months": "2-5",
-        "regions": {regions[0].id},
+        "regions": [regions[0].id],
         "images": [image.name for image in alice_special_item_images],
     }
 
@@ -92,7 +92,7 @@ async def bob_items_data(
             "name": "Dark side",
             "description": "Breathe, breathe in the air. Don't be afraid to care",
             "targeted_age_months": "16-",
-            "regions": {regions[0].id, regions[1].id},
+            "regions": [regions[0].id, regions[1].id],
             "images": [bob_items_image.name],
         },
     ]

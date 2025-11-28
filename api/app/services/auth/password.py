@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors.auth import IncorrectUsernameOrPasswordError
 from app.models.user import User
 from app.schemas.user.private import UserPrivateRead
+from app.services.user.read import get_user_private
 
 
 async def verify_user_password(
@@ -24,7 +25,8 @@ async def verify_user_password(
     stmt = select(User).where(User.email == email)
 
     try:
-        user = (await db.execute(stmt)).unique().scalars().one()
+        res = await db.execute(stmt)
+        user = res.unique().scalars().one()
 
     except NoResultFound as error:
         raise IncorrectUsernameOrPasswordError() from error
@@ -33,4 +35,7 @@ async def verify_user_password(
     if not user.password_hash.verify(password):
         raise IncorrectUsernameOrPasswordError()
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(
+        db=db,
+        user_id=user.id,
+    )

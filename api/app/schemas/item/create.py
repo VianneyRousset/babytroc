@@ -1,6 +1,7 @@
+from collections.abc import Collection
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_serializer, field_validator
 
 from app.schemas.base import CreateBase
 from app.schemas.item.base import ItemBase
@@ -37,8 +38,9 @@ class ItemCreate(ItemBase, CreateBase):
     blocked: bool | None = False
 
     @field_validator("name", mode="before")
+    @classmethod
     def validate_name(
-        cls,  # noqa: N805
+        cls,
         v: str,
     ) -> str:
         """Remove leading and trailing whitespace."""
@@ -48,8 +50,9 @@ class ItemCreate(ItemBase, CreateBase):
         return v
 
     @field_validator("description", mode="before")
+    @classmethod
     def validate_description(
-        cls,  # noqa: N805
+        cls,
         v: str,
     ) -> str:
         """Remove leading and trailing whitespace."""
@@ -57,6 +60,17 @@ class ItemCreate(ItemBase, CreateBase):
         if isinstance(v, str):
             return v.strip()
         return v
+
+    @field_validator("regions", mode="before")
+    @classmethod
+    def validate_regions(cls, v: Collection[int]) -> set[int]:
+        """Remove leading and trailing whitespace."""
+        return set(v)
+
+    @field_serializer("regions")
+    @classmethod
+    def serialize_regions(cls, regions: set[int]) -> list[int]:
+        return sorted(regions)
 
     @property
     def as_sql_values(self):

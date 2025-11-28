@@ -1,6 +1,5 @@
 from typing import Annotated
 
-from pydantic import field_validator
 from sqlalchemy import func, tuple_
 
 from app.enums import LoanRequestState
@@ -38,16 +37,6 @@ class LoanRequestQueryFilterItemBorrower(QueryFilter):
                 )
             )
         )
-
-    @field_validator("item_borrower_id", mode="before")
-    def validate_item_borrower_id(
-        cls,  # noqa: N805
-        v: ItemBorrowerId | set[ItemBorrowerId] | None,
-    ) -> set[ItemBorrowerId] | None:
-        if v is None or isinstance(v, set):
-            return v
-
-        return {v}
 
 
 class LoanRequestQueryFilterItem(QueryFilter):

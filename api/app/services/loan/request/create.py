@@ -143,7 +143,7 @@ async def create_many_loan_requests(
         )
 
         # raise LoanRequestOwnItemError if the item is owned by the borrower (3.)
-        if item.owner_id == first_missing_loan_request.borrower_id:
+        if item.owner.id == first_missing_loan_request.borrower_id:
             raise LoanRequestOwnItemError(first_missing_loan_request.item_id)
 
         msg = (

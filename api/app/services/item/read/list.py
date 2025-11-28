@@ -128,7 +128,7 @@ async def list_items(
 
     # apply pagination cursor
     cursor = page_options.cursor
-    if words_match:
+    if words_match is not None:
         if not isinstance(cursor, ItemMatchingWordsQueryPageCursor):
             msg = (
                 f"Cursor is expected to be {ItemMatchingWordsQueryPageCursor} "

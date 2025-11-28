@@ -9,7 +9,7 @@ from app.schemas.user.create import UserCreate
 from app.schemas.user.private import UserPrivateRead
 from app.utils.hash import HashedStr
 
-from .read import get_many_users_private
+from .read import get_many_users_private, get_user_private
 
 
 async def create_user(

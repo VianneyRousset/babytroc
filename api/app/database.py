@@ -40,7 +40,7 @@ def create_session_maker(db_url: URL) -> async_sessionmaker:
 async def get_db_session(
     app: Annotated[FastAPI, Depends(get_app)],
 ) -> AsyncGenerator[AsyncSession]:
-    async with app.state.db_async_session_maker.begin() as session:
+    async with app.state.db_session_maker.begin() as session:
         yield session
 
 

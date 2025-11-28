@@ -25,7 +25,7 @@ async def list_items(
 
     # words fuzzy search
     if query.words:
-        fuzzy_search_result = await services.item.list_items_matching_words(
+        fuzzy_search_result = await services.item.list_items(
             db=db,
             words=query.words,
             query_filter=query.item_select_query_filter,

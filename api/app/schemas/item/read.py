@@ -1,7 +1,10 @@
+from collections.abc import Collection
+
+from pydantic import field_serializer, field_validator
+
 from app.schemas.base import ReadBase
 from app.schemas.item.base import ItemBase
 from app.schemas.loan.read import LoanRead, LoanRequestRead
-from app.schemas.region.read import RegionRead
 from app.schemas.user.preview import UserPreviewRead
 
 from .base import MonthRange
@@ -12,12 +15,10 @@ class ItemRead(ItemBase, ReadBase):
     name: str
     description: str
     targeted_age_months: MonthRange
-    images_names: list[str]
+    images: list[str]
     available: bool
-    owner_id: int
-
     owner: UserPreviewRead
-    regions: list[RegionRead]
+    regions: set[int]
     likes_count: int
 
     # only given logged in
@@ -29,3 +30,13 @@ class ItemRead(ItemBase, ReadBase):
 
     # only given if owned
     blocked: bool | None = None
+
+    @field_validator("regions", mode="before")
+    @classmethod
+    def validate_regions(cls, v: Collection[int]) -> set[int]:
+        return set(v)
+
+    @field_serializer("regions")
+    @classmethod
+    def serialize_regions(cls, regions: set[int]) -> list[int]:
+        return sorted(regions)

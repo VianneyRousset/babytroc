@@ -154,7 +154,7 @@ async def many_loan_requests_for_alice_items(
     random.seed(0x32D1)
 
     # select 90% of the items owned by alice
-    items_owned_by_alice = [item for item in many_items if item.owner_id == alice.id]
+    items_owned_by_alice = [item for item in many_items if item.owner.id == alice.id]
     items_to_request = random.sample(
         items_owned_by_alice,
         k=round(0.9 * len(items_owned_by_alice)),

@@ -16,15 +16,15 @@ class TestItemLike:
         item = alice_items[-1]
 
         # like alice items
-        resp = await bob_client.post(url=f"/v1/me/liked/{item.id}")
+        resp = await bob_client.post(url=f"https://babytroc.ch/api/v1/me/liked/{item.id}")
         resp.raise_for_status()
 
         # check flagged as liked in item read
-        resp = await bob_client.get(f"/v1/items/{item.id}")
+        resp = await bob_client.get(f"https://babytroc.ch/api/v1/items/{item.id}")
         resp.raise_for_status()
         assert resp.json()["liked"], "ItemRead should mark item as liked"
 
         # check appears in the list of liked items
-        resp = await bob_client.get("/v1/me/liked")
+        resp = await bob_client.get("https://babytroc.ch/api/v1/me/liked")
         resp.raise_for_status()
         assert [item["id"] for item in resp.json()] == [item.id]

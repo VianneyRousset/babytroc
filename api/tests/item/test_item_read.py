@@ -33,7 +33,7 @@ class TestItemsRead:
         async for items, expected_items in azip(
             iter_paginated_endpoint(
                 client=client,
-                url="/v1/items",
+                url="https://babytroc.ch/api/v1/items",
                 params=params,
             ),
             iter_chunks(
@@ -61,15 +61,17 @@ class TestItemsReadUserItems:
         """List items owned by Alice."""
 
         expected_item_ids = sorted(
-            (item.id for item in many_items if item.owner_id == alice.id),
+            (item.id for item in many_items if item.owner.id == alice.id),
             reverse=True,
         )
 
         # get client items list
         item_ids = [
             item["id"]
-            for page in iter_paginated_endpoint(
-                url=f"/v1/users/{alice.id}/items", client=client, params={"av": "a"}
+            async for page in iter_paginated_endpoint(
+                url=f"https://babytroc.ch/api/v1/users/{alice.id}/items",
+                client=client,
+                params={"av": "a"},
             )
             for item in page
         ]
@@ -85,10 +87,12 @@ class TestItemsReadUserItems:
         """List items owned by Alice."""
 
         expected_item = next(
-            iter([item for item in many_items if item.owner_id == alice.id])
+            iter([item for item in many_items if item.owner.id == alice.id])
         )
 
-        resp = await client.get(f"/v1/users/{alice.id}/items/{expected_item.id}")
+        resp = await client.get(
+            f"https://babytroc.ch/api/v1/users/{alice.id}/items/{expected_item.id}"
+        )
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -103,15 +107,15 @@ class TestItemsReadUserItems:
         """List items owned by Alice."""
 
         expected_item_ids = sorted(
-            (item.id for item in many_items if item.owner_id == alice.id),
+            (item.id for item in many_items if item.owner.id == alice.id),
             reverse=True,
         )
 
         # get client items list
         item_ids = [
             item["id"]
-            for page in iter_paginated_endpoint(
-                url="/v1/me/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/me/items",
                 client=alice_client,
                 params={"av": "a"},
             )
@@ -129,10 +133,12 @@ class TestItemsReadUserItems:
         """List items owned by Alice."""
 
         expected_item = next(
-            iter([item for item in many_items if item.owner_id == alice.id])
+            iter([item for item in many_items if item.owner.id == alice.id])
         )
 
-        resp = await alice_client.get(f"/v1/me/items/{expected_item.id}")
+        resp = await alice_client.get(
+            f"https://babytroc.ch/api/v1/me/items/{expected_item.id}"
+        )
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -171,8 +177,8 @@ class TestItemsReadFilterTargetedAgeMonth:
         # get client items list
         item_ids = [
             item["id"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "mo": self.format_range((lower, upper)),
@@ -185,7 +191,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         assert item_ids == expected_item_ids
 
     @staticmethod
-    async def format_range(r: tuple[int | None, int | None]) -> str:
+    def format_range(r: tuple[int | None, int | None]) -> str:
         """Format range into string."""
 
         lower, upper = r
@@ -196,7 +202,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         return f"{lower_str}-{upper_str}"
 
     @staticmethod
-    async def intersect(
+    def intersect(
         a: tuple[int | None, int | None],
         b: tuple[int | None, int | None],
     ) -> bool:
@@ -243,8 +249,8 @@ class TestItemsReadFilterAvailability:
         # get client items list
         item_ids = [
             item["id"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "n": 256,
@@ -257,7 +263,7 @@ class TestItemsReadFilterAvailability:
         assert item_ids == expected_item_ids
 
     @staticmethod
-    async def check_availability(
+    def check_availability(
         item: ItemRead,
         availability: ItemQueryAvailability | None,
     ) -> bool:
@@ -294,8 +300,7 @@ class TestItemsReadFilterRegions:
             (
                 item.id
                 for item in many_items
-                if filter_regions is None
-                or {reg.id for reg in item.regions}.intersection(filter_regions)
+                if filter_regions is None or item.regions.intersection(filter_regions)
             ),
             reverse=True,
         )
@@ -305,8 +310,8 @@ class TestItemsReadFilterRegions:
         # get client items list
         item_ids = [
             item["id"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "n": 256,
@@ -347,8 +352,8 @@ class TestItemsReadFilterWords:
         # get client items list
         item_ids = {
             item["id"]: item["name"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -381,8 +386,8 @@ class TestItemsReadFilterWords:
         # get client items list
         item_ids = {
             item["id"]: item["name"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -411,8 +416,8 @@ class TestItemsReadFilterWords:
         # get client items list
         item_ids = {
             item["id"]: item["name"]
-            for page in iter_paginated_endpoint(
-                url="/v1/items",
+            async for page in iter_paginated_endpoint(
+                url="https://babytroc.ch/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -441,7 +446,7 @@ class TestItemsReadFilterWords:
 
         # get client items list
         resp = await client.get(
-            url="/v1/items",
+            url="https://babytroc.ch/api/v1/items",
             params={
                 "av": "a",
                 "n": 4,
