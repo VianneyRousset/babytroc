@@ -1,13 +1,21 @@
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
-from app.models.item import Item, ItemLike, ItemSave
+from app.models.item import Item
 from app.models.loan import Loan, LoanRequest
 from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRead, LoanRequestRead
+
+from .selections import (
+    select_has_active_loan,
+    select_liked,
+    select_likes_count,
+    select_owned,
+    select_saved,
+)
 
 
 async def get_item(
@@ -44,98 +52,75 @@ async def get_many_items(
     # default empty query filter
     query_filter = query_filter or ItemReadQueryFilter()
 
-    # no client id
-    if client_id is None:
-        return await _get_many_items_without_client_specific_fields(
-            db=db,
-            item_ids=item_ids,
-            query_filter=query_filter,
-        )
-
-    # with client id
-    return await _get_many_items_with_client_specific_fields(
-        db=db,
-        item_ids=item_ids,
-        query_filter=query_filter,
-        client_id=client_id,
+    stmt = select(
+        Item,
+        select_likes_count().label("likes_count"),
+        select_has_active_loan().label("has_active_loan"),
+        *(
+            [
+                select_owned(client_id).label("owned"),
+                select_liked(client_id).label("liked"),
+                select_saved(client_id).label("saved"),
+                LoanRequest,
+                Loan,
+            ]
+            if client_id is not None
+            else []
+        ),
     )
 
-
-async def _get_many_items_without_client_specific_fields(
-    db: AsyncSession,
-    item_ids: set[int],
-    *,
-    query_filter: ItemReadQueryFilter,
-) -> list[ItemRead]:
-    """Get item tuned without client-specific fields."""
-
-    stmt = query_filter.filter_read(select(Item).where(Item.id.in_(item_ids)))
-
-    items = (await db.execute(stmt)).unique().scalars().all()
-
-    missing_item_ids = item_ids - {item.id for item in items}
-    if missing_item_ids:
-        key = {"item_ids": missing_item_ids}
-        raise ItemNotFoundError(key)
-
-    return [ItemRead.model_validate(item) for item in items]
-
-
-async def _get_many_items_with_client_specific_fields(
-    db: AsyncSession,
-    item_ids: set[int],
-    *,
-    query_filter: ItemReadQueryFilter,
-    client_id: int,
-) -> list[ItemRead]:
-    """Get item tuned with client-specific fields."""
+    if client_id:
+        stmt = (
+            stmt.outerjoin(
+                LoanRequest,
+                and_(
+                    LoanRequest.item_id == Item.id,
+                    LoanRequest.borrower_id == client_id,
+                    LoanRequest.state.in_(LoanRequestState.get_active_states()),
+                ),
+            )
+            .outerjoin(
+                Loan,
+                and_(
+                    Loan.item_id == Item.id,
+                    Loan.borrower_id == client_id,
+                    func.upper(Loan.during).is_(None),
+                ),
+            )
+            .correlate(Item)
+        )
 
     stmt = query_filter.filter_read(
-        select(Item, ItemLike.id, ItemSave.id, LoanRequest, Loan)
-        .outerjoin(
-            ItemLike, and_(ItemLike.item_id == Item.id, ItemLike.user_id == client_id)
+        stmt.where(Item.id.in_(item_ids)).options(
+            joinedload(Item.images),
+            joinedload(Item.owner),
+            joinedload(Item.regions),
         )
-        .outerjoin(
-            ItemSave, and_(ItemSave.item_id == Item.id, ItemSave.user_id == client_id)
-        )
-        .outerjoin(
-            LoanRequest,
-            and_(
-                LoanRequest.item_id == Item.id,
-                LoanRequest.borrower_id == client_id,
-                LoanRequest.state.in_(LoanRequestState.get_active_states()),
-            ),
-        )
-        .outerjoin(
-            Loan,
-            and_(
-                Loan.item_id == Item.id,
-                or_(
-                    Loan.borrower_id == client_id,
-                    Item.owner_id == client_id,
-                ),
-                func.upper(Loan.during).is_(None),
-            ),
-        )
-        .where(Item.id.in_(item_ids))
     )
 
-    rows = (await db.execute(stmt)).unique().all()
+    res = await db.execute(stmt)
+    rows = res.unique().all()
 
     items = [
         ItemRead.model_validate(
             {
-                **ItemRead.model_validate(item).model_dump(),
-                "owned": item.owner_id == client_id,
-                "liked": like_id is not None,
-                "saved": save_id is not None,
-                "active_loan_request": (
-                    loan_request and LoanRequestRead.model_validate(loan_request)
-                ),
-                "active_loan": (loan and LoanRead.model_validate(loan)),
+                "id": row.Item.id,
+                "name": row.Item.name,
+                "description": row.Item.description,
+                "targeted_age_months": row.Item.targeted_age_months,
+                "images": [img.name for img in row.Item.images],
+                "available": not (row.Item.blocked or row.has_active_loan),
+                "owner": row.Item.owner,
+                "regions": {reg.id for reg in row.Item.regions},
+                "likes_count": row.likes_count,
+                "owned": getattr(row, "owned", None),
+                "liked": getattr(row, "liked", None),
+                "saved": getattr(row, "saved", None),
+                "active_loan_request": getattr(row, "active_loan_request", None),
+                "active_loan": getattr(row, "active_loan", None),
             }
         )
-        for item, like_id, save_id, loan_request, loan in rows
+        for row in rows
     ]
 
     missing_item_ids = item_ids - {item.id for item in items}
