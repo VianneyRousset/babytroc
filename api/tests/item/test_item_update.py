@@ -3,6 +3,7 @@ from fastapi import status
 from httpx import AsyncClient
 
 from app.schemas.image.read import ItemImageRead
+from app.schemas.item.base import MonthRange
 from app.schemas.item.read import ItemRead
 
 
@@ -36,17 +37,17 @@ class TestItemsUpdate:
         resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
         print(resp.text)
         resp.raise_for_status()
-        read = resp.json()
+        item = ItemRead.model_validate(resp.json())
 
-        assert read["name"] == "forest"
-        assert read["description"] == alice_new_item.description
-        assert read["targeted_age_months"] == "10-14"
-        assert read["owner"]["id"] == alice_new_item.owner.id
-        assert read["images"] == [
+        assert item.name == "forest"
+        assert item.description == alice_new_item.description
+        assert item.targeted_age_months == MonthRange("10-14")
+        assert item.owner.id == alice_new_item.owner.id
+        assert item.images == [
             *alice_new_item.images,
             alice_items_image.name,
         ]
-        assert {reg["id"] for reg in read["regions"]} == {1, 2}
+        assert item.regions == {1, 2}
 
 
 class TestItemUpdateInvalid:
