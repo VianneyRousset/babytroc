@@ -9,7 +9,7 @@ from app.schemas.loan.query import LoanReadQueryFilter, LoanUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
 from app.services.chat import send_many_chat_messages
 
-from .read import get_loan
+from .read import get_many_loans
 
 
 async def end_loan(
@@ -50,28 +50,30 @@ async def end_many_loans(
         update(Loan)
         .values(during=Loan.during * text("tstzrange(NULL, now(), '()')"))
         .where(Loan.id.in_(loan_ids))
-    ).returning(Loan)
+    ).returning(Loan.id)
 
-    loans = (await db.execute(stmt)).unique().scalars().all()
+    res = await db.execute(stmt)
+    updated_loan_ids = set(res.unique().scalars().all())
 
     # if not all given loans were updated it means either:
     # 1. the given loan matching the query_filter does not exist
     # 2. the given loan were not active (non-null upper bound of range `during`)
-    if len(loans) != len(loan_ids):
+    if len(updated_loan_ids) != len(loan_ids):
         # find missing loan request ids
-        missing_loan_ids = loan_ids - {loan.id for loan in loans}
-        first_missing_loan_id = next(iter(sorted(missing_loan_ids)))
+        missing_loan_ids = loan_ids - updated_loan_ids
 
         # raise LoanNotFoundError if loan request does not exist (1.)
-        loan_causing_issue = await get_loan(
+        loans = await get_many_loans(
             db=db,
-            loan_id=first_missing_loan_id,
+            loan_ids=missing_loan_ids,
             query_filter=LoanReadQueryFilter.model_validate(query_filter.model_dump()),
         )
 
         # raise LoanAlreadyInactiveError if the loan were already inactive (2.)
-        if loan_causing_issue.during[1] is not None:
-            raise LoanAlreadyInactiveError()
+        if inactive_loan_ids := {
+            loan.id for loan in loans if loan.during[1] is not None
+        }:
+            raise LoanAlreadyInactiveError(inactive_loan_ids)
 
         msg = (
             "The number of updated loans does not match the number of given "
@@ -79,7 +81,10 @@ async def end_many_loans(
         )
         raise RuntimeError(msg)
 
-    loan_reads = [LoanRead.model_validate(loan) for loan in loans]
+    loans = await get_many_loans(
+        db=db,
+        loan_ids=loan_ids,
+    )
 
     # create chat message
     if send_messages:
@@ -93,8 +98,8 @@ async def end_many_loans(
                     ),
                     loan_id=loan.id,
                 )
-                for loan in loan_reads
+                for loan in loans
             ],
         )
 
-    return loan_reads
+    return loans

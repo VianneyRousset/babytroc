@@ -94,4 +94,7 @@ async def update_many_loan_requests_state(
         )
         raise RuntimeError(msg)
 
-    return [LoanRequestRead.model_validate(req) for req in loan_requests]
+    return await get_many_loan_requests(
+        db=db,
+        loan_request_ids=loan_request_ids,
+    )

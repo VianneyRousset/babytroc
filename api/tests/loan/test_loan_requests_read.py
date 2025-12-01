@@ -151,7 +151,7 @@ class TestLoanRequestRead:
             ]
 
     @staticmethod
-    async def check_loan_request_state_active(
+    def check_loan_request_state_active(
         state: LoanRequestState,
         active: bool | None,
     ) -> bool:

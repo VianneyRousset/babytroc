@@ -1,7 +1,9 @@
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.errors.loan import LoanRequestNotFoundError
+from app.models.item import Item
 from app.models.loan import LoanRequest
 from app.schemas.loan.query import (
     LoanRequestQueryPageCursor,
@@ -19,7 +21,7 @@ async def get_loan_request(
 ) -> LoanRequestRead:
     """Get loan request with `loan_request_id`."""
 
-    loan_requests = get_many_loan_requests(
+    loan_requests = await get_many_loan_requests(
         db=db,
         loan_request_ids={loan_request_id},
         query_filter=query_filter,
@@ -44,9 +46,13 @@ async def get_many_loan_requests(
 
     stmt = query_filter.filter_read(
         select(LoanRequest).where(LoanRequest.id.in_(loan_request_ids))
+    ).options(
+        selectinload(LoanRequest.item).undefer(Item.first_image_name),
+        selectinload(LoanRequest.borrower),
     )
 
-    loan_requests = (await db.execute(stmt)).unique().scalars().all()
+    res = await db.execute(stmt)
+    loan_requests = res.unique().scalars().all()
 
     missing_loan_request_ids = loan_request_ids - {req.id for req in loan_requests}
     if missing_loan_request_ids:
@@ -64,6 +70,8 @@ async def list_loan_requests(
 ) -> QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor]:
     """List the loan requests matching criteria."""
 
+    print("list loan requests", query_filter, flush=True)
+
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or LoanRequestReadQueryFilter()
 
@@ -73,7 +81,10 @@ async def list_loan_requests(
     )
 
     # selection
-    stmt = select(LoanRequest)
+    stmt = select(LoanRequest).options(
+        selectinload(LoanRequest.item).undefer(Item.first_image_name),
+        selectinload(LoanRequest.borrower),
+    )
 
     # apply filtering
     stmt = query_filter.filter_read(stmt)
@@ -86,7 +97,8 @@ async def list_loan_requests(
     if page_options.cursor.loan_request_id is not None:
         stmt = stmt.where(LoanRequest.id < page_options.cursor.loan_request_id)
 
-    loan_requests = list((await db.execute(stmt)).scalars().all())
+    res = await db.execute(stmt)
+    loan_requests = res.scalars().all()
 
     return QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor](
         data=[LoanRequestRead.model_validate(req) for req in loan_requests],

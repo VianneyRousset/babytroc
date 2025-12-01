@@ -24,9 +24,9 @@ class LoanNotFoundError(LoanError, NotFoundError):
 
 
 class LoanAlreadyInactiveError(LoanError, ConflictError):
-    def __init__(self):
+    def __init__(self, loan_ids: set[int]):
         super().__init__(
-            message="Loan is already inactive.",
+            message=f"Loans are already inactive. Loan ids: {sorted(loan_ids)}.",
         )
 
 
@@ -81,7 +81,7 @@ class LoanRequestAlreadyExistsError(LoanRequestError, ConflictError):
 
 
 class LoanRequestOwnItemError(LoanRequestError, BadRequestError):
-    def __init__(self, item_id: int):
+    def __init__(self, item_id: int | set[int]):
         super().__init__(
             "Cannot add loan request where the borrower is also the owner "
             f"(item {item_id})."

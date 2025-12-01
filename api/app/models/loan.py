@@ -54,10 +54,14 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     item: Mapped["Item"] = relationship(
         "Item",
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
     @hybrid_property
@@ -107,10 +111,14 @@ class Loan(IntegerIdentifier, Base):
     item: Mapped["Item"] = relationship(
         "Item",
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
     during: Mapped[Range] = mapped_column(
@@ -128,6 +136,13 @@ class Loan(IntegerIdentifier, Base):
             onupdate="CASCADE",
         ),
         comment="The id of the loan request that created this loan.",
+    )
+
+    loan_request: Mapped[LoanRequest] = relationship(
+        LoanRequest,
+        single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
     @hybrid_property

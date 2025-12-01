@@ -124,6 +124,7 @@ class Item(CreationDate, UpdateDate, Base):
             .limit(1)
             .scalar_subquery()
         ),
+        raiseload=True,
     )
 
     likes_count: Mapped[int] = deferred(
@@ -132,6 +133,7 @@ class Item(CreationDate, UpdateDate, Base):
             ItemLike.item_id == id,
         )
         .scalar_subquery(),
+        raiseload=True,
     )
 
     @property

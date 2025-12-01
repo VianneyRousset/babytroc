@@ -77,7 +77,10 @@ async def cancel_item_active_loan_request(
             ),
         )
 
-    return LoanRequestRead.model_validate(loan_request)
+    return await get_loan_request(
+        db=db,
+        loan_request_id=loan_request.id,
+    )
 
 
 async def cancel_loan_request(

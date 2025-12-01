@@ -56,7 +56,7 @@ class TestLoansRead:
     # TODO add test read /items/{item_id}/loans
 
     @staticmethod
-    async def check_loan_state_active(
+    def check_loan_state_active(
         state: bool,
         active: bool | None,
     ) -> bool:

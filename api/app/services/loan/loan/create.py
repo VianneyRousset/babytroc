@@ -8,6 +8,7 @@ from app.schemas.chat.send import SendChatMessageLoanStarted
 from app.schemas.loan.query import LoanRequestUpdateQueryFilter
 from app.schemas.loan.read import LoanRead
 from app.services.chat import send_many_chat_messages
+from app.services.loan.loan.read import get_many_loans
 from app.services.loan.request.update import update_many_loan_requests_state
 
 
@@ -81,7 +82,8 @@ async def execute_many_loan_requests(
         .returning(Loan)
     )
 
-    loans = (await db.execute(create_loans_stmt)).unique().scalars().all()
+    res = await db.execute(create_loans_stmt)
+    loans = res.unique().scalars().all()
 
     # check the number of created loans matched the number of given loan requests
     if len(loans) != len(loan_request_ids):
@@ -107,4 +109,7 @@ async def execute_many_loan_requests(
             ],
         )
 
-    return [LoanRead.model_validate(loan) for loan in loans]
+    return await get_many_loans(
+        db=db,
+        loan_ids={loan.id for loan in loans},
+    )

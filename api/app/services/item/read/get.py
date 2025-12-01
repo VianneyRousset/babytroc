@@ -1,4 +1,4 @@
-from sqlalchemy import and_, func, literal, select
+from sqlalchemy import and_, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload, undefer
 
@@ -59,13 +59,13 @@ async def get_many_items(
         else literal(None).label("active_loan_request_from_client")
     )
 
-    active_loan_from_client = (
+    active_loan = (
         aliased(
             Loan,
-            name="active_loan_from_client",
+            name="active_loan",
         )
         if client_id is not None
-        else literal(None).label("active_loan_from_client")
+        else literal(None).label("active_loan")
     )
 
     stmt = select(
@@ -74,26 +74,51 @@ async def get_many_items(
         select_liked(client_id).label("liked_by_client"),
         select_saved(client_id).label("saved_by_client"),
         active_loan_request_from_client,
-        active_loan_from_client,
+        active_loan,
     ).select_from(Item)
 
     if client_id is not None:
-        stmt = stmt.outerjoin(
-            active_loan_request_from_client,
-            onclause=and_(
-                active_loan_request_from_client.item_id == Item.id,
-                active_loan_request_from_client.borrower_id == client_id,
-                active_loan_request_from_client.state.in_(
-                    LoanRequestState.get_active_states()
+        stmt = (
+            stmt.outerjoin(
+                active_loan_request_from_client,
+                onclause=and_(
+                    active_loan_request_from_client.item_id == Item.id,
+                    active_loan_request_from_client.borrower_id == client_id,
+                    active_loan_request_from_client.state.in_(
+                        LoanRequestState.get_active_states()
+                    ),
                 ),
-            ),
-        ).outerjoin(
-            active_loan_from_client,
-            onclause=and_(
-                active_loan_from_client.item_id == Item.id,
-                active_loan_from_client.borrower_id == client_id,
-                func.upper(active_loan_from_client.during).is_(None),
-            ),
+            )
+            .outerjoin(
+                active_loan,
+                onclause=and_(
+                    active_loan.item_id == Item.id,
+                    or_(
+                        active_loan.borrower_id == client_id,
+                        Item.owner_id == client_id,
+                    ),
+                    func.upper(active_loan.during).is_(None),
+                ),
+            )
+            .options(
+                # active_loan_request_from_client -> item -> first_image_name
+                selectinload(active_loan_request_from_client.item).undefer(
+                    Item.first_image_name
+                ),
+                selectinload(active_loan_request_from_client.borrower),
+                # active_loan -> item -> first_image_name
+                selectinload(active_loan.item).undefer(Item.first_image_name),
+                # active_loan -> borrower
+                selectinload(active_loan.borrower),
+                # active_loan -> loan_request -> item -> first_image_name
+                selectinload(active_loan.loan_request)
+                .selectinload(LoanRequest.item)
+                .undefer(Item.first_image_name),
+                # active_loan -> loan_request -> borrower
+                selectinload(active_loan.loan_request).selectinload(
+                    LoanRequest.borrower
+                ),
+            )
         )
 
     stmt = stmt.options(
@@ -120,7 +145,7 @@ async def get_many_items(
                 "liked_by_client": row.liked_by_client,
                 "saved_by_client": row.saved_by_client,
                 "active_loan_request_from_client": row.active_loan_request_from_client,
-                "active_loan_from_client": row.active_loan_from_client,
+                "active_loan": row.active_loan,
                 "blocked": row.Item.blocked
                 if client_id is not None and row.Item.owner.id == client_id
                 else None,

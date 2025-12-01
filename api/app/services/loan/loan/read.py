@@ -1,9 +1,10 @@
 from sqlalchemy import desc, select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.errors.loan import LoanNotFoundError
-from app.models.loan import Loan
+from app.models.item import Item
+from app.models.loan import Loan, LoanRequest
 from app.schemas.loan.query import LoanQueryPageCursor, LoanReadQueryFilter
 from app.schemas.loan.read import LoanRead
 from app.schemas.query import QueryPageOptions, QueryPageResult
@@ -17,19 +18,13 @@ async def get_loan(
 ) -> LoanRead:
     """Get loan with `loan_id`."""
 
-    # if no query filter is provided, use an empty filter
-    query_filter = query_filter or LoanReadQueryFilter()
+    loans = await get_many_loans(
+        db=db,
+        loan_ids={loan_id},
+        query_filter=query_filter,
+    )
 
-    stmt = query_filter.filter_read(select(Loan).where(Loan.id == loan_id))
-
-    try:
-        loan = (await db.execute(stmt)).unique().scalars().one()
-
-    except NoResultFound as error:
-        key = query_filter.key | {"loan_id": loan_id}
-        raise LoanNotFoundError(key) from error
-
-    return LoanRead.model_validate(loan)
+    return loans[0]
 
 
 async def get_many_loans(
@@ -48,7 +43,23 @@ async def get_many_loans(
 
     stmt = query_filter.filter_read(select(Loan).where(Loan.id.in_(loan_ids)))
 
-    loans = (await db.execute(stmt)).unique().scalars().all()
+    stmt = stmt.options(
+        # loan -> borrower
+        selectinload(Loan.borrower),
+        # loan -> item -> owner
+        selectinload(Loan.item).selectinload(Item.owner),
+        # loan -> item -> first_image_name
+        selectinload(Loan.item).undefer(Item.first_image_name),
+        # loan -> item -> first_image_name
+        selectinload(Loan.loan_request).selectinload(LoanRequest.borrower),
+        # loan -> loan_request -> item -> first_image_name
+        selectinload(Loan.loan_request)
+        .selectinload(LoanRequest.item)
+        .undefer(Item.first_image_name),
+    )
+
+    res = await db.execute(stmt)
+    loans = res.unique().scalars().all()
 
     missing_loan_ids = loan_ids - {loan.id for loan in loans}
     if missing_loan_ids:
@@ -87,6 +98,21 @@ async def list_loans(
     stmt = stmt.limit(page_options.limit)
     if page_options.cursor.loan_id is not None:
         stmt = stmt.where(Loan.id < page_options.cursor.loan_id)
+
+    stmt = stmt.options(
+        # loan -> borrower
+        selectinload(Loan.borrower),
+        # loan -> item -> owner
+        selectinload(Loan.item).selectinload(Item.owner),
+        # loan -> item -> first_image_name
+        selectinload(Loan.item).undefer(Item.first_image_name),
+        # loan -> item -> first_image_name
+        selectinload(Loan.loan_request).selectinload(LoanRequest.borrower),
+        # loan -> loan_request -> item -> first_image_name
+        selectinload(Loan.loan_request)
+        .selectinload(LoanRequest.item)
+        .undefer(Item.first_image_name),
+    )
 
     loans = list((await db.execute(stmt)).scalars().all())
 

@@ -16,8 +16,10 @@ from app.schemas.loan.base import ItemBorrowerId
 from app.schemas.loan.query import LoanRequestReadQueryFilter
 from app.schemas.loan.read import LoanRequestRead
 from app.services.chat import send_many_chat_messages
-from app.services.item import get_item, get_many_items
+from app.services.item import get_many_items
 from app.services.loan.request.read import list_loan_requests
+
+from .read import get_many_loan_requests
 
 
 async def create_loan_request(
@@ -78,7 +80,7 @@ async def create_many_loan_requests(
     # execute
     try:
         async with db.begin_nested():
-            inserted_loan_requests = (await db.execute(stmt)).unique().scalars().all()
+            res = await db.execute(stmt)
 
     # integrity error can be raise:
     # 1. if the borrower does not exist
@@ -123,8 +125,11 @@ async def create_many_loan_requests(
 
         raise error
 
+    inserted_loan_requests = res.unique().scalars().all()
+
     # if not all items created a loan request, it means either:
     # 1. the item is owned by the borrower
+    # 2. unexpected error
     if len(inserted_loan_requests) != len(loan_requests):
         # find missing (item_id, borrower_id)
         missing_loan_requests = loan_requests - {
@@ -134,18 +139,25 @@ async def create_many_loan_requests(
             )
             for req in inserted_loan_requests
         }
-        first_missing_loan_request = next(iter(sorted(missing_loan_requests)))
 
         # raise ItemNotFoundError if the item does not exist
-        item = await get_item(
-            db=db,
-            item_id=first_missing_loan_request.item_id,
-        )
+        items = {
+            item.id: item
+            for item in await get_many_items(
+                db=db,
+                item_ids={req.item_id for req in missing_loan_requests},
+            )
+        }
 
         # raise LoanRequestOwnItemError if the item is owned by the borrower (3.)
-        if item.owner.id == first_missing_loan_request.borrower_id:
-            raise LoanRequestOwnItemError(first_missing_loan_request.item_id)
+        if item_ids_owned_by_borrower := {
+            req.item_id
+            for req in missing_loan_requests
+            if items[req.item_id].owner.id == req.borrower_id
+        }:
+            raise LoanRequestOwnItemError(item_ids_owned_by_borrower)
 
+        # unexpected error (2.)
         msg = (
             "The number of created loan requests does not match the number of given "
             "item ids. The reason is unexpected."
@@ -160,7 +172,7 @@ async def create_many_loan_requests(
                 SendChatMessageLoanRequestCreated(
                     chat_id=ChatId.from_values(
                         item_id=loan_request.item_id,
-                        borrower_id=loan_request.borrower.id,
+                        borrower_id=loan_request.borrower_id,
                     ),
                     loan_request_id=loan_request.id,
                 )
@@ -169,10 +181,10 @@ async def create_many_loan_requests(
             ensure_chats=True,
         )
 
-    return [
-        LoanRequestRead.model_validate(loan_request)
-        for loan_request in inserted_loan_requests
-    ]
+    return await get_many_loan_requests(
+        db=db,
+        loan_request_ids={req.id for req in inserted_loan_requests},
+    )
 
 
 def _loan_request_creates(
