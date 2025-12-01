@@ -9,7 +9,7 @@ from app.schemas.loan.query import (
     LoanRequestUpdateQueryFilter,
 )
 from app.schemas.loan.read import LoanRequestRead
-from app.services.loan.request.read import get_loan_request
+from app.services.loan.request.read import get_many_loan_requests
 
 
 async def update_loan_request_state(
@@ -55,36 +55,38 @@ async def update_many_loan_requests_state(
         update(LoanRequest)
         .values(state=state)
         .where(LoanRequest.id.in_(loan_request_ids))
-    ).returning(LoanRequest)
+    ).returning(LoanRequest.id)
 
-    loan_requests = (await db.execute(stmt)).unique().scalars().all()
+    result = await db.execute(stmt)
+    updated_loan_request_ids = set(result.unique().scalars().all())
 
     # if not all given loan requests were updated it means either:
     # 1. the given loan request matching the query_filter does not exist
     # 2. the given loan request state is wrong
-    if len(loan_requests) != len(loan_request_ids):
+    if len(updated_loan_request_ids) != len(loan_request_ids):
         # find missing loan request ids
-        missing_loan_request_ids = loan_request_ids - {req.id for req in loan_requests}
-        first_missing_loan_request_id = next(iter(sorted(missing_loan_request_ids)))
+        missing_loan_request_ids = loan_request_ids - updated_loan_request_ids
 
-        # raise LoanRequestNotFoundError if loan request does not exist (1.)
-        loan_request = await get_loan_request(
+        # raise LoanRequestNotFoundError if some loan requests do not exist (1.)
+        loan_requests = await get_many_loan_requests(
             db=db,
-            loan_request_id=first_missing_loan_request_id,
+            loan_request_ids=missing_loan_request_ids,
             query_filter=LoanRequestReadQueryFilter.model_validate(
                 {**query_filter.model_dump(exclude={"states"})}
             ),
         )
 
         # raise LoanRequestStateError if loan request state is wrong (2.)
-        if (
-            query_filter.states is not None
-            and loan_request.state not in query_filter.states
-        ):
-            raise LoanRequestStateError(
-                expected_state=query_filter.states,
-                actual_state=loan_request.state,
-            )
+        if query_filter.states is not None:
+            if wrong_states := {
+                req.state
+                for req in loan_requests
+                if req.state not in query_filter.states
+            }:
+                raise LoanRequestStateError(
+                    expected_state=query_filter.states,
+                    actual_state=wrong_states,
+                )
 
         msg = (
             "The number of updated loan requests does not match the number of given "

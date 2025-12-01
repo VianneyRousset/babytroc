@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRead, LoanRequestRead
@@ -10,14 +10,14 @@ from app.schemas.user.private import UserPrivateRead
 class TestLoanCreate:
     """Tests loans create."""
 
-    def test_execute_loan_request(
+    async def test_execute_loan_request(
         self,
         bob_accepted_loan_request_for_alice_special_item: LoanRequestRead,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        carol_client: TestClient,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        carol_client: AsyncClient,
         alice_special_item: ItemRead,
     ):
         """Check an accepted loan request can be executed into a loan.
@@ -27,17 +27,17 @@ class TestLoanCreate:
         loan_request_id = bob_accepted_loan_request_for_alice_special_item.id
 
         # check only Bob can execute the loan request
-        resp = alice_client.post(
-            f"/v1/me/borrowings/requests/{loan_request_id}/execute"
+        resp = await alice_client.post(
+            f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute"
         )
         assert resp.is_error
-        resp = carol_client.post(
-            f"/v1/me/borrowings/requests/{loan_request_id}/execute"
+        resp = await carol_client.post(
+            f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute"
         )
         assert resp.is_error
 
         # accept loan request
-        resp = bob_client.post(f"/v1/me/borrowings/requests/{loan_request_id}/execute")
+        resp = await bob_client.post(f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute")
         print(resp.text)
         resp.raise_for_status()
         loan = LoanRead.model_validate(resp.json())

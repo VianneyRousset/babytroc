@@ -26,7 +26,7 @@ class TestItemsUpdate:
             json={
                 "name": "forest",
                 "targeted_age_months": "10-14",
-                "images": [*alice_new_item.images, alice_items_image.name],
+                "images": [*alice_new_item.image_names, alice_items_image.name],
                 "regions": [1, 2],
             },
         )
@@ -43,11 +43,11 @@ class TestItemsUpdate:
         assert item.description == alice_new_item.description
         assert item.targeted_age_months == MonthRange("10-14")
         assert item.owner.id == alice_new_item.owner.id
-        assert item.images == [
-            *alice_new_item.images,
+        assert item.image_names == [
+            *alice_new_item.image_names,
             alice_items_image.name,
         ]
-        assert item.regions == {1, 2}
+        assert item.region_ids == {1, 2}
 
 
 class TestItemUpdateInvalid:
@@ -142,7 +142,7 @@ class TestItemUpdateInvalid:
         resp = await alice_client.post(
             f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={
-                "images": [*alice_new_item.images, "xxxxxxxxxxxxxxxxxxxx"],
+                "images": [*alice_new_item.image_names, "xxxxxxxxxxxxxxxxxxxx"],
             },
         )
         print(resp.text)
@@ -157,7 +157,7 @@ class TestItemUpdateInvalid:
         resp = await alice_client.post(
             f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
             json={
-                "regions": [*alice_new_item.regions, 9999],
+                "regions": [*alice_new_item.region_ids, 9999],
             },
         )
         print(resp.text)

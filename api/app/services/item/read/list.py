@@ -8,9 +8,9 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload, undefer
 
 from app.models.item import Item
-from app.schemas.item.base import MonthRange
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import (
     ItemMatchingWordsQueryPageCursor,
@@ -19,14 +19,7 @@ from app.schemas.item.query import (
 )
 from app.schemas.query import QueryPageOptions, QueryPageResult
 
-from .selections import (
-    select_first_image,
-    select_has_active_loan,
-    select_liked,
-    select_owned,
-    select_saved,
-    select_words_match,
-)
+from .selections import select_liked, select_owned, select_saved, select_words_match
 
 
 @overload
@@ -86,21 +79,13 @@ async def list_items(
 
     stmt = select(
         Item,
-        select_first_image().label("first_image"),
-        select_has_active_loan().label("has_active_loan"),
-        # select words match if `words` are given
-        *([words_match.label("words_match")] if words_match is not None else []),
-        # select client-specific fields if `client_id` is given
-        *(
-            [
-                select_owned(client_id).label("owned"),
-                select_liked(client_id).label("liked"),
-                select_saved(client_id).label("saved"),
-            ]
-            if client_id is not None
-            else []
-        ),
-    )
+        select_owned(client_id).label("owned_by_client"),
+        select_liked(client_id).label("liked_by_client"),
+        select_saved(client_id).label("saved_by_client"),
+    ).select_from(Item)
+
+    if words_match is not None:
+        stmt = stmt.add_columns(words_match.label("words_match"))
 
     # filter out items without words match
     if words is not None:
@@ -142,21 +127,24 @@ async def list_items(
     if cursor.item_id is not None:
         stmt = stmt.where(Item.id < cursor.item_id)
 
+    stmt = stmt.options(undefer(Item.first_image_name))
+
     # execute
-    res = await db.execute(stmt)
+    res = await db.execute(stmt, {"client_id": client_id})
     rows = res.unique().all()
 
     items = [
-        ItemPreviewRead(
-            id=row.Item.id,
-            name=row.Item.name,
-            targeted_age_months=MonthRange(row.Item.targeted_age_months),
-            first_image=row.first_image,
-            available=not (row.Item.blocked or row.has_active_loan),
-            owner_id=row.Item.owner_id,
-            owned=getattr(row, "owned", None),
-            liked=getattr(row, "liked", None),
-            saved=getattr(row, "saved", None),
+        ItemPreviewRead.model_validate(
+            {
+                **{
+                    k: getattr(row.Item, k)
+                    for k in ItemPreviewRead.model_fields
+                    if hasattr(row.Item, k)
+                },
+                "owned_by_client": row.owned_by_client,
+                "liked_by_client": row.liked_by_client,
+                "saved_by_client": row.saved_by_client,
+            }
         )
         for row in rows
     ]

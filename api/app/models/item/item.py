@@ -8,22 +8,31 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
+    and_,
+    exists,
     func,
+    or_,
+    select,
     text,
 )
 from sqlalchemy.dialects.postgresql import INT4RANGE, Range
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    column_property,
+    deferred,
+    mapped_column,
+    relationship,
+)
 
 from app.models.base import Base, CreationDate, UpdateDate
+from app.models.loan import Loan
 
-from .image import ItemImage
-from .region import Region
+from .image import ItemImage, ItemImageAssociation
+from .like import ItemLike
+from .region import ItemRegionAssociation, Region
 
 if TYPE_CHECKING:
     from app.models.user import User
-
-# TODO use passive_delete=True to let the db handle cascade deletions
 
 
 class Item(CreationDate, UpdateDate, Base):
@@ -60,19 +69,25 @@ class Item(CreationDate, UpdateDate, Base):
     owner: Mapped["User"] = relationship(
         "User",
         single_parent=True,
-    )
-
-    # image of the item
-    images: Mapped[list[ItemImage]] = relationship(
-        ItemImage,
-        secondary="item_image_association",
-        order_by="ItemImageAssociation.order",
+        viewonly=True,
+        lazy="raise",
     )
 
     # regions where the item is available
-    regions: Mapped[list[Region]] = relationship(
+    regions: Mapped[set[Region]] = relationship(
         Region,
-        secondary="item_region_association",
+        secondary=ItemRegionAssociation.__tablename__,
+        viewonly=True,
+        lazy="raise",
+    )
+
+    # regions where the item is available
+    images: Mapped[list[ItemImage]] = relationship(
+        ItemImage,
+        secondary=ItemImageAssociation.__tablename__,
+        viewonly=True,
+        lazy="raise",
+        order_by=ItemImageAssociation.order,
     )
 
     # marked as not-available
@@ -86,12 +101,45 @@ class Item(CreationDate, UpdateDate, Base):
         Computed(func.normalize_text(name + " " + description))
     )
 
-    @hybrid_property
-    def first_image_name(self) -> str:
-        return self.images[0].name
+    has_active_loan: Mapped[bool] = column_property(
+        exists(
+            select(Loan.id).where(
+                and_(
+                    Loan.item_id == id,
+                    func.upper(Loan.during).is_not(None),
+                ),
+            )
+        ),
+    )
 
-    @hybrid_property
-    def images_names(self):
+    available: Mapped[bool] = column_property(~or_(has_active_loan, blocked))
+
+    first_image_name: Mapped[str] = deferred(
+        column_property(
+            select(ItemImageAssociation.image_name)
+            .where(
+                ItemImageAssociation.item_id == id,
+            )
+            .order_by(ItemImageAssociation.order)
+            .limit(1)
+            .scalar_subquery()
+        ),
+    )
+
+    likes_count: Mapped[int] = deferred(
+        select(func.count(ItemLike.id))
+        .where(
+            ItemLike.item_id == id,
+        )
+        .scalar_subquery(),
+    )
+
+    @property
+    def region_ids(self) -> set[int]:
+        return {reg.id for reg in self.regions}
+
+    @property
+    def image_names(self) -> list[str]:
         return [img.name for img in self.images]
 
     __table_args__ = (

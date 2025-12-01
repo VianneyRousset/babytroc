@@ -1,5 +1,4 @@
 from sqlalchemy import desc, select
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.loan import LoanRequestNotFoundError
@@ -20,24 +19,13 @@ async def get_loan_request(
 ) -> LoanRequestRead:
     """Get loan request with `loan_request_id`."""
 
-    # default query filter
-    query_filter = query_filter or LoanRequestReadQueryFilter()
+    loan_requests = get_many_loan_requests(
+        db=db,
+        loan_request_ids={loan_request_id},
+        query_filter=query_filter,
+    )
 
-    stmt = select(LoanRequest)
-
-    if loan_request_id is not None:
-        stmt = stmt.where(LoanRequest.id == loan_request_id)
-
-    stmt = query_filter.filter_read(stmt)
-
-    try:
-        loan_request = (await db.execute(stmt)).unique().scalars().one()
-
-    except NoResultFound as error:
-        key = query_filter.key | {"id": loan_request_id}
-        raise LoanRequestNotFoundError(key) from error
-
-    return LoanRequestRead.model_validate(loan_request)
+    return loan_requests[0]
 
 
 async def get_many_loan_requests(

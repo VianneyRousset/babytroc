@@ -45,7 +45,7 @@ async def accept_many_loan_requests(
     (default).
     """
 
-    query_filter = LoanRequestUpdateQueryFilter()
+    query_filter = query_filter or LoanRequestUpdateQueryFilter()
 
     # ensure proper state of the updated loan request
     if check_state:

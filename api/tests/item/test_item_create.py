@@ -50,8 +50,8 @@ class TestItemCreate:
             str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
         assert item.owner.id == alice.id
-        assert item.images == alice_new_item_data["images"]
-        assert item.regions == set(alice_new_item_data["regions"])
+        assert item.image_names == alice_new_item_data["images"]
+        assert item.region_ids == set(alice_new_item_data["regions"])
 
         # get item in alice's list of items
         resp = await client.get(
@@ -67,8 +67,8 @@ class TestItemCreate:
             str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
         assert item.owner.id == alice.id
-        assert item.images == alice_new_item_data["images"]
-        assert item.regions == set(alice_new_item_data["regions"])
+        assert item.image_names == alice_new_item_data["images"]
+        assert item.region_ids == set(alice_new_item_data["regions"])
 
         # get item by id from client list
         resp = await alice_client.get(f"https://babytroc.ch/api/v1/me/items/{item_id}")
@@ -82,8 +82,8 @@ class TestItemCreate:
             str(item.targeted_age_months) == alice_new_item_data["targeted_age_months"]
         )
         assert item.owner.id == alice.id
-        assert item.images == alice_new_item_data["images"]
-        assert item.regions == set(alice_new_item_data["regions"])
+        assert item.image_names == alice_new_item_data["images"]
+        assert item.region_ids == set(alice_new_item_data["regions"])
 
         # check number of stars increment
         resp = await alice_client.get("https://babytroc.ch/api/v1/me")

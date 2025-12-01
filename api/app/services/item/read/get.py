@@ -1,6 +1,6 @@
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import aliased, selectinload, undefer
 
 from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
@@ -10,9 +10,7 @@ from app.schemas.item.query import ItemReadQueryFilter
 from app.schemas.item.read import ItemRead
 
 from .selections import (
-    select_has_active_loan,
     select_liked,
-    select_likes_count,
     select_owned,
     select_saved,
 )
@@ -52,75 +50,83 @@ async def get_many_items(
     # default empty query filter
     query_filter = query_filter or ItemReadQueryFilter()
 
+    active_loan_request_from_client = (
+        aliased(
+            LoanRequest,
+            name="active_loan_request_from_client",
+        )
+        if client_id is not None
+        else literal(None).label("active_loan_request_from_client")
+    )
+
+    active_loan_from_client = (
+        aliased(
+            Loan,
+            name="active_loan_from_client",
+        )
+        if client_id is not None
+        else literal(None).label("active_loan_from_client")
+    )
+
     stmt = select(
         Item,
-        select_likes_count().label("likes_count"),
-        select_has_active_loan().label("has_active_loan"),
-        *(
-            [
-                select_owned(client_id).label("owned"),
-                select_liked(client_id).label("liked"),
-                select_saved(client_id).label("saved"),
-                LoanRequest,
-                Loan,
-            ]
-            if client_id is not None
-            else []
-        ),
-    )
+        select_owned(client_id).label("owned_by_client"),
+        select_liked(client_id).label("liked_by_client"),
+        select_saved(client_id).label("saved_by_client"),
+        active_loan_request_from_client,
+        active_loan_from_client,
+    ).select_from(Item)
 
-    if client_id:
-        stmt = (
-            stmt.outerjoin(
-                LoanRequest,
-                and_(
-                    LoanRequest.item_id == Item.id,
-                    LoanRequest.borrower_id == client_id,
-                    LoanRequest.state.in_(LoanRequestState.get_active_states()),
+    if client_id is not None:
+        stmt = stmt.outerjoin(
+            active_loan_request_from_client,
+            onclause=and_(
+                active_loan_request_from_client.item_id == Item.id,
+                active_loan_request_from_client.borrower_id == client_id,
+                active_loan_request_from_client.state.in_(
+                    LoanRequestState.get_active_states()
                 ),
-            )
-            .outerjoin(
-                Loan,
-                and_(
-                    Loan.item_id == Item.id,
-                    Loan.borrower_id == client_id,
-                    func.upper(Loan.during).is_(None),
-                ),
-            )
-            .correlate(Item)
+            ),
+        ).outerjoin(
+            active_loan_from_client,
+            onclause=and_(
+                active_loan_from_client.item_id == Item.id,
+                active_loan_from_client.borrower_id == client_id,
+                func.upper(active_loan_from_client.during).is_(None),
+            ),
         )
 
-    stmt = query_filter.filter_read(
-        stmt.where(Item.id.in_(item_ids)).options(
-            joinedload(Item.images),
-            joinedload(Item.owner),
-            joinedload(Item.regions),
-        )
+    stmt = stmt.options(
+        selectinload(Item.owner),
+        selectinload(Item.regions),
+        selectinload(Item.images),
     )
+
+    stmt = query_filter.filter_read(stmt.where(Item.id.in_(item_ids)))
+
+    stmt = stmt.options(undefer(Item.likes_count))
 
     res = await db.execute(stmt)
-    rows = res.unique().all()
 
     items = [
         ItemRead.model_validate(
             {
-                "id": row.Item.id,
-                "name": row.Item.name,
-                "description": row.Item.description,
-                "targeted_age_months": row.Item.targeted_age_months,
-                "images": [img.name for img in row.Item.images],
-                "available": not (row.Item.blocked or row.has_active_loan),
-                "owner": row.Item.owner,
-                "regions": {reg.id for reg in row.Item.regions},
-                "likes_count": row.likes_count,
-                "owned": getattr(row, "owned", None),
-                "liked": getattr(row, "liked", None),
-                "saved": getattr(row, "saved", None),
-                "active_loan_request": getattr(row, "active_loan_request", None),
-                "active_loan": getattr(row, "active_loan", None),
+                **{
+                    k: getattr(row.Item, k)
+                    for k in ItemRead.model_fields
+                    if hasattr(row.Item, k)
+                },
+                "owned_by_client": row.owned_by_client,
+                "liked_by_client": row.liked_by_client,
+                "saved_by_client": row.saved_by_client,
+                "active_loan_request_from_client": row.active_loan_request_from_client,
+                "active_loan_from_client": row.active_loan_from_client,
+                "blocked": row.Item.blocked
+                if client_id is not None and row.Item.owner.id == client_id
+                else None,
             }
         )
-        for row in rows
+        for row in res.unique()
     ]
 
     missing_item_ids = item_ids - {item.id for item in items}

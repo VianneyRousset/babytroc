@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from sqlalchemy import Select, and_, func, select, or_
+from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability

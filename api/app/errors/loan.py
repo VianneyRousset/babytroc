@@ -51,18 +51,23 @@ class LoanRequestStateError(LoanRequestError, ConflictError):
         self,
         *,
         expected_state: LoanRequestState | Collection[LoanRequestState],
-        actual_state: LoanRequestState,
+        actual_state: LoanRequestState | Collection[LoanRequestState],
     ):
         expected = (
-            " or ".join(repr(state.name) for state in expected_state)
+            " or ".join(repr(state.name) for state in set(expected_state))
             if isinstance(expected_state, Collection)
             else repr(expected_state.name)
         )
 
+        actual = (
+            " and ".join(repr(state.name) for state in set(actual_state))
+            if isinstance(actual_state, Collection)
+            else repr(actual_state)
+        )
+
         super().__init__(
             message=(
-                f"Loan request state is expected to be {expected}, "
-                f"got: {actual_state.name!r}."
+                f"Loan request state is expected to be {expected}, got: {actual}."
             ),
         )
 

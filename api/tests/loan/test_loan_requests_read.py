@@ -1,13 +1,14 @@
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.enums import LoanRequestState
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
+from tests.utils import azip
 
 
 @pytest.mark.usefixtures("many_loan_requests_for_alice_items")
@@ -16,9 +17,9 @@ class TestLoanRequestRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_client_borrowing_requests_read_pages(
+    async def test_client_borrowing_requests_read_pages(
         self,
-        bob_client: TestClient,
+        bob_client: AsyncClient,
         bob: UserPrivateRead,
         many_loan_requests_for_alice_items: list[LoanRequestRead],
         count: int | None,
@@ -43,9 +44,9 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for loan_requests, expected_loan_requests in zip(
+        async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url="/v1/me/borrowings/requests",
+                url="https://babytroc.ch/api/v1/me/borrowings/requests",
                 client=bob_client,
                 params=params,
             ),
@@ -62,9 +63,9 @@ class TestLoanRequestRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_client_loan_requests_read_pages(
+    async def test_client_loan_requests_read_pages(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         many_loan_requests_for_alice_items: list[LoanRequestRead],
         count: int | None,
         active: bool | None,
@@ -87,9 +88,9 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for loan_requests, expected_loan_requests in zip(
+        async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url="/v1/me/loans/requests",
+                url="https://babytroc.ch/api/v1/me/loans/requests",
                 client=alice_client,
                 params=params,
             ),
@@ -106,10 +107,10 @@ class TestLoanRequestRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_item_loan_requests_read_pages(
+    async def test_item_loan_requests_read_pages(
         self,
         alice_special_item: ItemRead,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         many_loan_requests_for_alice_special_item: list[LoanRequestRead],
         count: int | None,
         active: bool | None,
@@ -132,9 +133,9 @@ class TestLoanRequestRead:
 
         assert len(all_expected_loan_requests) >= 5, "poor data for testing"
 
-        for loan_requests, expected_loan_requests in zip(
+        async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url=f"/v1/me/items/{alice_special_item.id}/loans/requests",
+                url=f"https://babytroc.ch/api/v1/me/items/{alice_special_item.id}/loans/requests",
                 client=alice_client,
                 params=params,
             ),
@@ -150,7 +151,7 @@ class TestLoanRequestRead:
             ]
 
     @staticmethod
-    def check_loan_request_state_active(
+    async def check_loan_request_state_active(
         state: LoanRequestState,
         active: bool | None,
     ) -> bool:

@@ -4,7 +4,6 @@ import pytest
 from httpx import AsyncClient
 from unidecode import unidecode
 
-from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import ItemQueryAvailability
 from app.schemas.item.read import ItemRead
 from app.schemas.user.private import UserPrivateRead
@@ -54,7 +53,7 @@ class TestItemsReadUserItems:
 
     async def test_list_items_owned_by_alice(
         self,
-        many_items: list[ItemPreviewRead],
+        many_items: list[ItemRead],
         client: AsyncClient,
         alice: UserPrivateRead,
     ):
@@ -80,7 +79,7 @@ class TestItemsReadUserItems:
 
     async def test_read_single_item_owned_by_alice(
         self,
-        many_items: list[ItemPreviewRead],
+        many_items: list[ItemRead],
         client: AsyncClient,
         alice: UserPrivateRead,
     ):
@@ -100,7 +99,7 @@ class TestItemsReadUserItems:
 
     async def test_list_items_owned_by_client(
         self,
-        many_items: list[ItemPreviewRead],
+        many_items: list[ItemRead],
         alice_client: AsyncClient,
         alice: UserPrivateRead,
     ):
@@ -126,7 +125,7 @@ class TestItemsReadUserItems:
 
     async def test_read_single_item_owned_by_client(
         self,
-        many_items: list[ItemPreviewRead],
+        many_items: list[ItemRead],
         alice_client: AsyncClient,
         alice: UserPrivateRead,
     ):
@@ -300,7 +299,8 @@ class TestItemsReadFilterRegions:
             (
                 item.id
                 for item in many_items
-                if filter_regions is None or item.regions.intersection(filter_regions)
+                if filter_regions is None
+                or item.region_ids.intersection(filter_regions)
             ),
             reverse=True,
         )

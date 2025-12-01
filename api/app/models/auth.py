@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import UUID
 
@@ -28,7 +28,7 @@ class AuthRefreshToken(CreationDate, Base):
 
     invalidated: Mapped[bool] = mapped_column(
         Boolean,
-        default=False,
+        server_default=text("false"),
     )
 
 
@@ -40,7 +40,7 @@ class AuthAccountPasswordResetAuthorization(CreationDate, Base):
         primary_key=True,
         index=True,
         unique=True,
-        default=uuid.uuid4,
+        server_default=text("uuidv4()"),
     )
 
     user_id: Mapped[int] = mapped_column(
@@ -54,5 +54,5 @@ class AuthAccountPasswordResetAuthorization(CreationDate, Base):
 
     invalidated: Mapped[bool] = mapped_column(
         Boolean,
-        default=False,
+        server_default=text("false"),
     )

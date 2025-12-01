@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
+from app.schemas.item.read import ItemRead
 from tests.fixtures.items import ItemData
 
 
@@ -59,10 +60,10 @@ class TestItemImages:
         resp = await alice_client.get(f"https://babytroc.ch/api/v1/items/{item_id}")
         print(resp.text)
         resp.raise_for_status()
-        item = resp.json()
+        item = ItemRead.model_validate(resp.json())
 
         # check the order of the images is preserved
-        assert item["images"] == shuffled_names
+        assert item.image_names == shuffled_names
 
     @staticmethod
     async def upload_image(client: AsyncClient, img: bytes) -> str:

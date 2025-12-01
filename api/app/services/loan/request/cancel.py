@@ -115,7 +115,7 @@ async def cancel_many_loan_requests(
     All loan request state must be `pending` if `check_state` is `True` (default).
     """
 
-    query_filter = LoanRequestUpdateQueryFilter()
+    query_filter = query_filter or LoanRequestUpdateQueryFilter()
 
     # ensure proper state of the updated loan request
     if check_state:

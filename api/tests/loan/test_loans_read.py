@@ -1,10 +1,11 @@
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.loan.read import LoanRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
+from tests.utils import azip
 
 
 class TestLoansRead:
@@ -12,9 +13,9 @@ class TestLoansRead:
 
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
-    def test_client_loans_read_pages(
+    async def test_client_loans_read_pages(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_many_loans: list[LoanRead],
         count: int | None,
         active: bool | None,
@@ -35,9 +36,9 @@ class TestLoansRead:
 
         assert len(all_expected_loans) >= 5, "poor data for testing"
 
-        for loans, expected_loans in zip(
+        async for loans, expected_loans in azip(
             iter_paginated_endpoint(
-                url="/v1/me/loans",
+                url="https://babytroc.ch/api/v1/me/loans",
                 client=alice_client,
                 params=params,
             ),
@@ -55,7 +56,7 @@ class TestLoansRead:
     # TODO add test read /items/{item_id}/loans
 
     @staticmethod
-    def check_loan_state_active(
+    async def check_loan_state_active(
         state: bool,
         active: bool | None,
     ) -> bool:
