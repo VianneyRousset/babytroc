@@ -7,7 +7,7 @@ from app import services
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.chat.base import ChatId
-from app.schemas.chat.read import ChatRead
+from app.schemas.chat.query import ChatReadQueryFilter
 from app.schemas.report.create import ReportCreate
 
 from .annotations import chat_id_annotation
@@ -26,7 +26,7 @@ async def report_client_chat(
         Body(title="Report fields."),
     ],
     db: Annotated[AsyncSession, Depends(get_db_session)],
-) -> ChatRead:
+):
     """Report client's chat by id."""
 
     parsed_chat_id = ChatId.model_validate(chat_id)
@@ -34,6 +34,7 @@ async def report_client_chat(
     return await services.chat.report_chat(
         db=db,
         chat_id=parsed_chat_id,
+        query_filter=ChatReadQueryFilter(member_id=client_id),
         reported_by_user_id=client_id,
         report_create=report_create,
     )

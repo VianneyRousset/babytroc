@@ -6,12 +6,13 @@ from app.clients.email.report import send_report_email
 from app.enums import ReportType
 from app.models.report import Report
 from app.schemas.report.create import ReportCreate
+from app.services.item.read import get_item
 from app.services.user.read import get_user_private
 
 
-async def report_user(
+async def report_item(
     db: AsyncSession,
-    user_id: int,
+    item_id: int,
     reported_by_user_id: int,
     report_create: ReportCreate,
     *,
@@ -19,29 +20,33 @@ async def report_user(
     app_name: str = "",
     moderator_email: str = "",
 ) -> None:
-    """Create a report for the user with `user_id`.
+    """Create a report for the item with `item_id`.
 
-    Snapshots the user's current state so evidence is preserved
-    even if the user later modifies their profile.
+    Snapshots the item's current state so evidence is preserved
+    even if the item is later modified.
     """
 
-    # fetch user (raises UserNotFoundError if missing)
-    user = await get_user_private(db=db, user_id=user_id)
+    # fetch item (raises ItemNotFoundError if missing)
+    item = await get_item(db=db, item_id=item_id)
 
     # fetch reporter name
     reporter = await get_user_private(db=db, user_id=reported_by_user_id)
 
-    # snapshot user state
+    # snapshot item state
     saved_info = json.dumps(
         {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "avatar_seed": user.avatar_seed,
-            "stars_count": user.stars_count,
-            "items_count": user.items_count,
-            "likes_count": user.likes_count,
-            "validated": user.validated,
+            "id": item.id,
+            "name": item.name,
+            "description": item.description,
+            "targeted_age_months": str(item.targeted_age_months),
+            "owner": {
+                "id": item.owner.id,
+                "name": item.owner.name,
+            },
+            "region_ids": sorted(item.region_ids),
+            "image_names": item.image_names,
+            "available": item.available,
+            "likes_count": item.likes_count,
         },
         ensure_ascii=False,
     )
@@ -49,20 +54,20 @@ async def report_user(
     # create report
     report = Report(
         description=report_create.message,
-        report_type=ReportType.user,
+        report_type=ReportType.item,
         created_by=reported_by_user_id,
         saved_info=saved_info,
         context=report_create.context,
     )
     db.add(report)
 
-    # send email to moderators
+    # send email
     if email_client and moderator_email:
         await send_report_email(
             email_client,
             app_name=app_name,
             moderator_email=moderator_email,
-            report_type=ReportType.user,
+            report_type=ReportType.item,
             reporter_name=reporter.name,
             description=report_create.message,
             context=report_create.context,

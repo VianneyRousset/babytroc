@@ -2,6 +2,7 @@ from . import like, save
 from .create import create_item, create_many_items
 from .delete import delete_item
 from .read import get_item, get_many_items, list_items
+from .report import report_item
 from .update import update_item
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     "get_many_items",
     "like",
     "list_items",
+    "report_item",
     "save",
     "update_item",
 ]
