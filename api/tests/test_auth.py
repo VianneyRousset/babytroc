@@ -1,12 +1,15 @@
+from datetime import UTC, datetime, timedelta
+
+import jwt
 import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import sessionmaker
+from httpx import AsyncClient
+from httpx_ws import aconnect_ws
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.clients.database.auth import list_account_password_reset_authorizations
-from app.config import Config
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
+from app.services.auth.refresh_token import list_account_password_reset_authorizations
 from app.services.user import get_user_validation_code_by_email
 from tests.fixtures.clients import create_client
 from tests.fixtures.users import UserData
@@ -17,25 +20,24 @@ from tests.fixtures.websockets import WebSocketRecorder
 class TestAuthLogin:
     """Test auth endpoints related to login and logout."""
 
-    def test_access_denied(
+    async def test_access_denied(
         self,
-        client: TestClient,
+        client: AsyncClient,
     ):
         """Check that GET /v1/me return 401 UNAUTHORIZED"""
-        resp = client.get("/v1/me")
+        resp = await client.get("/api/v1/me")
 
         assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_login_wrong_email(
+    async def test_login_wrong_email(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice_user_data: UserData,
     ):
         """Check that login with a wrong email return 401 UNAUTHORIZED."""
 
-        # login
-        resp = client.post(
-            "/v1/auth/login",
+        resp = await client.post(
+            "/api/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": "wrong_email",
@@ -45,16 +47,15 @@ class TestAuthLogin:
 
         assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_login_wrong_password(
+    async def test_login_wrong_password(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice_user_data: UserData,
     ):
         """Check that login with a wrong password return 401 UNAUTHORIZED."""
 
-        # login
-        resp = client.post(
-            "/v1/auth/login",
+        resp = await client.post(
+            "/api/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": alice_user_data["email"],
@@ -64,16 +65,15 @@ class TestAuthLogin:
 
         assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
-    def test_login_access_token(
+    async def test_login_access_token(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice_user_data: UserData,
     ):
         """Check that login returns a valid access token."""
 
-        # login
-        resp = client.post(
-            "/v1/auth/login",
+        resp = await client.post(
+            "/api/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": alice_user_data["email"],
@@ -83,34 +83,30 @@ class TestAuthLogin:
         resp.raise_for_status()
         assert resp.json()["validated"]
 
-        client.get("/v1/me").raise_for_status()
+        (await client.get("/api/v1/me")).raise_for_status()
 
-    def test_refresh_token(
+    async def test_refresh_token(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
     ):
         """Check that credentials can be renewed."""
 
-        # refresh
-        resp = alice_client.post("/v1/auth/refresh")
+        resp = await alice_client.post("/api/v1/auth/refresh")
         resp.raise_for_status()
         assert resp.json()["validated"]
 
-        # test access is wokring
-        alice_client.get("/v1/me").raise_for_status()
+        (await alice_client.get("/api/v1/me")).raise_for_status()
 
-    def test_logout(
+    async def test_logout(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
     ):
         """Check logout removes credentials."""
 
-        # logout
-        resp = alice_client.post("/v1/auth/logout")
+        resp = await alice_client.post("/api/v1/auth/logout")
         resp.raise_for_status()
 
-        # test access is not working anymore
-        resp = alice_client.get("/v1/me")
+        resp = await alice_client.get("/api/v1/me")
         assert not resp.is_success
 
 
@@ -118,11 +114,12 @@ class TestAuthLogin:
 class TestAuthNewAccount:
     """Test auth endpoints related to account creation."""
 
-    def test_create_account(
+    async def test_create_account(
         self,
-        app_config: Config,
-        client: TestClient,
-        database_sessionmaker: sessionmaker,
+        app_config,
+        client: AsyncClient,
+        app,
+        database_sessionmaker: async_sessionmaker,
     ):
         """Check that a new account can be created and validated."""
 
@@ -130,50 +127,53 @@ class TestAuthNewAccount:
         password = "xxxXXX42"  # noqa: S105
 
         # check forbidden access
-        resp = client.get("/v1/me")
+        resp = await client.get("/api/v1/me")
         assert not resp.is_success
 
         # create account
-        resp = client.post(
-            "/v1/auth/new",
+        resp = await client.post(
+            "/api/v1/auth/new",
             json={
                 "name": "newaccount",
                 "email": email,
                 "password": password,
             },
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check the account is not validated yet
         assert not resp.json()["validated"]
 
         # check still forbidden access
-        resp = client.get("/v1/me")
+        resp = await client.get("/api/v1/me")
         assert not resp.is_success
 
         # check can resend email
-        client.post("/v1/auth/resend-validation-email").raise_for_status()
+        (await client.post("/api/v1/auth/resend-validation-email")).raise_for_status()
 
         # get validation code
-        with database_sessionmaker.begin() as db:
-            validation_code = get_user_validation_code_by_email(
+        async with database_sessionmaker.begin() as db:
+            validation_code = await get_user_validation_code_by_email(
                 db=db,
                 email=email,
             )
 
         # should be logged into the invalidated account and thus access
-        # the websocket
+        # the websocket — need a separate entered client for websocket
+        ws_client = create_client(app)
+        await ws_client.__aenter__()
+        ws_client.cookies = client.cookies
 
-        websocket = client.websocket_connect("/v1/me/websocket")
-        websocket_recorder = WebSocketRecorder(websocket)
+        async with aconnect_ws("/api/v1/me/websocket", ws_client) as websocket:
+            websocket_recorder = WebSocketRecorder(websocket)
 
-        with websocket_recorder:
-            # validate for validation
-            with create_client(app_config) as client_for_validation:
-                client_for_validation.post(
-                    f"/v1/auth/validate/{validation_code}"
-                ).raise_for_status()
+            async with websocket_recorder:
+                # validate account
+                client_for_validation = create_client(app)
+                resp = await client_for_validation.post(
+                    f"/api/v1/auth/validate/{validation_code}"
+                )
+                resp.raise_for_status()
 
         # check received a notification
         assert isinstance(
@@ -182,15 +182,14 @@ class TestAuthNewAccount:
         assert websocket_recorder.message.validated
 
         # refresh token
-        resp = client.post("/v1/auth/refresh")
+        resp = await client.post("/api/v1/auth/refresh")
         resp.raise_for_status()
 
         # check the account is now validated
         assert resp.json()["validated"]
 
         # check access granted
-        resp = client.get("/v1/me")
-        print(resp.text)
+        resp = await client.get("/api/v1/me")
         resp.raise_for_status()
 
     @pytest.mark.parametrize(
@@ -202,9 +201,9 @@ class TestAuthNewAccount:
             (None, "qeuupfnlbombnsmk@lzlgzoynvwwaiwnz.com", True),
         ],
     )
-    def test_account_availability(
+    async def test_account_availability(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice_user_data: UserData,
         name: str | None,
         email: str | None,
@@ -218,9 +217,8 @@ class TestAuthNewAccount:
         if email:
             params["email"] = email
 
-        # check alice's name is not available
-        resp = client.get(
-            "v1/auth/available",
+        resp = await client.get(
+            "/api/v1/auth/available",
             params=params,
         )
         resp.raise_for_status()
@@ -242,25 +240,23 @@ class TestAuthNewAccount:
             ("alice", "alice@babytroc.ch", "abcABCD"),
         ],
     )
-    def test_create_account_invalid(
+    async def test_create_account_invalid(
         self,
-        client: TestClient,
+        client: AsyncClient,
         name: str,
         email: str,
         password: str,
     ):
         """Check that a new account cannot be created if a field is invalid."""
 
-        # create account
-        resp = client.post(
-            "/v1/auth/new",
+        resp = await client.post(
+            "/api/v1/auth/new",
             json={
                 "name": name,
                 "email": email,
                 "password": password,
             },
         )
-        print(resp.text)
         assert not resp.is_success
 
 
@@ -268,10 +264,10 @@ class TestAuthNewAccount:
 class TestAuthPasswordReset:
     """Test auth endpoints related to account password reset."""
 
-    def test_password_reset(
+    async def test_password_reset(
         self,
-        database_sessionmaker: sessionmaker,
-        client: TestClient,
+        database_sessionmaker: async_sessionmaker,
+        client: AsyncClient,
         alice_user_data: UserData,
     ):
         """Check that a new account can be created and validated."""
@@ -279,8 +275,8 @@ class TestAuthPasswordReset:
         new_password = "newPassword42"  # noqa: S105
 
         # login should fail
-        resp = client.post(
-            "/v1/auth/login",
+        resp = await client.post(
+            "/api/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": alice_user_data["email"],
@@ -290,79 +286,137 @@ class TestAuthPasswordReset:
         assert not resp.is_success
 
         # create account password reset authorization
-        resp = client.post(
-            "/v1/auth/reset-password",
+        resp = await client.post(
+            "/api/v1/auth/reset-password",
             json={"email": alice_user_data["email"]},
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # get authorization code manually
-        with database_sessionmaker.begin() as db:
-            authorizations = list_account_password_reset_authorizations(db)
+        async with database_sessionmaker.begin() as db:
+            authorizations = await list_account_password_reset_authorizations(db)
             authorization_code = authorizations[0].authorization_code
 
         # apply account password reset
-        client.post(
-            f"/v1/auth/reset-password/{authorization_code}",
+        (await client.post(
+            f"/api/v1/auth/reset-password/{authorization_code}",
             json={"password": new_password},
-        ).raise_for_status()
+        )).raise_for_status()
 
         # shouldn't be able to reuse account password reset authorization_code
-        resp = client.post(
-            f"/v1/auth/reset-password/{authorization_code}",
+        resp = await client.post(
+            f"/api/v1/auth/reset-password/{authorization_code}",
             json={"password": "mxgahflnggmfujas"},
         )
         assert not resp.is_success
 
         # login should now succeed
-        client.post(
-            "/v1/auth/login",
+        (await client.post(
+            "/api/v1/auth/login",
             data={
                 "grant_type": "password",
                 "username": alice_user_data["email"],
                 "password": new_password,
             },
-        ).raise_for_status()
+        )).raise_for_status()
 
-    def test_password_reset_wrong_email(
+    async def test_password_reset_wrong_email(
         self,
-        client: TestClient,
+        client: AsyncClient,
     ):
         """Password reset on an non-existing email should return 404."""
 
-        resp = client.post(
-            "/v1/auth/reset-password",
+        resp = await client.post(
+            "/api/v1/auth/reset-password",
             json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com"},
         )
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.parametrize("new_password", ["xX1", "abcabc1", "ABCABC1", "abcABCD"])
-    def test_password_reset_invalid(
+    async def test_password_reset_invalid(
         self,
-        database_sessionmaker: sessionmaker,
-        client: TestClient,
+        database_sessionmaker: async_sessionmaker,
+        client: AsyncClient,
         bob_user_data: UserData,
         new_password: str,
     ):
         """Password reset with invalid password should fail."""
 
         # create account password reset authorization
-        resp = client.post(
-            "/v1/auth/reset-password",
+        resp = await client.post(
+            "/api/v1/auth/reset-password",
             json={"email": bob_user_data["email"]},
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # get authorization code manually
-        with database_sessionmaker.begin() as db:
-            authorizations = list_account_password_reset_authorizations(db)
+        async with database_sessionmaker.begin() as db:
+            authorizations = await list_account_password_reset_authorizations(db)
             authorization_code = authorizations[0].authorization_code
 
         # apply account password reset
-        resp = client.post(
-            f"/v1/auth/reset-password/{authorization_code}",
+        resp = await client.post(
+            f"/api/v1/auth/reset-password/{authorization_code}",
             json={"password": new_password},
         )
         assert not resp.is_success
+
+
+@pytest.mark.usefixtures("alice")
+class TestAuthTokenEdgeCases:
+    """Test token validation edge cases."""
+
+    async def test_expired_access_token(
+        self,
+        client: AsyncClient,
+        app_config,
+    ):
+        """Expired JWT should return 401."""
+        expired_token = jwt.encode(
+            {
+                "iat": datetime.now(UTC) - timedelta(hours=2),
+                "exp": datetime.now(UTC) - timedelta(hours=1),
+                "sub": "1",
+                "validated": True,
+            },
+            key=app_config.auth.secret_key,
+            algorithm=app_config.auth.algorithm,
+        )
+        resp = await client.get(
+            "/api/v1/me",
+            headers={"Authorization": f"Bearer {expired_token}"},
+        )
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    async def test_malformed_jwt(
+        self,
+        client: AsyncClient,
+    ):
+        """Garbage Bearer token should return 401."""
+        resp = await client.get(
+            "/api/v1/me",
+            headers={"Authorization": "Bearer not.a.valid.jwt"},
+        )
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
+
+    async def test_bad_signature_jwt(
+        self,
+        client: AsyncClient,
+        app_config,
+    ):
+        """JWT signed with wrong key should return 401."""
+        bad_token = jwt.encode(
+            {
+                "iat": datetime.now(UTC),
+                "exp": datetime.now(UTC) + timedelta(hours=1),
+                "sub": "1",
+                "validated": True,
+            },
+            key="wrong-secret-key",
+            algorithm=app_config.auth.algorithm,
+        )
+        resp = await client.get(
+            "/api/v1/me",
+            headers={"Authorization": f"Bearer {bad_token}"},
+        )
+        assert resp.status_code == status.HTTP_401_UNAUTHORIZED
