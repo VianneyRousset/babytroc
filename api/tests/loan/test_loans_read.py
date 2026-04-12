@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from fastapi import status
 from httpx import AsyncClient
 
 from app.schemas.loan.read import LoanRead
@@ -38,7 +39,7 @@ class TestLoansRead:
 
         async for loans, expected_loans in azip(
             iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/me/loans",
+                url="/api/v1/me/loans",
                 client=alice_client,
                 params=params,
             ),
@@ -64,3 +65,39 @@ class TestLoansRead:
             return True
 
         return state == active
+
+
+class TestBorrowingRead:
+    """Test borrowing read endpoints."""
+
+    async def test_get_single_borrowing(
+        self,
+        bob_client: AsyncClient,
+        alice_many_loans: list[LoanRead],
+    ):
+        """Borrower can fetch their own borrowing."""
+        loan = alice_many_loans[0]
+        resp = await bob_client.get(f"/api/v1/me/borrowings/{loan.id}")
+        resp.raise_for_status()
+        assert resp.json()["id"] == loan.id
+
+    async def test_get_single_borrowing_not_borrower(
+        self,
+        carol_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_many_loans: list[LoanRead],
+    ):
+        """Non-borrower cannot fetch someone else's borrowing."""
+        # find a loan where bob is the borrower
+        bob_loan = next(
+            (loan for loan in alice_many_loans if loan.borrower.name == "bob"),
+            None,
+        )
+        if bob_loan is None:
+            pytest.skip("No loan with bob as borrower found")
+
+        # carol should not be able to access bob's borrowing
+        resp = await carol_client.get(
+            f"/api/v1/me/borrowings/{bob_loan.id}"
+        )
+        assert resp.status_code == status.HTTP_404_NOT_FOUND

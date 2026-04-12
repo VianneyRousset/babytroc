@@ -46,12 +46,12 @@ async def get_client_borrowing(
     loan_id: loan_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> LoanRead:
-    """Get loan where the client is the owner."""
+    """Get loan where the client is the borrower."""
 
     return await services.loan.get_loan(
         db=db,
         loan_id=loan_id,
         query_filter=LoanReadQueryFilter(
-            owner_id=client_id,
+            borrower_id=client_id,
         ),
     )
