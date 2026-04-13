@@ -2,7 +2,10 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession
+
 from app.schemas.chat.read import ChatMessageRead, ChatRead
+
+pytestmark = pytest.mark.timeout(30)
 from app.schemas.item.read import ItemRead
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead

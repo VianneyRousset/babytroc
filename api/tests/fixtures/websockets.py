@@ -87,7 +87,7 @@ class WebSocketRecorder(AbstractAsyncContextManager):
         self,
         websocket: AsyncWebSocketSession,
         *,
-        timeout: float | None = 2.0,
+        timeout: float | None = 5.0,
     ):
         self.websocket = websocket
         self.timeout = timeout

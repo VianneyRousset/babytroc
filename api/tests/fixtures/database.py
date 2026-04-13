@@ -12,6 +12,7 @@ from alembic.config import Config as AlembicConfig
 from sqlalchemy import URL, text
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from alembic import command
 
@@ -96,6 +97,7 @@ async def database_sessionmaker(
     engine = create_async_engine(
         url=database,
         echo=False,
+        poolclass=NullPool,
     )
 
     yield async_sessionmaker(
@@ -114,7 +116,9 @@ async def create_database(
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(url, isolation_level="AUTOCOMMIT")
+    engine = create_async_engine(
+        url, isolation_level="AUTOCOMMIT", poolclass=NullPool
+    )
 
     # postgres default database template
     if template is None:
@@ -137,7 +141,9 @@ async def drop_database(url: URL) -> None:
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(url, isolation_level="AUTOCOMMIT")
+    engine = create_async_engine(
+        url, isolation_level="AUTOCOMMIT", poolclass=NullPool
+    )
 
     try:
         async with engine.begin() as conn:
@@ -146,5 +152,3 @@ async def drop_database(url: URL) -> None:
 
     finally:
         await engine.dispose()
-
-    await engine.dispose()

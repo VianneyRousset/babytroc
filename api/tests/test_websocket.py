@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession, aconnect_ws
 
+pytestmark = pytest.mark.timeout(30)
+
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import (

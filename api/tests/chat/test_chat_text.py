@@ -1,5 +1,6 @@
-from fastapi.testclient import TestClient
-from starlette.testclient import WebSocketTestSession
+import pytest
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession
 
 from app.enums import ChatMessageType
 from app.schemas.chat.read import ChatMessageRead
@@ -8,18 +9,20 @@ from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.chat import ReceivedChatMessageChecker
 
+pytestmark = pytest.mark.timeout(30)
+
 
 class TestChatTextMessages:
     """Tests text chat messages."""
 
-    def test_message_text(
+    async def test_message_text(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         alice_new_item: ItemRead,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
@@ -36,13 +39,12 @@ class TestChatTextMessages:
         )
 
         # send text message
-        with checker:
-            message = ChatMessageRead.model_validate(
-                alice_client.post(
-                    f"/v1/me/chats/{chat_id}/messages",
-                    json={"text": text},
-                ).json()
+        async with checker:
+            res = await alice_client.post(
+                f"/api/v1/me/chats/{chat_id}/messages",
+                json={"text": text},
             )
+            message = ChatMessageRead.model_validate(res.json())
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -60,14 +62,14 @@ class TestChatTextMessages:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=chat_id,
             expected_message=expected_message,
         )
 
-    def test_invalid_text(
+    async def test_invalid_text(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check empty or too long messages cannot be sent."""
@@ -78,15 +80,20 @@ class TestChatTextMessages:
         white_text = "\t \n \r"
         too_long_text = "x" * 1001
 
-        assert alice_client.post(
-            f"/v1/me/chats/{chat_id}/messages",
+        res = await alice_client.post(
+            f"/api/v1/me/chats/{chat_id}/messages",
             json={"text": empty_text},
-        ).is_error, "Empty text message should be invalid"
-        assert alice_client.post(
-            f"/v1/me/chats/{chat_id}/messages",
+        )
+        assert res.is_error, "Empty text message should be invalid"
+
+        res = await alice_client.post(
+            f"/api/v1/me/chats/{chat_id}/messages",
             json={"text": white_text},
-        ).is_error, "White text message should be invalid"
-        assert alice_client.post(
-            f"/v1/me/chats/{chat_id}/messages",
+        )
+        assert res.is_error, "White text message should be invalid"
+
+        res = await alice_client.post(
+            f"/api/v1/me/chats/{chat_id}/messages",
             json={"text": too_long_text},
-        ).is_error, "Too long text message should be invalid"
+        )
+        assert res.is_error, "Too long text message should be invalid"

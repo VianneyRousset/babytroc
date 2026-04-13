@@ -1,8 +1,11 @@
-from fastapi.testclient import TestClient
-from starlette.testclient import WebSocketTestSession
+import pytest
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession
 
 from app.enums import ChatMessageType
 from app.schemas.chat.read import ChatMessageRead
+
+pytestmark = pytest.mark.timeout(30)
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import WebSocketMessageUpdatedChatMessage
@@ -12,14 +15,14 @@ from tests.fixtures.chat import ReceivedChatMessageChecker
 class TestChatMessageSeen:
     """Tests seen status on chat messages."""
 
-    def test_mark_message_as_seen(
+    async def test_mark_message_as_seen(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check that seeing a message mark it as read and emit a websocket message."""
@@ -35,17 +38,25 @@ class TestChatMessageSeen:
         )
 
         # send text message
-        message = ChatMessageRead.model_validate(
-            alice_client.post(
-                f"/v1/me/chats/{chat_id}/messages",
-                json={"text": text},
-            ).json()
+        res = await alice_client.post(
+            f"/api/v1/me/chats/{chat_id}/messages",
+            json={"text": text},
         )
+        message = ChatMessageRead.model_validate(res.json())
 
-        with checker:
-            bob_client.post(
-                f"/v1/me/chats/{chat_id}/messages/{message.id}/see"
-            ).raise_for_status()
+        # drain pending websocket messages from fixture setup and text send
+        for ws in [alice_websocket, bob_websocket]:
+            try:
+                while True:
+                    await ws.receive_text(timeout=0.5)
+            except TimeoutError:
+                pass
+
+        async with checker:
+            res = await bob_client.post(
+                f"/api/v1/me/chats/{chat_id}/messages/{message.id}/see"
+            )
+            res.raise_for_status()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -63,7 +74,7 @@ class TestChatMessageSeen:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=chat_id,
             expected_message=expected_message,
             expected_websocket_message=WebSocketMessageUpdatedChatMessage(

@@ -26,10 +26,11 @@ def get_app(
     raise ValueError(msg)
 
 
-def create_session_maker(db_url: URL) -> async_sessionmaker:
+def create_session_maker(db_url: URL, **engine_kwargs) -> async_sessionmaker:
     engine = create_async_engine(
         url=db_url,
         echo=False,
+        **engine_kwargs,
     )
 
     return async_sessionmaker(

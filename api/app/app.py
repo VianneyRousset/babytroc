@@ -20,9 +20,8 @@ from .routers.v1 import router
 # TODO check usefull ?
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await app.state.broadcast.connect()
-    yield
-    await app.state.broadcast.disconnect()
+    async with app.state.broadcast:
+        yield
 
 
 class DelayMiddleware(BaseHTTPMiddleware):
@@ -42,7 +41,14 @@ async def create_app(config: Config | None = None) -> FastAPI:
     app.state.config = config
 
     # database session maker
-    app.state.db_session_maker = create_session_maker(config.database.url)
+    pool_kwargs: dict = {}
+    if config.test:
+        from sqlalchemy.pool import NullPool
+
+        pool_kwargs["poolclass"] = NullPool
+    app.state.db_session_maker = create_session_maker(
+        config.database.url, **pool_kwargs
+    )
 
     # setup SQL functions and triggers
     async with app.state.db_session_maker.begin() as db:

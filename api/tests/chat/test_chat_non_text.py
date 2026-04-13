@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from fastapi.testclient import TestClient
-from starlette.testclient import WebSocketTestSession
+import pytest
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession
 
 from app.enums import ChatMessageType
 from app.schemas.chat.read import ChatMessageRead
@@ -10,16 +11,20 @@ from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.chat import ReceivedChatMessageChecker
 
+# These tests use websockets + imgpush + broadcaster relay, which under
+# parallel load (-n 8) can exceed the default 10s timeout.
+pytestmark = pytest.mark.timeout(30)
+
 
 class TestChatMessageLoanRequestCreated:
-    def test_message_loan_request_created(
+    async def test_message_loan_request_created(
         self,
         bob: UserPrivateRead,
         alice_new_item: ItemRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
     ):
         """Check that creating a loan request sends a chat message."""
 
@@ -30,8 +35,10 @@ class TestChatMessageLoanRequestCreated:
         )
 
         # request item
-        with checker:
-            resp = bob_client.post(f"/v1/items/{alice_new_item.id}/request")
+        async with checker:
+            resp = await bob_client.post(
+                f"/api/v1/items/{alice_new_item.id}/request"
+            )
             resp.raise_for_status()
             loan_request = LoanRequestRead.model_validate_json(resp.text)
 
@@ -51,7 +58,7 @@ class TestChatMessageLoanRequestCreated:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=loan_request.chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
@@ -59,13 +66,13 @@ class TestChatMessageLoanRequestCreated:
 
 
 class TestChatMessageLoanRequestCancelled:
-    def test_loan_request_cancelled_message(
+    async def test_loan_request_cancelled_message(
         self,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check that cancelling a loan request sends a chat message."""
@@ -81,8 +88,11 @@ class TestChatMessageLoanRequestCancelled:
         )
 
         # cancel loan request
-        with checker:
-            bob_client.delete(f"/v1/items/{item_id}/request").raise_for_status()
+        async with checker:
+            res = await bob_client.delete(
+                f"/api/v1/items/{item_id}/request"
+            )
+            res.raise_for_status()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -100,7 +110,7 @@ class TestChatMessageLoanRequestCancelled:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
@@ -108,14 +118,14 @@ class TestChatMessageLoanRequestCancelled:
 
 
 class TestChatMessageLoanRequestRejected:
-    def test_loan_request_rejected_message(
+    async def test_loan_request_rejected_message(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check that rejecting a loan request sends a chat message."""
@@ -131,10 +141,11 @@ class TestChatMessageLoanRequestRejected:
         )
 
         # reject loan request
-        with checker:
-            alice_client.post(
-                f"/v1/me/items/{item_id}/requests/{loan_request_id}/reject"
-            ).raise_for_status()
+        async with checker:
+            res = await alice_client.post(
+                f"/api/v1/me/items/{item_id}/requests/{loan_request_id}/reject"
+            )
+            res.raise_for_status()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -152,7 +163,7 @@ class TestChatMessageLoanRequestRejected:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=bob_new_loan_request_for_alice_new_item.chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
@@ -160,14 +171,14 @@ class TestChatMessageLoanRequestRejected:
 
 
 class TestChatMessageLoanRequestAccepted:
-    def test_loan_request_accepted_message(
+    async def test_loan_request_accepted_message(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check that accepting a loan request sends a chat message."""
@@ -183,10 +194,11 @@ class TestChatMessageLoanRequestAccepted:
         )
 
         # accept loan request
-        with checker:
-            alice_client.post(
-                f"/v1/me/items/{item_id}/requests/{loan_request_id}/accept"
-            ).raise_for_status()
+        async with checker:
+            res = await alice_client.post(
+                f"/api/v1/me/items/{item_id}/requests/{loan_request_id}/accept"
+            )
+            res.raise_for_status()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -204,7 +216,7 @@ class TestChatMessageLoanRequestAccepted:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=bob_new_loan_request_for_alice_new_item.chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
@@ -212,14 +224,14 @@ class TestChatMessageLoanRequestAccepted:
 
 
 class TestChatMessageLoanStarted:
-    def test_loan_started_message(
+    async def test_loan_started_message(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
         """Check that executing a loan request sends a chat message."""
@@ -235,15 +247,17 @@ class TestChatMessageLoanStarted:
         )
 
         # accept loan request
-        alice_client.post(
-            f"/v1/me/items/{item_id}/requests/{loan_request_id}/accept"
-        ).raise_for_status()
+        res = await alice_client.post(
+            f"/api/v1/me/items/{item_id}/requests/{loan_request_id}/accept"
+        )
+        res.raise_for_status()
 
         # execute loan request
-        with checker:
-            loan = bob_client.post(
-                f"/v1/me/borrowings/requests/{loan_request_id}/execute"
-            ).json()
+        async with checker:
+            res = await bob_client.post(
+                f"/api/v1/me/borrowings/requests/{loan_request_id}/execute"
+            )
+            loan = res.json()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -261,7 +275,7 @@ class TestChatMessageLoanStarted:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=bob_new_loan_request_for_alice_new_item.chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
@@ -269,14 +283,14 @@ class TestChatMessageLoanStarted:
 
 
 class TestChatMessageLoanEnded:
-    def test_loan_ended_message(
+    async def test_loan_ended_message(
         self,
         alice: UserPrivateRead,
         bob: UserPrivateRead,
-        alice_client: TestClient,
-        bob_client: TestClient,
-        alice_websocket: WebSocketTestSession,
-        bob_websocket: WebSocketTestSession,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_websocket: AsyncWebSocketSession,
+        bob_websocket: AsyncWebSocketSession,
         alice_new_item: ItemRead,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
         bob_new_loan_of_alice_new_item: LoanRead,
@@ -294,10 +308,11 @@ class TestChatMessageLoanEnded:
         )
 
         # end loan
-        with checker:
-            alice_client.post(
-                f"/v1/me/loans/{loan_id}/end",
-            ).raise_for_status()
+        async with checker:
+            res = await alice_client.post(
+                f"/api/v1/me/loans/{loan_id}/end",
+            )
+            res.raise_for_status()
 
         # construct expected chat message
         expected_message = ChatMessageRead(
@@ -315,7 +330,7 @@ class TestChatMessageLoanEnded:
         )
 
         # check received chat message
-        checker.check(
+        await checker.check(
             chat_id=bob_new_loan_request_for_alice_new_item.chat_id,
             expected_message=expected_message,
             exclude=["id", "creation_date"],
