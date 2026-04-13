@@ -1,10 +1,10 @@
 from collections.abc import AsyncGenerator
 
 import pytest
-from httpx import ASGITransport, AsyncClient
+from fastapi import FastAPI
+from httpx import AsyncClient
+from httpx_ws.transport import ASGIWebSocketTransport
 
-from app.app import create_app
-from app.config import Config
 from app.schemas.user.private import UserPrivateRead
 
 from .users import UserData
@@ -12,74 +12,78 @@ from .users import UserData
 
 @pytest.fixture
 async def client(
-    app_config: Config,
+    app: FastAPI,
 ) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app."""
-    async with await create_client(app_config) as client:
-        yield client
+    c = create_client(app)
+    yield c
+    await c.aclose()
 
 
 @pytest.fixture
 async def alice_client(
-    app_config: Config,
+    app: FastAPI,
     alice: UserPrivateRead,
     alice_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Alice's credentials."""
 
-    async with await create_client(app_config) as client:
-        yield await login_as_user(
-            client=client,
-            username=alice_user_data["email"],
-            password=alice_user_data["password"],
-        )
+    c = await login_as_user(
+        client=create_client(app),
+        username=alice_user_data["email"],
+        password=alice_user_data["password"],
+    )
+    yield c
+    await c.aclose()
 
 
 @pytest.fixture
 async def bob_client(
-    app_config: Config,
+    app: FastAPI,
     bob: UserPrivateRead,
     bob_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Bob's credentials."""
 
-    async with await create_client(app_config) as client:
-        yield await login_as_user(
-            client=client,
-            username=bob_user_data["email"],
-            password=bob_user_data["password"],
-        )
+    c = await login_as_user(
+        client=create_client(app),
+        username=bob_user_data["email"],
+        password=bob_user_data["password"],
+    )
+    yield c
+    await c.aclose()
 
 
 @pytest.fixture
 async def carol_client(
-    app_config: Config,
+    app: FastAPI,
     carol: UserPrivateRead,
     carol_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app with Carol's credentials."""
 
-    async with await create_client(app_config) as client:
-        yield await login_as_user(
-            client=client,
-            username=carol_user_data["email"],
-            password=carol_user_data["password"],
-        )
+    c = await login_as_user(
+        client=create_client(app),
+        username=carol_user_data["email"],
+        password=carol_user_data["password"],
+    )
+    yield c
+    await c.aclose()
 
 
-async def create_client(
-    app_config: Config,
+def create_client(
+    app: FastAPI,
 ) -> AsyncClient:
     """Return a new http test client to the app."""
 
-    app = await create_app(app_config)
+    transport = ASGIWebSocketTransport(
+        app=app,
+        root_path="/api",
+    )
 
     return AsyncClient(
-        transport=ASGITransport(
-            app=app,
-            root_path="/api",
-        ),
-        base_url="https://babytroc.ch",
+        base_url=f"https://{app.state.config.host_name}",
+        transport=transport,
     )
 
 
@@ -91,7 +95,7 @@ async def login_as_user(
     """Login with `client` using `username` and `password`."""
 
     resp = await client.post(
-        "https://babytroc.ch/api/v1/auth/login",
+        "/api/v1/auth/login",
         data={
             "grant_type": "password",
             "username": username,

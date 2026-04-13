@@ -48,7 +48,7 @@ async def primary_database() -> AsyncGenerator[URL]:
     # create database
     await create_database(url)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, partial(run_alembic_upgrade_head, url))
 
     # yield database url
