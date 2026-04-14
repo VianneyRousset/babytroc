@@ -125,7 +125,6 @@ class AsyncZip[*TP](
         except ExceptionGroup as group:
             # raise exceptions if not stop iteration
             _, subgroup = group.split(CustomStopIteration)
-            print("||subgroup||", subgroup, group.exceptions)
             if subgroup:
                 raise subgroup from group
 

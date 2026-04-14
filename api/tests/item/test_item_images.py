@@ -18,14 +18,14 @@ class TestItemImages:
 
         # upload image
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/images",
+            "/api/v1/images",
             files={"file": alice_items_image_data},
         )
         resp.raise_for_status()
         name = resp.json()["name"]
 
         # request image
-        resp = await alice_client.get(f"https://babytroc.ch/api/v1/images/{name}")
+        resp = await alice_client.get(f"/api/v1/images/{name}")
         resp.raise_for_status()
 
     async def test_item_images_order(
@@ -46,7 +46,7 @@ class TestItemImages:
 
         # create item with custom order (different than upload order)
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json={
                 **alice_new_item_data,
                 "images": shuffled_names,
@@ -57,8 +57,7 @@ class TestItemImages:
         item_id = item["id"]
 
         # get item by id from global list
-        resp = await alice_client.get(f"https://babytroc.ch/api/v1/items/{item_id}")
-        print(resp.text)
+        resp = await alice_client.get(f"/api/v1/items/{item_id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -69,7 +68,7 @@ class TestItemImages:
     async def upload_image(client: AsyncClient, img: bytes) -> str:
         # upload image
         resp = await client.post(
-            "https://babytroc.ch/api/v1/images",
+            "/api/v1/images",
             files={"file": img},
         )
         resp.raise_for_status()

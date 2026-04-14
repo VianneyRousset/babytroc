@@ -34,22 +34,20 @@ class TestLoanRequestUpdatePath1:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # reject loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "rejected"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -69,22 +67,20 @@ class TestLoanRequestUpdatePath2:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # cancel loan request
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "cancelled"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -104,22 +100,20 @@ class TestLoanRequestUpdatePath3:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # accept loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "accepted"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -127,14 +121,13 @@ class TestLoanRequestUpdatePath3:
 
         # reject loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "reject"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -154,22 +147,20 @@ class TestLoanRequestUpdatePath4:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # accept loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "accepted"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -177,14 +168,13 @@ class TestLoanRequestUpdatePath4:
 
         # cancel loan request
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "cancelled"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -205,22 +195,20 @@ class TestLoanRequestUpdatePath5:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # accept loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "accepted"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -228,15 +216,14 @@ class TestLoanRequestUpdatePath5:
 
         # execute loan request
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}/execute"
+            f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
-        print(resp.text)
         resp.raise_for_status()
         loan = resp.json()
 
         # check loan request state is "executed"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -244,7 +231,7 @@ class TestLoanRequestUpdatePath5:
 
         # check active loan is set in item read for alice
         resp = await alice_client.get(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}"
+            f"/api/v1/items/{alice_new_item.id}"
         )
         resp.raise_for_status()
         item = resp.json()
@@ -252,7 +239,7 @@ class TestLoanRequestUpdatePath5:
 
         # check active loan is set in item read for bob
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}"
+            f"/api/v1/items/{alice_new_item.id}"
         )
         resp.raise_for_status()
         item = resp.json()
@@ -260,7 +247,7 @@ class TestLoanRequestUpdatePath5:
 
         # check carol does not have access to the active loan
         resp = await carol_client.get(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}"
+            f"/api/v1/items/{alice_new_item.id}"
         )
         resp.raise_for_status()
         item = resp.json()
@@ -282,15 +269,14 @@ class TestLoanRequestUpdatePendingInvalidTransitions:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # check loan request state is "pending"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -298,7 +284,7 @@ class TestLoanRequestUpdatePendingInvalidTransitions:
 
         # check pending loan request cannot be executed
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}/execute"
+            f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
         assert not resp.is_success
 
@@ -316,21 +302,20 @@ class TestLoanRequestUpdateCancelledInvalidTransitions:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # cancel loan request
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
         resp.raise_for_status()
 
         # check loan request state is "cancelled"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -338,19 +323,19 @@ class TestLoanRequestUpdateCancelledInvalidTransitions:
 
         # check cancelled loan request cannot be accepted
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
         assert not resp.is_success
 
         # check cancelled loan request cannot be rejected
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
         assert not resp.is_success
 
         # check cancelled loan request cannot be executed
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}/execute"
+            f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
         assert not resp.is_success
 
@@ -368,22 +353,20 @@ class TestLoanRequestUpdateRejectedInvalidTransitions:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # reject loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "rejected"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -391,19 +374,19 @@ class TestLoanRequestUpdateRejectedInvalidTransitions:
 
         # check rejected loan request cannot be cancelled
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
         assert not resp.is_success
 
         # check rejected loan request cannot be accepted
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
         assert not resp.is_success
 
         # check cancelled loan request cannot be executed
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}/execute"
+            f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
         assert not resp.is_success
 
@@ -421,29 +404,26 @@ class TestLoanRequestUpdateExecutedInvalidTransitions:
 
         # request item
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
-        print(resp.text)
         resp.raise_for_status()
         request = resp.json()
 
         # accept loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # execute loan request
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}/execute"
+            f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check loan request state is "executed"
         resp = await bob_client.get(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{request['id']}"
+            f"/api/v1/me/borrowings/requests/{request['id']}"
         )
         resp.raise_for_status()
         request = resp.json()
@@ -451,18 +431,18 @@ class TestLoanRequestUpdateExecutedInvalidTransitions:
 
         # check rejected loan request cannot be cancelled
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/items/{alice_new_item.id}/request"
+            f"/api/v1/items/{alice_new_item.id}/request"
         )
         assert not resp.is_success
 
         # check rejected loan request cannot be accepted
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
         )
         assert not resp.is_success
 
         # check rejected loan request cannot be rejected
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
         assert not resp.is_success

@@ -19,30 +19,27 @@ class TestItemDelete:
         """Create an item and delete it."""
 
         # check item exists
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         resp.raise_for_status()
 
         # like and save item (check if the item can be deleted even if liked and saved)
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/liked/{alice_new_item.id}"
+            f"/api/v1/me/liked/{alice_new_item.id}"
         )
         resp.raise_for_status()
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/saved/{alice_new_item.id}"
+            f"/api/v1/me/saved/{alice_new_item.id}"
         )
         resp.raise_for_status()
 
         # delete item by id
         resp = await alice_client.delete(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}"
+            f"/api/v1/me/items/{alice_new_item.id}"
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # check item does not exists
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
     async def test_created_item_cannot_be_deleted(
@@ -55,25 +52,21 @@ class TestItemDelete:
         """Check that neither Bob nor an unlogged client can delete an unowned item."""
 
         # check item exists
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         resp.raise_for_status()
 
         # bob trying to delete item
         resp = await bob_client.delete(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}"
+            f"/api/v1/me/items/{alice_new_item.id}"
         )
-        print(resp.text)
 
         # unlogged client trying to delete item
         resp = await client.delete(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}"
+            f"/api/v1/me/items/{alice_new_item.id}"
         )
-        print(resp.text)
 
         # get item by id from global list
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 

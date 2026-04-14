@@ -8,6 +8,8 @@ from app.schemas.user.private import UserPrivateRead
 from app.schemas.user.update import UserUpdate
 from app.utils.hash import HashedStr
 
+from .read import get_user_private
+
 
 async def update_user(
     db: AsyncSession,
@@ -21,17 +23,15 @@ async def update_user(
         update(User)
         .where(User.id == user_id)
         .values(**user_update.model_dump(exclude_none=True))
-        .returning(User)
+        .returning(User.id)
     )
 
     try:
-        # execute
-        user = (await db.execute(stmt)).unique().scalars().one()
-
+        (await db.execute(stmt)).one()
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(db=db, user_id=user_id)
 
 
 async def update_user_password(
@@ -43,22 +43,19 @@ async def update_user_password(
 
     new_password = HashedStr(new_password)
 
-    # update user fields
     stmt = (
         update(User)
         .where(User.id == user_id)
         .values(password=new_password)
-        .returning(User)
+        .returning(User.id)
     )
 
     try:
-        # execute
-        user = (await db.execute(stmt)).unique().scalars().one()
-
+        (await db.execute(stmt)).one()
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(db=db, user_id=user_id)
 
 
 async def update_user_validation(
@@ -69,17 +66,15 @@ async def update_user_validation(
     """Update user validation state."""
 
     stmt = (
-        update(User.validated)
+        update(User)
         .where(User.id == user_id)
         .values(validated=validated)
-        .returning(User)
+        .returning(User.id)
     )
 
     try:
-        # execute
-        user = (await db.execute(stmt)).unique().scalars().one()
-
+        (await db.execute(stmt)).one()
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(db=db, user_id=user_id)

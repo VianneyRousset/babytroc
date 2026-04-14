@@ -1,9 +1,11 @@
 from sqlalchemy import desc, func, select, tuple_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
+from app.models.item import Item
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.query import ChatQueryPageCursor, ChatReadQueryFilter
 from app.schemas.chat.read import ChatRead
@@ -30,6 +32,12 @@ async def get_chat(
     )
 
     stmt = query_filter.filter_read(stmt)
+
+    stmt = stmt.options(
+        selectinload(Chat.borrower),
+        selectinload(Chat.item).undefer(Item.first_image_name),
+        selectinload(Chat.item).selectinload(Item.owner),
+    )
 
     try:
         chat, last_message_id = (await db.execute(stmt)).one()
@@ -72,6 +80,12 @@ async def get_many_chats(
         )
         .join(ChatMessage)
         .group_by(Chat.item_id, Chat.borrower_id)
+    )
+
+    stmt = stmt.options(
+        selectinload(Chat.borrower),
+        selectinload(Chat.item).undefer(Item.first_image_name),
+        selectinload(Chat.item).selectinload(Item.owner),
     )
 
     rows = (await db.execute(stmt)).all()
@@ -117,6 +131,12 @@ async def list_chats(
 
     # selection
     stmt = select(Chat, func.max(ChatMessage.id))
+
+    stmt = stmt.options(
+        selectinload(Chat.borrower),
+        selectinload(Chat.item).undefer(Item.first_image_name),
+        selectinload(Chat.item).selectinload(Item.owner),
+    )
 
     # apply filtering
     stmt = query_filter.filter_read(stmt)

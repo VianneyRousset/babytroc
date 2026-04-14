@@ -1,6 +1,11 @@
+from collections.abc import AsyncGenerator
+
 import pytest
 import sqlalchemy
+from asgi_lifespan import LifespanManager
+from fastapi import FastAPI
 
+from app.app import create_app
 from app.config import Config, DatabaseConfig, PubsubConfig
 
 
@@ -25,3 +30,12 @@ async def app_config(
             ),
         ),
     )
+
+
+@pytest.fixture(scope="class")
+async def app(
+    app_config: Config,
+) -> AsyncGenerator[FastAPI]:
+    app = await create_app(app_config)
+    async with LifespanManager(app):
+        yield app

@@ -32,7 +32,7 @@ class TestItemsRead:
         async for items, expected_items in azip(
             iter_paginated_endpoint(
                 client=client,
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 params=params,
             ),
             iter_chunks(
@@ -68,7 +68,7 @@ class TestItemsReadUserItems:
         item_ids = [
             item["id"]
             async for page in iter_paginated_endpoint(
-                url=f"https://babytroc.ch/api/v1/users/{alice.id}/items",
+                url=f"/api/v1/users/{alice.id}/items",
                 client=client,
                 params={"av": "a"},
             )
@@ -90,7 +90,7 @@ class TestItemsReadUserItems:
         )
 
         resp = await client.get(
-            f"https://babytroc.ch/api/v1/users/{alice.id}/items/{expected_item.id}"
+            f"/api/v1/users/{alice.id}/items/{expected_item.id}"
         )
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
@@ -114,7 +114,7 @@ class TestItemsReadUserItems:
         item_ids = [
             item["id"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/me/items",
+                url="/api/v1/me/items",
                 client=alice_client,
                 params={"av": "a"},
             )
@@ -136,7 +136,7 @@ class TestItemsReadUserItems:
         )
 
         resp = await alice_client.get(
-            f"https://babytroc.ch/api/v1/me/items/{expected_item.id}"
+            f"/api/v1/me/items/{expected_item.id}"
         )
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
@@ -177,7 +177,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         item_ids = [
             item["id"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "mo": self.format_range((lower, upper)),
@@ -249,7 +249,7 @@ class TestItemsReadFilterAvailability:
         item_ids = [
             item["id"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "n": 256,
@@ -311,7 +311,7 @@ class TestItemsReadFilterRegions:
         item_ids = [
             item["id"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "n": 256,
@@ -353,7 +353,7 @@ class TestItemsReadFilterWords:
         item_ids = {
             item["id"]: item["name"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -387,7 +387,7 @@ class TestItemsReadFilterWords:
         item_ids = {
             item["id"]: item["name"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -417,7 +417,7 @@ class TestItemsReadFilterWords:
         item_ids = {
             item["id"]: item["name"]
             async for page in iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/items",
+                url="/api/v1/items",
                 client=client,
                 params={
                     "av": "a",
@@ -446,7 +446,7 @@ class TestItemsReadFilterWords:
 
         # get client items list
         resp = await client.get(
-            url="https://babytroc.ch/api/v1/items",
+            url="/api/v1/items",
             params={
                 "av": "a",
                 "n": 4,

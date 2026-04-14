@@ -50,11 +50,15 @@ class Chat(Base):
         "Item",
         foreign_keys=[item_id],
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
         foreign_keys=[borrower_id],
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
     @hybrid_property
@@ -64,19 +68,19 @@ class Chat(Base):
             borrower_id=self.borrower_id,
         )
 
-    @hybrid_property
+    @property
     def owner_id(self) -> int:
         return self.item.owner_id
 
-    @hybrid_property
+    @property
     def owner(self) -> "User":
         return self.item.owner
 
-    @hybrid_property
+    @property
     def members_ids(self) -> set[int]:
         return {self.borrower_id, self.item.owner_id}
 
-    @hybrid_property
+    @property
     def members(self) -> set["User"]:
         return {self.borrower, self.item.owner}
 
@@ -105,6 +109,8 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         Chat,
         foreign_keys=[item_id, borrower_id],
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
     message_type: Mapped[ChatMessageType] = mapped_column(
@@ -125,9 +131,11 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
         "User",
         foreign_keys=[sender_id],
         single_parent=True,
+        viewonly=True,
+        lazy="raise",
     )
 
-    text: Mapped[str] = mapped_column(
+    text: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )

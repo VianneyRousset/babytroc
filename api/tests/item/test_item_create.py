@@ -20,27 +20,22 @@ class TestItemCreate:
     ):
         """Check created item is then accessible in various lists."""
 
-        print("alice", alice.id)
-        print("images", alice_new_item_data["images"])
-
         # get current number of stars for alice
-        resp = await alice_client.get("https://babytroc.ch/api/v1/me")
+        resp = await alice_client.get("/api/v1/me")
         resp.raise_for_status()
         old_stars_count = resp.json()["stars_count"]
 
         # create item
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json=alice_new_item_data,
         )
-        print(resp.text)
         resp.raise_for_status()
         added = resp.json()
         item_id = added["id"]
 
         # get item by id from global list
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{item_id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{item_id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -55,9 +50,8 @@ class TestItemCreate:
 
         # get item in alice's list of items
         resp = await client.get(
-            f"https://babytroc.ch/api/v1/users/{alice.id}/items/{item_id}"
+            f"/api/v1/users/{alice.id}/items/{item_id}"
         )
-        print(resp.text)
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -71,8 +65,7 @@ class TestItemCreate:
         assert item.region_ids == set(alice_new_item_data["regions"])
 
         # get item by id from client list
-        resp = await alice_client.get(f"https://babytroc.ch/api/v1/me/items/{item_id}")
-        print(resp.text)
+        resp = await alice_client.get(f"/api/v1/me/items/{item_id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -86,7 +79,7 @@ class TestItemCreate:
         assert item.region_ids == set(alice_new_item_data["regions"])
 
         # check number of stars increment
-        resp = await alice_client.get("https://babytroc.ch/api/v1/me")
+        resp = await alice_client.get("/api/v1/me")
         resp.raise_for_status()
         new_stars_count = resp.json()["stars_count"]
         assert new_stars_count == old_stars_count + 20
@@ -104,7 +97,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json={
                 **alice_new_item_data,
                 "regions": [],
@@ -128,7 +121,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json=alice_new_item_data,
         )
         assert resp.is_error
@@ -147,7 +140,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json=alice_new_item_data,
         )
 
@@ -167,7 +160,7 @@ class TestItemCreateInvalid:
 
         # create item
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items",
+            "/api/v1/me/items",
             json=alice_new_item_data,
         )
 

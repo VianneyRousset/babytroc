@@ -28,7 +28,8 @@ async def get_message(
     stmt = query_filter.filter_read(stmt)
 
     try:
-        message = (await db.execute(stmt)).unique().scalars().one()
+        res = await db.execute(stmt)
+        message = res.unique().scalars().one()
 
     except NoResultFound as error:
         key = query_filter.key | {"id": message_id}

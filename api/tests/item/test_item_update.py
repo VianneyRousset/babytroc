@@ -22,7 +22,7 @@ class TestItemsUpdate:
 
         # update item name
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={
                 "name": "forest",
                 "targeted_age_months": "10-14",
@@ -30,12 +30,10 @@ class TestItemsUpdate:
                 "regions": [1, 2],
             },
         )
-        print(resp.text)
         resp.raise_for_status()
 
         # get item by id from global list
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         resp.raise_for_status()
         item = ItemRead.model_validate(resp.json())
 
@@ -63,21 +61,18 @@ class TestItemUpdateInvalid:
 
         # bob trying to update item name
         resp = await bob_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
-        print(resp.text)
 
         # unlogged client trying to update item name
         resp = await client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={"name": "forest"},
         )
-        print(resp.text)
 
         # get item by id from global list
-        resp = await client.get(f"https://babytroc.ch/api/v1/items/{alice_new_item.id}")
-        print(resp.text)
+        resp = await client.get(f"/api/v1/items/{alice_new_item.id}")
         resp.raise_for_status()
         read = resp.json()
 
@@ -97,10 +92,9 @@ class TestItemUpdateInvalid:
         """Check that updating an non-existing item returns 404."""
 
         resp = await alice_client.post(
-            "https://babytroc.ch/api/v1/me/items/9999",
+            "/api/v1/me/items/9999",
             json={"name": "New item name"},
         )
-        print(resp.text)
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
@@ -112,10 +106,9 @@ class TestItemUpdateInvalid:
         """Check an item without region cannot be created."""
 
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={"regions": []},
         )
-        print(resp.text)
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -127,10 +120,9 @@ class TestItemUpdateInvalid:
         """Check an item without image cannot be created."""
 
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={"images": []},
         )
-        print(resp.text)
         assert resp.is_error
         assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -140,12 +132,11 @@ class TestItemUpdateInvalid:
         alice_new_item: ItemRead,
     ):
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={
                 "images": [*alice_new_item.image_names, "xxxxxxxxxxxxxxxxxxxx"],
             },
         )
-        print(resp.text)
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
@@ -155,11 +146,10 @@ class TestItemUpdateInvalid:
         alice_new_item: ItemRead,
     ):
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/items/{alice_new_item.id}",
+            f"/api/v1/me/items/{alice_new_item.id}",
             json={
                 "regions": [*alice_new_item.region_ids, 9999],
             },
         )
-        print(resp.text)
         assert resp.is_error
         assert resp.status_code == status.HTTP_404_NOT_FOUND

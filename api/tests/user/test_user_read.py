@@ -1,5 +1,5 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.item.read import ItemRead
 from app.schemas.user.private import UserPrivateRead
@@ -9,16 +9,16 @@ from app.schemas.user.private import UserPrivateRead
 class TestUserRead:
     """Test users read."""
 
-    def test_get_user(
+    async def test_get_user(
         self,
-        client: TestClient,
+        client: AsyncClient,
         alice: UserPrivateRead,
         alice_items: list[ItemRead],
     ):
         """Check that user info can be publicly retrieved."""
 
         # get user from global list
-        resp = client.get(f"/v1/users/{alice.id}")
+        resp = await client.get(f"/api/v1/users/{alice.id}")
         resp.raise_for_status()
         read = resp.json()
 
@@ -27,16 +27,16 @@ class TestUserRead:
         assert read["avatar_seed"] == alice.avatar_seed
         assert read["items_count"] == len(alice_items)
 
-    def test_get_user_me(
+    async def test_get_user_me(
         self,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice: UserPrivateRead,
         alice_items: list[ItemRead],
     ):
         """Check that user 'me' can be retrieved."""
 
         # get user from /me
-        resp = alice_client.get("/v1/me")
+        resp = await alice_client.get("/api/v1/me")
         resp.raise_for_status()
         read = resp.json()
 
@@ -44,6 +44,4 @@ class TestUserRead:
         assert read["name"] == alice.name
         assert read["email"] == alice.email
         assert read["avatar_seed"] == alice.avatar_seed
-        assert {item["id"] for item in read["items"]} == {
-            item.id for item in alice_items
-        }
+        assert read["items_count"] == len(alice_items)

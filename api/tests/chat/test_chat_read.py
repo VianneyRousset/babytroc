@@ -1,20 +1,21 @@
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
+from tests.utils import azip
 
 
 class TestChatsRead:
     """Tests chats list read."""
 
     @pytest.mark.parametrize("count", [None, 16, 7])
-    def test_read_pages(
+    async def test_read_pages(
         self,
         count: int | None,
-        alice_client: TestClient,
+        alice_client: AsyncClient,
         alice_many_chats: list[ChatRead],
     ):
         """Read a check all pages of the chats."""
@@ -39,10 +40,10 @@ class TestChatsRead:
             **({"n": count} if count is not None else {}),
         }
 
-        for chats, expected_chats in zip(
+        async for chats, expected_chats in azip(
             iter_paginated_endpoint(
                 client=alice_client,
-                url="/v1/me/chats",
+                url="/api/v1/me/chats",
                 params=params,
             ),
             iter_chunks(
@@ -59,11 +60,11 @@ class TestChatMessagesRead:
     """Tests chat messages list read."""
 
     @pytest.mark.parametrize("count", [None, 16, 7])
-    def test_read_pages(
+    async def test_read_pages(
         self,
         count: int | None,
-        alice_client: TestClient,
-        bob_client: TestClient,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
         alice_many_messages_to_bob: list[ChatMessageRead],
     ):
         """Read a check all pages of the chat messages."""
@@ -83,15 +84,15 @@ class TestChatMessagesRead:
             **({"n": count} if count is not None else {}),
         }
 
-        for alice_messages, bob_messages, expected_messages in zip(
+        async for alice_messages, bob_messages, expected_messages in azip(
             iter_paginated_endpoint(
                 client=alice_client,
-                url=f"/v1/me/chats/{chat_id}/messages",
+                url=f"/api/v1/me/chats/{chat_id}/messages",
                 params=params,
             ),
             iter_paginated_endpoint(
                 client=bob_client,
-                url=f"/v1/me/chats/{chat_id}/messages",
+                url=f"/api/v1/me/chats/{chat_id}/messages",
                 params=params,
             ),
             iter_chunks(
@@ -107,3 +108,23 @@ class TestChatMessagesRead:
             assert [
                 ChatMessageRead.model_validate(msg) for msg in bob_messages
             ] == expected_messages
+
+    async def test_read_single_message(
+        self,
+        alice_client: AsyncClient,
+        bob_client: AsyncClient,
+        alice_many_messages_to_bob: list[ChatMessageRead],
+    ):
+        """Read a check all pages of the chat messages."""
+
+        message = alice_many_messages_to_bob[0]
+        chat_id = message.chat_id
+
+        res = await alice_client.get(
+            f"/api/v1/me/chats/{chat_id}/messages/{message.id}"
+        )
+        res.raise_for_status()
+
+        read_message = ChatMessageRead.model_validate(res.json())
+
+        assert read_message == message

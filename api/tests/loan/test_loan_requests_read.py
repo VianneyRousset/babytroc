@@ -46,7 +46,7 @@ class TestLoanRequestRead:
 
         async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/me/borrowings/requests",
+                url="/api/v1/me/borrowings/requests",
                 client=bob_client,
                 params=params,
             ),
@@ -90,7 +90,7 @@ class TestLoanRequestRead:
 
         async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url="https://babytroc.ch/api/v1/me/loans/requests",
+                url="/api/v1/me/loans/requests",
                 client=alice_client,
                 params=params,
             ),
@@ -135,7 +135,7 @@ class TestLoanRequestRead:
 
         async for loan_requests, expected_loan_requests in azip(
             iter_paginated_endpoint(
-                url=f"https://babytroc.ch/api/v1/me/items/{alice_special_item.id}/loans/requests",
+                url=f"/api/v1/me/items/{alice_special_item.id}/loans/requests",
                 client=alice_client,
                 params=params,
             ),

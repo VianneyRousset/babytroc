@@ -116,9 +116,7 @@ async def create_database(
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(
-        url, isolation_level="AUTOCOMMIT", poolclass=NullPool
-    )
+    engine = create_async_engine(url, isolation_level="AUTOCOMMIT", poolclass=NullPool)
 
     # postgres default database template
     if template is None:
@@ -141,9 +139,7 @@ async def drop_database(url: URL) -> None:
     database = url.database
     url = url._replace(database="postgres")
 
-    engine = create_async_engine(
-        url, isolation_level="AUTOCOMMIT", poolclass=NullPool
-    )
+    engine = create_async_engine(url, isolation_level="AUTOCOMMIT", poolclass=NullPool)
 
     try:
         async with engine.begin() as conn:

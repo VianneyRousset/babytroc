@@ -1,5 +1,7 @@
-import asyncio
-from contextlib import AbstractContextManager
+from contextlib import (
+    AbstractAsyncContextManager,
+    AsyncExitStack,
+)
 from types import TracebackType
 
 import pytest
@@ -22,7 +24,7 @@ from app.schemas.websocket import (
 from tests.fixtures.websockets import WebSocketRecorder
 
 
-class ReceivedChatMessageChecker(AbstractContextManager):
+class ReceivedChatMessageChecker(AbstractAsyncContextManager):
     """Helper to check received message via websocket and the REST API."""
 
     def __init__(
@@ -33,11 +35,13 @@ class ReceivedChatMessageChecker(AbstractContextManager):
     ):
         self.clients = clients
         self.websocket_recorders = [WebSocketRecorder(ws) for ws in websockets]
+        self._stack: AsyncExitStack | None = None
 
     async def __aenter__(self):
-        await asyncio.gather(
-            *(recorder.__aenter__() for recorder in self.websocket_recorders)
-        )
+        async with AsyncExitStack() as stack:
+            for recorder in self.websocket_recorders:
+                await stack.enter_async_context(recorder)
+            self._stack = stack.pop_all()
 
         return self
 
@@ -47,12 +51,8 @@ class ReceivedChatMessageChecker(AbstractContextManager):
         value: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool | None:
-        await asyncio.gather(
-            *(
-                recorder.__aexit__(type, value, traceback)
-                for recorder in self.websocket_recorders
-            )
-        )
+        if self._stack is not None:
+            await self._stack.aclose()
 
         return None
 
@@ -95,14 +95,24 @@ class ReceivedChatMessageChecker(AbstractContextManager):
     ):
         """Check `expected_message` with the websocket and REST message."""
 
+        expected_type = type(expected_websocket_message)
+
         for recorder in self.websocket_recorders:
-            assert isinstance(
-                recorder.message,
-                WebSocketMessageNewChatMessage | WebSocketMessageUpdatedChatMessage,
-            ), "Unexpected websocket message type"
+            # find the message matching the expected type
+            matching = [
+                msg
+                for msg in recorder.messages
+                if isinstance(msg, expected_type)
+            ]
+            assert matching, (
+                f"No {expected_type.__name__} found in received messages: "
+                f"{[type(m).__name__ for m in recorder.messages]}"
+            )
+            message = matching[-1]
+
             assert {
-                **recorder.message.model_dump(),
-                "message": recorder.message.message.model_dump(
+                **message.model_dump(),
+                "message": message.message.model_dump(
                     exclude=exclude,  # type: ignore[arg-type]
                 ),
             } == {
@@ -120,7 +130,7 @@ class ReceivedChatMessageChecker(AbstractContextManager):
         exclude: list[str] | None = None,
     ):
         for client in self.clients:
-            resp = await client.get(f"/v1/me/chats/{chat_id}/messages")
+            resp = await client.get(f"/api/v1/me/chats/{chat_id}/messages")
             resp.raise_for_status()
             last_chat_message = ChatMessageRead.model_validate(resp.json()[0])
             assert last_chat_message.model_dump(

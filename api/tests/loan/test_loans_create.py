@@ -28,17 +28,16 @@ class TestLoanCreate:
 
         # check only Bob can execute the loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute"
+            f"/api/v1/me/borrowings/requests/{loan_request_id}/execute"
         )
         assert resp.is_error
         resp = await carol_client.post(
-            f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute"
+            f"/api/v1/me/borrowings/requests/{loan_request_id}/execute"
         )
         assert resp.is_error
 
         # accept loan request
-        resp = await bob_client.post(f"https://babytroc.ch/api/v1/me/borrowings/requests/{loan_request_id}/execute")
-        print(resp.text)
+        resp = await bob_client.post(f"/api/v1/me/borrowings/requests/{loan_request_id}/execute")
         resp.raise_for_status()
         loan = LoanRead.model_validate(resp.json())
 

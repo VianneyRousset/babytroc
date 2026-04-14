@@ -1,19 +1,17 @@
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from app.schemas.region.read import RegionRead
 from tests.fixtures.regions import RegionData
 
 
-def test_can_read_regions_list(
-    client: TestClient,
+async def test_can_read_regions_list(
+    client: AsyncClient,
     regions: list[RegionRead],
     regions_data: list[RegionData],
 ):
     """Check that regions list can be retrieved."""
 
-    # list regions
-    resp = client.get("/v1/utils/regions")
-    print(resp.text)
+    resp = await client.get("/api/v1/utils/regions")
     resp.raise_for_status()
 
     expected_regions = {reg["id"]: reg for reg in regions_data}

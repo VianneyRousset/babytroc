@@ -33,8 +33,11 @@ async def terminate_task_group_when_websocket_is_closed(
     """Raise TerminateTaskGroup when `websocket` is closed."""
 
     try:
-        async for _ in websocket.iter_text():
+        async for _text in websocket.iter_text():
             pass
+
+    except BaseException:
+        pass
 
     finally:
         raise TerminateTaskGroup()
@@ -58,7 +61,7 @@ async def relay_broacast_events_to_websocket(
             pubsub_message = PubsubMessageTypeAdapter.validate_json(event.message)
 
             if isinstance(pubsub_message, PubsubMessageNewChatMessage):
-                async with websocket.app.state.db_async_session_maker.begin() as db:
+                async with websocket.app.state.db_session_maker.begin() as db:
                     chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
@@ -66,6 +69,7 @@ async def relay_broacast_events_to_websocket(
                             member_id=client_id,
                         ),
                     )
+
                 await websocket.send_text(
                     WebSocketMessageNewChatMessage(
                         message=chat_message,
@@ -73,7 +77,7 @@ async def relay_broacast_events_to_websocket(
                 )
 
             elif isinstance(pubsub_message, PubsubMessageUpdatedChatMessage):
-                async with websocket.app.state.db_async_session_maker.begin() as db:
+                async with websocket.app.state.db_session_maker.begin() as db:
                     chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
@@ -108,21 +112,21 @@ async def open_websocket(
         websocket,
     )
 
-    try:
-        await websocket.accept()
+    await websocket.accept()
 
-        async with asyncio.TaskGroup() as group:
-            group.create_task(
-                terminate_task_group_when_websocket_is_closed(
-                    websocket=websocket,
-                )
-            )
-            group.create_task(
+    try:
+        async with asyncio.TaskGroup() as task_group:
+            task_group.create_task(
                 relay_broacast_events_to_websocket(
                     websocket=websocket,
                     broadcast=broadcast,
                     client_id=client_id,
                     channel=f"user{client_id}",
+                )
+            )
+            task_group.create_task(
+                terminate_task_group_when_websocket_is_closed(
+                    websocket=websocket,
                 )
             )
 
@@ -131,6 +135,6 @@ async def open_websocket(
 
     finally:
         try:
-            await websocket.close()
+            await websocket.close(1000)
         except RuntimeError:
             pass

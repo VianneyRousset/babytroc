@@ -126,16 +126,14 @@ async def get_user_by_email_private(
 ) -> UserPrivateRead:
     """Get user with `email`."""
 
-    stmt = select(User).where(User.email == email)
+    stmt = select(User.id).where(User.email == email)
 
     try:
-        # execute
-        user = (await db.execute(stmt)).unique().scalars().one()
-
+        user_id = (await db.execute(stmt)).scalars().one()
     except NoResultFound as error:
         raise UserNotFoundError({"email": email}) from error
 
-    return UserPrivateRead.model_validate(user)
+    return await get_user_private(db=db, user_id=user_id)
 
 
 async def get_user_validation_code_by_email(

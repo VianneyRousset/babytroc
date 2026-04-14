@@ -29,29 +29,28 @@ class TestLoanUpdate:
 
         # check only alice can end the loan
         assert (
-            await bob_client.post(f"https://babytroc.ch/api/v1/me/loans/{loan_id}/end")
+            await bob_client.post(f"/api/v1/me/loans/{loan_id}/end")
         ).is_error
         assert (
             await bob_client.post(
-                f"https://babytroc.ch/api/v1/me/borrowing/{loan_id}/end"
+                f"/api/v1/me/borrowing/{loan_id}/end"
             )
         ).is_error
         assert (
             await carol_client.post(
-                f"https://babytroc.ch/api/v1/me/loans/{loan_id}/end"
+                f"/api/v1/me/loans/{loan_id}/end"
             )
         ).is_error
         assert (
             await carol_client.post(
-                f"https://babytroc.ch/api/v1/me/borrowing/{loan_id}/end"
+                f"/api/v1/me/borrowing/{loan_id}/end"
             )
         ).is_error
 
         #  loan request
         resp = await alice_client.post(
-            f"https://babytroc.ch/api/v1/me/loans/{loan_id}/end"
+            f"/api/v1/me/loans/{loan_id}/end"
         )
-        print(resp.text)
         resp.raise_for_status()
         loan = LoanRead.model_validate(resp.json())
 

@@ -8,7 +8,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, undefer
+from sqlalchemy.orm import undefer
 
 from app.models.item import Item
 from app.schemas.item.preview import ItemPreviewRead
