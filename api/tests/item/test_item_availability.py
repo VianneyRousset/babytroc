@@ -1,0 +1,69 @@
+from httpx import AsyncClient
+
+from app.schemas.item.read import ItemRead
+from app.schemas.loan.read import LoanRead, LoanRequestRead
+from app.schemas.user.private import UserPrivateRead
+
+
+class TestItemAvailabilityWithLoans:
+    """Test that Item.available reflects active loan state correctly.
+
+    Regression: Item.has_active_loan column_property checks
+    func.upper(Loan.during).is_not(None) — which matches *ended* loans
+    (upper bound set), not active ones (upper bound NULL). This inverts
+    both has_active_loan and available.
+    """
+
+    async def test_item_available_before_loan(
+        self,
+        alice_client: AsyncClient,
+        alice_special_item: ItemRead,
+    ):
+        """An item with no loans should be available."""
+
+        resp = await alice_client.get(f"/api/v1/me/items/{alice_special_item.id}")
+        resp.raise_for_status()
+        item = ItemRead.model_validate(resp.json())
+
+        assert item.available is True
+
+    async def test_item_unavailable_during_active_loan(
+        self,
+        alice_client: AsyncClient,
+        alice_special_item: ItemRead,
+        bob_new_loan_for_alice_special_item: LoanRead,
+    ):
+        """An item with an active loan should NOT be available."""
+
+        # sanity: the loan fixture is active
+        assert bob_new_loan_for_alice_special_item.active
+
+        resp = await alice_client.get(f"/api/v1/me/items/{alice_special_item.id}")
+        resp.raise_for_status()
+        item = ItemRead.model_validate(resp.json())
+
+        assert item.available is False
+
+    async def test_item_available_after_loan_ended(
+        self,
+        alice_client: AsyncClient,
+        alice: UserPrivateRead,
+        alice_special_item: ItemRead,
+        bob_new_loan_for_alice_special_item: LoanRead,
+    ):
+        """An item should become available again after its loan ends."""
+
+        loan_id = bob_new_loan_for_alice_special_item.id
+
+        # end the loan
+        resp = await alice_client.post(f"/api/v1/me/loans/{loan_id}/end")
+        resp.raise_for_status()
+        ended_loan = LoanRead.model_validate(resp.json())
+        assert not ended_loan.active
+
+        # check item is available again
+        resp = await alice_client.get(f"/api/v1/me/items/{alice_special_item.id}")
+        resp.raise_for_status()
+        item = ItemRead.model_validate(resp.json())
+
+        assert item.available is True
