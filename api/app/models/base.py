@@ -25,8 +25,6 @@ class IntegerIdentifier:
     )
 
 
-# TODO check for proper UTC datetime management
-
 
 class CreationDate:
     creation_date: Mapped[datetime] = mapped_column(

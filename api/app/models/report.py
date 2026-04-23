@@ -1,12 +1,8 @@
-from datetime import datetime
-
 from sqlalchemy import (
-    DateTime,
     Enum,
     ForeignKey,
     Integer,
     String,
-    func,
 )
 from sqlalchemy.orm import (
     Mapped,
@@ -37,11 +33,6 @@ class Report(IntegerIdentifier, CreationDate, Base):
             onupdate="CASCADE",
         ),
         nullable=True,
-    )
-
-    creation_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
     )
 
     saved_info: Mapped[str] = mapped_column(
