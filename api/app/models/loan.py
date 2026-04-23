@@ -97,15 +97,13 @@ class Loan(IntegerIdentifier, Base):
         ),
         index=True,
     )
-    # TODO it should be impossible to delete borrower when a loan is still active
     borrower_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "user.id",
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
             onupdate="CASCADE",
         ),
-        nullable=True,
     )
 
     item: Mapped["Item"] = relationship(

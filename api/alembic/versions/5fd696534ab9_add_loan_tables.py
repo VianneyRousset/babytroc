@@ -33,8 +33,16 @@ def downgrade() -> None:
 def create_loan_table():
     op.create_table(
         "loan",
-        sa.Column("item_id", sa.Integer(), nullable=False),
-        sa.Column("borrower_id", sa.Integer(), nullable=True),
+        sa.Column(
+            "item_id",
+            sa.Integer(),
+            nullable=False,
+        ),
+        sa.Column(
+            "borrower_id",
+            sa.Integer(),
+            nullable=False,
+        ),
         sa.Column(
             "during",
             postgresql.TSTZRANGE(),
@@ -64,7 +72,7 @@ def create_loan_table():
             ["borrower_id"],
             ["user.id"],
             onupdate="CASCADE",
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
         ),
         sa.ForeignKeyConstraint(
             ["item_id"],
