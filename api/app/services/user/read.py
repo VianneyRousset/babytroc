@@ -68,7 +68,7 @@ async def get_many_users_private(
     """
 
     stmt = (
-        select(User, func.count(Item.id), func.count(ItemLike.id))
+        select(User, func.count(Item.id), func.count(ItemLike.item_id))
         .where(User.id.in_(user_ids))
         .join(
             Item,

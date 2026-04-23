@@ -165,13 +165,6 @@ def create_item_like_table():
         "item_like",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column(
-            "id",
-            sa.Integer(),
-            sa.Identity(always=True),
-            autoincrement=True,
-            nullable=False,
-        ),
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
@@ -184,10 +177,8 @@ def create_item_like_table():
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("item_id", "user_id", "id"),
-        sa.UniqueConstraint("item_id", "user_id"),
+        sa.PrimaryKeyConstraint("item_id", "user_id"),
     )
-    op.create_index(op.f("ix_item_like_id"), "item_like", ["id"], unique=False)
 
 
 def drop_item_like_table():
@@ -200,13 +191,6 @@ def create_item_save_table():
         "item_save",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column(
-            "id",
-            sa.Integer(),
-            sa.Identity(always=True),
-            autoincrement=True,
-            nullable=False,
-        ),
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["item.id"],
@@ -219,10 +203,8 @@ def create_item_save_table():
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("item_id", "user_id", "id"),
-        sa.UniqueConstraint("item_id", "user_id"),
+        sa.PrimaryKeyConstraint("item_id", "user_id"),
     )
-    op.create_index(op.f("ix_item_save_id"), "item_save", ["id"], unique=False)
 
 
 def drop_item_save_table():

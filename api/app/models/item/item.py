@@ -128,7 +128,7 @@ class Item(CreationDate, UpdateDate, Base):
     )
 
     likes_count: Mapped[int] = deferred(
-        select(func.count(ItemLike.id))
+        select(func.count(ItemLike.item_id))
         .where(
             ItemLike.item_id == id,
         )

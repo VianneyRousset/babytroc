@@ -61,7 +61,7 @@ def select_liked(user_id: int | None) -> ColumnElement[bool]:
         return literal(None)
 
     return exists(
-        select(ItemLike.id)
+        select(ItemLike.item_id)
         .where(
             and_(
                 ItemLike.item_id == Item.id,
@@ -79,7 +79,7 @@ def select_saved(user_id: int | None) -> ColumnElement[bool]:
         return literal(None)
 
     return exists(
-        select(ItemSave.id)
+        select(ItemSave.item_id)
         .where(
             and_(
                 ItemSave.item_id == Item.id,

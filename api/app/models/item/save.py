@@ -1,10 +1,10 @@
-from sqlalchemy import ForeignKey, Integer, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base, IntegerIdentifier
+from app.models.base import Base
 
 
-class ItemSave(IntegerIdentifier, Base):
+class ItemSave(Base):
     """Maps users and their saved items."""
 
     __tablename__ = "item_save"
@@ -30,5 +30,3 @@ class ItemSave(IntegerIdentifier, Base):
         ),
         primary_key=True,
     )
-
-    __table_args__ = (UniqueConstraint(item_id, user_id),)

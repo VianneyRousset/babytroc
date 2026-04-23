@@ -1,17 +1,16 @@
 from sqlalchemy import (
     ForeignKey,
     Integer,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
 )
 
-from app.models.base import Base, IntegerIdentifier
+from app.models.base import Base
 
 
-class ItemLike(IntegerIdentifier, Base):
+class ItemLike(Base):
     """Maps the users and their liked items."""
 
     __tablename__ = "item_like"
@@ -37,5 +36,3 @@ class ItemLike(IntegerIdentifier, Base):
         ),
         primary_key=True,
     )
-
-    __table_args__ = (UniqueConstraint(item_id, user_id),)
