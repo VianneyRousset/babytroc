@@ -106,7 +106,7 @@ class Item(CreationDate, UpdateDate, Base):
             select(Loan.id).where(
                 and_(
                     Loan.item_id == id,
-                    func.upper(Loan.during).is_not(None),
+                    func.upper(Loan.during).is_(None),
                 ),
             )
         ),

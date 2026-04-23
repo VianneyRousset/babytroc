@@ -76,10 +76,12 @@ class TestBorrowingRead:
         alice_many_loans: list[LoanRead],
     ):
         """Borrower can fetch their own borrowing."""
-        loan = alice_many_loans[0]
-        resp = await bob_client.get(f"/api/v1/me/borrowings/{loan.id}")
+        bob_loan = next(
+            loan for loan in alice_many_loans if loan.borrower.name == "bob"
+        )
+        resp = await bob_client.get(f"/api/v1/me/borrowings/{bob_loan.id}")
         resp.raise_for_status()
-        assert resp.json()["id"] == loan.id
+        assert resp.json()["id"] == bob_loan.id
 
     async def test_get_single_borrowing_not_borrower(
         self,
