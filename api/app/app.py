@@ -46,6 +46,11 @@ async def create_app(config: Config | None = None) -> FastAPI:
         from sqlalchemy.pool import NullPool
 
         pool_kwargs["poolclass"] = NullPool
+    else:
+        pool_kwargs["pool_size"] = 10
+        pool_kwargs["max_overflow"] = 20
+        pool_kwargs["pool_pre_ping"] = True
+        pool_kwargs["pool_recycle"] = 1800
     app.state.db_session_maker = create_session_maker(
         config.database.url, **pool_kwargs
     )
