@@ -47,6 +47,7 @@ class ItemRegionAssociation(Base):
         Integer,
         ForeignKey(
             "region.id",
+            ondelete="CASCADE",
             onupdate="CASCADE",
         ),
         primary_key=True,
