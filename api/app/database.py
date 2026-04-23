@@ -54,6 +54,13 @@ async def define_functions_and_triggers(
         funcname=funcname,
     )
 
+    update_date_funcname = await define_function_set_update_date(db)
+    await define_trigger_set_update_date(
+        db=db,
+        funcname=update_date_funcname,
+        table="item",
+    )
+
 
 async def define_function_notify_chat_members_new_message(
     db: AsyncSession,
@@ -100,6 +107,49 @@ async def define_trigger_notify_chat_members_new_message(
             [
                 "CREATE OR REPLACE TRIGGER new_chat_message",
                 "AFTER INSERT ON chat_message",
+                "FOR EACH ROW",
+                f"EXECUTE FUNCTION {funcname}();",
+            ]
+        )
+    )
+
+    await db.execute(stmt)
+
+
+async def define_function_set_update_date(
+    db: AsyncSession,
+) -> str:
+    funcname = "set_update_date"
+
+    stmt = text(
+        "\n".join(
+            [
+                f"CREATE OR REPLACE FUNCTION {funcname}() RETURNS TRIGGER AS $$",
+                "BEGIN",
+                "    NEW.update_date := now();",
+                "    RETURN NEW;",
+                "END;",
+                "$$ LANGUAGE plpgsql;",
+            ]
+        )
+    )
+
+    await db.execute(stmt)
+
+    return funcname
+
+
+async def define_trigger_set_update_date(
+    db: AsyncSession,
+    *,
+    funcname: str,
+    table: str,
+) -> None:
+    stmt = text(
+        "\n".join(
+            [
+                f"CREATE OR REPLACE TRIGGER set_update_date",
+                f"BEFORE UPDATE ON {table}",
                 "FOR EACH ROW",
                 f"EXECUTE FUNCTION {funcname}();",
             ]
