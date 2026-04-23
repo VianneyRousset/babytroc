@@ -13,7 +13,7 @@ from sqlalchemy import (
     or_,
 )
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import ChatMessageType
 from app.schemas.chat.base import ChatId
@@ -83,17 +83,6 @@ class Chat(Base):
     @property
     def members(self) -> set["User"]:
         return {self.borrower, self.item.owner}
-
-    # check that the sender is a member of the chat
-    @validates("messages")
-    def validate_message(self, key, msg):
-        sender_id = msg.sender.id if msg.sender else msg.sender_id
-
-        if sender_id not in self.members_ids:
-            errmsg = f"Sender #{sender_id!r} is not chat members"
-            raise ValueError(errmsg)
-
-        return msg
 
     __table_args__ = (PrimaryKeyConstraint(item_id, borrower_id),)
 

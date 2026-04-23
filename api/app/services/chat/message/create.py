@@ -6,9 +6,11 @@ from sqlalchemy import (
     Integer,
     Text,
     Values,
+    and_,
     case,
     column,
     insert,
+    or_,
     select,
     values,
 )
@@ -19,10 +21,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import ChatMessageType
+from app.errors.chat import ChatNotFoundError
+from app.models.chat import Chat
 from app.models.chat import ChatMessage
 from app.models.item import Item
 from app.schemas.chat.read import ChatMessageRead
-from app.schemas.chat.send import SendChatMessage
+from app.schemas.chat.send import SendChatMessage, SendChatMessageText
 from app.services.chat.chat.create import ensure_many_chats
 
 
@@ -63,6 +67,11 @@ async def send_many_chat_messages(
     - The data also specifies a generated `order` column to preserve the order of the
       inserted rows.
     """
+
+    # check membership for text messages (user-supplied sender_id)
+    text_messages = [msg for msg in messages if isinstance(msg, SendChatMessageText)]
+    if text_messages:
+        await _check_sender_membership(db, text_messages)
 
     data = as_sql_values(messages)
 
@@ -205,6 +214,40 @@ async def send_many_chat_messages(
         raise error
 
     return [ChatMessageRead.model_validate(msg) for msg in sent_messages]
+
+
+async def _check_sender_membership(
+    db: AsyncSession,
+    messages: list[SendChatMessageText],
+) -> None:
+    """Verify each text message sender is a member of the target chat.
+
+    A chat member is either the borrower or the item owner.
+    Raises ChatNotFoundError if the sender is not a member (same semantics
+    as the read path — non-members cannot see the chat).
+    """
+
+    for msg in messages:
+        chat_id = msg.chat_id
+
+        stmt = (
+            select(Chat)
+            .join(Item, Item.id == Chat.item_id)
+            .where(
+                Chat.item_id == chat_id.item_id,
+                Chat.borrower_id == chat_id.borrower_id,
+                or_(
+                    Chat.borrower_id == msg.sender_id,
+                    Item.owner_id == msg.sender_id,
+                ),
+            )
+        )
+
+        result = await db.execute(stmt)
+        if result.first() is None:
+            raise ChatNotFoundError(
+                key={"chat_id": str(chat_id), "sender_id": msg.sender_id},
+            )
 
 
 def as_sql_values(messages: list[SendChatMessage]) -> Values:

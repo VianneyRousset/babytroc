@@ -1,8 +1,6 @@
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from httpx_ws import AsyncWebSocketSession
-
 from app.schemas.chat.read import ChatMessageRead, ChatRead
 
 pytestmark = pytest.mark.timeout(30)
@@ -54,8 +52,6 @@ class TestForbiddenChatOperations:
         alice_client: AsyncClient,
         bob_client: AsyncClient,
         carol_client: AsyncClient,
-        alice_websocket: AsyncWebSocketSession,
-        bob_websocket: AsyncWebSocketSession,
         alice_new_item: ItemRead,
         bob_new_loan_request_for_alice_new_item: LoanRequestRead,
     ):
@@ -69,44 +65,23 @@ class TestForbiddenChatOperations:
         assert chat.borrower.id != carol.id, "Carol should not be part of the chat"
         assert chat.owner.id != carol.id, "Carol should not be part of the chat"
 
-        # drain any pending websocket messages from fixture setup
-        for ws in [alice_websocket, bob_websocket]:
-            try:
-                while True:
-                    await ws.receive_text(timeout=0.5)
-            except TimeoutError:
-                pass
-
-        # TODO: The send_chat_message service does not check membership.
-        # Carol can currently send to any chat. This is a security bug to
-        # fix in the service layer. For now, verify Carol's message arrives
-        # but document the expected behavior.
+        # Carol should not be able to send a message in this chat
         res = await carol_client.post(
             f"/api/v1/me/chats/{chat_id}/messages",
             json={"text": "test"},
         )
-        # BUG: should be res.is_error once membership check is added
-        assert res.is_success
+        assert res.is_error
 
-        # drain any websocket messages from the send above
-        for ws in [alice_websocket, bob_websocket]:
-            try:
-                while True:
-                    await ws.receive_text(timeout=0.5)
-            except TimeoutError:
-                pass
+        # verify no message from Carol ended up in the chat
+        res = await alice_client.get(
+            f"/api/v1/me/chats/{chat_id}/messages"
+        )
+        assert all(msg["sender_id"] != carol.id for msg in res.json())
 
-        # BUG: Carol's message IS in the chat because membership isn't checked.
-        # Once the membership check is fixed, uncomment the assertions below.
-        # res = await alice_client.get(
-        #     f"/api/v1/me/chats/{chat_id}/messages"
-        # )
-        # assert all(msg["sender_id"] != carol.id for msg in res.json())
-        #
-        # res = await bob_client.get(
-        #     f"/api/v1/me/chats/{chat_id}/messages"
-        # )
-        # assert all(msg["sender_id"] != carol.id for msg in res.json())
+        res = await bob_client.get(
+            f"/api/v1/me/chats/{chat_id}/messages"
+        )
+        assert all(msg["sender_id"] != carol.id for msg in res.json())
 
     async def test_cannot_read_chat_not_member(
         self,
