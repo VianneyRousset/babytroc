@@ -14,7 +14,7 @@ _broadcast: Broadcast
 
 
 def init_broadcast_dependency(broadcast: Broadcast) -> None:
-    global _broadcast  # noqa: PLW0603
+    global _broadcast
     _broadcast = broadcast
 
 

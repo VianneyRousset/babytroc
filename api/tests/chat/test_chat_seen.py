@@ -4,12 +4,12 @@ from httpx_ws import AsyncWebSocketSession
 
 from app.enums import ChatMessageType
 from app.schemas.chat.read import ChatMessageRead
-
-pytestmark = pytest.mark.timeout(30)
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from app.schemas.websocket import WebSocketMessageUpdatedChatMessage
 from tests.fixtures.chat import ReceivedChatMessageChecker
+
+pytestmark = pytest.mark.timeout(30)
 
 
 class TestChatMessageSeen:

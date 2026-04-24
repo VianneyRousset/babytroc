@@ -3,6 +3,7 @@ from typing import Annotated
 
 from broadcaster import Broadcast
 from fastapi import Depends, WebSocket
+from starlette.websockets import WebSocketDisconnect
 
 from app import services
 from app.database import get_session_maker
@@ -37,7 +38,7 @@ async def terminate_task_group_when_websocket_is_closed(
         async for _text in websocket.iter_text():
             pass
 
-    except BaseException:
+    except (WebSocketDisconnect, asyncio.CancelledError):
         pass
 
     finally:

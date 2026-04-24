@@ -34,5 +34,5 @@ def get_session_maker() -> async_sessionmaker:
 
 
 def init_db_session_dependency(session_maker: async_sessionmaker) -> None:
-    global _session_maker  # noqa: PLW0603
+    global _session_maker
     _session_maker = session_maker

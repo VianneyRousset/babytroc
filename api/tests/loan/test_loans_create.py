@@ -37,7 +37,9 @@ class TestLoanCreate:
         assert resp.is_error
 
         # accept loan request
-        resp = await bob_client.post(f"/api/v1/me/borrowings/requests/{loan_request_id}/execute")
+        resp = await bob_client.post(
+            f"/api/v1/me/borrowings/requests/{loan_request_id}/execute"
+        )
         resp.raise_for_status()
         loan = LoanRead.model_validate(resp.json())
 

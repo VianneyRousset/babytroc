@@ -2,9 +2,7 @@ import jwt
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
-from httpx_ws import AsyncWebSocketSession, aconnect_ws
-
-pytestmark = pytest.mark.timeout(30)
+from httpx_ws import AsyncWebSocketSession, WebSocketUpgradeError, aconnect_ws
 
 from app.schemas.loan.read import LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
@@ -14,6 +12,8 @@ from app.schemas.websocket import (
 )
 from tests.fixtures.clients import create_client
 from tests.fixtures.websockets import WebSocketRecorder
+
+pytestmark = pytest.mark.timeout(30)
 
 
 class TestWebSocketAuth:
@@ -26,7 +26,7 @@ class TestWebSocketAuth:
         """Connection without credentials should be rejected."""
         client = create_client(app)
         async with client:
-            with pytest.raises(Exception):
+            with pytest.raises(WebSocketUpgradeError):
                 async with aconnect_ws("/api/v1/me/websocket", client):
                     pass
 
@@ -51,7 +51,7 @@ class TestWebSocketAuth:
         client = create_client(app)
         async with client:
             client.cookies.set("Authorization", f"Bearer {expired_token}")
-            with pytest.raises(Exception):
+            with pytest.raises(WebSocketUpgradeError):
                 async with aconnect_ws("/api/v1/me/websocket", client):
                     pass
 
@@ -63,7 +63,7 @@ class TestWebSocketAuth:
         client = create_client(app)
         async with client:
             client.cookies.set("Authorization", "Bearer garbage.token.here")
-            with pytest.raises(Exception):
+            with pytest.raises(WebSocketUpgradeError):
                 async with aconnect_ws("/api/v1/me/websocket", client):
                     pass
 
@@ -97,8 +97,7 @@ class TestWebSocketRelay:
             resp.raise_for_status()
 
         assert any(
-            isinstance(msg, WebSocketMessageNewChatMessage)
-            for msg in recorder.messages
+            isinstance(msg, WebSocketMessageNewChatMessage) for msg in recorder.messages
         ), (
             f"Expected WebSocketMessageNewChatMessage, got: "
             f"{[type(m).__name__ for m in recorder.messages]}"

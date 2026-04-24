@@ -1,12 +1,11 @@
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
-
-from httpx_ws import WebSocketDisconnect
 from types import TracebackType
 
 import pytest
 from fastapi import FastAPI
-from httpx_ws import AsyncWebSocketSession, aconnect_ws
+from httpx_ws import AsyncWebSocketSession, WebSocketDisconnect, aconnect_ws
 
 from app.schemas.websocket import WebSocketMessage, WebSocketMessageTypeAdapter
 
@@ -123,6 +122,9 @@ class WebSocketRecorder(AbstractAsyncContextManager):
         try:
             await self.websocket.close()
         except Exception:
-            pass
+            logging.debug(
+                "Failed to close websocket during recorder teardown",
+                exc_info=True,
+            )
 
         return None

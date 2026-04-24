@@ -12,7 +12,7 @@ _original_aenter = _ws_transport.ASGIWebSocketAsyncNetworkStream.__aenter__
 async def _patched_aenter(self):
     original_receive = self.receive
 
-    async def _receive_with_longer_timeout(timeout=None):
+    async def _receive_with_longer_timeout(timeout=None):  # noqa: ASYNC109
         # Replace the 0.1s accept timeout with 2s; leave others untouched
         if timeout is not None and timeout <= 0.1:
             timeout = 2.0

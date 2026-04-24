@@ -1,4 +1,3 @@
-from fastapi import status
 from httpx import AsyncClient
 
 from app.schemas.item.read import ItemRead

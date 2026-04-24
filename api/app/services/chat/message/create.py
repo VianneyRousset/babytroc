@@ -6,7 +6,6 @@ from sqlalchemy import (
     Integer,
     Text,
     Values,
-    and_,
     case,
     column,
     insert,
@@ -22,8 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import ChatMessageType
 from app.errors.chat import ChatNotFoundError
-from app.models.chat import Chat
-from app.models.chat import ChatMessage
+from app.models.chat import Chat, ChatMessage
 from app.models.item import Item
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.chat.send import SendChatMessage, SendChatMessageText
