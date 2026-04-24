@@ -55,13 +55,11 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     )
     item: Mapped["Item"] = relationship(
         "Item",
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
@@ -110,13 +108,11 @@ class Loan(IntegerIdentifier, CreationDate, Base):
 
     item: Mapped["Item"] = relationship(
         "Item",
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
@@ -140,7 +136,6 @@ class Loan(IntegerIdentifier, CreationDate, Base):
 
     loan_request: Mapped[LoanRequest] = relationship(
         LoanRequest,
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )

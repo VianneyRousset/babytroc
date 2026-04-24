@@ -68,7 +68,6 @@ class Item(CreationDate, UpdateDate, Base):
 
     owner: Mapped["User"] = relationship(
         "User",
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )

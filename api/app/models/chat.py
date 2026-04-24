@@ -49,14 +49,12 @@ class Chat(Base):
     item: Mapped["Item"] = relationship(
         "Item",
         foreign_keys=[item_id],
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
     borrower: Mapped["User"] = relationship(
         "User",
         foreign_keys=[borrower_id],
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
@@ -97,7 +95,6 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
     chat: Mapped[Chat] = relationship(
         Chat,
         foreign_keys=[item_id, borrower_id],
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
@@ -120,7 +117,6 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
     sender: Mapped["User"] = relationship(
         "User",
         foreign_keys=[sender_id],
-        single_parent=True,
         viewonly=True,
         lazy="raise",
     )
