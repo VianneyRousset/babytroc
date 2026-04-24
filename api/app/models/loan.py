@@ -87,7 +87,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
     )
 
 
-class Loan(IntegerIdentifier, Base):
+class Loan(IntegerIdentifier, CreationDate, Base):
     __tablename__ = "loan"
 
     item_id: Mapped[int] = mapped_column(

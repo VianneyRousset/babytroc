@@ -34,6 +34,12 @@ def create_loan_table():
     op.create_table(
         "loan",
         sa.Column(
+            "creation_date",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=False,
+        ),
+        sa.Column(
             "item_id",
             sa.Integer(),
             nullable=False,
