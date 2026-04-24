@@ -13,7 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.errors import ApiError
 
 from .config import Config
-from .database import create_session_maker, define_functions_and_triggers
+from .database import create_session_maker
 from .routers.v1 import router
 
 
@@ -54,10 +54,6 @@ async def create_app(config: Config | None = None) -> FastAPI:
     app.state.db_session_maker = create_session_maker(
         config.database.url, **pool_kwargs
     )
-
-    # setup SQL functions and triggers
-    async with app.state.db_session_maker.begin() as db:
-        await define_functions_and_triggers(db)
 
     # broadcaster
     app.state.broadcast = Broadcast(
