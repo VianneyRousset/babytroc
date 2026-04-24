@@ -1,7 +1,4 @@
-from typing import Annotated
-
 from broadcaster import Broadcast
-from fastapi import Depends, FastAPI, Request, WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
@@ -9,23 +6,16 @@ from sqlalchemy.sql import text
 from app.schemas.pubsub import PubsubMessage
 
 
-# trick to get the app from either the request (http/https) or websocket (ws/wss)
-def get_app(
-    request: Request = None,  # type: ignore[assignment]
-    websocket: WebSocket = None,  # type: ignore[assignment]
-) -> FastAPI:
-    if request is not None:
-        return request.app
-
-    if websocket is not None:
-        return websocket.app
-
-    msg = "Either request or websocket must be set."
-    raise ValueError(msg)
+def get_broadcast() -> Broadcast:
+    return _broadcast
 
 
-def get_broadcast(app: Annotated[FastAPI, Depends(get_app)]) -> Broadcast:
-    return app.state.broadcast
+_broadcast: Broadcast
+
+
+def init_broadcast_dependency(broadcast: Broadcast) -> None:
+    global _broadcast  # noqa: PLW0603
+    _broadcast = broadcast
 
 
 def notify_user(

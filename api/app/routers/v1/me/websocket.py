@@ -5,6 +5,7 @@ from broadcaster import Broadcast
 from fastapi import Depends, WebSocket
 
 from app import services
+from app.database import get_session_maker
 from app.pubsub import get_broadcast
 from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
 from app.schemas.chat.query import ChatMessageReadQueryFilter
@@ -61,7 +62,7 @@ async def relay_broacast_events_to_websocket(
             pubsub_message = PubsubMessageTypeAdapter.validate_json(event.message)
 
             if isinstance(pubsub_message, PubsubMessageNewChatMessage):
-                async with websocket.app.state.db_session_maker.begin() as db:
+                async with get_session_maker().begin() as db:
                     chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
@@ -77,7 +78,7 @@ async def relay_broacast_events_to_websocket(
                 )
 
             elif isinstance(pubsub_message, PubsubMessageUpdatedChatMessage):
-                async with websocket.app.state.db_session_maker.begin() as db:
+                async with get_session_maker().begin() as db:
                     chat_message = await services.chat.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,

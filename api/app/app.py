@@ -13,7 +13,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.errors import ApiError
 
 from .config import Config
-from .database import create_session_maker
+from .database import create_session_maker, init_db_session_dependency
+from .email import init_email_dependency
+from .pubsub import init_broadcast_dependency
 from .routers.v1 import router
 
 
@@ -51,17 +53,17 @@ async def create_app(config: Config | None = None) -> FastAPI:
         pool_kwargs["max_overflow"] = 20
         pool_kwargs["pool_pre_ping"] = True
         pool_kwargs["pool_recycle"] = 1800
-    app.state.db_session_maker = create_session_maker(
-        config.database.url, **pool_kwargs
-    )
+    db_session_maker = create_session_maker(config.database.url, **pool_kwargs)
+    app.state.db_session_maker = db_session_maker
+    init_db_session_dependency(db_session_maker)
 
     # broadcaster
-    app.state.broadcast = Broadcast(
-        config.pubsub.url.render_as_string(hide_password=False)
-    )
+    broadcast = Broadcast(config.pubsub.url.render_as_string(hide_password=False))
+    app.state.broadcast = broadcast
+    init_broadcast_dependency(broadcast)
 
     # email_client
-    app.state.email_client = FastMail(
+    email_client = FastMail(
         EmailConnectionConfig(
             MAIL_USERNAME=config.email.username,
             MAIL_PASSWORD=SecretStr(config.email.password),
@@ -76,6 +78,8 @@ async def create_app(config: Config | None = None) -> FastAPI:
             SUPPRESS_SEND=1 if config.test else 0,
         )
     )
+    app.state.email_client = email_client
+    init_email_dependency(email_client)
 
     # add delay middleware
     if config.delay > 0:
