@@ -131,7 +131,18 @@ def create_chat_message_table():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_chat_message_id"), "chat_message", ["id"], unique=False)
+    op.create_index(
+        op.f("ix_chat_message_id"),
+        "chat_message",
+        ["id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_chat_message_sender_id"),
+        "chat_message",
+        ["sender_id"],
+        unique=False,
+    )
 
 
 def drop_chat_message_table():

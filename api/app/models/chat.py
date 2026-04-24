@@ -114,6 +114,7 @@ class ChatMessage(IntegerIdentifier, CreationDate, Base):
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
+        index=True,
     )
 
     sender: Mapped["User"] = relationship(

@@ -152,7 +152,24 @@ def create_loan_request_table():
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_loan_request_id"), "loan_request", ["id"], unique=False)
+    op.create_index(
+        op.f("ix_loan_request_id"),
+        "loan_request",
+        ["id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_loan_request_borrower_id"),
+        "loan_request",
+        ["borrower_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_loan_request_item_id"),
+        "loan_request",
+        ["item_id"],
+        unique=False,
+    )
 
 
 def drop_loan_request_table():

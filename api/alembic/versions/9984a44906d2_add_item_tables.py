@@ -182,7 +182,6 @@ def create_item_like_table():
 
 
 def drop_item_like_table():
-    op.drop_index(op.f("ix_item_like_id"), table_name="item_like")
     op.drop_table("item_like")
 
 
@@ -208,7 +207,6 @@ def create_item_save_table():
 
 
 def drop_item_save_table():
-    op.drop_index(op.f("ix_item_save_id"), table_name="item_save")
     op.drop_table("item_save")
 
 

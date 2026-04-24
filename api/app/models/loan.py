@@ -38,6 +38,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
+        index=True,
     )
     borrower_id: Mapped[int] = mapped_column(
         Integer,
@@ -46,6 +47,7 @@ class LoanRequest(IntegerIdentifier, CreationDate, Base):
             ondelete="CASCADE",
             onupdate="CASCADE",
         ),
+        index=True,
     )
     state: Mapped[LoanRequestState] = mapped_column(
         Enum(LoanRequestState),
