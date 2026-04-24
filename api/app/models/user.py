@@ -1,3 +1,4 @@
+import re
 import uuid
 
 from sqlalchemy import (
@@ -49,7 +50,7 @@ class User(IntegerIdentifier, CreationDate, Base):
     __tablename__ = "user"
 
     email: Mapped[str] = mapped_column(
-        String,
+        String(320),
         unique=True,
     )
     validated: Mapped[bool] = mapped_column(
@@ -78,11 +79,19 @@ class User(IntegerIdentifier, CreationDate, Base):
         default=0,
     )
 
-    __table_args__ = (CheckConstraint(stars_count >= 0, name="positive_stars_count"),)
+    _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+    __table_args__ = (
+        CheckConstraint(stars_count >= 0, name="positive_stars_count"),
+        CheckConstraint(
+            "email ~* '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'",
+            name="valid_email_format",
+        ),
+    )
 
     @validates("email")
     def validate_email(self, key, email):
-        if "@" not in email:
+        if not self._EMAIL_RE.match(email):
             msg = f"Invalid email format: {email!r}"
             raise ValueError(msg)
         return email
