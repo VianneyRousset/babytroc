@@ -51,7 +51,6 @@ class User(IntegerIdentifier, CreationDate, Base):
     email: Mapped[str] = mapped_column(
         String,
         unique=True,
-        index=True,
     )
     validated: Mapped[bool] = mapped_column(
         Boolean,
@@ -59,14 +58,12 @@ class User(IntegerIdentifier, CreationDate, Base):
     )
     validation_code: Mapped[uuid.UUID] = mapped_column(
         UUID,
-        index=True,
         unique=True,
         default=uuid.uuid4,
     )
     name: Mapped[str] = mapped_column(
         String,
         unique=True,
-        index=True,
     )
     password_hash: Mapped[HashedStr] = mapped_column(
         HashedString,

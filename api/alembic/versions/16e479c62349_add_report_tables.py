@@ -39,7 +39,7 @@ def create_report_table():
         sa.Column("created_by", sa.Integer(), nullable=True),
         sa.Column(
             "creation_date",
-            sa.DateTime(),
+            sa.DateTime(timezone=True),
             server_default=sa.text("now()"),
             nullable=False,
         ),

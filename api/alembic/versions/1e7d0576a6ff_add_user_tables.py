@@ -58,22 +58,6 @@ def create_user_table():
         sa.PrimaryKeyConstraint("id"),
     )
 
-    # index of the email
-    op.create_index(
-        op.f("ix_user_email"),
-        "user",
-        ["email"],
-        unique=True,
-    )
-
-    # index of the name
-    op.create_index(
-        op.f("ix_user_name"),
-        "user",
-        ["name"],
-        unique=True,
-    )
-
     # index of the id
     op.create_index(
         op.f("ix_user_id"),
@@ -82,18 +66,11 @@ def create_user_table():
         unique=False,
     )
 
-    # index of the validation_code
-    op.create_index(
-        op.f("ix_user_validation_code"),
-        "user",
-        ["validation_code"],
-        unique=True,
-    )
+    op.create_unique_constraint(None, "user", ["email"])
+    op.create_unique_constraint(None, "user", ["name"])
+    op.create_unique_constraint(None, "user", ["validation_code"])
 
 
 def drop_user_table():
     op.drop_index(op.f("ix_user_validation_code"), table_name="user")
-    op.drop_index(op.f("ix_user_id"), table_name="user")
-    op.drop_index(op.f("ix_user_name"), table_name="user")
-    op.drop_index(op.f("ix_user_email"), table_name="user")
     op.drop_table("user")

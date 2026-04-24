@@ -226,6 +226,7 @@ def create_item_region_association_table():
         sa.ForeignKeyConstraint(
             ["region_id"],
             ["region.id"],
+            ondelete="CASCADE",
             onupdate="CASCADE",
         ),
         sa.PrimaryKeyConstraint("item_id", "region_id"),
