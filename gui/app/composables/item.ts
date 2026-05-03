@@ -10,10 +10,10 @@ export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
   return { item, ...query }
 }
 
-export function useItemImages<T extends { image_names: Array<string> }>(item: MaybeRefOrGetter<T>) {
+export function useItemImages<T extends { images_names: Array<string> }>(item: MaybeRefOrGetter<T>) {
   return {
-    imagesNames: computed(() => toValue(item).image_names),
-    imagesPaths: computed(() => toValue(item).image_names.map(imagePath)),
+    imagesNames: computed(() => toValue(item).images_names),
+    imagesPaths: computed(() => toValue(item).images_names.map(imagePath)),
   }
 }
 

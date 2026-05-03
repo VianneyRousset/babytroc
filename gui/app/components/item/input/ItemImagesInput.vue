@@ -36,7 +36,7 @@ tryOnUnmounted(stop)
       :msg-placement="msgPlacement"
     >
       <ItemImagesGallery
-        :item="{ image_names: images }"
+        :item="{ images_names: images }"
         editable
         @edit="() => emit('edit')"
       />
