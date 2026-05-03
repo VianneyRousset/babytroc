@@ -32,7 +32,7 @@ class DelayMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-async def create_app(config: Config | None = None) -> FastAPI:
+def create_app(config: Config | None = None) -> FastAPI:
     if config is None:
         config = Config.from_env()
 

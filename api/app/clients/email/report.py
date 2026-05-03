@@ -1,4 +1,5 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
+from pydantic import NameEmail
 
 from app.enums import ReportType
 
@@ -18,7 +19,7 @@ async def send_report_email(
 
     message = MessageSchema(
         subject=f"[{app_name}] New {report_type.name} report",
-        recipients=[moderator_email],
+        recipients=[NameEmail(name="Moderator", email=moderator_email)],
         body=(
             f"<h2>New {report_type.name} report</h2>"
             f"<p><b>Reporter:</b> {reporter_name}</p>"

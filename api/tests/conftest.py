@@ -24,7 +24,7 @@ async def _patched_aenter(self):
         return await _original_aenter(self)
 
 
-_ws_transport.ASGIWebSocketAsyncNetworkStream.__aenter__ = _patched_aenter
+_ws_transport.ASGIWebSocketAsyncNetworkStream.__aenter__ = _patched_aenter  # type: ignore[method-assign]
 
 
 pytest_plugins = [

@@ -15,7 +15,7 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 
 async def get_loan_request(
     db: AsyncSession,
-    loan_request_id: int | None = None,
+    loan_request_id: int,
     *,
     query_filter: LoanRequestReadQueryFilter | None = None,
 ) -> LoanRequestRead:

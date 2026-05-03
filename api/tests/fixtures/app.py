@@ -36,6 +36,6 @@ async def app_config(
 async def app(
     app_config: Config,
 ) -> AsyncGenerator[FastAPI]:
-    app = await create_app(app_config)
+    app = create_app(app_config)
     async with LifespanManager(app):
         yield app

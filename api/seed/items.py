@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from pathlib import Path
 from random import choice, randint, sample
 
-import sqlalchemy
+from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
@@ -23,13 +23,14 @@ word_generator = RandomWord()
 sentence_generator = RandomSentence()
 
 
-def check_items(
-    db: sqlalchemy.orm.Session,
+async def check_items(
+    db: AsyncSession,
 ) -> bool:
     """Returns True if some items are present in the database."""
 
     logger.debug("Checking items: started")
-    items = app.services.item.list_items(db).data
+    result = await app.services.item.list_items(db)
+    items = result.data
     logger.debug("%i (or more) items found", len(items))
     res = len(items) > 0
     logger.debug("Checking items: done")
@@ -37,8 +38,8 @@ def check_items(
     return res
 
 
-def upload_image(
-    db: sqlalchemy.orm.Session,
+async def upload_image(
+    db: AsyncSession,
     config: app.config.Config,
     fp: Path,
     owner_id: int,
@@ -46,7 +47,7 @@ def upload_image(
     """Upload image."""
 
     with fp.open(mode="rb") as f:
-        image = app.services.image.upload_image(
+        image = await app.services.image.upload_image(
             config=config,
             db=db,
             owner_id=owner_id,
@@ -103,8 +104,8 @@ def random_item_regions(regions: Sequence[int]) -> list[int]:
     return sample(regions, k=randint(1, 5))  # noqa: S311
 
 
-def populate_items(
-    db: sqlalchemy.orm.Session,
+async def populate_items(
+    db: AsyncSession,
     images_dir: Path,
     count: int,
 ) -> None:
@@ -113,8 +114,8 @@ def populate_items(
     logger.debug("Populating items: started")
 
     config = get_config()
-    users = app.services.user.list_users(db)
-    regions = app.services.region.list_regions(db)
+    users = await app.services.user.list_users(db)
+    regions = await app.services.region.list_regions(db)
 
     images_fp = list(images_dir.iterdir())
 
@@ -126,7 +127,7 @@ def populate_items(
         # upload images
         logger.info("Uploading images for user %i (%s).", user.id, user.name)
         images[user.id] = [
-            upload_image(
+            await upload_image(
                 db=db,
                 config=config,
                 fp=fp,
@@ -140,7 +141,7 @@ def populate_items(
     for _ in tqdm(list(range(count))):
         user = choice(users)  # noqa: S311
 
-        app.services.item.create_item(
+        await app.services.item.create_item(
             db=db,
             owner_id=user.id,
             item_create=Item(

@@ -86,7 +86,7 @@ app.command(populate)
 
 
 @populate.command(name="all")
-def populate_all(
+async def populate_all(
     fp: Annotated[
         Path,
         Parameter(
@@ -115,10 +115,10 @@ def populate_all(
     logger.info("Starting populate all")
 
     # open shared session here to ensure a rollback on all changes if any step fails
-    with shared_session:
-        populate_regions()
-        populate_users()
-        populate_items()
+    async with shared_session:
+        await populate_regions()
+        await populate_users()
+        await populate_items()
 
 
 def read_regions(file: Path) -> list[Region]:
@@ -128,7 +128,7 @@ def read_regions(file: Path) -> list[Region]:
 
 
 @populate.command(name="regions")
-def populate_regions(
+async def populate_regions(
     fp: Annotated[
         Path,
         Parameter(
@@ -153,9 +153,9 @@ def populate_regions(
     regions = read_regions(fp)
     logger.info("%i regions found in %s", len(regions), fp)
 
-    with shared_session as db:
+    async with shared_session as db:
         # check state
-        if _check_regions(db):
+        if await _check_regions(db):
             logger.warning("Regions already populated.")
 
             if not force:
@@ -163,7 +163,7 @@ def populate_regions(
                 raise RuntimeError(msg)
 
         # populate
-        _populate_regions(db, regions)
+        await _populate_regions(db, regions)
 
 
 def read_users(file: Path) -> list[User]:
@@ -173,7 +173,7 @@ def read_users(file: Path) -> list[User]:
 
 
 @populate.command(name="users")
-def populate_users(
+async def populate_users(
     fp: Annotated[
         Path,
         Parameter(
@@ -198,9 +198,9 @@ def populate_users(
     users = read_users(fp)
     logger.info("%i users found in %s", len(users), fp)
 
-    with shared_session as db:
+    async with shared_session as db:
         # check state
-        if _check_users(db):
+        if await _check_users(db):
             logger.warning("Users already populated.")
 
             if not force:
@@ -208,11 +208,11 @@ def populate_users(
                 raise RuntimeError(msg)
 
         # populate
-        _populate_users(db, users)
+        await _populate_users(db, users)
 
 
 @populate.command(name="items")
-def populate_items(
+async def populate_items(
     items_count: Annotated[
         int,
         Parameter(
@@ -233,9 +233,9 @@ def populate_items(
     logger.info("Starting populate items")
     logger.info("%i items will be generated", items_count)
 
-    with shared_session as db:
+    async with shared_session as db:
         # check state
-        if _check_items(db):
+        if await _check_items(db):
             logger.warning("Users already populated.")
 
             if not force:
@@ -243,7 +243,7 @@ def populate_items(
                 raise RuntimeError(msg)
 
         # populate
-        _populate_items(
+        await _populate_items(
             db=db,
             images_dir=Path("seed/data/images"),
             count=items_count,

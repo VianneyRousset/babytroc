@@ -35,7 +35,7 @@ async def _open_test_websocket(
         async with aconnect_ws(
             "/api/v1/me/websocket",
             client,
-        ) as websocket:
+        ) as websocket:  # type: AsyncWebSocketSession
             yield websocket
     except RuntimeError as exc:
         if "cancel scope" not in str(exc):

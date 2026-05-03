@@ -254,7 +254,7 @@ async def alice_items(
                     description=item["description"],
                     images=item["images"],
                     targeted_age_months=MonthRange(item["targeted_age_months"]),
-                    regions=item["regions"],
+                    regions=set(item["regions"]),
                 ),
             )
             for item in alice_items_data
@@ -280,7 +280,7 @@ async def alice_new_item(
                 targeted_age_months=MonthRange(
                     alice_new_item_data["targeted_age_months"]
                 ),
-                regions=alice_new_item_data["regions"],
+                regions=set(alice_new_item_data["regions"]),
             ),
         )
 
@@ -304,7 +304,7 @@ async def alice_special_item(
                 targeted_age_months=MonthRange(
                     alice_special_item_data["targeted_age_months"]
                 ),
-                regions=alice_special_item_data["regions"],
+                regions=set(alice_special_item_data["regions"]),
             ),
         )
 
@@ -361,7 +361,7 @@ async def bob_items(
                     description=item["description"],
                     images=item["images"],
                     targeted_age_months=MonthRange(item["targeted_age_months"]),
-                    regions=item["regions"],
+                    regions=set(item["regions"]),
                 ),
             )
             for item in bob_items_data

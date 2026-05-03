@@ -4,7 +4,7 @@ import jwt
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from httpx_ws import aconnect_ws
+from httpx_ws import AsyncWebSocketSession, aconnect_ws
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.schemas.auth.availability import AuthAccountAvailability
@@ -164,7 +164,7 @@ class TestAuthNewAccount:
         await ws_client.__aenter__()
         ws_client.cookies = client.cookies
 
-        async with aconnect_ws("/api/v1/me/websocket", ws_client) as websocket:
+        async with aconnect_ws("/api/v1/me/websocket", ws_client) as websocket:  # type: AsyncWebSocketSession
             websocket_recorder = WebSocketRecorder(websocket)
 
             async with websocket_recorder:

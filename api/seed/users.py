@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Iterable
 
-import sqlalchemy
+from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
 import app
@@ -10,11 +10,11 @@ from app.schemas.user.create import UserCreate as User
 logger = logging.getLogger("seed")
 
 
-def check_users(db: sqlalchemy.orm.Session) -> bool:
+async def check_users(db: AsyncSession) -> bool:
     """Returns True if some users are present in the database."""
 
     logger.debug("Checking users: started")
-    users = app.services.user.list_users(db)
+    users = await app.services.user.list_users(db)
     logger.debug("%i users found", len(users))
     res = len(users) > 0
     logger.debug("Checking users: done")
@@ -22,8 +22,8 @@ def check_users(db: sqlalchemy.orm.Session) -> bool:
     return res
 
 
-def populate_users(
-    db: sqlalchemy.orm.Session,
+async def populate_users(
+    db: AsyncSession,
     users: Iterable[User],
 ):
     """Populate users."""
@@ -31,7 +31,7 @@ def populate_users(
     logger.debug("Populating users: started")
 
     for user in tqdm(users):
-        app.services.user.create_user_without_validation(
+        await app.services.user.create_user_without_validation(
             db=db,
             user_create=user,
             validated=True,

@@ -109,6 +109,10 @@ class ReceivedChatMessageChecker(AbstractAsyncContextManager):
                 f"{[type(m).__name__ for m in recorder.messages]}"
             )
             message = matching[-1]
+            assert isinstance(
+                message,
+                (WebSocketMessageNewChatMessage, WebSocketMessageUpdatedChatMessage),
+            )
 
             assert {
                 **message.model_dump(),
