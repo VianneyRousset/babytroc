@@ -170,7 +170,7 @@ function toggle(regionId: number) {
     display: block;
 
     .region {
-      fill: white;
+      fill: transparent;
       transition: fill ease 200ms;
 
       &:hover {
