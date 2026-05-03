@@ -13,12 +13,15 @@ const props = withDefaults(
 const { size } = toRefs(props)
 
 function onChange(regionId: number, state: boolean) {
+  if (!model.value) return
+  const next = new Set(model.value)
   if (state) {
-    model.value?.add(regionId)
+    next.add(regionId)
   }
   else {
-    model.value?.delete(regionId)
+    next.delete(regionId)
   }
+  model.value = next
 }
 
 const { regions, status } = useRegionsList()

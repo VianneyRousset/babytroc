@@ -11,14 +11,16 @@ const { editable } = toRefs(props)
 
 function toggle(regionId: number) {
   // prevent modification if not editable
-  if (!unref(editable)) return
+  if (!unref(editable) || !model.value) return
 
-  if (model.value?.has(regionId)) {
-    model.value?.delete(regionId)
+  const next = new Set(model.value)
+  if (next.has(regionId)) {
+    next.delete(regionId)
   }
   else {
-    model.value?.add(regionId)
+    next.add(regionId)
   }
+  model.value = next
 }
 </script>
 
