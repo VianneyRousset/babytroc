@@ -15,7 +15,7 @@ async function submit(data: ItemCreate) {
     throw err
   })
 
-  return navigateTo(`/explore/item/${item.id}`)
+  return navigateTo('/me/items')
 }
 </script>
 
