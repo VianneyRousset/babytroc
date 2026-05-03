@@ -75,26 +75,25 @@ const open = ref(false)
 <style scoped lang="scss">
 .AccountMenuTrigger {
   @include flex-row;
-  @include font-jakarta;
-  gap: 0.6em;
-  font-size: 1.4em;
-  font-weight: 600;
-  color: $neutral-600;
-  padding: 2px 4px;
+  @include font-inter;
+  gap: $space-2;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text-secondary;
+  padding: $space-1 $space-3;
 
-  border: 1px solid transparent;
-  border-radius: 0.4em;
+  border-radius: $radius-pill;
   cursor: pointer;
+  transition: background 150ms ease-out;
 
-  &:hover {
-    background: $neutral-50;
-    border-color: $neutral-200;
+  @include hover-only {
+    background: $bg-page;
   }
 
-  &:active,
+  @include touch-feedback;
+
   &[open=true] {
-    background: $neutral-100;
-    border-color: $neutral-300;
+    background: $bg-page;
   }
 }
 </style>
