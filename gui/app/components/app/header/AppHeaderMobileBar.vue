@@ -16,6 +16,7 @@ const { hideOnScroll, scrollOffset } = toRefs(props)
 
 // true if scrolling down
 const scrollingDown = ref(false)
+const scrolled = computed(() => unref(y) > 0)
 
 // scroll y position
 const { y } = useScroll(hideOnScroll)
@@ -37,7 +38,10 @@ const { height: appHeaderBarHeight } = useElementSize(
   <header
     ref="header"
     class="AppHeaderMobileBar"
-    :class="{ hidden: hideOnScroll && y > (scrollOffset ?? appHeaderBarHeight) && scrollingDown }"
+    :class="{
+      hidden: hideOnScroll && y > (scrollOffset ?? appHeaderBarHeight) && scrollingDown,
+      scrolled: scrolled
+    }"
   >
     <slot />
   </header>
@@ -45,20 +49,24 @@ const { height: appHeaderBarHeight } = useElementSize(
 
 <style scoped lang="scss">
 .AppHeaderMobileBar {
-
   @include flex-row;
-  @include bar-shadow;
-  gap: 16px;
-  height: 64px;
+  gap: $space-4;
+  height: 56px;
 
   transform: translate(0, 0);
-  transition: 0.1s transform ease-out, 0.1s opacity ease-out;
+  transition: transform 100ms ease-out, opacity 100ms ease-out, box-shadow 200ms ease-out;
 
-  padding: 0 1rem;
+  padding: 0 $space-4;
 
-  background-color: $neutral-50;
-  color: $neutral-700;
-  border-bottom: 1px solid $neutral-300;
+  background-color: $bg-surface;
+  color: $text-primary;
+  border-bottom: 1px solid $divider;
+
+  box-shadow: none;
+
+  &.scrolled {
+    box-shadow: $shadow-sm;
+  }
 
   &.hidden {
     transform: translate(0, -100%);
@@ -66,20 +74,20 @@ const { height: appHeaderBarHeight } = useElementSize(
     box-shadow: none;
   }
 
-  :deep(&>svg) {
-    stroke: $neutral-700;
+  :deep(& > svg) {
+    stroke: $text-primary;
   }
 
   :deep(h1) {
     @include ellipsis-overflow;
+    @include font-jakarta;
     position: relative;
-    top: -0.1rem;
-    color: $neutral-700;
+    color: $text-primary;
     flex-grow: 1;
     margin: 0;
-    font-weight: 500;
-    font-size: round(1.5rem, 1px);
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
   }
-
 }
 </style>
