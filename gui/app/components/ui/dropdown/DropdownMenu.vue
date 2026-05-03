@@ -63,7 +63,7 @@ provide('dropdown-menu-open', open)
 }
 
 .Overlay {
-  z-index: 1;
+  z-index: 100;
 }
 
 :deep(.DropdownMenuArrow) {
