@@ -69,7 +69,7 @@ async function go() {
       />
     </WithdropdownMessage>
     <TextButton
-      aspect="bezel"
+      aspect="flat"
       size="large"
       color="neutral"
       :loading="isLoading"

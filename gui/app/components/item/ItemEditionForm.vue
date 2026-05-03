@@ -165,7 +165,7 @@ function onclick() {
     class="v"
   >
     <TextButton
-      aspect="bezel"
+      aspect="flat"
       color="primary"
       :disabled="!valid"
       :loading="props.isLoading"

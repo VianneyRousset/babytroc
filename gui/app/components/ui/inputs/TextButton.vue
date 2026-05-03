@@ -4,7 +4,7 @@ import type { RouteLocationGeneric } from 'vue-router'
 
 const props = withDefaults(
   defineProps<{
-    aspect?: 'flat' | 'outline' | 'bezel'
+    aspect?: 'flat' | 'outline'
     size?: 'large' | 'normal' | 'small'
     color?: 'neutral' | 'primary' | 'red'
     loading?: boolean
@@ -36,7 +36,6 @@ const classes = computed(() => ({
 
   flat: unref(aspect) === 'flat',
   outline: unref(aspect) === 'outline',
-  bezel: unref(aspect) === 'bezel',
 
   disabled: unref(disabled),
 
@@ -91,13 +90,16 @@ const NuxtLink = resolveComponent('NuxtLink')
   text-align: center;
   cursor: pointer;
   user-select: none;
-  font-size: 1.2em;
-  border-radius: 0.4em;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: $radius-pill;
 
-  padding: 0.5em 1em;
-  font-size: 1.3em;
+  padding: 0 $space-6;
+  height: 40px;
+  line-height: 40px;
 
-  transition: all 200ms ease-out;
+  transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
 
   --color-50: #{$neutral-50};
   --color-100: #{$neutral-100};
@@ -123,15 +125,15 @@ const NuxtLink = resolveComponent('NuxtLink')
     @include flex-row;
     align-content: center;
     justify-content: center;
-    gap: 0.5em;
+    gap: $space-2;
 
     .icon {
-      position: relative;
-      top: 3px;
+      display: flex;
+      align-items: center;
     }
   }
 
-  &.loading>.content {
+  &.loading > .content {
     opacity: 0.1;
   }
 
@@ -162,32 +164,27 @@ const NuxtLink = resolveComponent('NuxtLink')
   }
 
   &.small {
-    border-radius: 0.4em;
-    padding: 0.3em 0.8em;
-    font-size: 1em;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 $space-4;
+    font-size: 0.85rem;
   }
 
   &.large {
-    border-radius: 0.5em;
-    padding: 0.6em 1.5em;
-    font-size: 1.5em;
-  }
-
-  &.active {
-    transform: scale(0.8);
-    opacity: 0;
+    height: 48px;
+    line-height: 48px;
+    padding: 0 $space-8;
+    font-size: 1.05rem;
   }
 
   &.flat {
     background: var(--color-500);
 
-    &:hover {
+    @include hover-only {
       background: var(--color-600);
     }
 
-    &:active {
-      background: var(--color-700);
-    }
+    @include touch-feedback;
 
     &.disabled, &.loading {
       background: var(--color-100);
@@ -198,48 +195,32 @@ const NuxtLink = resolveComponent('NuxtLink')
 
   &.outline {
     color: var(--color-500);
-    border: var(--color-500) 1px solid;
+    border: 1.5px solid var(--color-500);
+    background: transparent;
 
-    /* compensate for the border width */
-    padding: calc(0.3em - 1px) 0.8em;
+    height: 37px;
+    line-height: 37px;
 
-    &.large {
-      padding: calc(0.6em - 1px) 1.5em;
+    &.small {
+      height: 33px;
+      line-height: 33px;
     }
 
-    &:hover {
+    &.large {
+      height: 45px;
+      line-height: 45px;
+    }
+
+    @include hover-only {
       color: var(--color-600);
       border-color: var(--color-600);
     }
 
-    &:active {
-      color: var(--color-700);
-      border-color: var(--color-700);
-    }
+    @include touch-feedback;
 
     &.disabled, &.loading {
       color: var(--color-200);
       border-color: var(--color-200);
-      cursor: default;
-    }
-  }
-
-  &.bezel {
-    background: linear-gradient(var(--color-500) 0%, var(--color-600) 100%);
-    box-shadow: inset 0 2px 0 0 hsla(0, 0%, 100%, .2), inset 0 -1px 0 0 rgba(0, 0, 0, .25), 0 2px 6px 0 rgba(0, 0, 0, .1);
-
-    &:hover {
-      background: linear-gradient(var(--color-600) 0%, var(--color-700) 100%);
-    }
-
-    &:active {
-      background: linear-gradient(var(--color-700) 0%, var(--color-800) 100%);
-    }
-
-    &.disabled, &.loading {
-      background: var(--color-100);
-      color: var(--color-300);
-      box-shadow: none;
       cursor: default;
     }
   }

@@ -27,7 +27,7 @@ async function requestAndNavigateToChat() {
     class="ItemRequestButton request"
   >
     <TextButton
-      aspect="bezel"
+      aspect="flat"
       size="large"
       color="primary"
       :loading="loading"
