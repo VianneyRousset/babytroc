@@ -79,28 +79,25 @@ a {
 }
 
 .Slab {
-
   @include flex-row;
-  gap: 1rem;
+  gap: $space-4;
   justify-content: flex-start;
-  padding: 1rem;
+  padding: $space-4;
   position: relative;
   border: 1px solid transparent;
+  transition: background 150ms ease-out;
 
-  &:hover {
-    background: $neutral-50 !important;
-    border-color: $neutral-200 !important;
+  @include hover-only {
+    background: $bg-page !important;
+    border-color: transparent !important;
   }
 
-  &:active {
-    background: $neutral-100 !important;
-    border-color: $neutral-200 !important;
-  }
+  @include touch-feedback;
 
   :deep(.title) {
     @include flex-column;
     align-items: stretch;
-    gap: 4px;
+    gap: $space-1;
     flex: 1;
 
     font-family: "Plus Jakarta Sans";
@@ -108,12 +105,14 @@ a {
 
     div {
       @include ellipsis-overflow;
-      color: $neutral-900;
-      font-size: 1.4rem;
+      color: $text-primary;
+      font-size: 1rem;
+      font-weight: 500;
 
       &.sub {
-        color: $neutral-400;
-        font-size: 1rem;
+        color: $text-secondary;
+        font-size: 0.85rem;
+        font-weight: 400;
       }
     }
   }
@@ -122,25 +121,23 @@ a {
     @include ellipsis-overflow;
     max-width: 70%;
     position: absolute;
-    bottom: 0.25rem;
-    right: 1rem;
-    color: $neutral-300;
+    bottom: $space-1;
+    right: $space-4;
+    color: $text-tertiary;
     font-size: 0.75rem;
   }
 
   .badge {
     @include flex-column-center;
-    background: $primary-300;
-    min-height: 0.75rem;
-    min-width: 0.75rem;
-    border-radius: 0.5rem;
-    font-size: 0.75rem;
-    color: white;
+    background: $red-600;
+    min-height: 8px;
+    min-width: 8px;
+    border-radius: 50%;
   }
 
   /* chevron */
-  &>svg {
-    color: $neutral-700;
+  & > svg {
+    color: #ccc;
   }
 }
 </style>

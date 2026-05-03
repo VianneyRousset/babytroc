@@ -31,35 +31,39 @@ const { maxWidth } = toRefs(props)
   .header {
     @include flex-row;
     justify-content: space-between;
-    gap: 16px;
-    padding: 0 1rem;
+    gap: $space-4;
+    padding: 0 $space-6;
     height: 64px;
   }
 
   .content {
     box-sizing: border-box;
     width: 100%;
-    max-width: v-bind("maxWidth && `${maxWidth}px`");
+    max-width: v-bind("maxWidth ? `${maxWidth}px` : '1200px'");
     @include flex-column;
     align-items: stretch;
-    gap: 1em;
-    padding: 1em;
+    gap: $space-4;
+    padding: $space-4;
+
+    @media (min-width: 1000px) {
+      padding: $space-4 $space-6;
+    }
 
     :deep(.legend) {
       font-style: italic;
-      color: $neutral-500;
+      color: $text-secondary;
     }
 
     :deep(.h) {
-        @include flex-row;
-        align-items: stretch;
-        gap: 1em;
+      @include flex-row;
+      align-items: stretch;
+      gap: $space-4;
     }
 
     :deep(.v) {
-        @include flex-column;
-        align-items: stretch;
-        gap: 1em;
+      @include flex-column;
+      align-items: stretch;
+      gap: $space-4;
     }
 
     :deep(.golden-left) {
