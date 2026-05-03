@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'regions' | 'blocked'>">
+<script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'blocked'>">
 const emit = defineEmits<(event: 'submit', data: ItemCreate) => void>()
 
 const props = withDefaults(defineProps<{
@@ -48,7 +48,7 @@ const stop = watch(() => props.item, (_item) => {
     name.value = _item.name
     description.value = _item.description
     targetedAgeMonths.value = string2range(_item.targeted_age_months)
-    regions.value = new Set(_item.regions.map(reg => reg.id))
+    regions.value = new Set(_item.region_ids)
     studioImages.value = _item.image_names.map((name: string) => useStudioImage(imagePath(name), { crop: 'center', maxSize: 1024 }))
   }
 }, { immediate: true })

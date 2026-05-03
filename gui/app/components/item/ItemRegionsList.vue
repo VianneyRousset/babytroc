@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { regions: Array<Region> }">
+<script setup lang="ts" generic="T extends { region_ids: number[] }">
 const props = defineProps<{ item: T }>()
 
 const { item } = toRefs(props)

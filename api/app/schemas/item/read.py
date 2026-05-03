@@ -38,7 +38,7 @@ class ItemRead(ItemBase, ReadBase):
             validation_alias=AliasChoices("liked", "liked_by_client"),
             description=(
                 "Whether the item is among the client's liked items. None if the "
-                "client is not logged-in.",
+                "client is not logged-in."
             ),
         ),
     ] = None
@@ -48,7 +48,7 @@ class ItemRead(ItemBase, ReadBase):
             validation_alias=AliasChoices("saved", "saved_by_client"),
             description=(
                 "Whether the item is among the client's saved items. None if the "
-                "client is not logged-in.",
+                "client is not logged-in."
             ),
         ),
     ] = None
@@ -62,7 +62,7 @@ class ItemRead(ItemBase, ReadBase):
             description=(
                 "The active loan request on the item made by the client. None if no "
                 "loan request has been made by the client or if the client is not "
-                "logged-in.",
+                "logged-in."
             ),
         ),
     ] = None
@@ -73,7 +73,7 @@ class ItemRead(ItemBase, ReadBase):
                 "The active loan of the item where the client is either the owner or "
                 "the borrower. None if not active loan of the item is made or if the "
                 "client is neither the owner or the borrower or if the client is not "
-                "logged-in.",
+                "logged-in."
             ),
         ),
     ] = None

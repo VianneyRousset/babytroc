@@ -1,11 +1,9 @@
-export function useItemRegions<T extends { regions: Array<Region> }>(
+export function useItemRegions<T extends { region_ids: number[] }>(
   item: MaybeRefOrGetter<T>,
 ): {
-  regions: Ref<Array<Region>>
   regionIds: Ref<Set<number>>
 } {
   return {
-    regions: computed(() => toValue(item).regions),
-    regionIds: computed(() => new Set(toValue(item).regions.map(reg => reg.id))),
+    regionIds: computed(() => new Set(toValue(item).region_ids)),
   }
 }

@@ -1,9 +1,14 @@
-<script setup lang="ts" generic="T extends { targeted_age_months: string, regions: Array<Region> }">
+<script setup lang="ts" generic="T extends { targeted_age_months: string, region_ids: number[] }">
 const props = defineProps<{ item: T }>()
 
 const { item } = toRefs(props)
 
-const { regions } = useItemRegions(item)
+const { regionIds } = useItemRegions(item)
+const { regions: allRegions } = useRegionsList()
+
+const regions = computed(() =>
+  (unref(allRegions) ?? []).filter(r => unref(regionIds).has(r.id)),
+)
 </script>
 
 <template>
