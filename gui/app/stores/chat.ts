@@ -37,8 +37,12 @@ export const useLiveChatStore = defineStore('live-chat', () => {
     }))
   }
 
-  const chats = computed<Array<Chat>>(() => {
+  // trigger chat loading as a side effect, not inside computed
+  watchEffect(() => {
     unref(chatIds).forEach(chatId => ensureChat(chatId))
+  })
+
+  const chats = computed<Array<Chat>>(() => {
     return [...unref(savedChats).values()].map(chat => ({
       ...chat,
       last_message_id: _getChatLastMessage(chat.id)?.id ?? 0,
@@ -57,11 +61,17 @@ export const useLiveChatStore = defineStore('live-chat', () => {
 
   prefetchMessages()
 
+  function reset() {
+    unref(messages).clear()
+    unref(savedChats).clear()
+  }
+
   return {
     messages: computed(() => [...unref(messages).values()]),
     chats,
     chatIds,
     addMessage,
     getChatMessages,
+    reset,
   }
 })

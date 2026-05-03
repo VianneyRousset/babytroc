@@ -61,9 +61,6 @@ async def cancel_item_active_loan_request(
             actual_state=loan_request_causing_issue.state,
         ) from error
 
-        msg = "No match found for the loan request. The reason is unexpected."
-        raise RuntimeError(msg) from error
-
     # create chat message
     if send_message:
         await send_chat_message(

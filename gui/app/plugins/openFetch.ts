@@ -22,6 +22,8 @@ async function callHooks<C extends FetchContext = FetchContext>(
   }
 }
 
+let refreshPromise: Promise<boolean> | null = null
+
 // provide open fetch clients (e.g. $api) with authentification features
 export default defineNuxtPlugin({
   enforce: 'pre', // clients will be ready to use by other plugins, Pinia stores etc.
@@ -47,22 +49,26 @@ export default defineNuxtPlugin({
                   activeSession
                   && ctx.response.status === StatusCodes.UNAUTHORIZED
                 ) {
-                  await $fetch('/api/v1/auth/refresh', {
-                    method: 'POST',
-                    onResponse: async ({ response: authResponse }) => {
-                      // if authentification succeeded, reexecute the query
-                      // and update reponse
-                      if (authResponse.ok) {
-                        await $fetch(ctx.request, {
-                          ...options,
-                          ...(localOptions as NitroFetchOptions<ResponseType>),
-                          onResponse: async (newCtx) => {
-                            if (newCtx.response.ok) Object.assign(ctx, newCtx)
-                          },
-                        })
-                      }
-                    },
-                  })
+                  // deduplicate concurrent refresh attempts
+                  if (!refreshPromise) {
+                    refreshPromise = $fetch('/api/v1/auth/refresh', {
+                      method: 'POST',
+                    }).then(() => true).catch(() => false).finally(() => {
+                      refreshPromise = null
+                    })
+                  }
+
+                  const refreshed = await refreshPromise
+
+                  if (refreshed) {
+                    await $fetch(ctx.request, {
+                      ...options,
+                      ...(localOptions as NitroFetchOptions<ResponseType>),
+                      onResponse: async (newCtx) => {
+                        if (newCtx.response.ok) Object.assign(ctx, newCtx)
+                      },
+                    })
+                  }
                 }
 
                 // call other hooks

@@ -51,6 +51,7 @@ async def accept_many_loan_requests(
     if check_state:
         query_filter.states = (query_filter.states or set()) | {
             LoanRequestState.pending,
+            LoanRequestState.rejected,
         }
 
     # update state

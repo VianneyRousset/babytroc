@@ -70,8 +70,6 @@ async def list_loan_requests(
 ) -> QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor]:
     """List the loan requests matching criteria."""
 
-    print("list loan requests", query_filter, flush=True)
-
     # if no query filter is provided, use an empty filter
     query_filter = query_filter or LoanRequestReadQueryFilter()
 

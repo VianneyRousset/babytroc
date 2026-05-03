@@ -1,6 +1,7 @@
 export function useLogout() {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
+  const liveChatStore = useLiveChatStore()
 
   const { mutateAsync: logout, ...mutation } = useMutation({
     mutation: () => {
@@ -15,6 +16,8 @@ export function useLogout() {
       queryCache.getEntries({
         predicate: entry => entry.key.includes('me'),
       }).map(queryCache.remove)
+
+      liveChatStore.reset()
     },
 
     onSuccess: () => {
