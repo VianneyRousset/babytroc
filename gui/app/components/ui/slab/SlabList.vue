@@ -27,7 +27,7 @@ const { light } = toRefs(props)
     margin-top: -1px;
     margin-left: -1px;
     margin-right: -1px;
-    border: 1px solid $neutral-200;
+    border: 1px solid $divider;
     border-left-color: transparent;
     border-right-color: transparent;
   }
