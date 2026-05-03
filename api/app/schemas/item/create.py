@@ -36,6 +36,7 @@ class ItemCreate(ItemBase, CreateBase):
         Field(min_length=1),
     ]
     blocked: bool | None = False
+    categories: set[str] = set()
 
     @field_validator("name", mode="before")
     @classmethod
@@ -75,7 +76,7 @@ class ItemCreate(ItemBase, CreateBase):
     @property
     def as_sql_values(self):
         values = self.model_dump(
-            exclude={"targeted_age_months"},
+            exclude={"targeted_age_months", "categories"},
         )
 
         if self.targeted_age_months:

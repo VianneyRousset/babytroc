@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.star import stars_gain_when_adding_item
 from app.models.item import Item
 from app.models.item.image import ItemImage, ItemImageAssociation
+from app.models.item.category import ItemCategoryAssociation
 from app.models.item.region import ItemRegionAssociation
 from app.schemas.base import Base as SchemaBase
 from app.schemas.item.create import ItemCreate
@@ -41,6 +42,22 @@ class InsertItemRegionAssociation(SchemaBase):
                 region_id=region_id,
             )
             for region_id in region_ids
+        ]
+
+
+class InsertItemCategoryAssociation(SchemaBase):
+    item_id: int
+    category_slug: str
+
+    @classmethod
+    def from_item_categories(
+        cls,
+        item_id: int,
+        category_slugs: set[str],
+    ) -> list[Self]:
+        return [
+            cls(item_id=item_id, category_slug=slug)
+            for slug in category_slugs
         ]
 
 
@@ -122,6 +139,18 @@ async def create_many_items(
             )
         ],
     )
+    if any(item.item_create.categories for item in items):
+        await _insert_item_category_associations(
+            db=db,
+            associations=[
+                association
+                for item_id, item in zip(item_ids, items, strict=True)
+                for association in InsertItemCategoryAssociation.from_item_categories(
+                    item_id=item_id,
+                    category_slugs=item.item_create.categories,
+                )
+            ],
+        )
 
     # add stars to owner for adding an item
     await add_many_stars_to_users(
@@ -337,5 +366,39 @@ async def _insert_item_image_associations(
             "The number of inserted item-image associations "
             f"({len(inserted_associations)}) does not match the number "
             f"of given associations ({len(associations)}). Unexpected reason"
+        )
+        raise RuntimeError(msg)
+
+
+async def _insert_item_category_associations(
+    db: AsyncSession,
+    associations: list[InsertItemCategoryAssociation],
+) -> None:
+    """Insert item-category associations."""
+
+    if not associations:
+        return
+
+    stmt = (
+        insert(ItemCategoryAssociation)
+        .values(
+            [
+                {
+                    "item_id": a.item_id,
+                    "category_slug": a.category_slug,
+                }
+                for a in associations
+            ]
+        )
+        .returning(ItemCategoryAssociation)
+    )
+
+    async with db.begin_nested():
+        inserted = (await db.execute(stmt)).unique().scalars().all()
+
+    if len(inserted) != len(associations):
+        msg = (
+            f"The number of inserted item-category associations ({len(inserted)}) "
+            f"does not match the expected ({len(associations)}). Unexpected reason"
         )
         raise RuntimeError(msg)
