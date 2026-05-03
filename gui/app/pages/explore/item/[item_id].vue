@@ -25,6 +25,10 @@ const device = useDevice()
 
 const { goBack } = useNavigation()
 const deleteItemPopup = ref(false)
+const reportDialogOpen = ref(false)
+
+// report
+const { mutateAsync: reportItem } = useReportItemMutation(itemId)
 
 const { $toast } = useNuxtApp()
 const { mutateAsync: updateItem, isLoading: updateItemIsLoading } = useUpdateItemMutation(itemId)
@@ -110,6 +114,7 @@ async function submitUnsave() {
           v-if="!item.owned"
           :icon="ShieldAlert"
           red
+          @click="reportDialogOpen = true"
         >
           Signaler
         </DropdownItem>
@@ -206,6 +211,7 @@ async function submitUnsave() {
               v-if="!item.owned"
               :icon="ShieldAlert"
               red
+              @click="reportDialogOpen = true"
             >
               Signaler
             </DropdownItem>
@@ -298,6 +304,13 @@ async function submitUnsave() {
         </TextButton>
       </template>
     </PopupOverlay>
+
+    <!-- Report dialog -->
+    <ReportDialog
+      v-model="reportDialogOpen"
+      :submit="reportItem"
+      :context="`item:${itemId}`"
+    />
   </AppPage>
 </template>
 

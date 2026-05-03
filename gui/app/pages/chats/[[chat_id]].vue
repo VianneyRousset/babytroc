@@ -23,6 +23,10 @@ const drawerMode = computed<boolean>(() => unref(narrowWindow))
 
 // chats drawer open state
 const chatsDrawerOpen = ref(false)
+
+// report
+const reportDialogOpen = ref(false)
+const { mutateAsync: reportChat } = useReportChatMutation(computed(() => unref(chatId) ?? ''))
 </script>
 
 <template>
@@ -51,6 +55,7 @@ const chatsDrawerOpen = ref(false)
         <DropdownItem
           :icon="ShieldAlert"
           red
+          @click="reportDialogOpen = true"
         >
           Signaler
         </DropdownItem>
@@ -103,6 +108,14 @@ const chatsDrawerOpen = ref(false)
         />
       </main>
     </template>
+
+    <!-- Report dialog (mobile) -->
+    <ReportDialog
+      v-if="chatId"
+      v-model="reportDialogOpen"
+      :submit="reportChat"
+      :context="`chat:${chatId}`"
+    />
   </AppPage>
 </template>
 

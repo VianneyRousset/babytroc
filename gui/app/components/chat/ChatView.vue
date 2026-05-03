@@ -10,6 +10,10 @@ const { chatId } = toRefs(props)
 
 const { chat, isLoading: chatIsLoading, addMessage } = useChat(chatId)
 
+// report
+const reportDialogOpen = ref(false)
+const { mutateAsync: reportChat } = useReportChatMutation(chatId)
+
 // TODO add meIsLoading
 const { me } = useMe()
 const { messages, isLoading: messagesIsLoading, loadMore, end } = useChatMessages(() => ({ id: unref(chatId) }))
@@ -77,11 +81,19 @@ async function sendMessage() {
         <DropdownItem
           :icon="ShieldAlert"
           red
+          @click="reportDialogOpen = true"
         >
           Signaler
         </DropdownItem>
       </DropdownMenu>
     </div>
+
+    <!-- Report dialog -->
+    <ReportDialog
+      v-model="reportDialogOpen"
+      :submit="reportChat"
+      :context="`chat:${chatId}`"
+    />
 
     <WithLoading :loading="chatIsLoading || ((messages == null || messages.length == 0) && messagesIsLoading)">
       <WithFloating>
