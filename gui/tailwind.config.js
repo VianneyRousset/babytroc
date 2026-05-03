@@ -51,10 +51,16 @@ module.exports = {
         },
       },
       borderRadius: {
-        xl: 'calc(var(--radius) + 4px)',
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        xl: '16px',
+        lg: '12px',
+        md: '8px',
+        sm: '4px',
+        pill: '2rem',
+      },
+      boxShadow: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.06)',
+        md: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        lg: '0 8px 24px rgba(0, 0, 0, 0.12)',
       },
       keyframes: {
         'accordion-down': {
@@ -73,12 +79,17 @@ module.exports = {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 0 },
         },
+        'pulse-loading': {
+          '0%, 100%': { opacity: 0.4 },
+          '50%': { opacity: 1 },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'collapsible-down': 'collapsible-down 0.2s ease-in-out',
         'collapsible-up': 'collapsible-up 0.2s ease-in-out',
+        'pulse-loading': 'pulse-loading 1.5s ease-in-out infinite',
       },
     },
   },

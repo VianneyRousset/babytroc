@@ -55,3 +55,22 @@
 @mixin font-jakarta {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
+
+@mixin hover-only {
+  @media (hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin touch-feedback {
+  &:active {
+    opacity: 0.7;
+    transition: opacity 60ms ease;
+  }
+}
+
+@mixin safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
