@@ -54,6 +54,12 @@ function onClose() {
       <p class="info">
         Décrivez le problème rencontré. Votre signalement sera examiné par notre équipe.
         L'utilisateur concerné ne sera pas informé de votre signalement.
+        <NuxtLink
+          to="/me/politics"
+          class="link"
+        >
+          En savoir plus
+        </NuxtLink>
       </p>
 
       <textarea
@@ -132,6 +138,11 @@ function onClose() {
     &::placeholder {
       color: $text-tertiary;
     }
+  }
+
+  .link {
+    color: $primary-text-safe;
+    text-decoration: underline;
   }
 }
 </style>
