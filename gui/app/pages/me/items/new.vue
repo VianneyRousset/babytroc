@@ -2,7 +2,7 @@
 import { X } from 'lucide-vue-next'
 
 definePageMeta({
-  layout: 'newitem',
+  layout: 'empty',
   appBack: true,
 })
 
