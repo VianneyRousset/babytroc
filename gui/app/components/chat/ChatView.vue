@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ChatMessages } from '#components'
+import { Package, ShieldAlert } from 'lucide-vue-next'
 
 const props = defineProps<{
   chatId: string
@@ -62,6 +63,26 @@ async function sendMessage() {
 
 <template>
   <div class="ChatView">
+    <div
+      v-if="chat"
+      class="chat-menu"
+    >
+      <DropdownMenu>
+        <DropdownItem
+          :icon="Package"
+          :target="`/explore/item/${chat.item.id}`"
+        >
+          Voir l'objet
+        </DropdownItem>
+        <DropdownItem
+          :icon="ShieldAlert"
+          red
+        >
+          Signaler
+        </DropdownItem>
+      </DropdownMenu>
+    </div>
+
     <WithLoading :loading="chatIsLoading || ((messages == null || messages.length == 0) && messagesIsLoading)">
       <WithFloating>
         <div
@@ -93,6 +114,14 @@ async function sendMessage() {
 
 <style lang="scss" scoped>
 .ChatView {
+  position: relative;
+
+  .chat-menu {
+    position: absolute;
+    top: $space-3;
+    right: $space-3;
+    z-index: 2;
+  }
 
   .WithFloating {
     width: 100%;
