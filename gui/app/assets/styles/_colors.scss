@@ -45,3 +45,24 @@ $blue-700: #195b8b;
 $blue-800: #184d74;
 $blue-900: #194161;
 $blue-950: #112a40;
+
+// Semantic colors for Airbnb-style redesign
+$text-primary: #1a1a1a;
+$text-secondary: #6a6a6a;
+$text-tertiary: #767676;
+
+$bg-page: #f7f7f7;
+$bg-surface: #fff;
+$bg-tag: #f7f7f7;
+$bg-tag-active: #1a1a1a;
+
+$text-tag: #444;
+$text-tag-active: #fff;
+
+$divider: #ebebeb;
+
+$primary-text-safe: #3d6145; // 5.8:1 contrast on white for small text
+
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
