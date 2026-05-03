@@ -1,30 +1,44 @@
 <script setup lang="ts">
-const { loans } = useMeBorrowings()
+definePageMeta({
+  layout: 'me',
+})
+
+const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: false })
 </script>
 
 <template>
-  <AppPage>
+  <AppPage
+    logged-in-only
+    infinite-scroll
+    :infinite-scroll-distance="1200"
+    @more="loadMore"
+  >
     <!-- Header bar -->
     <template #mobile-header-bar>
       <AppBack />
-      <h1>Mes anciens emprunts</h1>
+      <h1>Anciens emprunts</h1>
     </template>
 
     <!-- Main content -->
-    <Panel>
-      <!-- Borrowing requests -->
-      <SlabList>
-        <NuxtLink
-          v-for="loan in loans"
-          :key="`loan${loan.id}`"
-          :to="{ name: 'home-item-item_id', params: { item_id: loan.item.id } }"
-        >
-          <LoanSlab :loan="loan" />
-        </NuxtLink>
-      </SlabList>
-    </Panel>
+    <main>
+      <Panel>
+        <ListError v-if="error">
+          Une erreur est survenue.
+        </ListError>
+        <ListEmpty v-else-if="!isLoading && loans?.length === 0">
+          Aucun ancien emprunt
+        </ListEmpty>
+        <SlabList v-else>
+          <LoanSlab
+            v-for="loan in loans"
+            :key="`loan${loan.id}`"
+            :loan="loan"
+            :target="`/explore/item/${loan.item.id}`"
+            chevron
+          />
+        </SlabList>
+        <ListLoader v-if="isLoading" />
+      </Panel>
+    </main>
   </AppPage>
 </template>
-
-<style scoped lang="scss">
-</style>

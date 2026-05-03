@@ -1,7 +1,13 @@
 <script setup lang="ts">
-const props = defineProps<{
+import type { RouteLocationGeneric } from 'vue-router'
+
+const props = withDefaults(defineProps<{
   loan: Loan
-}>()
+  target?: string | RouteLocationGeneric
+  chevron?: boolean
+}>(), {
+  chevron: false,
+})
 
 // loan
 const { loan } = toRefs(props)
@@ -16,10 +22,13 @@ const formatedDuring = computed(() =>
 </script>
 
 <template>
-  <Slab>
+  <Slab
+    :target="target"
+    :chevron="chevron"
+  >
     {{ loan.item.name }}
 
-    <template #image>
+    <template #icon>
       <ImageAndAvatar
         :image="itemImage"
         :avatar="loan.owner.avatar_seed"

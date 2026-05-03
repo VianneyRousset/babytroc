@@ -21,9 +21,10 @@ export function useMe(): {
 
 /* Loans */
 
-export function useMeLoans() {
+export function useMeLoans({ active }: { active?: boolean } = {}) {
   const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/loans', {
-    key: ['me', 'loans'],
+    key: ['me', 'loans', active],
+    query: computed(() => ({ a: active })),
     refetchOnMount: false,
   })
   return { loans, ...query }
@@ -31,9 +32,10 @@ export function useMeLoans() {
 
 /* Borrowings */
 
-export function useMeBorrowings() {
+export function useMeBorrowings({ active }: { active?: boolean } = {}) {
   const { data: loans, ...query } = useApiPaginatedQuery('/v1/me/borrowings', {
-    key: ['me', 'borrowings'],
+    key: ['me', 'borrowings', active],
+    query: computed(() => ({ a: active })),
     refetchOnMount: false,
   })
   return { loans, ...query }
