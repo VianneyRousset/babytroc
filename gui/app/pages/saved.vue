@@ -48,4 +48,14 @@ const { items, error, isLoading, loadMore } = useSavedItems()
 </template>
 
 <style scoped lang="scss">
+main {
+  .Panel {
+    :deep(.content:empty),
+    :deep(.content > .ItemCardsCollection:empty) {
+      @include flex-column-center;
+      padding: $space-16;
+      color: $text-tertiary;
+    }
+  }
+}
 </style>
