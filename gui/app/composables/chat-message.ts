@@ -21,7 +21,6 @@ export function useChatMessages<
     '/v1/me/chats/{chat_id}/messages', {
       key: () => ['me', 'chat', toValue(chat).id, 'messages'],
       path: () => ({ chat_id: toValue(chat).id }),
-      preloadFirstPage: true,
       refetchOnMount: false,
     })
 

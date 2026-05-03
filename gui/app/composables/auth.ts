@@ -2,10 +2,8 @@ import type {
   DataState,
   UseQueryOptions,
   UseQueryReturn,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryReturn,
 } from '@pinia/colada'
-import { useInfiniteQuery, useQuery } from '@pinia/colada'
+import { useQuery } from '@pinia/colada'
 import type { RouteLocationGeneric } from 'vue-router'
 import { StatusCodes } from 'http-status-codes'
 
@@ -101,42 +99,3 @@ export function useQueryWithAuth<
   }
 }
 
-export function useInfiniteQueryWithAuth<
-  TData,
-  TError,
-  TPage = unknown,
->(
-  options: UseInfiniteQueryOptions<TData, TError, TData | undefined, TPage>,
-): UseInfiniteQueryReturn<TPage, TError> {
-  const { loggedIn } = useAuth()
-
-  const { state, ...queryResult } = useInfiniteQuery<TData, TError, TPage>({
-    enabled: () => unref(loggedIn) === true,
-    ...options,
-  })
-
-  const modifiedState = computed<DataState<TPage, TError, TPage>>(
-    () => {
-      const _state = unref(state)
-
-      if (unref(loggedIn) === true) return _state
-
-      return {
-        status: 'success',
-        data: toValue(options.initialPage),
-        error: null,
-      }
-    },
-  )
-
-  return {
-    ...queryResult,
-    state: modifiedState,
-
-    status: computed(() => unref(modifiedState).status),
-    data: computed(() => unref(modifiedState).data),
-    error: computed(() => unref(modifiedState).error),
-
-    isPending: computed(() => unref(modifiedState).status === 'pending'),
-  }
-}
