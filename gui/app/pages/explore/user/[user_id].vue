@@ -144,7 +144,13 @@ const { loggedIn } = useAuth()
 <style scoped lang="scss">
 :deep(.Panel.desktop .content) {
 
-  gap: 2em;
+  gap: $space-8;
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
 
   .InfoBox {
     border-radius: 2em;
