@@ -100,6 +100,7 @@ tryOnUnmounted(stop)
   position: relative;
 
   textarea {
+
     -ms-overflow-style: none;
     scrollbar-width: none;
 
@@ -108,32 +109,36 @@ tryOnUnmounted(stop)
     }
 
     width: 100%;
-    height: auto;
+
     resize: none;
 
-    border-radius: $radius-pill;
-    border: 1px solid $divider;
-    box-shadow: $shadow-sm;
-    transition: box-shadow 200ms ease-out, border-color 200ms ease-out;
+    border-radius: 1rem;
+    border: 1px solid $neutral-300;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.2s ease-out,
+    all 0.2 ease-out;
 
-    line-height: 1.4;
-    padding: $space-3 48px $space-3 $space-4;
+    line-height: 1.2rem;
+    padding-left: 1rem;
+    padding-top: 1.2rem;
+    padding-right: 64px;
 
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
+    font-family: 'Inter',
+    sans-serif;
+    font-size: 1rem;
 
     &::placeholder {
-      color: $text-tertiary;
+      color: #9e9ea7;
     }
 
     &:focus,
     &:hover {
       outline: none;
-      box-shadow: $shadow-md;
+      box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.3);
     }
 
     &:focus {
-      border-color: $neutral-400;
+      border: 1px solid $neutral-500;
     }
   }
 
@@ -141,14 +146,14 @@ tryOnUnmounted(stop)
     @include flex-row-center;
 
     position: absolute;
-    right: $space-3;
-    bottom: $space-3;
+    right: 28px;
+    bottom: 28px;
 
     background: $primary-500;
-    box-shadow: $shadow-sm;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     color: white;
 
