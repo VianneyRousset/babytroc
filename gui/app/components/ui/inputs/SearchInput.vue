@@ -67,7 +67,7 @@ function submit() {
 
     &:focus {
       box-shadow: $shadow-sm;
-      border-color: $text-primary;
+      border-color: $neutral-400;
       background: $bg-surface;
     }
   }
