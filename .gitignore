@@ -1,6 +1,8 @@
 # Keep .gitkeep
 !**/.gitkeep
 
+**/graphify
+
 # Python
 **/__pycache__/
 api/build
@@ -41,3 +43,5 @@ dist
 
 # Token
 utils/.token
+
+.superpowers/

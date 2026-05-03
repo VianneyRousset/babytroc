@@ -44,9 +44,9 @@ export default defineNuxtConfig({
       },
       meta: [
         // set mobile status bar color
-        { name: 'theme-color', content: '#f6f7f6' },
-        { name: 'msapplication-navbutton-color', content: '#f6f7f6' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: '#f6f7f6' },
+        { name: 'theme-color', content: '#ffffff' },
+        { name: 'msapplication-navbutton-color', content: '#ffffff' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: '#ffffff' },
       ],
     },
     layoutTransition: {
