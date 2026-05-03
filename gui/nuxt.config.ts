@@ -11,7 +11,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'radix-vue/nuxt',
     '@pinia/colada-nuxt',
-    '@nuxt/eslint',
     'floating-vue/nuxt',
     '@nuxtjs/device',
   ],
