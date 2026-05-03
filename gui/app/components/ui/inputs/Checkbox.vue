@@ -38,15 +38,15 @@ const { size } = toRefs(props)
 
   @include flex-row;
   cursor: pointer;
-  color: $neutral-600;
+  color: $text-secondary;
 
   &:hover {
-    color: $neutral-900;
+    color: $text-primary;
   }
 
   &[checked="true"],
   &[checked="true"]:hover {
-    color: $primary-500;
+    color: $primary-text-safe;
   }
 
   :deep(.CheckboxRoot) {

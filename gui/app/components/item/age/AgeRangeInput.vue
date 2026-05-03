@@ -100,8 +100,8 @@ const displayedMax = computed(() => formatMonth(range.value[1]))
     white-space: nowrap;
     color: white;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-    background: $primary-400;
-    border-radius: 8px;
+    background: $primary-text-safe;
+    border-radius: $radius-sm;
     padding: 0.3em 0.6em;
     }
   }

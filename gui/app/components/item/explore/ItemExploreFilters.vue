@@ -59,6 +59,12 @@ const { size } = toRefs(props)
     display: flex;
     flex-direction: column;
     gap: $space-3;
+
+    h2 {
+      color: $text-primary;
+      font-size: 1rem;
+      font-weight: 600;
+    }
   }
 }
 
