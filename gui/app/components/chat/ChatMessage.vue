@@ -106,11 +106,15 @@ const { formattedHour } = useChatMessageTime(message)
   /* system messages */
   &[origin="system"] {
     .bubble {
-      border: 1px solid $divider;
+      border: 1px solid $neutral-300;
       align-self: center;
-      color: $text-secondary;
+      color: $text-primary;
       border-radius: $radius-sm;
       width: 70%;
+
+      .hour-and-check {
+        color: $text-tertiary;
+      }
     }
   }
 
@@ -140,6 +144,10 @@ const { formattedHour } = useChatMessageTime(message)
         align-self: flex-end;
         background: $bg-bubble-me;
         color: white;
+
+        .hour-and-check {
+          color: rgba(255, 255, 255, 0.7);
+        }
       }
 
       &:has(~ div) {

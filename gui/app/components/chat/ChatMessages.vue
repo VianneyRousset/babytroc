@@ -182,8 +182,9 @@ const { isUserBorrowing } = useChatRoles(chat, me)
     .date-bubble {
       align-self: center;
 
-      background: $neutral-300;
+      background: $neutral-600;
       font-style: italic;
+      font-size: 0.8rem;
       padding: 0.3rem 1rem;
       border-radius: 9999px;
       color: white;
