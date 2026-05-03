@@ -3,18 +3,20 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
-from app.errors.loan import LoanRequestStateError
+from app.errors.loan import LoanRequestNotFoundError, LoanRequestStateError
 from app.models.loan import LoanRequest
 from app.schemas.chat.base import ChatId
 from app.schemas.chat.send import SendChatMessageLoanRequestCancelled
 from app.schemas.loan.query import (
+    LoanRequestQueryPageCursor,
     LoanRequestReadQueryFilter,
     LoanRequestUpdateQueryFilter,
 )
 from app.schemas.loan.read import LoanRequestRead
+from app.schemas.query import QueryPageOptions
 from app.services.chat import send_chat_message, send_many_chat_messages
 
-from .read import get_loan_request
+from .read import get_loan_request, list_loan_requests
 from .update import update_many_loan_requests_state
 
 
@@ -47,13 +49,24 @@ async def cancel_item_active_loan_request(
     # 2. the loan request exists but is inactive
     except NoResultFound as error:
         # raise LoanRequestNotFound if loan request does not exist (1.)
-        loan_request_causing_issue = await get_loan_request(
+        result = await list_loan_requests(
             db=db,
             query_filter=LoanRequestReadQueryFilter(
                 item_id=item_id,
                 borrower_id=borrower_id,
             ),
+            page_options=QueryPageOptions(
+                limit=1,
+                cursor=LoanRequestQueryPageCursor(),
+            ),
         )
+
+        if not result.data:
+            raise LoanRequestNotFoundError(
+                {"item_id": item_id, "borrower_id": borrower_id}
+            ) from error
+
+        loan_request_causing_issue = result.data[0]
 
         # raise LoanRequestStateError if the loan request is inactive
         raise LoanRequestStateError(

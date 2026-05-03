@@ -378,13 +378,13 @@ class TestLoanRequestUpdateRejectedInvalidTransitions:
         )
         assert not resp.is_success
 
-        # check rejected loan request cannot be accepted
+        # check rejected loan request cannot be re-rejected
         resp = await alice_client.post(
-            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/accept"
+            f"/api/v1/me/items/{alice_new_item.id}/requests/{request['id']}/reject"
         )
         assert not resp.is_success
 
-        # check cancelled loan request cannot be executed
+        # check rejected loan request cannot be executed
         resp = await bob_client.post(
             f"/api/v1/me/borrowings/requests/{request['id']}/execute"
         )
