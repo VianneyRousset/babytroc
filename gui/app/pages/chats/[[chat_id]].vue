@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Menu, MessageSquare } from 'lucide-vue-next'
+import { Menu, MessageSquare, Package, ShieldAlert } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'chats',
@@ -15,6 +15,9 @@ useAuth({ fallbackRoute: '/chats' })
 
 const { me } = useMe()
 
+// chat data for dropdown menu
+const { chat } = useChat(computed(() => unref(chatId) ?? ''))
+
 const { narrowWindow } = useNarrowWindow()
 const drawerMode = computed<boolean>(() => unref(narrowWindow))
 
@@ -29,10 +32,6 @@ const chatsDrawerOpen = ref(false)
       v-if="chatId == null"
       #mobile-header-bar
     >
-      <MessageSquare
-        :size="32"
-        :stroke-width="2"
-      />
       <h1>Chats</h1>
     </template>
     <template
@@ -40,7 +39,22 @@ const chatsDrawerOpen = ref(false)
       #mobile-header-bar
     >
       <AppBack />
-      <h1>Chats</h1>
+      <h1>{{ chat?.item.name ?? 'Chat' }}</h1>
+
+      <DropdownMenu v-if="chat">
+        <DropdownItem
+          :icon="Package"
+          :target="`/explore/item/${chat.item.id}`"
+        >
+          Voir l'objet
+        </DropdownItem>
+        <DropdownItem
+          :icon="ShieldAlert"
+          red
+        >
+          Signaler
+        </DropdownItem>
+      </DropdownMenu>
     </template>
 
     <!-- Chats (desktop version) -->
