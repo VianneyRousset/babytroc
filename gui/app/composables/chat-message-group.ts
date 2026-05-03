@@ -1,6 +1,6 @@
 import { groupBy } from 'lodash'
 import { DateTime } from 'luxon'
-import type { ChatMessageType as ChatMessageTypeT } from '#build/types/open-fetch/schemas/api'
+import type { ChatMessageType as ChatMessageTypeT } from '~/types/chat'
 /**
  * Chat message grouping.
  *

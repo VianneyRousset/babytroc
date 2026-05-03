@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VSwitch from '@lmiller1990/v-switch'
-import { ChatMessageType } from '#build/types/open-fetch/schemas/api'
+import { ChatMessageType } from '~/types/chat'
 
 const props = defineProps<{
   messages: Array<ChatMessage>

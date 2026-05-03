@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PartyPopper, X } from 'lucide-vue-next'
-import { LoanRequestState } from '#build/types/open-fetch/schemas/api'
+import { LoanRequestState } from '~/types/loan'
 
 const props = defineProps<{
   message: ChatMessage

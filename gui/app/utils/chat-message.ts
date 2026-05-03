@@ -1,4 +1,4 @@
-import type { ChatMessageType as ChatMessageTypeT } from '#build/types/open-fetch/schemas/api'
+import type { ChatMessageType as ChatMessageTypeT } from '~/types/chat'
 
 /**
  * Get the origin (me / interlocutor / system) of the chat mesage.

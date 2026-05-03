@@ -1,4 +1,4 @@
-import type { ChatMessageType as ChatMessageTypeT } from '#build/types/open-fetch/schemas/api'
+import type { ChatMessageType as ChatMessageTypeT } from '~/types/chat'
 import { DateTime } from 'luxon'
 
 /**
