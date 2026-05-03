@@ -1,6 +1,10 @@
 /*
  * Create item
  */
+function invalidateItemLists(queryCache: ReturnType<typeof useQueryCache>) {
+  queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') }, 'all')
+}
+
 export const useCreateItemMutation = defineMutation(() => {
   const { $api } = useNuxtApp()
   const queryCache = useQueryCache()
@@ -10,9 +14,7 @@ export const useCreateItemMutation = defineMutation(() => {
       method: 'POST',
       body: context,
     }),
-    onSettled: () => {
-      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
-    },
+    onSettled: () => invalidateItemLists(queryCache),
   })
 })
 
@@ -33,8 +35,8 @@ export function useUpdateItemMutation(itemId: MaybeRefOrGetter<number>) {
       body: context,
     }),
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
-      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
+      invalidateItemLists(queryCache)
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) }, 'all')
     },
   })
 }
@@ -55,8 +57,8 @@ export function useDeleteItemMutation(itemId: MaybeRefOrGetter<number>) {
       },
     }),
     onSettled: () => {
-      queryCache.invalidateQueries({ predicate: entry => entry.key.includes('items') })
-      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) })
+      invalidateItemLists(queryCache)
+      queryCache.invalidateQueries({ predicate: entry => entry.key.includes(`item-${toValue(itemId)}`) }, 'all')
     },
   })
 }
