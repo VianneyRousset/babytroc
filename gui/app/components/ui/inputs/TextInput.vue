@@ -111,31 +111,39 @@ const type = computed(() => {
 
   input {
     flex: 1;
-    font-size: 1.5rem;
-    border-radius: 0.4rem;
-    transition: all 200ms ease-out;
+    font-size: 1rem;
+    height: 48px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: $radius-sm;
+    padding: 0 $space-4;
+    transition: border-color 200ms ease-out;
 
     padding-right: v-bind("`max(0.6em, calc(${iconsWidth}px + 12px))`");
 
+    &:focus {
+      border-color: $text-primary;
+    }
+
     &:disabled {
-      background: $neutral-50;
-      color: $neutral-300;
+      background: $bg-page;
+      color: $text-tertiary;
     }
 
     &.error {
-      box-shadow: 0 0 2px $red-700;
+      border-color: $red-600;
     }
   }
 
   .icons-wrapper {
     @include flex-row;
-    gap: 0.3rem;
+    gap: $space-2;
     position: absolute;
-    right: 6px;
-    color: $neutral-600;
+    right: $space-3;
+    color: $text-secondary;
 
     .LoadingAnimation {
-      width: 28px;
+      width: 24px;
     }
 
     .visibility {
@@ -143,11 +151,11 @@ const type = computed(() => {
     }
 
     .error {
-      color: $red-800;
+      color: $red-600;
     }
 
     .success {
-      color: $primary-600;
+      color: $primary-text-safe;
     }
   }
 }

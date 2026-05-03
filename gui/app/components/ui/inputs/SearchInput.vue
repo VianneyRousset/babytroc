@@ -49,26 +49,37 @@ function submit() {
 
 <style scoped lang="scss">
 .SearchInput {
-
   @include flex-row;
   position: relative;
   flex-grow: 1;
 
   input {
     width: 100%;
-    padding: 0.2rem 2.5rem;
+    height: 48px;
+    box-sizing: border-box;
+    padding: 0 40px;
+    border: 1px solid #ddd;
+    border-radius: $radius-sm;
+    font-size: 1rem;
+    box-shadow: $shadow-sm;
+    transition: box-shadow 200ms ease-out, border-color 200ms ease-out;
+
+    &:focus {
+      box-shadow: $shadow-md;
+      border-color: $text-primary;
+    }
   }
 
   svg {
     position: absolute;
-    stroke: $neutral-400;
+    stroke: $text-tertiary;
 
     &.search-icon {
-      left: 0.7rem;
+      left: $space-3;
     }
 
     &.x-icon {
-      right: 0.7rem;
+      right: $space-3;
       cursor: pointer;
     }
   }
