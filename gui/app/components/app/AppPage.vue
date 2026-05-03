@@ -87,7 +87,7 @@ useInfiniteScroll(
     ref="page"
     v-saved-scroll:[savedScroll]
     class="AppPage"
-    :class="{ 'mobile': device.isMobile, 'with-header': withHeader, 'custom-styling': customStyling }"
+    :class="{ 'mobile': device.isMobile, 'with-header': withHeader || showAutoBack, 'custom-styling': customStyling }"
   >
     <!-- Header bar (mobile only) -->
     <AppHeaderMobileBar
@@ -116,7 +116,7 @@ useInfiniteScroll(
     />
     <template v-else-if="!loginScreen">
       <slot name="desktop">
-        <AppHeaderDesktop v-if="showAutoBack && !slots['desktop']">
+        <AppHeaderDesktop v-if="showAutoBack">
           <template #buttons-left>
             <AppBack />
           </template>
