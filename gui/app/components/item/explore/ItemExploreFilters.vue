@@ -50,7 +50,19 @@ const { size } = toRefs(props)
 </template>
 
 <style scoped lang="scss">
+.ExploreItemFilters {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+}
+
 .RegionsMap {
-  margin-bottom: 2em;
+  margin-bottom: $space-4;
 }
 </style>
