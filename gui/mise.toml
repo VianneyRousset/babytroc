@@ -32,7 +32,7 @@ run = "npx biome format --write"
 [tasks.dev]
 description = "Run gui in development mode"
 depends = ["deps"]
-run = "npx nuxi dev --inspect"
+run = "npx nuxi dev"
 
 [tasks.build]
 description = "Build docker image"
