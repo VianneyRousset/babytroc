@@ -62,58 +62,54 @@ const { formattedHour } = useChatMessageTime(message)
 
 <style scoped lang="scss">
 .ChatMessage {
-
-  --message-large-border-radius: 0.8rem;
-  --message-small-border-radius: 0.5rem;
+  --message-large-border-radius: 16px;
+  --message-small-border-radius: 4px;
 
   @include flex-column;
-  padding: 0.25rem 0.8rem;
-  padding-bottom: calc(0.25rem + 2px);
+  padding: $space-1 $space-4;
+  padding-bottom: calc(#{$space-1} + 2px);
 
   .bubble {
     @include flex-column;
     align-items: stretch;
-    gap: 1rem;
+    gap: $space-4;
 
-    line-height: 1.25;
+    line-height: 1.35;
     max-width: 85%;
     min-width: 5rem;
-    padding: 0.8rem 1rem;
+    padding: $space-3 $space-4;
     position: relative;
     word-wrap: break-word;
-    padding-bottom: 1.2rem;
+    padding-bottom: $space-5;
+    font-size: 0.95rem;
 
-    /* text */
     :deep(.text) {
       @include flex-row;
-      gap: 0.7rem;
+      gap: $space-3;
       white-space: preserve wrap;
 
       svg {
         flex-shrink: 0;
       }
-
     }
 
     :deep(.buttons) {
       @include flex-row;
-      gap: 1rem;
+      gap: $space-4;
 
-      &>* {
+      & > * {
         flex: 1;
       }
     }
-
   }
 
   /* system messages */
   &[origin="system"] {
-
     .bubble {
-      border: 1px solid $neutral-400;
+      border: 1px solid $divider;
       align-self: center;
-      color: $neutral-400;
-      border-radius: 0.5rem;
+      color: $text-secondary;
+      border-radius: $radius-sm;
       width: 70%;
     }
   }
@@ -121,10 +117,8 @@ const { formattedHour } = useChatMessageTime(message)
   /* user messages */
   &[origin="me"],
   &[origin="interlocutor"] {
-
     .bubble {
       border-radius: var(--message-large-border-radius);
-      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.2));
       position: relative;
       box-sizing: border-box;
     }
@@ -142,32 +136,29 @@ const { formattedHour } = useChatMessageTime(message)
 
     /* me */
     &[origin="me"] {
-
       .bubble {
         align-self: flex-end;
-        background: $primary-100;
-        color: $primary-800;
+        background: $primary-text-safe;
+        color: white;
       }
 
-      /* smaller border radius for siblings messages */
       &:has(~ div) {
         .bubble {
-          border-bottom-right-radius: var(--message-small-border-radius)
+          border-bottom-right-radius: var(--message-small-border-radius);
         }
       }
 
       &:not(:first-child) {
         .bubble {
-          border-top-right-radius: var(--message-small-border-radius)
+          border-top-right-radius: var(--message-small-border-radius);
         }
       }
 
       &:last-child {
         .bubble {
           border-bottom-right-radius: 0;
-
           &::after {
-            background: $primary-100;
+            background: $primary-text-safe;
             right: -4px;
           }
         }
@@ -176,32 +167,29 @@ const { formattedHour } = useChatMessageTime(message)
 
     /* interlocutor */
     &[origin="interlocutor"] {
-
       .bubble {
         align-self: flex-start;
-        background: $neutral-100;
-        color: $neutral-900;
+        background: #f0f0f0;
+        color: $text-primary;
       }
 
-      /* smaller border radius for siblings messages */
       &:has(~ div) {
         .bubble {
-          border-bottom-left-radius: var(--message-small-border-radius)
+          border-bottom-left-radius: var(--message-small-border-radius);
         }
       }
 
       &:not(:first-child) {
         .bubble {
-          border-top-left-radius: var(--message-small-border-radius)
+          border-top-left-radius: var(--message-small-border-radius);
         }
       }
 
       &:last-child {
         .bubble {
           border-bottom-left-radius: 0;
-
           &::after {
-            background: $neutral-100;
+            background: #f0f0f0;
             left: -4px;
           }
         }
@@ -211,11 +199,11 @@ const { formattedHour } = useChatMessageTime(message)
 
   .hour-and-check {
     @include flex-row;
-    color: $neutral-400;
-    gap: 0.3rem;
+    color: $text-tertiary;
+    gap: $space-1;
     position: absolute;
-    bottom: 0.15rem;
-    right: 0.5rem;
+    bottom: $space-1;
+    right: $space-2;
     font-size: 0.7rem;
     white-space: nowrap;
   }
