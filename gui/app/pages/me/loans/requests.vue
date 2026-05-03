@@ -5,7 +5,7 @@ definePageMeta({
   appTitle: 'Demandes de prêts',
 })
 
-const { loans: requests, isLoading, error, loadMore } = useMeLoanRequests()
+const { loans: requests, isLoading, error, loadMore } = useMeLoanRequests({ active: true })
 </script>
 
 <template>
