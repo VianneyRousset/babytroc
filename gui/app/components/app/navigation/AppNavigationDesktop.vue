@@ -60,48 +60,66 @@ nav {
   @include flex-row;
   justify-content: space-between;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans';
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
-  color: $neutral-500;
-  border-bottom: 1px solid $neutral-200;
-  padding: 0 1em;
+  font-size: 14px;
+  color: $text-secondary;
+  background: $bg-surface;
+  border-bottom: 1px solid $divider;
+  padding: 0 $space-6;
 
   *[active="true"] {
     font-weight: 600;
-    color: $neutral-900;
+    color: $text-primary;
   }
 
   & > div {
     @include flex-row;
     justify-content: space-between;
-    padding: 0 1rem;
-    gap: 3rem;
+    padding: 0 $space-4;
+    gap: $space-12;
+  }
+
+  .logo {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: $text-primary;
+    letter-spacing: -0.02em;
   }
 
   ul {
     @include reset-list;
     @include flex-row;
-    gap: 2rem;
+    gap: $space-8;
     justify-content: space-evenly;
-    height: 64px;
+    height: 56px;
 
     li {
       position: relative;
       cursor: pointer;
-      &:hover {
-        color: $neutral-700;
+      padding: $space-2 $space-3;
+      border-radius: $radius-sm;
+      transition: background 150ms ease-out;
+
+      @include hover-only {
+        background: $bg-page;
       }
+
+      @include touch-feedback;
+
+      &[active="true"] {
+        background: $bg-page;
+      }
+
       .badge {
-        @include flex-column-center;
         position: absolute;
-        right: -0.8rem;
-        top: -0.5rem;
-        background: $primary-300;
-        min-height: 0.75rem;
-        min-width: 0.75rem;
-        border-radius: 0.5rem;
-        font-size: 0.75rem;
-        color: white;
+        right: -4px;
+        top: -2px;
+        background: $red-600;
+        min-height: 8px;
+        min-width: 8px;
+        border-radius: 50%;
       }
     }
   }
