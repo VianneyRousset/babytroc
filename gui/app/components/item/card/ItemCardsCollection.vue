@@ -79,7 +79,11 @@ const fontSize = computed(() => {
   .cards {
     display: grid;
     grid-template-columns: repeat(v-bind('columnsCount'), 1fr);
-    gap: $space-4;
+    gap: $space-2;
+
+    @media (min-width: 640px) {
+      gap: $space-4;
+    }
     font-size: v-bind('fontSize + "px"');
   }
 }

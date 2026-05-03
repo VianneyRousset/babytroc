@@ -55,18 +55,20 @@ function submit() {
 
   input {
     width: 100%;
-    height: 48px;
+    height: 40px;
     box-sizing: border-box;
     padding: 0 40px;
     border: 1px solid $border-default;
-    border-radius: $radius-sm;
-    font-size: 1rem;
-    box-shadow: $shadow-sm;
+    border-radius: $radius-pill;
+    font-size: 0.9rem;
+    background: $bg-page;
+    box-shadow: none;
     transition: box-shadow 200ms ease-out, border-color 200ms ease-out;
 
     &:focus {
-      box-shadow: $shadow-md;
+      box-shadow: $shadow-sm;
       border-color: $text-primary;
+      background: $bg-surface;
     }
   }
 
