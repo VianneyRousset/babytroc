@@ -125,7 +125,7 @@ async function submitUnsave() {
             <ItemImagesGallery :item="item" />
             <div class="name-description">
               <h1>{{ item.name }}</h1>
-              <ItemCategories :slugs="item.category_slugs" />
+              <ItemCategories :slugs="item.category_slugs ?? []" />
               <p class="description">
                 {{ item.description }}
               </p>
@@ -229,7 +229,7 @@ async function submitUnsave() {
             >
               <div class="name-description">
                 <h1>{{ item.name }}</h1>
-                <ItemCategories :slugs="item.category_slugs" />
+                <ItemCategories :slugs="item.category_slugs ?? []" />
                 <p>{{ item.description }}</p>
                 <ItemAge
                   :item="item"
