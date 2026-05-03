@@ -98,32 +98,27 @@ const { loggedIn } = useAuth()
             v-if="user"
             class="desktop"
           >
-            <InfoBox>
-              <div class="avatar-name">
-                <UserAvatar :seed="user.avatar_seed" />
-                <h1>{{ user.name }}</h1>
+            <div class="user-profile-card">
+              <UserAvatar
+                :seed="user.avatar_seed"
+                class="avatar"
+              />
+              <h1>{{ user.name }}</h1>
+              <div class="stats">
+                <div class="stat">
+                  <span class="value">{{ user.stars_count }}</span>
+                  <span class="label">Étoiles</span>
+                </div>
+                <div class="stat">
+                  <span class="value">{{ user.likes_count }}</span>
+                  <span class="label">Likes</span>
+                </div>
+                <div class="stat">
+                  <span class="value">{{ user.items_count }}</span>
+                  <span class="label">Objets</span>
+                </div>
               </div>
-              <div class="counters">
-                <VerticalCounter
-                  :model-value="user.stars_count"
-                  size="large"
-                >
-                  Étoiles
-                </VerticalCounter>
-                <VerticalCounter
-                  :model-value="user.likes_count"
-                  size="large"
-                >
-                  Likes
-                </VerticalCounter>
-                <VerticalCounter
-                  :model-value="user.items_count"
-                  size="large"
-                >
-                  Objets
-                </VerticalCounter>
-              </div>
-            </InfoBox>
+            </div>
             <section>
               <h2>Objects appartenants à {{ user.name }}</h2>
               <ItemCardsCollection
@@ -152,35 +147,50 @@ const { loggedIn } = useAuth()
     gap: $space-3;
   }
 
-  .InfoBox {
-    border-radius: 2em;
+  .user-profile-card {
+    @include flex-column;
+    align-items: center;
+    padding: $space-10 $space-6;
+    gap: $space-4;
 
-    .content {
-      @include flex-row;
-      gap: 4em;
-      padding: 2em 4em;
+    .avatar {
+      width: 96px;
+      height: 96px;
     }
 
-    font-size: clamp(0.6em, 1.5vw, 1em);
-
-    .avatar-name {
-      @include flex-column;
-      flex: 2;
-      gap: 1em;
-      .UserAvatar {
-        width: 60%;
-      }
-      h1 {
-        margin: 0;
-        text-align: center;
-      }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
-    .counters {
-      @include flex-row;
-      gap: 2em;
-      justify-content: center;
-      flex: 5;
+    .stats {
+      display: flex;
+      gap: 0;
+      margin-top: $space-2;
+
+      .stat {
+        @include flex-column;
+        align-items: center;
+        padding: 0 $space-8;
+        gap: $space-1;
+
+        &:not(:last-child) {
+          border-right: 1px solid $divider;
+        }
+
+        .value {
+          @include font-jakarta;
+          font-size: 1.4rem;
+          font-weight: 700;
+          color: $text-primary;
+        }
+
+        .label {
+          font-size: 0.8rem;
+          color: $text-secondary;
+        }
+      }
     }
   }
 }
