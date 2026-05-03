@@ -30,8 +30,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
 .Overlay {
   @include flex-column-center;
 
-  /* compensate for Image gallery */
-  z-index: 2;
+  z-index: 9;
 
   position: fixed;
   overflow-x: hidden;
@@ -44,6 +43,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
   height: 100vh;
   width: 100vw;
 
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
 }
 </style>
