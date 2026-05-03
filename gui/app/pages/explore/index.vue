@@ -203,6 +203,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
   font-size: clamp(0.8em, 1.5vw, 1em);
   h1 {
     text-align: center;
+    color: $text-primary;
   }
   .SearchInput {
     width: 80%;
@@ -210,16 +211,15 @@ watch(filtersDrawerOpen, (newState, oldState) => {
 }
 
 .ToggleIcon.filter {
-  margin-right: 4em;
-  color: $neutral-400;
+  margin-right: $space-16;
+  color: $text-tertiary;
 }
 
 .floating-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6em;
+  @include flex-column;
+  gap: $space-2;
   position: absolute;
-  right: 0.6em;
-  top: calc(var(--app-header-bar-height) + 0.6em);
+  right: $space-2;
+  top: calc(var(--app-header-bar-height) + #{$space-2});
 }
 </style>
