@@ -186,20 +186,39 @@ function onclick() {
 </template>
 
 <style scoped lang="scss">
+section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-6;
+
+  h2 {
+    color: $text-primary;
+    margin: 0;
+  }
+
+  p.legend {
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
 .ItemImagesInput {
-  margin-bottom: 2em;
+  margin-bottom: $space-6;
+  border-radius: $radius-lg;
+  border: 1px solid $divider;
 }
 
 .TextButton {
-  margin: 2em 0;
+  margin: $space-6 0;
 }
 
 .RegionsMap {
-  margin: 2em 4em;
+  margin: $space-6 $space-10;
 }
 
 .RegionsList {
   font-size: 1em;
+  color: $text-primary;
 }
 
 .Overlay {
