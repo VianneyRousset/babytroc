@@ -98,7 +98,7 @@ const carouselConfig = computed(() => ({
 
 <style scoped lang="scss">
 .ImageGallery {
-  border-radius: 1em;
+  border-radius: $radius-lg;
   overflow: hidden;
   position: relative;
 
@@ -113,34 +113,36 @@ const carouselConfig = computed(() => ({
   .edit {
     @include flex-column-center;
     position: absolute;
-    top: 1em;
-    right: 1em;
+    top: $space-4;
+    right: $space-4;
     cursor: pointer;
     z-index: 2;
     aspect-ratio: 1;
     border-radius: 50%;
 
-    &:hover svg {
-      filter: drop-shadow(0 0 12px $neutral-200);
+    @include hover-only {
+      svg {
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+      }
     }
   }
 
   .empty {
     @include flex-column-center;
-    gap: 1em;
+    gap: $space-4;
 
     width: 100%;
     height: 100%;
     aspect-ratio: 1;
-    background: $neutral-100;
+    background: $bg-page;
 
-    color: $neutral-300;
-    font-size: 1.5em;
-    font-weight: 600;
+    color: $text-tertiary;
+    font-size: 1rem;
+    font-weight: 500;
 
     & > svg {
-      width: 40%;
-      height: 40%;
+      width: 30%;
+      height: 30%;
     }
 
     & > div {
@@ -150,7 +152,6 @@ const carouselConfig = computed(() => ({
   }
 
   .carousel__slide {
-
     transition: opacity 200ms ease-out;
     aspect-ratio: 1;
 

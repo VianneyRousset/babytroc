@@ -28,9 +28,9 @@ const _src = computed(() => unref(placeholder) ? unref(placeholderSrc) : unref(i
 
 <style scoped lang="scss">
 img {
-
-  transition: filter 200ms ease-out;
+  transition: filter 300ms ease-out;
   filter: blur(0px);
+  border-radius: $radius-lg;
 
   &.placeholder {
     filter: blur(12px);
