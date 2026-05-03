@@ -3475,7 +3475,7 @@
 					"name": { "type": "string", "title": "Name" },
 					"description": { "type": "string", "title": "Description" },
 					"targeted_age_months": { "$ref": "#/components/schemas/MonthRange" },
-					"images_names": {
+					"image_names": {
 						"items": { "type": "string" },
 						"type": "array",
 						"title": "Images Names"
@@ -3524,7 +3524,7 @@
 					"name",
 					"description",
 					"targeted_age_months",
-					"images_names",
+					"image_names",
 					"available",
 					"owner_id",
 					"owner",

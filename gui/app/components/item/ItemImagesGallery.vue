@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends { images_names: Array<string> }">
+<script setup lang="ts" generic="T extends { image_names: Array<string> }">
 const props = withDefaults(defineProps<{
   item: T
   wide?: boolean
