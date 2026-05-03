@@ -27,27 +27,22 @@ export function useNavigation() {
   })
 
   function goBack(fallback?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric | null) {
-    // If page explicitly blocks back navigation
     if (route.meta.appBack === false)
       return
 
-    // Resolve fallback: explicit param > meta > currentTabRoot
+    // If there's browser history, go back
+    if (window.history.state.back) {
+      return router.go(-1)
+    }
+
+    // No history (direct URL entry, first page) — use fallback
     const resolvedFallback = fallback
       ?? (typeof route.meta.appBack === 'string' || (typeof route.meta.appBack === 'object' && route.meta.appBack !== null)
         ? route.meta.appBack as string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric
         : undefined)
       ?? unref(currentTabRoot)
 
-    const back = window.history.state.back
-    const res = back && [...appSectionUrls].find(([_, v]) => back.startsWith(v))
-    const previousSection = res && res[0]
-
-    // If previous route was from a different section, use fallback
-    if (previousSection !== unref(activeAppSection)) {
-      return router.push(resolvedFallback)
-    }
-
-    return router.go(-1)
+    return router.push(resolvedFallback)
   }
 
   return {
