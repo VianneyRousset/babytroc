@@ -10,16 +10,16 @@
   opacity: 0;
 }
 
-/* slide-up */
+/* slide-up (bottom sheet) */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 0.3s cubic-bezier(0.1, 0.8, 0.5, 1.1), opacity 0.3s ease-out;
+  transition: transform 300ms $ease-spring, opacity 300ms ease-out;
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
   transform: translate(0, 100%);
-  opacity: -10;
+  opacity: 0;
 }
 
 /* page-slide-forward and page-slide-backward */
@@ -27,64 +27,43 @@
 .page-slide-forward-leave-active,
 .page-slide-backward-enter-active,
 .page-slide-backward-leave-active {
-  box-shadow: 0 0 64px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s ease-out, filter 0.2s ease-out;
+  transition: transform 200ms $ease-spring, filter 200ms ease-out;
 }
-
-.page-slide-forward-enter-active,
-.page-slide-backward-leave-active {}
-
 
 .page-slide-forward-enter-from,
 .page-slide-backward-leave-to {
-  transform: translateX(calc(100% + 64px));
+  transform: translateX(100%);
   z-index: 1;
 }
 
 .page-slide-forward-leave-to,
 .page-slide-backward-enter-from {
-  filter: brightness(0.5);
-}
-
-/* slide right-left */
-.slide-right-left-enter-active,
-.slide-right-left-leave-active {
-  transition: all 3s ease-out;
-}
-
-.slide-right-left-enter-from {
-  opacity: 0;
-  transform: translate(100%, 0);
-}
-
-.slide-right-left-leave-to {
-  opacity: 0;
-  transform: translate(-100%, 0);
-}
-
-/* slide left-right */
-.slide-left-right-enter-active,
-.slide-left-right-leave-active {
-  transition: all 3s ease-out;
-}
-
-.slide-left-right-enter-from {
-  opacity: 0;
-  transform: translate(-100%, 0);
-}
-
-.slide-left-right-leave-to {
-  opacity: 0;
-  transform: translate(100%, 0);
+  filter: brightness(0.9);
 }
 
 /* fade */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 200ms ease-in-out;
+  transition: opacity 150ms ease-in-out;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* pulse (for skeleton loaders) */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.skeleton-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+  background: $divider;
+  border-radius: $radius-sm;
 }
