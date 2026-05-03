@@ -29,7 +29,7 @@ export default defineNuxtConfig({
 
   // import pinia-colada queries and mutations
   imports: {
-    dirs: ['types', 'queries', 'queries/**', 'mutations', 'mutations/**'],
+    dirs: ['types', 'queries', 'queries/**', 'mutations', 'mutations/**', 'stores', 'stores/**'],
   },
 
   devtools: { enabled: false },

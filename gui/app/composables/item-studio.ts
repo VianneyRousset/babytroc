@@ -90,7 +90,6 @@ export function useStudioImage(
     if (_cropped == null)
       return undefined
     const hashBuffer = await window.crypto.subtle.digest('SHA-1', textEncoder.encode(_cropped))
-    // @ts-expect-error: not included in TS now (https://github.com/microsoft/TypeScript/issues/60612)
     return new Uint8Array(hashBuffer).toHex()
   })
 
