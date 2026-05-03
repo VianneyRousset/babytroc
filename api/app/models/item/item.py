@@ -27,6 +27,7 @@ from sqlalchemy.orm import (
 from app.models.base import Base, CreationDate, UpdateDate
 from app.models.loan import Loan
 
+from .category import Category, ItemCategoryAssociation
 from .image import ItemImage, ItemImageAssociation
 from .like import ItemLike
 from .region import ItemRegionAssociation, Region
@@ -76,6 +77,14 @@ class Item(CreationDate, UpdateDate, Base):
     regions: Mapped[set[Region]] = relationship(
         Region,
         secondary=ItemRegionAssociation.__tablename__,
+        viewonly=True,
+        lazy="raise",
+    )
+
+    # categories the item belongs to
+    categories: Mapped[set[Category]] = relationship(
+        Category,
+        secondary=ItemCategoryAssociation.__tablename__,
         viewonly=True,
         lazy="raise",
     )
@@ -138,6 +147,10 @@ class Item(CreationDate, UpdateDate, Base):
     @property
     def region_ids(self) -> set[int]:
         return {reg.id for reg in self.regions}
+
+    @property
+    def category_slugs(self) -> list[str]:
+        return sorted(cat.slug for cat in self.categories)
 
     @property
     def image_names(self) -> list[str]:
