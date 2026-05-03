@@ -23,6 +23,9 @@ export function useRouteItemQueryParams(): {
           reg: _query.reg
             ? getQueryParamAsArray(_query, 'reg').map(v => Number.parseInt(v)).filter(v => v != null && !isNaN(v))
             : undefined,
+          cat: _query.cat
+            ? getQueryParamAsArray(_query, 'cat')
+            : undefined,
           n: typeof _query.n === 'string' && !isNaN(parseInt(_query.n)) ? parseInt(_query.n) : undefined,
           q: _query.q ? getQueryParamAsArray(_query, 'q') : undefined,
         }, v => v != null)
@@ -38,6 +41,7 @@ export type ItemFilters = {
   unavailable: boolean
   targetedAge: AgeRange
   regions: Set<number>
+  categories: Set<string>
 }
 
 /**
@@ -62,6 +66,7 @@ export function useItemFilters(): {
     unavailable: false,
     targetedAge: [0, null] as AgeRange,
     regions: new Set<number>(),
+    categories: new Set<string>(),
   }
 
   const filters = ref<ItemFilters>(cloneDeep(defaultFilters))
@@ -79,11 +84,12 @@ export function useItemFilters(): {
       unavailable: [ItemQueryAvailability.no, ItemQueryAvailability.all].includes(queryParams.av ?? ItemQueryAvailability.yes),
       targetedAge: string2range(queryParams.mo ?? '0-'),
       regions: new Set(queryParams.reg ?? []),
+      categories: new Set(queryParams.cat ?? []),
     }
   }
 
   function dumpFiltersAsQueryParams(): ItemQueryParams {
-    const { words, available, unavailable, targetedAge, regions } = unref(filters)
+    const { words, available, unavailable, targetedAge, regions, categories } = unref(filters)
     const queryParams: ItemQueryParams = {}
     if (words.trim().length > 0)
       queryParams.q = words.split(' ').filter((w: string) => w.length > 0)
@@ -97,6 +103,8 @@ export function useItemFilters(): {
       queryParams.mo = range2string(targetedAge)
     if (regions.size > 0)
       queryParams.reg = [...regions]
+    if (categories.size > 0)
+      queryParams.cat = [...categories]
     return queryParams
   }
 

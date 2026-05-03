@@ -32,6 +32,13 @@ const { size } = toRefs(props)
       </CheckboxGroup>
     </section>
     <section>
+      <h2>Catégories</h2>
+      <CategoriesCheckboxes
+        v-model="filters.categories"
+        :size="size"
+      />
+    </section>
+    <section>
       <h2>Age</h2>
       <AgeRangeInput v-model="filters.targetedAge" />
     </section>

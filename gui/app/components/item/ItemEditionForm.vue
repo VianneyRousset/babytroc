@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'blocked'>">
+<script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'category_slugs' | 'blocked'>">
 const emit = defineEmits<(event: 'submit', data: ItemCreate) => void>()
 
 const props = withDefaults(defineProps<{
@@ -26,6 +26,9 @@ const regions = ref(new Set<number>())
 const regionsValid = ref(false)
 const regionsTouched = ref(false)
 
+// categories
+const categories = ref(new Set<string>())
+
 // images
 const imageUploader = useImageUploader()
 const studioImages = ref<Array<StudioImage>>([])
@@ -49,6 +52,7 @@ const stop = watch(() => props.item, (_item) => {
     description.value = _item.description
     targetedAgeMonths.value = string2range(_item.targeted_age_months)
     regions.value = new Set(_item.region_ids)
+    categories.value = new Set(_item.category_slugs)
     studioImages.value = _item.image_names.map((name: string) => useStudioImage(imagePath(name), { crop: 'center', maxSize: 1024 }))
   }
 }, { immediate: true })
@@ -96,6 +100,7 @@ function onclick() {
       images: _images,
       targeted_age_months: range2string(unref(targetedAgeMonths)),
       regions: [...unref(regions)],
+      categories: [...unref(categories)],
       blocked: false,
     })
   }
@@ -159,6 +164,18 @@ function onclick() {
       v-model:touched="regionsTouched"
       msg-placement="top"
     />
+  </section>
+  <section
+    v-if="!studioOverlay"
+    class="v"
+  >
+    <div>
+      <h2>Catégories</h2>
+      <p class="legend">
+        Dans quelles catégories se trouve votre objet ?
+      </p>
+    </div>
+    <CategoriesCheckboxes v-model="categories" />
   </section>
   <section
     v-if="!studioOverlay"

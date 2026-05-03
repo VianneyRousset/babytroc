@@ -1,30 +1,44 @@
 <script setup lang="ts">
+import { Minus } from 'lucide-vue-next'
+
 const checked = defineModel<boolean>()
 
 const props = withDefaults(
   defineProps<{
     size?: 'large' | 'normal'
+    indeterminate?: boolean
   }>(),
   {
     size: 'normal',
+    indeterminate: false,
   },
 )
 
-const { size } = toRefs(props)
+const { size, indeterminate } = toRefs(props)
+
+const radixChecked = computed<boolean | 'indeterminate'>({
+  get: () => unref(indeterminate) ? 'indeterminate' : (checked.value ?? false),
+  set: (v) => { checked.value = v === true },
+})
 </script>
 
 <template>
   <label
     class="Checkbox"
-    :class="[size]"
+    :class="[size, { indeterminate }]"
     :checked="checked"
   >
     <CheckboxRoot
-      v-model:checked="checked"
+      v-model:checked="radixChecked"
       class="CheckboxRoot"
     >
       <CheckboxIndicator class="CheckboxIndicator">
-        <div />
+        <Minus
+          v-if="indeterminate"
+          :size="10"
+          :stroke-width="3"
+        />
+        <div v-else />
       </CheckboxIndicator>
     </CheckboxRoot>
     <span>
@@ -45,7 +59,9 @@ const { size } = toRefs(props)
   }
 
   &[checked="true"],
-  &[checked="true"]:hover {
+  &[checked="true"]:hover,
+  &.indeterminate,
+  &.indeterminate:hover {
     color: $primary-text-safe;
   }
 
@@ -58,11 +74,12 @@ const { size } = toRefs(props)
     background: $neutral-100;
 
     .CheckboxIndicator {
-      display: block;
+      @include flex-row-center;
       border-radius: 0.2em;
       background: $primary-400;
       width: 100%;
       height: 100%;
+      color: white;
     }
   }
 
@@ -103,7 +120,8 @@ const { size } = toRefs(props)
 
       border: 0.1em solid $neutral-300;
 
-      &[data-state="checked"] {
+      &[data-state="checked"],
+      &[data-state="indeterminate"] {
         background: $primary-100;
       }
     }
