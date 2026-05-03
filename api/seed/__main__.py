@@ -6,6 +6,15 @@ from typing import Annotated
 from cyclopts import App, Parameter
 
 from .database import shared_session
+from .categories import (
+    Category as Category,
+)
+from .categories import (
+    check_categories as _check_categories,
+)
+from .categories import (
+    populate_categories as _populate_categories,
+)
 from .items import (
     check_items as _check_items,
 )
@@ -117,6 +126,7 @@ async def populate_all(
     # open shared session here to ensure a rollback on all changes if any step fails
     async with shared_session:
         await populate_regions()
+        await populate_categories()
         await populate_users()
         await populate_items()
 
@@ -164,6 +174,48 @@ async def populate_regions(
 
         # populate
         await _populate_regions(db, regions)
+
+
+def read_categories(file: Path) -> list[Category]:
+    with file.open() as f:
+        data = json.load(f)
+        return [Category.model_validate(cat) for cat in data["categories"]]
+
+
+@populate.command(name="categories")
+async def populate_categories(
+    fp: Annotated[
+        Path,
+        Parameter(
+            name="--data-file",
+            help="File containing all categories data.",
+            validator=[validate_file_exists],
+        ),
+    ] = Path("seed/data/data.json"),
+    force: Annotated[
+        bool,
+        Parameter(
+            name="--force",
+            help="Force populate even if categories already exist.",
+        ),
+    ] = False,
+):
+    """Populate categories."""
+
+    logger.info("Starting populate categories")
+
+    categories = read_categories(fp)
+    logger.info("%i categories found in %s", len(categories), fp)
+
+    async with shared_session as db:
+        if await _check_categories(db):
+            logger.warning("Categories already populated.")
+
+            if not force:
+                msg = "Categories already populated."
+                raise RuntimeError(msg)
+
+        await _populate_categories(db, categories)
 
 
 def read_users(file: Path) -> list[User]:

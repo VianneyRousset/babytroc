@@ -104,6 +104,10 @@ def random_item_regions(regions: Sequence[int]) -> list[int]:
     return sample(regions, k=randint(1, 5))  # noqa: S311
 
 
+def random_item_categories(categories: Sequence[str]) -> list[str]:
+    return sample(categories, k=randint(1, min(3, len(categories))))  # noqa: S311
+
+
 async def populate_items(
     db: AsyncSession,
     images_dir: Path,
@@ -116,6 +120,8 @@ async def populate_items(
     config = get_config()
     users = await app.services.user.list_users(db)
     regions = await app.services.region.list_regions(db)
+    categories = await app.services.category.list_categories(db)
+    child_category_slugs = [cat.slug for cat in categories if cat.parent_slug is not None]
 
     images_fp = list(images_dir.iterdir())
 
@@ -150,6 +156,7 @@ async def populate_items(
                 images=random_item_images(images[user.id]),
                 targeted_age_months=random_item_targeted_age_months(),
                 regions=random_item_regions([reg.id for reg in regions]),
+                categories=set(random_item_categories(child_category_slugs)),
                 blocked=False,
             ),
         )

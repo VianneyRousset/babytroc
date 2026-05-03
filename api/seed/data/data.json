@@ -69,6 +69,33 @@
       "name": "Beaulieu / Grey / Boisy"
     }
   ],
+  "categories": [
+    {"slug": "clothing", "name": "Vêtements"},
+    {"slug": "clothing-bodysuits", "name": "Bodies", "parent_slug": "clothing"},
+    {"slug": "clothing-sleepwear", "name": "Pyjamas", "parent_slug": "clothing"},
+    {"slug": "clothing-outerwear", "name": "Manteaux", "parent_slug": "clothing"},
+    {"slug": "clothing-accessories", "name": "Accessoires", "parent_slug": "clothing"},
+    {"slug": "toys", "name": "Jouets"},
+    {"slug": "toys-bath", "name": "Jouets de bain", "parent_slug": "toys"},
+    {"slug": "toys-soft", "name": "Peluches", "parent_slug": "toys"},
+    {"slug": "toys-educational", "name": "Jouets éducatifs", "parent_slug": "toys"},
+    {"slug": "gear", "name": "Équipement"},
+    {"slug": "gear-strollers", "name": "Poussettes", "parent_slug": "gear"},
+    {"slug": "gear-car-seats", "name": "Sièges auto", "parent_slug": "gear"},
+    {"slug": "gear-carriers", "name": "Porte-bébés", "parent_slug": "gear"},
+    {"slug": "furniture", "name": "Mobilier"},
+    {"slug": "furniture-cribs", "name": "Lits", "parent_slug": "furniture"},
+    {"slug": "furniture-chairs", "name": "Chaises", "parent_slug": "furniture"},
+    {"slug": "furniture-changing", "name": "Tables à langer", "parent_slug": "furniture"},
+    {"slug": "feeding", "name": "Repas"},
+    {"slug": "feeding-bottles", "name": "Biberons", "parent_slug": "feeding"},
+    {"slug": "feeding-bibs", "name": "Bavoirs", "parent_slug": "feeding"},
+    {"slug": "feeding-highchairs", "name": "Chaises hautes", "parent_slug": "feeding"},
+    {"slug": "hygiene", "name": "Hygiène"},
+    {"slug": "hygiene-diapers", "name": "Couches", "parent_slug": "hygiene"},
+    {"slug": "hygiene-bath", "name": "Bain", "parent_slug": "hygiene"},
+    {"slug": "hygiene-care", "name": "Soins", "parent_slug": "hygiene"}
+  ],
   "users": [
     {
       "email": "alice@babytroc.ch",
