@@ -4,10 +4,17 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 .ListEmpty {
-  padding: 4em 0;
-  color: $neutral-300;
+  @include flex-column-center;
+  padding: $space-16 $space-4;
+  color: $text-secondary;
   text-align: center;
+  font-size: 0.95rem;
+
+  svg {
+    color: $text-tertiary;
+    margin-bottom: $space-4;
+  }
 }
 </style>
