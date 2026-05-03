@@ -42,3 +42,14 @@ const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: false })
     </main>
   </AppPage>
 </template>
+
+<style scoped lang="scss">
+main :deep(.content) {
+  .SlabList {
+    background: $bg-surface;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+  }
+}
+</style>

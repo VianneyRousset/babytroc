@@ -45,3 +45,29 @@ const { loans, isLoading, error, loadMore } = useMeLoans({ active: true })
     </main>
   </AppPage>
 </template>
+
+<style scoped lang="scss">
+main :deep(.content) {
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+
+    h2 {
+      color: $text-secondary;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 $space-4;
+    }
+
+    .SlabList {
+      background: $bg-surface;
+      border-radius: $radius-md;
+      box-shadow: $shadow-sm;
+      overflow: hidden;
+    }
+  }
+}
+</style>
