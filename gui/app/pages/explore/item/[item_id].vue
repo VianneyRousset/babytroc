@@ -301,12 +301,18 @@ async function submitUnsave() {
 
 <style scoped lang="scss">
 :deep(.Panel.desktop .content) {
-
-  gap: 2em;
+  gap: $space-8;
 
   .name-description {
     h1 {
       margin: 0;
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      color: $text-secondary;
+      line-height: 1.5;
     }
   }
 
@@ -314,13 +320,13 @@ async function submitUnsave() {
     font-size: clamp(0.6em, 2vw, 1em);
 
     .ItemAge {
-      color: $neutral-400;
+      color: $text-tertiary;
       font-style: italic;
     }
 
     .ItemRegionsList {
       font-size: clamp(0.6em, 1.4vw, 0.8em);
-      padding: 2em 0;
+      padding: $space-8 0;
     }
   }
 }
@@ -328,5 +334,12 @@ async function submitUnsave() {
 .LoadingAnimation {
   width: 100%;
   height: 10em;
+}
+
+.name-description {
+  .description {
+    color: $text-secondary;
+    line-height: 1.5;
+  }
 }
 </style>
