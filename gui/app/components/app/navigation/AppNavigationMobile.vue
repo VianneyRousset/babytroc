@@ -69,13 +69,14 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
 
 <style scoped lang="scss">
 nav {
-  @include bar-shadow;
   @include flex-row;
-  @include font-jakarta;
+  @include font-inter;
+  @include safe-area-bottom;
   justify-content: space-evenly;
-  font-size: 14px;
-  background: $neutral-50;
-  border-top: 1px solid $neutral-300;
+  font-size: 10px;
+  font-weight: 500;
+  background: $bg-surface;
+  border-top: 1px solid $divider;
   height: 64px;
 
   position: fixed;
@@ -83,6 +84,7 @@ nav {
   left: 0;
   right: 0;
   box-sizing: border-box;
+  z-index: 5;
 
   a {
     @include flex-column;
@@ -93,11 +95,13 @@ nav {
     width: 20%;
     gap: 2px;
 
-    color: $neutral-600;
+    color: $text-tertiary;
+
+    @include touch-feedback;
 
     &[active="true"] {
-      color: $primary-500;
-      font-weight: 700;
+      color: $text-primary;
+      font-weight: 600;
     }
   }
 
@@ -117,17 +121,15 @@ nav {
     border: 2px solid $neutral-300;
 
     svg {
-      stroke: $neutral-300;
+      stroke: $neutral-400;
       transform: translate(0, 1px);
     }
 
     &[active="true"] {
-      color: $neutral-300;
       background: $neutral-300;
       border-color: $neutral-400;
-      box-shadow: 0 0 16px $neutral-300;
       svg {
-        stroke: $neutral-50;
+        stroke: $bg-surface;
       }
     }
 
@@ -136,16 +138,12 @@ nav {
       border-color: $primary-300;
 
       svg {
-        stroke: $primary-300;
+        stroke: $primary-text-safe;
       }
 
       &[active="true"] {
-        color: $primary-300;
-        font-weight: 400;
         background: $primary-300;
         border-color: $primary-400;
-
-        box-shadow: 0 0 16px $primary-300;
 
         svg {
           stroke: $primary-50;
@@ -162,12 +160,10 @@ nav {
       position: absolute;
       right: -0.8rem;
       top: -0.3rem;
-      background: $primary-300;
-      min-height: 0.75rem;
-      min-width: 0.75rem;
-      border-radius: 0.5rem;
-      font-size: 0.75rem;
-      color: white;
+      background: $red-600;
+      min-height: 8px;
+      min-width: 8px;
+      border-radius: 50%;
     }
   }
 }
