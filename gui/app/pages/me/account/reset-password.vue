@@ -29,6 +29,12 @@ async function reset() {
 
 <template>
   <AppPage>
+    <!-- Header bar -->
+    <template #mobile-header-bar>
+      <AppBack />
+      <h1>Réinitialiser le mot de passe</h1>
+    </template>
+
     <!-- Main content -->
     <Panel>
       <transition
