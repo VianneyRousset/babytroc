@@ -20,6 +20,11 @@ provide('dropdown-menu-open', open)
     </DropdownMenuTrigger>
 
     <DropdownMenuPortal>
+      <!-- Backdrop -->
+      <div
+        v-if="open"
+        class="DropdownBackdrop"
+      />
       <!-- Menu content -->
       <DropdownMenuContent
         class="DropdownMenuContent"
@@ -40,6 +45,14 @@ provide('dropdown-menu-open', open)
 <style scoped lang="scss">
 .DropdownMenuTrigger {
   @include reset-button;
+}
+
+:deep(.DropdownBackdrop) {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
 }
 
 :deep(.DropdownMenuContent) {
