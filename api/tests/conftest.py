@@ -37,4 +37,5 @@ pytest_plugins = [
     "tests.fixtures.loans",
     "tests.fixtures.websockets",
     "tests.fixtures.chat",
+    "tests.fixtures.categories",
 ]

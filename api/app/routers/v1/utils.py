@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
 from app.database import get_db_session
+from app.schemas.category.read import CategoryRead
 from app.schemas.region.read import RegionRead
 
 router = APIRouter()
@@ -17,3 +18,12 @@ async def list_regions(
     """List regions."""
 
     return await services.region.list_regions(db)
+
+
+@router.get("/categories", status_code=status.HTTP_200_OK)
+async def list_categories(
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[CategoryRead]:
+    """List categories."""
+
+    return await services.category.list_categories(db)
