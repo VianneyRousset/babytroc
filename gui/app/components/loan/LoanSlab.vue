@@ -5,19 +5,28 @@ const props = withDefaults(defineProps<{
   loan: Loan
   target?: string | RouteLocationGeneric
   chevron?: boolean
+  perspective?: 'borrower' | 'owner'
 }>(), {
   chevron: false,
+  perspective: 'borrower',
 })
 
-// loan
 const { loan } = toRefs(props)
 
-// item image
 const { firstImagePath: itemImage } = useItemFirstImage(() => unref(loan).item)
 
-// date range
 const formatedDuring = computed(() =>
   formatRelativeDateRange(loan.value.during),
+)
+
+const otherUser = computed(() =>
+  props.perspective === 'borrower' ? unref(loan).owner : unref(loan).borrower,
+)
+
+const subLabel = computed(() =>
+  props.perspective === 'borrower'
+    ? `Emprunté à ${otherUser.value.name}`
+    : `Prêté à ${otherUser.value.name}`,
 )
 </script>
 
@@ -31,12 +40,12 @@ const formatedDuring = computed(() =>
     <template #icon>
       <ImageAndAvatar
         :image="itemImage"
-        :avatar="loan.owner.avatar_seed"
+        :avatar="otherUser.avatar_seed"
       />
     </template>
 
     <template #sub>
-      Emprunté à {{ loan.owner.name }}
+      {{ subLabel }}
     </template>
 
     <template #mini>
