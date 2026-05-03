@@ -35,7 +35,7 @@ type SectionData = {
 
 const sections = computed<Array<SectionData>>(() => [
   {
-    title: 'Mes activités & options',
+    title: 'Mes activités',
     logged: true,
     slabs: [
       { icon: Package, target: '/me/items', text: 'Mes objets' },
@@ -77,10 +77,6 @@ const sections = computed<Array<SectionData>>(() => [
   >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>
-      <UserRound
-        :size="32"
-        :stroke-width="2"
-      />
       <h1>Mes activités & options</h1>
     </template>
 

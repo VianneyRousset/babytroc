@@ -43,6 +43,7 @@ const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: true })
 
         <!-- Links to requests and archived -->
         <section>
+          <h2>Autre</h2>
           <SlabList>
             <Slab
               :icon="MessageCircleQuestion"
