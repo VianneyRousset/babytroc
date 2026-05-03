@@ -78,9 +78,16 @@ const fontSize = computed(() => {
 .ItemCardsCollection {
   .cards {
     display: grid;
-    grid-template-columns: repeat(v-bind('columnsCount'), 1fr);
-    gap: 1em;
-    font-size: v-bind('fontSize + "px"');
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-4;
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
   }
 }
 </style>

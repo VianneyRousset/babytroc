@@ -71,25 +71,30 @@ a {
   aspect-ratio: 1;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 1em;
+  border-radius: $radius-lg;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   cursor: pointer;
   color: $neutral-50;
+  overflow: hidden;
+  transition: box-shadow 200ms ease-out;
+
+  @include hover-only {
+    box-shadow: $shadow-md;
+  }
+
+  @include touch-feedback;
 
   &:target {
-    /* ensure the target element (anchor) is not flushed to the top */
     scroll-margin-top: 20vh;
-    animation: flash;
-    animation-duration: 0.8s;
   }
 
   .status {
     display: flex;
-    gap: 1em;
+    gap: $space-3;
     justify-content: right;
-    padding: 1em;
+    padding: $space-3;
 
     svg {
       filter: drop-shadow(0px 0px 3px rgba(0, 0, 0, 0.5));
@@ -103,22 +108,25 @@ a {
       color: $neutral-100;
       fill: $neutral-100;
     }
-
   }
 
   .info {
-    padding: 1em;
+    padding: $space-3 $space-4;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
 
     .age {
       color: $primary-300;
-      margin-bottom: 0.2em;
+      font-size: 0.78rem;
+      font-weight: 500;
+      margin-bottom: $space-1;
     }
 
     .name {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      color: var(--brand-50);
-      font-size: 1.6em;
-      font-weight: bold;
+      @include font-jakarta;
+      @include ellipsis-overflow;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
     }
   }
 }
