@@ -125,6 +125,7 @@ async def get_many_items(
         selectinload(Item.owner),
         selectinload(Item.regions),
         selectinload(Item.images),
+        selectinload(Item.categories),
     )
 
     stmt = query_filter.filter_read(stmt.where(Item.id.in_(item_ids)))

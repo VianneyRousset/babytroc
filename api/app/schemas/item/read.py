@@ -81,6 +81,8 @@ class ItemRead(ItemBase, ReadBase):
     # only given if owned
     blocked: bool | None = None
 
+    category_slugs: list[str] = []
+
     @field_validator("region_ids", mode="before")
     @classmethod
     def validate_regions(cls, v: Collection[int]) -> set[int]:

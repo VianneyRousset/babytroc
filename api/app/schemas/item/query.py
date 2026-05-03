@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from app.enums import ItemQueryAvailability
 from app.models.item import Item, ItemLike, ItemSave, Region
+from app.models.item.category import Category, ItemCategoryAssociation
 from app.models.loan import Loan
 from app.schemas.base import (
     DeleteQueryFilter,
@@ -128,9 +129,32 @@ class ItemQueryFilterSavedByUser(ReadQueryFilter):
         )
 
 
+class ItemQueryFilterCategories(ReadQueryFilter):
+    """Filters by categories of the items query."""
+
+    categories: list[str] | None = None
+
+    def _filter_read(self, stmt: Select) -> Select:
+        if self.categories is not None:
+            stmt = stmt.where(
+                Item.id.in_(
+                    select(ItemCategoryAssociation.item_id)
+                    .join(Category, ItemCategoryAssociation.category_slug == Category.slug)
+                    .where(
+                        or_(
+                            Category.slug.in_(self.categories),
+                            Category.parent_slug.in_(self.categories),
+                        )
+                    )
+                )
+            )
+        return super()._filter_read(stmt)
+
+
 class ItemReadQueryFilter(
     ItemQueryFilterTargetedAgeMonths,
     ItemQueryFilterRegions,
+    ItemQueryFilterCategories,
     ItemQueryFilterAvailability,
     ItemQueryFilterOwner,
     ItemQueryFilterLikedByUser,

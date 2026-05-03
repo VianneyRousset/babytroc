@@ -65,6 +65,25 @@ class ItemRegionsApiQueryBase(ApiQueryBase):
     ] = None
 
 
+class ItemCategoriesApiQueryBase(ApiQueryBase):
+    categories: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="categories",
+            alias="cat",
+            title="Categories",
+            description=(
+                "An item is returned if it belongs to any of these category slugs "
+                "or to a child of any of these category slugs."
+            ),
+            examples=[
+                ["clothing"],
+                ["clothing-bodysuits", "toys-bath"],
+            ],
+        ),
+    ] = None
+
+
 class ItemMatchingWordsApiQueryBase(ApiQueryBase):
     words: Annotated[
         list[str] | None,
@@ -91,6 +110,7 @@ class ItemApiQuery(
     ItemTargetedAgeMonthsApiQueryBase,
     ItemAvailabilityApiQueryBase,
     ItemRegionsApiQueryBase,
+    ItemCategoriesApiQueryBase,
     ItemQueryPageCursor,
 ):
     @property
@@ -98,6 +118,7 @@ class ItemApiQuery(
         return ItemReadQueryFilter(
             targeted_age_months=self.targeted_age_months,
             regions=self.regions,
+            categories=self.categories,
             availability=self.availability,
         )
 
