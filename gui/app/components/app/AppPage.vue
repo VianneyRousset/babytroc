@@ -53,6 +53,12 @@ const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infin
 const device = useDevice()
 
 const slots = useSlots()
+const route = useRoute()
+
+// Auto-render AppBack from page meta
+const appBack = computed(() => route.meta.appBack)
+const showAutoBack = computed(() => appBack.value != null && appBack.value !== false)
+const appTitle = computed(() => (route.meta.appTitle as string | undefined) ?? '')
 
 // whether to show loggin screen or not
 const { loggedIn, loginRoute } = useAuth()
@@ -85,12 +91,15 @@ useInfiniteScroll(
   >
     <!-- Header bar (mobile only) -->
     <AppHeaderMobileBar
-      v-if="slots['mobile-header-bar'] && device.isMobile && !loginScreen"
+      v-if="(slots['mobile-header-bar'] || showAutoBack) && device.isMobile && !loginScreen"
       ref="app-header-bar"
       :hide-on-scroll="hideBarOnScroll ? page : null"
       :scroll-offset="hideBarScrollOffset"
     >
-      <slot name="mobile-header-bar" />
+      <slot name="mobile-header-bar">
+        <AppBack />
+        <h1>{{ appTitle }}</h1>
+      </slot>
     </AppHeaderMobileBar>
 
     <!-- Left panel / drawer -->
@@ -105,10 +114,15 @@ useInfiniteScroll(
       v-if="device.isMobile && !loginScreen"
       name="mobile"
     />
-    <slot
-      v-else-if="!loginScreen"
-      name="desktop"
-    />
+    <template v-else-if="!loginScreen">
+      <slot name="desktop">
+        <AppHeaderDesktop v-if="showAutoBack && !slots['desktop']">
+          <template #buttons-left>
+            <AppBack />
+          </template>
+        </AppHeaderDesktop>
+      </slot>
+    </template>
     <slot v-if="!loginScreen" />
 
     <!-- Login screen -->

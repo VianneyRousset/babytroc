@@ -27,20 +27,24 @@ export function useNavigation() {
   })
 
   function goBack(fallback?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric | null) {
+    // If page explicitly blocks back navigation
+    if (route.meta.appBack === false)
+      return
+
+    // Resolve fallback: explicit param > meta > currentTabRoot
+    const resolvedFallback = fallback
+      ?? (typeof route.meta.appBack === 'string' || (typeof route.meta.appBack === 'object' && route.meta.appBack !== null)
+        ? route.meta.appBack as string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric
+        : undefined)
+      ?? unref(currentTabRoot)
+
     const back = window.history.state.back
     const res = back && [...appSectionUrls].find(([_, v]) => back.startsWith(v))
     const previousSection = res && res[0]
 
-    const blacklist = [
-      '/me/account/pending-validation',
-      '/me/account/validate',
-    ]
-
-    if (
-      previousSection !== unref(activeAppSection)
-      || blacklist.some(bl => window.history.state.back.startsWith(bl))
-    ) {
-      return router.push(fallback ?? unref(currentTabRoot))
+    // If previous route was from a different section, use fallback
+    if (previousSection !== unref(activeAppSection)) {
+      return router.push(resolvedFallback)
     }
 
     return router.go(-1)
