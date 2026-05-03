@@ -121,7 +121,9 @@ async def populate_items(
     users = await app.services.user.list_users(db)
     regions = await app.services.region.list_regions(db)
     categories = await app.services.category.list_categories(db)
-    child_category_slugs = [cat.slug for cat in categories if cat.parent_slug is not None]
+    child_category_slugs = [
+        cat.slug for cat in categories if cat.parent_slug is not None
+    ]
 
     images_fp = list(images_dir.iterdir())
 

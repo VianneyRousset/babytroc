@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.star import stars_gain_when_adding_item
 from app.models.item import Item
-from app.models.item.image import ItemImage, ItemImageAssociation
 from app.models.item.category import ItemCategoryAssociation
+from app.models.item.image import ItemImage, ItemImageAssociation
 from app.models.item.region import ItemRegionAssociation
 from app.schemas.base import Base as SchemaBase
 from app.schemas.item.create import ItemCreate

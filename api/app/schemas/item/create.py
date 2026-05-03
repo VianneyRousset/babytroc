@@ -36,7 +36,7 @@ class ItemCreate(ItemBase, CreateBase):
         Field(min_length=1),
     ]
     blocked: bool | None = False
-    categories: set[str] = set()
+    categories: set[str] = Field(default_factory=set)
 
     @field_validator("name", mode="before")
     @classmethod

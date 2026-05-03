@@ -139,7 +139,10 @@ class ItemQueryFilterCategories(ReadQueryFilter):
             stmt = stmt.where(
                 Item.id.in_(
                     select(ItemCategoryAssociation.item_id)
-                    .join(Category, ItemCategoryAssociation.category_slug == Category.slug)
+                    .join(
+                        Category,
+                        ItemCategoryAssociation.category_slug == Category.slug,
+                    )
                     .where(
                         or_(
                             Category.slug.in_(self.categories),

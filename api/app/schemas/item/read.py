@@ -81,7 +81,7 @@ class ItemRead(ItemBase, ReadBase):
     # only given if owned
     blocked: bool | None = None
 
-    category_slugs: list[str] = []
+    category_slugs: list[str] = Field(default_factory=list)
 
     @field_validator("region_ids", mode="before")
     @classmethod

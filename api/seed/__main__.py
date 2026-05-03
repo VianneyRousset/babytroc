@@ -5,7 +5,6 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from .database import shared_session
 from .categories import (
     Category as Category,
 )
@@ -15,6 +14,7 @@ from .categories import (
 from .categories import (
     populate_categories as _populate_categories,
 )
+from .database import shared_session
 from .items import (
     check_items as _check_items,
 )
