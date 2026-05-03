@@ -79,6 +79,10 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-11-01',
 
+  experimental: {
+    viteEnvironmentApi: true,
+  },
+
   /* Tooling Integrations */
   vite: {
     css: {
