@@ -3,6 +3,8 @@ const { goBack } = useNavigation()
 
 definePageMeta({
   layout: 'me',
+  appBack: true,
+  appTitle: 'Mot de passe oublié',
 })
 
 function done() {
@@ -15,21 +17,6 @@ function done() {
     with-header
     :max-width="800"
   >
-    <!-- Header bar (mobile only ) -->
-    <template #mobile-header-bar>
-      <AppBack />
-      <h1>Réinitialisation mot de passe</h1>
-    </template>
-
-    <!-- Header (desktop only) -->
-    <template #desktop>
-      <AppHeaderDesktop>
-        <template #buttons-left>
-          <AppBack />
-        </template>
-      </AppHeaderDesktop>
-    </template>
-
     <!-- Main content -->
     <main>
       <AccountAskPasswordResetPanel @done="done" />

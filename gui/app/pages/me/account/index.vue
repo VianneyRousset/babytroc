@@ -3,6 +3,7 @@ const { loggedIn } = useAuth()
 
 definePageMeta({
   layout: 'me',
+  appBack: true,
 })
 
 // redirect once logged in

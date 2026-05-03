@@ -1,6 +1,8 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'me',
+  appBack: true,
+  appTitle: 'Anciens emprunts',
 })
 
 const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: false })
@@ -13,12 +15,6 @@ const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: false })
     :infinite-scroll-distance="1200"
     @more="loadMore"
   >
-    <!-- Header bar -->
-    <template #mobile-header-bar>
-      <AppBack />
-      <h1>Anciens emprunts</h1>
-    </template>
-
     <!-- Main content -->
     <main>
       <Panel>

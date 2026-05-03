@@ -1,17 +1,13 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'me',
+  appBack: true,
+  appTitle: 'A propos',
 })
 </script>
 
 <template>
   <AppPage>
-    <!-- Header bar (mobile only) -->
-    <template #mobile-header-bar>
-      <AppBack />
-      <h1>A propos de Babytroc</h1>
-    </template>
-
     <!-- Main content -->
     <Panel>
       <h1>In construction</h1>

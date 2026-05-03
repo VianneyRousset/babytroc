@@ -3,6 +3,7 @@ import { Check, OctagonAlert, X } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'me-account-pending-validation',
+  appBack: false,
 })
 
 const {

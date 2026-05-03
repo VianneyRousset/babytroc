@@ -3,6 +3,7 @@ import { CirclePlus } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'me',
+  appBack: true,
 })
 
 // query items

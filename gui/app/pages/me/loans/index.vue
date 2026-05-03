@@ -3,6 +3,8 @@ import { MessageCircleQuestion, Archive } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'me',
+  appBack: true,
+  appTitle: 'Mes prêts',
 })
 
 const { loans, isLoading, error, loadMore } = useMeLoans({ active: true })
@@ -15,12 +17,6 @@ const { loans, isLoading, error, loadMore } = useMeLoans({ active: true })
     :infinite-scroll-distance="1200"
     @more="loadMore"
   >
-    <!-- Header bar -->
-    <template #mobile-header-bar>
-      <AppBack />
-      <h1>Mes prêts</h1>
-    </template>
-
     <!-- Main content -->
     <main>
       <Panel>

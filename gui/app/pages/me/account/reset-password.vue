@@ -4,6 +4,8 @@ import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
 
 definePageMeta({
   layout: 'me',
+  appBack: true,
+  appTitle: 'Réinitialiser le mot de passe',
 })
 
 const {
@@ -29,12 +31,6 @@ async function reset() {
 
 <template>
   <AppPage>
-    <!-- Header bar -->
-    <template #mobile-header-bar>
-      <AppBack />
-      <h1>Réinitialiser le mot de passe</h1>
-    </template>
-
     <!-- Main content -->
     <Panel>
       <transition

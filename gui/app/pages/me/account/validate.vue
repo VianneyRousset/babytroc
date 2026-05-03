@@ -3,6 +3,7 @@ import { Check, OctagonAlert, AtSign } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'me-account-validate',
+  appBack: false,
 })
 
 const {

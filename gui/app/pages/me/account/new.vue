@@ -3,6 +3,7 @@ import { UserRoundPlus, ArrowLeft, AtSign, KeyRound, Check, OctagonAlert } from 
 
 definePageMeta({
   layout: 'me',
+  appBack: '/me/account',
 })
 
 const name = ref('')
