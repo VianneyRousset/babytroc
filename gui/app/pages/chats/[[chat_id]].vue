@@ -112,14 +112,15 @@ main.desktop {
   display: flex;
   flex-direction: row-reverse !important;
   justify-content: flex-end;
-  margin: 2em;
+  margin: $space-8;
   flex: 1;
   min-height: 0;
   position: relative;
 
-  border-radius: 1em;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  border: 1px solid $neutral-200;
+  background: $bg-surface;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  border: 1px solid $divider;
   overflow: hidden;
 
   .FloatingToggle {
