@@ -210,7 +210,7 @@ section {
 
   h2 {
     color: $text-primary;
-    margin: 0 0 $space-1 0;
+    margin: 0 0 $space-2 0;
   }
 
   p.legend {
