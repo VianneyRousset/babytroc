@@ -114,7 +114,7 @@ const type = computed(() => {
     font-size: 1rem;
     height: 48px;
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid $border-default;
     border-radius: $radius-sm;
     padding: 0 $space-4;
     transition: border-color 200ms ease-out;

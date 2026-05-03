@@ -26,6 +26,21 @@ async def lifespan(app: FastAPI):
         yield
 
 
+class RootPathMiddleware:
+    """Strip root_path prefix from request path."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] in ("http", "websocket"):
+            root_path = scope.get("root_path", "")
+            path = scope.get("path", "")
+            if root_path and path.startswith(root_path):
+                scope = dict(scope, path=path[len(root_path):] or "/")
+        await self.app(scope, receive, send)
+
+
 class DelayMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         await asyncio.sleep(request.app.state.config.delay)
@@ -116,5 +131,7 @@ def create_app(config: Config | None = None) -> FastAPI:
         router=router,
         prefix="/v1",
     )
+
+    app.add_middleware(RootPathMiddleware)
 
     return app

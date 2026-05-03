@@ -17,6 +17,11 @@ body {
   --toastify-color-progress-error: var(--toastify-color-error);
 }
 
+*:focus-visible {
+  outline: 2px solid $primary-500;
+  outline-offset: 2px;
+}
+
 h1,
 h2,
 h3,
@@ -42,7 +47,7 @@ h2 {
 
 input,
 textarea {
-  border: 1px solid #ddd;
+  border: 1px solid $border-default;
   border-radius: $radius-sm;
 
   outline: none;
@@ -116,7 +121,7 @@ input {
       border-radius: 0.5em;
       border: 1px solid $neutral-300;
       box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-      transition: box-shadow 0.2s ease-out, all 0.2 ease-out;
+      transition: box-shadow 0.2s ease-out, all 0.2s ease-out;
 
       line-height: 1.2em;
       padding-left: 1em;
@@ -128,7 +133,7 @@ input {
       font-size: 1em;
 
       &::placeholder {
-        color: #9e9ea7;
+        color: $text-tertiary;
       }
 
       &:focus,

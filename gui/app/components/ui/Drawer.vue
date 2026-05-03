@@ -94,7 +94,7 @@ const effectivePosition = computed(() =>
       width: 36px;
       height: 4px;
       border-radius: 2px;
-      background: #ddd;
+      background: $border-default;
     }
   }
 

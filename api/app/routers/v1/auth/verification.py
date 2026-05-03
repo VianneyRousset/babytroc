@@ -1,4 +1,3 @@
-import os
 from typing import Annotated
 
 from fastapi import Depends, Request, WebSocket
@@ -10,11 +9,8 @@ from app.config import AuthConfig
 from app.errors.auth import InvalidCredentialError
 from app.schemas.auth.data import UserAccessTokenData
 
-# TODO avoid this hack
-# hack to include root_path into tokenUrl
-# https://github.com/fastapi/fastapi/discussions/6045#discussioncomment-5443337
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl=f"{os.environ.get('API_PREFIX') or ''}/v1/auth/login",
+    tokenUrl="/v1/auth/login",
     auto_error=False,
 )
 

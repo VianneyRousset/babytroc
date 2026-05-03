@@ -66,3 +66,8 @@ $primary-text-safe: #3d6145; // 5.8:1 contrast on white for small text
 $shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
 $shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 $shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+$bg-bubble-me: $primary-text-safe;
+$bg-bubble-theirs: #f0f0f0;
+
+$border-default: #ddd;

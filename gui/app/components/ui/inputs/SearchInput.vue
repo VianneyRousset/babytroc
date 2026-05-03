@@ -58,7 +58,7 @@ function submit() {
     height: 48px;
     box-sizing: border-box;
     padding: 0 40px;
-    border: 1px solid #ddd;
+    border: 1px solid $border-default;
     border-radius: $radius-sm;
     font-size: 1rem;
     box-shadow: $shadow-sm;

@@ -23,3 +23,14 @@ And run the following,
 ```sh
 docker compose --env-file .env up
 ```
+
+# Required services
+
+Start those processes in a shared network.
+
+- Postgresql
+- Imgpush
+- Prometheus
+- Loki
+- Promtail
+- Grafana

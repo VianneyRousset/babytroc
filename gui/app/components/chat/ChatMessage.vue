@@ -138,7 +138,7 @@ const { formattedHour } = useChatMessageTime(message)
     &[origin="me"] {
       .bubble {
         align-self: flex-end;
-        background: $primary-text-safe;
+        background: $bg-bubble-me;
         color: white;
       }
 
@@ -158,7 +158,7 @@ const { formattedHour } = useChatMessageTime(message)
         .bubble {
           border-bottom-right-radius: 0;
           &::after {
-            background: $primary-text-safe;
+            background: $bg-bubble-me;
             right: -4px;
           }
         }
@@ -169,7 +169,7 @@ const { formattedHour } = useChatMessageTime(message)
     &[origin="interlocutor"] {
       .bubble {
         align-self: flex-start;
-        background: #f0f0f0;
+        background: $bg-bubble-theirs;
         color: $text-primary;
       }
 
@@ -189,7 +189,7 @@ const { formattedHour } = useChatMessageTime(message)
         .bubble {
           border-bottom-left-radius: 0;
           &::after {
-            background: #f0f0f0;
+            background: $bg-bubble-theirs;
             left: -4px;
           }
         }
