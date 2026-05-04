@@ -31,26 +31,45 @@ class DatabaseConfig(NamedTuple):
         return cls(url=url)
 
 
-class PubsubConfig(NamedTuple):
-    url: sqlalchemy.URL
+class RedisConfig(NamedTuple):
+    host: str
+    port: int
+    db: int
+    password: str | None
 
     @classmethod
-    def from_env(cls, url: sqlalchemy.URL | None = None) -> Self:
-        if url is None:
-            user = os.environ["POSTGRES_USER"]
-            password = os.environ["POSTGRES_PASSWORD"]
-            host = os.environ["POSTGRES_HOST"]
-            port = int(os.environ["POSTGRES_PORT"])
-            database = os.environ["POSTGRES_DATABASE"]
+    def from_env(
+        cls,
+        host: str | None = None,
+        port: int | None = None,
+        db: int | None = None,
+        password: str | None = None,
+    ) -> Self:
+        if host is None:
+            host = os.environ.get("REDIS_HOST", "localhost")
+        if port is None:
+            port = int(os.environ.get("REDIS_PORT", "6379"))
+        if db is None:
+            db = int(os.environ.get("REDIS_DB", "0"))
+        if password is None:
+            password = os.environ.get("REDIS_PASSWORD")
 
-            url = sqlalchemy.URL.create(
-                "postgresql",
-                username=user,
-                password=password,
-                host=host,
-                port=port,
-                database=database,
-            )
+        return cls(host=host, port=port, db=db, password=password)
+
+    @property
+    def url(self) -> str:
+        auth = f":{self.password}@" if self.password else ""
+        return f"redis://{auth}{self.host}:{self.port}/{self.db}"
+
+
+class PubsubConfig(NamedTuple):
+    url: str
+
+    @classmethod
+    def from_env(cls, url: str | None = None) -> Self:
+        if url is None:
+            redis_config = RedisConfig.from_env()
+            url = redis_config.url
 
         return cls(url=url)
 
@@ -165,10 +184,11 @@ class Config(NamedTuple):
     pubsub: PubsubConfig
     email: EmailConfig
     imgpush: ImgpushConfig
+    redis: RedisConfig
     auth: AuthConfig
 
     @classmethod
-    def from_env(
+    def from_env(  # noqa: C901
         cls,
         *,
         host_name: str | None = None,
@@ -179,6 +199,7 @@ class Config(NamedTuple):
         pubsub: PubsubConfig | None = None,
         email: EmailConfig | None = None,
         imgpush: ImgpushConfig | None = None,
+        redis: RedisConfig | None = None,
         auth: AuthConfig | None = None,
     ) -> Self:
         if host_name is None:
@@ -195,16 +216,14 @@ class Config(NamedTuple):
 
         if database is None:
             database = DatabaseConfig.from_env()
-
+        if redis is None:
+            redis = RedisConfig.from_env()
         if pubsub is None:
-            pubsub = PubsubConfig.from_env()
-
+            pubsub = PubsubConfig.from_env(url=redis.url)
         if email is None:
             email = EmailConfig.from_env()
-
         if imgpush is None:
             imgpush = ImgpushConfig.from_env()
-
         if auth is None:
             auth = AuthConfig.from_env()
 
@@ -217,5 +236,6 @@ class Config(NamedTuple):
             pubsub=pubsub,
             email=email,
             imgpush=imgpush,
+            redis=redis,
             auth=auth,
         )
