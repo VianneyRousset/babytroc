@@ -22,6 +22,7 @@ async def list_items(
     response: Response,
     query: Annotated[ItemMatchinWordsApiQuery, Query()],
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> list[ItemPreviewRead]:
     """List items."""
 
@@ -32,6 +33,7 @@ async def list_items(
             words=query.words,
             query_filter=query.item_select_query_filter,
             page_options=query.item_matching_words_query_page_options,
+            cache=cache,
         )
 
         fuzzy_search_result.set_response_headers(response, request)
@@ -42,6 +44,7 @@ async def list_items(
         db=db,
         query_filter=query.item_select_query_filter,
         page_options=query.item_query_page_options,
+        cache=cache,
     )
 
     result.set_response_headers(response, request)

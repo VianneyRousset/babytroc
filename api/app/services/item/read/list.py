@@ -1,4 +1,5 @@
-from typing import overload
+import json
+from typing import TYPE_CHECKING, overload
 
 from sqlalchemy import (
     BooleanClauseList,
@@ -10,6 +11,7 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
 
+from app.cache_keys import TTL_ITEMS_LIST, key_items_list
 from app.models.item import Item
 from app.schemas.item.preview import ItemPreviewRead
 from app.schemas.item.query import (
@@ -21,6 +23,83 @@ from app.schemas.query import QueryPageOptions, QueryPageResult
 
 from .selections import select_liked, select_owned, select_saved, select_words_match
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
+
+def _deserialize_list_result(
+    raw: str,
+    *,
+    words: list[str] | None,
+) -> (
+    QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]
+    | QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]
+):
+    """Deserialize a cached list_items result."""
+    data = json.loads(raw)
+    items = [ItemPreviewRead.model_validate(item) for item in data["items"]]
+    npc = data["next_page_cursor"]
+
+    if words is not None:
+        return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
+            data=items,
+            next_page_cursor=ItemMatchingWordsQueryPageCursor.model_validate(npc)
+            if npc
+            else None,
+        )
+
+    return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
+        data=items,
+        next_page_cursor=ItemQueryPageCursor.model_validate(npc) if npc else None,
+    )
+
+
+def _build_cache_key(
+    words: list[str] | None,
+    query_filter: ItemReadQueryFilter,
+    page_options: (
+        QueryPageOptions[ItemQueryPageCursor]
+        | QueryPageOptions[ItemMatchingWordsQueryPageCursor]
+        | None
+    ),
+) -> str:
+    """Build cache key for list_items."""
+    return key_items_list(
+        words=tuple(words) if words else None,
+        query_filter=repr(query_filter),
+        limit=page_options.limit if page_options else None,
+    )
+
+
+def _should_cache(
+    cache: "Cache | None",
+    client_id: int | None,
+    page_options: (
+        QueryPageOptions[ItemQueryPageCursor]
+        | QueryPageOptions[ItemMatchingWordsQueryPageCursor]
+        | None
+    ),
+) -> bool:
+    """Return True if the request is cacheable (anonymous, first page)."""
+    if cache is None or client_id is not None:
+        return False
+    if page_options is not None and page_options.cursor.item_id is not None:
+        return False
+    return True
+
+
+def _serialize_list_result(
+    items: list[ItemPreviewRead],
+    next_page_cursor: ItemQueryPageCursor | ItemMatchingWordsQueryPageCursor | None,
+) -> str:
+    """Serialize a list_items result for caching."""
+    return json.dumps({
+        "items": [item.model_dump(mode="json") for item in items],
+        "next_page_cursor": next_page_cursor.model_dump(mode="json")
+        if next_page_cursor
+        else None,
+    })
+
 
 @overload
 async def list_items(
@@ -29,6 +108,7 @@ async def list_items(
     query_filter: ItemReadQueryFilter | None = None,
     page_options: QueryPageOptions[ItemQueryPageCursor] | None = None,
     client_id: int | None = None,
+    cache: "Cache | None" = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]: ...
 
 
@@ -40,10 +120,11 @@ async def list_items(
     query_filter: ItemReadQueryFilter | None = None,
     page_options: QueryPageOptions[ItemMatchingWordsQueryPageCursor] | None = None,
     client_id: int | None = None,
+    cache: "Cache | None" = None,
 ) -> QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]: ...
 
 
-async def list_items(
+async def list_items(  # noqa: C901
     db: AsyncSession,
     words: list[str] | None = None,
     *,
@@ -54,6 +135,7 @@ async def list_items(
         | None
     ) = None,
     client_id: int | None = None,
+    cache: "Cache | None" = None,
 ) -> (
     QueryPageResult[ItemPreviewRead, ItemQueryPageCursor]
     | QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor]
@@ -62,6 +144,14 @@ async def list_items(
 
     # default empty query filter
     query_filter = query_filter or ItemReadQueryFilter()
+
+    # Only cache anonymous first-page requests
+    use_cache = _should_cache(cache, client_id, page_options)
+    cache_key = _build_cache_key(words, query_filter, page_options) if use_cache else ""
+
+    cached = await cache.get(cache_key) if use_cache else None  # type: ignore[union-attr]
+    if cached is not None:
+        return _deserialize_list_result(cached, words=words)
 
     # default empty query page options
     if page_options is None:
@@ -150,21 +240,34 @@ async def list_items(
     ]
 
     if words_match is not None:
-        return QueryPageResult[ItemPreviewRead, ItemMatchingWordsQueryPageCursor](
-            data=items,
-            next_page_cursor=ItemMatchingWordsQueryPageCursor(
+        next_cursor: ItemQueryPageCursor | ItemMatchingWordsQueryPageCursor | None = (
+            ItemMatchingWordsQueryPageCursor(
                 words_match=rows[-1].words_match,
                 item_id=items[0].id,
             )
             if rows
-            else None,
+            else None
+        )
+        result = QueryPageResult[
+            ItemPreviewRead, ItemMatchingWordsQueryPageCursor
+        ](
+            data=items,
+            next_page_cursor=next_cursor,  # type: ignore[arg-type]
+        )
+    else:
+        next_cursor = (
+            ItemQueryPageCursor(item_id=items[-1].id) if items else None
+        )
+        result = QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](  # type: ignore[assignment]
+            data=items,
+            next_page_cursor=next_cursor,  # type: ignore[arg-type]
         )
 
-    return QueryPageResult[ItemPreviewRead, ItemQueryPageCursor](
-        data=items,
-        next_page_cursor=ItemQueryPageCursor(
-            item_id=items[-1].id,
+    if use_cache:
+        await cache.set(  # type: ignore[union-attr]
+            cache_key,  # type: ignore[possibly-undefined]
+            _serialize_list_result(items, next_cursor),
+            ttl=TTL_ITEMS_LIST,
         )
-        if items
-        else None,
-    )
+
+    return result
