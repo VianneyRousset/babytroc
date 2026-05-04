@@ -12,6 +12,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.errors import ApiError
 
+from .cache import init_cache_dependency
+from .clients.cache import Cache
+from .clients.redis import create_redis_client
 from .config import Config
 from .database import create_session_maker, init_db_session_dependency
 from .email import init_email_dependency
@@ -24,6 +27,7 @@ from .routers.v1 import router
 async def lifespan(app: FastAPI):
     async with app.state.broadcast:
         yield
+    await app.state.redis.aclose()
 
 
 class RootPathMiddleware:
@@ -73,9 +77,16 @@ def create_app(config: Config | None = None) -> FastAPI:
     init_db_session_dependency(db_session_maker)
 
     # broadcaster
-    broadcast = Broadcast(config.pubsub.url.render_as_string(hide_password=False))
+    broadcast = Broadcast(config.pubsub.url)
     app.state.broadcast = broadcast
     init_broadcast_dependency(broadcast)
+
+    # redis client and cache
+    redis_client = create_redis_client(config.redis)
+    app.state.redis = redis_client
+    cache = Cache(redis_client)
+    app.state.cache = cache
+    init_cache_dependency(cache)
 
     # email_client
     email_client = FastMail(
