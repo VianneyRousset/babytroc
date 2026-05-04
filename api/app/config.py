@@ -216,14 +216,19 @@ class Config(NamedTuple):
 
         if database is None:
             database = DatabaseConfig.from_env()
+
         if redis is None:
             redis = RedisConfig.from_env()
+
         if pubsub is None:
             pubsub = PubsubConfig.from_env(url=redis.url)
+
         if email is None:
             email = EmailConfig.from_env()
+
         if imgpush is None:
             imgpush = ImgpushConfig.from_env()
+
         if auth is None:
             auth = AuthConfig.from_env()
 
