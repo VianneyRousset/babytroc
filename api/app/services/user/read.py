@@ -1,9 +1,11 @@
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.cache_keys import TTL_USER, key_user
 from app.errors.user import UserNotFoundError
 from app.models.item import Item, ItemLike
 from app.models.user import User
@@ -12,19 +14,33 @@ from app.schemas.user.private import UserPrivateRead
 from app.schemas.user.query import UserReadQueryFilter
 from app.schemas.user.read import UserRead
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def get_user(
     db: AsyncSession,
     user_id: int,
+    cache: "Cache | None" = None,
 ) -> UserRead:
     """Get user with `user_id`."""
+
+    if cache is not None:
+        cached = await cache.get(key_user(user_id))
+        if cached is not None:
+            return UserRead.model_validate_json(cached)
 
     users = await get_many_users(
         db=db,
         user_ids={user_id},
     )
 
-    return users[0]
+    result = users[0]
+
+    if cache is not None:
+        await cache.set(key_user(user_id), result.model_dump_json(), ttl=TTL_USER)
+
+    return result
 
 
 async def get_many_users(

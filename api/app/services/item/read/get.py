@@ -1,7 +1,10 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import and_, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload, undefer
 
+from app.cache_keys import TTL_ITEM, key_item
 from app.enums import LoanRequestState
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item
@@ -15,6 +18,9 @@ from .selections import (
     select_saved,
 )
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def get_item(
     db: AsyncSession,
@@ -22,8 +28,15 @@ async def get_item(
     *,
     query_filter: ItemReadQueryFilter | None = None,
     client_id: int | None = None,
+    cache: "Cache | None" = None,
 ) -> ItemRead:
     """Get item by id."""
+
+    # Only use cache for anonymous (no client_id) requests
+    if cache is not None and client_id is None:
+        cached = await cache.get(key_item(item_id))
+        if cached is not None:
+            return ItemRead.model_validate_json(cached)
 
     items = await get_many_items(
         db=db,
@@ -32,7 +45,13 @@ async def get_item(
         client_id=client_id,
     )
 
-    return items[0]
+    result = items[0]
+
+    # Only cache if no client_id (core data without per-user flags)
+    if cache is not None and client_id is None:
+        await cache.set(key_item(item_id), result.model_dump_json(), ttl=TTL_ITEM)
+
+    return result
 
 
 async def get_many_items(

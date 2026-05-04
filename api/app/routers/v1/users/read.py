@@ -4,6 +4,8 @@ from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.report.create import ReportCreate
@@ -17,12 +19,14 @@ from .router import router
 async def get_user(
     user_id: user_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> UserRead:
     """Get user."""
 
     return await services.user.get_user(
         db=db,
         user_id=user_id,
+        cache=cache,
     )
 
 

@@ -4,6 +4,8 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import maybe_client_id_annotation
 from app.schemas.item.api import ItemMatchinWordsApiQuery
@@ -52,6 +54,7 @@ async def get_item(
     item_id: item_id_annotation,
     client_id: maybe_client_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> ItemRead:
     """Get item."""
 
@@ -59,4 +62,5 @@ async def get_item(
         db=db,
         item_id=item_id,
         client_id=client_id,
+        cache=cache,
     )
