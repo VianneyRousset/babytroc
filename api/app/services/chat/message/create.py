@@ -23,8 +23,10 @@ from app.enums import ChatMessageType
 from app.errors.chat import ChatNotFoundError
 from app.models.chat import Chat, ChatMessage
 from app.models.item import Item
+from app.pubsub import get_broadcast, notify_user_after_commit
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.chat.send import SendChatMessage, SendChatMessageText
+from app.schemas.pubsub import PubsubMessageNewChatMessage
 from app.services.chat.chat.create import ensure_many_chats
 
 
@@ -211,7 +213,22 @@ async def send_many_chat_messages(
 
         raise error
 
-    return [ChatMessageRead.model_validate(msg) for msg in sent_messages]
+    sent = [ChatMessageRead.model_validate(msg) for msg in sent_messages]
+
+    # Schedule notifications via Redis after transaction commits
+    # (replaces Postgres trigger which also only notified after commit)
+    broadcast = get_broadcast()
+    for chat_msg in sent:
+        pubsub_msg = PubsubMessageNewChatMessage(chat_message_id=chat_msg.id)
+        owner_id = (
+            await db.execute(
+                select(Item.owner_id).where(Item.id == chat_msg.item_id)
+            )
+        ).scalar_one()
+        for user_id in {chat_msg.borrower_id, owner_id}:
+            notify_user_after_commit(db, broadcast, user_id, pubsub_msg)
+
+    return sent
 
 
 async def _check_sender_membership(

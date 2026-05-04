@@ -1,7 +1,8 @@
+import asyncio
+
 from broadcaster import Broadcast
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
 
 from app.schemas.pubsub import PubsubMessage
 
@@ -18,31 +19,34 @@ def init_broadcast_dependency(broadcast: Broadcast) -> None:
     _broadcast = broadcast
 
 
-def notify_user(
-    db: Session,
+async def notify_user(
+    broadcast: Broadcast,
     user_id: int,
     message: PubsubMessage,
-):
+) -> None:
     channel = f"user{user_id}"
-    db.execute(
-        text("SELECT pg_notify(:channel, :payload)"),
-        {
-            "channel": channel,
-            "payload": message.model_dump_json(),
-        },
-    )
+    await broadcast.publish(channel=channel, message=message.model_dump_json())
 
 
-async def notify_user_async(
+def notify_user_after_commit(
     db: AsyncSession,
+    broadcast: Broadcast,
     user_id: int,
     message: PubsubMessage,
-):
+) -> None:
+    """Schedule a notification to be published after the current transaction commits.
+
+    Uses SQLAlchemy's ``after_commit`` session event so the Redis pub/sub message
+    is only sent once the data is visible to other connections.
+    """
     channel = f"user{user_id}"
-    await db.execute(
-        text("SELECT pg_notify(:channel, :payload)"),
-        {
-            "channel": channel,
-            "payload": message.model_dump_json(),
-        },
-    )
+    payload = message.model_dump_json()
+
+    def _on_commit(session):
+        asyncio.get_event_loop().call_soon(
+            asyncio.ensure_future,
+            broadcast.publish(channel=channel, message=payload),
+        )
+
+    # Register on the underlying sync session (async session proxies it).
+    event.listen(db.sync_session, "after_commit", _on_commit, once=True)

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.errors.chat import ChatMessageNotFoundError
 from app.models.chat import ChatMessage
 from app.models.item import Item
-from app.pubsub import notify_user_async
+from app.pubsub import get_broadcast, notify_user_after_commit
 from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.chat.read import ChatMessageRead
 from app.schemas.pubsub import PubsubMessageUpdatedChatMessage
@@ -47,7 +47,8 @@ async def mark_message_as_seen(
     pubsub_message = PubsubMessageUpdatedChatMessage(
         chat_message_id=message.id,
     )
+    broadcast = get_broadcast()
     for user_id in {message.borrower_id, owner_id}:
-        await notify_user_async(db, user_id, pubsub_message)
+        notify_user_after_commit(db, broadcast, user_id, pubsub_message)
 
     return ChatMessageRead.model_validate(message)

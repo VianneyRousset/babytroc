@@ -13,7 +13,7 @@ from app.errors.auth import (
     AuthInvalidValidationCodeError,
 )
 from app.models.user import User
-from app.pubsub import notify_user_async
+from app.pubsub import get_broadcast, notify_user_after_commit
 from app.schemas.pubsub import PubsubMessageUpdatedAccountValidation
 
 
@@ -50,8 +50,9 @@ async def validate_user_account(
         # is already validated
         raise AuthAccountAlreadyValidatedError() from error
 
-    await notify_user_async(
+    notify_user_after_commit(
         db=db,
+        broadcast=get_broadcast(),
         user_id=user.id,
         message=PubsubMessageUpdatedAccountValidation(
             validated=True,
