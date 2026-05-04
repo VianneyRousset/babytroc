@@ -4,6 +4,8 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
@@ -20,6 +22,7 @@ async def end_client_loan(
     item_id: item_id_annotation,
     loan_id: loan_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRead:
     """End the loan of the item owned by the client."""
 
@@ -30,4 +33,5 @@ async def end_client_loan(
             item_id=item_id,
             owner_id=client_id,
         ),
+        cache=cache,
     )

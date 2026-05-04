@@ -4,6 +4,8 @@ from fastapi import Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.read import LoanRequestRead
@@ -20,6 +22,7 @@ async def create_loan_request(
     request: Request,
     item_id: item_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
@@ -27,6 +30,7 @@ async def create_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,
+        cache=cache,
     )
 
 
@@ -39,6 +43,7 @@ async def cancel_item_active_loan_request(
     request: Request,
     item_id: item_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
@@ -46,4 +51,5 @@ async def cancel_item_active_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,
+        cache=cache,
     )

@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,11 +12,16 @@ from app.utils.hash import HashedStr
 
 from .read import get_user_private
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def update_user(
     db: AsyncSession,
     user_id: int,
     user_update: UserUpdate,
+    *,
+    cache: "Cache | None" = None,
 ) -> UserPrivateRead:
     """Update user with `user_id`."""
 
@@ -30,6 +37,11 @@ async def update_user(
         (await db.execute(stmt)).one()
     except NoResultFound as error:
         raise UserNotFoundError({"id": user_id}) from error
+
+    if cache is not None:
+        from app.services.user.cache import invalidate_user_updated
+
+        await invalidate_user_updated(cache, user_id=user_id)
 
     return await get_user_private(db=db, user_id=user_id)
 

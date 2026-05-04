@@ -4,6 +4,8 @@ from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.item.create import ItemCreate
@@ -20,6 +22,7 @@ async def create_client_item(
         Body(title="Fields for the item creation."),
     ],
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> ItemRead:
     """Create an item owned by the client."""
 
@@ -27,4 +30,5 @@ async def create_client_item(
         db=db,
         owner_id=client_id,
         item_create=item_create,
+        cache=cache,
     )

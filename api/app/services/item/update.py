@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
 
 from app.errors.item import ItemNotFoundError
 from app.models.item import Item
@@ -27,6 +32,7 @@ async def update_item(
     item_id: int,
     item_update: ItemUpdate,
     query_filter: ItemUpdateQueryFilter | None = None,
+    cache: "Cache | None" = None,
 ) -> ItemRead:
     """Update item with `item_id`.
 
@@ -54,6 +60,11 @@ async def update_item(
             owner_id=item.owner_id,
             image_names=item_update.images,
         )
+
+    if cache is not None:
+        from app.services.item.cache import invalidate_item_updated
+
+        await invalidate_item_updated(cache, item_id=item_id, owner_id=item.owner_id)
 
     return await get_item(
         db=db,

@@ -1,13 +1,20 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.errors.user import UserNotFoundError
 from app.models.user import User
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def delete_user(
     db: AsyncSession,
     user_id: int,
+    *,
+    cache: "Cache | None" = None,
 ) -> None:
     """Delete user with `user_id`."""
 
@@ -17,3 +24,8 @@ async def delete_user(
 
     if res.rowcount == 0:  # type: ignore[attr-defined]
         raise UserNotFoundError({"id": user_id})
+
+    if cache is not None:
+        from app.services.user.cache import invalidate_user_deleted
+
+        await invalidate_user_deleted(cache, user_id=user_id)

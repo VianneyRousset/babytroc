@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,6 +13,9 @@ from app.services.chat import send_many_chat_messages
 
 from .read import get_many_loans
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def end_loan(
     db: AsyncSession,
@@ -18,6 +23,7 @@ async def end_loan(
     *,
     query_filter: LoanUpdateQueryFilter | None = None,
     send_message: bool = True,
+    cache: "Cache | None" = None,
 ) -> LoanRead:
     """Set loan end date to now.
     The loan must be active.
@@ -29,6 +35,17 @@ async def end_loan(
         query_filter=query_filter,
         send_messages=send_message,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_ended
+
+        loan = loans[0]
+        await invalidate_loan_ended(
+            cache,
+            item_id=loan.item.id,
+            borrower_id=loan.borrower.id,
+            owner_id=loan.item.owner_id,
+        )
 
     return loans[0]
 

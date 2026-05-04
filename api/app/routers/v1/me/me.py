@@ -4,6 +4,8 @@ from fastapi import Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.user.private import UserPrivateRead
@@ -40,6 +42,7 @@ async def update_client_user(
         Body(title="User fields to update."),
     ],
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> UserPrivateRead:
     """Update client user."""
 
@@ -47,6 +50,7 @@ async def update_client_user(
         db=db,
         user_id=client_id,
         user_update=user_update,
+        cache=cache,
     )
 
 
@@ -58,10 +62,12 @@ async def delete_client_user(
     client_id: client_id_annotation,
     request: Request,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> None:
     """Delete client user."""
 
     await services.user.delete_user(
         db=db,
         user_id=client_id,
+        cache=cache,
     )

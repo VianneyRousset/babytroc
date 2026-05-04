@@ -1,5 +1,8 @@
 from itertools import groupby
-from typing import Self, cast
+from typing import TYPE_CHECKING, Self, cast
+
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
 
 from sqlalchemy import ColumnClause, Integer, column, insert, select, values
 from sqlalchemy.exc import IntegrityError
@@ -90,6 +93,8 @@ async def create_item(
     db: AsyncSession,
     owner_id: int,
     item_create: ItemCreate,
+    *,
+    cache: "Cache | None" = None,
 ) -> ItemRead:
     """Create a new item in the database."""
 
@@ -102,6 +107,11 @@ async def create_item(
             )
         ],
     )
+
+    if cache is not None:
+        from app.services.item.cache import invalidate_item_created
+
+        await invalidate_item_created(cache, owner_id=owner_id)
 
     return items[0]
 

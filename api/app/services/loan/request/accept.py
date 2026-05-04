@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import LoanRequestState
@@ -9,12 +11,17 @@ from app.services.chat import send_many_chat_messages
 
 from .update import update_many_loan_requests_state
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def accept_loan_request(
     db: AsyncSession,
     loan_request_id: int,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
+    *,
+    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
 
@@ -28,6 +35,17 @@ async def accept_loan_request(
         query_filter=query_filter,
         check_state=check_state,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_request_state_changed
+
+        lr = loan_requests[0]
+        await invalidate_loan_request_state_changed(
+            cache,
+            item_id=lr.item.id,
+            borrower_id=lr.borrower.id,
+            owner_id=lr.item.owner_id,
+        )
 
     return loan_requests[0]
 

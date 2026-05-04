@@ -1,3 +1,4 @@
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from fastapi import BackgroundTasks
@@ -16,10 +17,15 @@ from app.models.user import User
 from app.pubsub import get_broadcast, notify_user_after_commit
 from app.schemas.pubsub import PubsubMessageUpdatedAccountValidation
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def validate_user_account(
     db: AsyncSession,
     validation_code: UUID,
+    *,
+    cache: "Cache | None" = None,
 ) -> None:
     """Mark user account with `validation_code` as validated."""
 
@@ -58,6 +64,11 @@ async def validate_user_account(
             validated=True,
         ),
     )
+
+    if cache is not None:
+        from app.services.user.cache import invalidate_user_validated
+
+        await invalidate_user_validated(cache, user_id=user.id)
 
 
 async def send_validation_email(

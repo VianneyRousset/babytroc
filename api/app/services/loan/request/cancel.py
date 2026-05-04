@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,6 +21,9 @@ from app.services.chat import send_chat_message, send_many_chat_messages
 from .read import get_loan_request, list_loan_requests
 from .update import update_many_loan_requests_state
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def cancel_item_active_loan_request(
     db: AsyncSession,
@@ -26,6 +31,7 @@ async def cancel_item_active_loan_request(
     item_id: int,
     borrower_id: int,
     send_message: bool = True,
+    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Cancel the active loan request made by `borrower_id` to `item_id`.
 
@@ -87,10 +93,22 @@ async def cancel_item_active_loan_request(
             ),
         )
 
-    return await get_loan_request(
+    result = await get_loan_request(
         db=db,
         loan_request_id=loan_request.id,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_request_state_changed
+
+        await invalidate_loan_request_state_changed(
+            cache,
+            item_id=result.item.id,
+            borrower_id=result.borrower.id,
+            owner_id=result.item.owner_id,
+        )
+
+    return result
 
 
 async def cancel_loan_request(
@@ -100,6 +118,7 @@ async def cancel_loan_request(
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
     send_message: bool = True,
+    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Set loan request state to `cancelled`.
 
@@ -112,6 +131,17 @@ async def cancel_loan_request(
         query_filter=query_filter,
         check_state=check_state,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_request_state_changed
+
+        lr = loan_requests[0]
+        await invalidate_loan_request_state_changed(
+            cache,
+            item_id=lr.item.id,
+            borrower_id=lr.borrower.id,
+            owner_id=lr.item.owner_id,
+        )
 
     return loan_requests[0]
 

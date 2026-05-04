@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,6 +13,9 @@ from app.services.chat import send_many_chat_messages
 from app.services.loan.loan.read import get_many_loans
 from app.services.loan.request.update import update_many_loan_requests_state
 
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
+
 
 async def execute_loan_request(
     db: AsyncSession,
@@ -18,6 +23,7 @@ async def execute_loan_request(
     loan_request_id: int,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
+    cache: "Cache | None" = None,
 ) -> LoanRead:
     """Create a loan from the given loan request.
 
@@ -32,6 +38,17 @@ async def execute_loan_request(
         query_filter=query_filter,
         check_state=check_state,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_started
+
+        loan = loans[0]
+        await invalidate_loan_started(
+            cache,
+            item_id=loan.item.id,
+            borrower_id=loan.borrower.id,
+            owner_id=loan.item.owner_id,
+        )
 
     return loans[0]
 

@@ -218,6 +218,7 @@ async def send_many_chat_messages(
     # Schedule notifications via Redis after transaction commits
     # (replaces Postgres trigger which also only notified after commit)
     broadcast = get_broadcast()
+    owner_ids_by_item: dict[int, int] = {}
     for chat_msg in sent:
         pubsub_msg = PubsubMessageNewChatMessage(chat_message_id=chat_msg.id)
         owner_id = (
@@ -225,8 +226,22 @@ async def send_many_chat_messages(
                 select(Item.owner_id).where(Item.id == chat_msg.item_id)
             )
         ).scalar_one()
+        owner_ids_by_item[chat_msg.item_id] = owner_id
         for user_id in {chat_msg.borrower_id, owner_id}:
             notify_user_after_commit(db, broadcast, user_id, pubsub_msg)
+
+    # Invalidate cache for affected chats
+    from app.cache import get_cache
+    from app.services.chat.cache import invalidate_chat_message_sent
+
+    cache = get_cache()
+    for chat_msg in sent:
+        await invalidate_chat_message_sent(
+            cache,
+            item_id=chat_msg.item_id,
+            borrower_id=chat_msg.borrower_id,
+            owner_id=owner_ids_by_item[chat_msg.item_id],
+        )
 
     return sent
 

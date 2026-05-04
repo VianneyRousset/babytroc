@@ -1,6 +1,9 @@
 from collections.abc import Iterable
 from itertools import repeat
-from typing import cast
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from app.clients.cache import Cache
 
 from sqlalchemy import ColumnClause, insert, select, values
 from sqlalchemy.exc import IntegrityError
@@ -28,6 +31,7 @@ async def create_loan_request(
     item_id: int,
     borrower_id: int,
     send_message: bool = True,
+    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Create a loan request."""
 
@@ -37,6 +41,17 @@ async def create_loan_request(
         borrower_ids=borrower_id,
         send_messages=send_message,
     )
+
+    if cache is not None:
+        from app.services.loan.cache import invalidate_loan_request_created
+
+        owner_id = loan_requests[0].item.owner_id
+        await invalidate_loan_request_created(
+            cache,
+            item_id=item_id,
+            borrower_id=borrower_id,
+            owner_id=owner_id,
+        )
 
     return loan_requests[0]
 

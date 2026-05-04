@@ -51,4 +51,17 @@ async def mark_message_as_seen(
     for user_id in {message.borrower_id, owner_id}:
         notify_user_after_commit(db, broadcast, user_id, pubsub_message)
 
-    return ChatMessageRead.model_validate(message)
+    result = ChatMessageRead.model_validate(message)
+
+    # Invalidate cache
+    from app.cache import get_cache
+    from app.services.chat.cache import invalidate_chat_message_seen
+
+    cache = get_cache()
+    await invalidate_chat_message_seen(
+        cache,
+        item_id=message.item_id,
+        borrower_id=message.borrower_id,
+    )
+
+    return result

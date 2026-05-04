@@ -4,6 +4,8 @@ from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import services
+from app.cache import get_cache
+from app.clients.cache import Cache
 from app.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.schemas.loan.query import LoanUpdateQueryFilter
@@ -18,6 +20,7 @@ async def end_client_loan(
     client_id: client_id_annotation,
     loan_id: loan_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
+    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRead:
     """End the loan where the client is the owner."""
 
@@ -27,4 +30,5 @@ async def end_client_loan(
         query_filter=LoanUpdateQueryFilter(
             owner_id=client_id,
         ),
+        cache=cache,
     )
