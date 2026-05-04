@@ -1,6 +1,10 @@
+import json
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.cache_keys import TTL_REGIONS, key_regions
+from app.clients.cache import Cache
 from app.errors.region import RegionNotFoundError
 from app.models.item import Region
 from app.schemas.region.read import RegionRead
@@ -57,11 +61,24 @@ async def get_many_regions(
 
 async def list_regions(
     db: AsyncSession,
+    cache: Cache,
 ) -> list[RegionRead]:
     """List all regions."""
+
+    cached = await cache.get(key_regions())
+    if cached is not None:
+        return [RegionRead.model_validate(r) for r in json.loads(cached)]
 
     stmt = select(Region)
 
     regions = (await db.execute(stmt)).unique().scalars().all()
 
-    return [RegionRead.model_validate(reg) for reg in regions]
+    result = [RegionRead.model_validate(reg) for reg in regions]
+
+    await cache.set(
+        key_regions(),
+        json.dumps([r.model_dump(mode="json") for r in result]),
+        ttl=TTL_REGIONS,
+    )
+
+    return result
