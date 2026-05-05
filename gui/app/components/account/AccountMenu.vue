@@ -82,7 +82,6 @@ const open = ref(false)
   color: $text-secondary;
   padding: $space-1 $space-3;
 
-  border-radius: $radius-pill;
   cursor: pointer;
   transition: background 150ms ease-out;
 
