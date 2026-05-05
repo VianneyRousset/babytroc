@@ -50,9 +50,19 @@ services:
       EMAIL_FROM_NAME: "${EMAIL_FROM_NAME:-Babytroc}"
     depends_on:
       - images
+      - redis
     ports:
       - 127.0.0.1:8080:8080
     network_mode: "host"
+  # redis cache / pubsub
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
   # frontend server
   babytroc-gui:
     image: "ghcr.io/vianneyrousset/babytroc-gui:latest"
@@ -61,3 +71,6 @@ services:
       - babytroc-api
     ports:
       - 127.0.0.1:3000:3000
+
+volumes:
+  redis-data:
