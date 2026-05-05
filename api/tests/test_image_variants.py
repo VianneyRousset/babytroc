@@ -1,6 +1,7 @@
 from io import BytesIO
 
 import PIL.Image
+import pytest
 
 from app.utils.image import generate_webp_variants
 
@@ -57,8 +58,5 @@ def test_generate_webp_variants_strips_exif():
 def test_generate_webp_variants_rejects_non_image():
     fp = BytesIO(b"not an image at all")
 
-    try:
+    with pytest.raises(PIL.Image.UnidentifiedImageError):
         generate_webp_variants(fp)
-        assert False, "Should have raised"
-    except Exception:
-        pass

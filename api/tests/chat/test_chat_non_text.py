@@ -11,7 +11,7 @@ from app.schemas.loan.read import LoanRead, LoanRequestRead
 from app.schemas.user.private import UserPrivateRead
 from tests.fixtures.chat import ReceivedChatMessageChecker
 
-# These tests use websockets + imgpush + broadcaster relay, which under
+# These tests use websockets + S3 uploads + broadcaster relay, which under
 # parallel load (-n 8) can exceed the default 10s timeout.
 pytestmark = pytest.mark.timeout(30)
 

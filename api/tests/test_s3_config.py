@@ -1,5 +1,3 @@
-import os
-
 from app.config import S3Config
 
 

@@ -1,8 +1,6 @@
 from io import BytesIO
 from unittest.mock import AsyncMock, patch
 
-import pytest
-
 from app.clients.storage.s3 import delete_image_variants, upload_image_variants
 from app.config import S3Config
 
