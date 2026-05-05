@@ -6,7 +6,7 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 
 from app.app import create_app
-from app.config import Config, DatabaseConfig, PubsubConfig, RedisConfig
+from app.config import Config, DatabaseConfig, PubsubConfig, RedisConfig, S3Config
 
 
 @pytest.fixture(scope="class")
@@ -23,6 +23,13 @@ async def app_config(
         ),
         pubsub=PubsubConfig(url=redis_config.url),
         redis=redis_config,
+        s3=S3Config(
+            endpoint_url="http://localhost:9000",
+            access_key="minioadmin",
+            secret_key="minioadmin",
+            bucket="test-bucket",
+            public_url="http://localhost:9000/test-bucket",
+        ),
     )
 
 

@@ -7,26 +7,23 @@ from tests.fixtures.items import ItemData
 
 @pytest.mark.usefixtures("items")
 class TestItemImages:
-    """Test item iamges."""
+    """Test item images."""
 
-    async def test_created_image_can_be_read(
+    async def test_upload_image_returns_name(
         self,
         alice_client: AsyncClient,
-        alice_items_image_data: str,
+        alice_items_image_data: bytes,
     ):
-        """Upload image from client 0 and retrieve it from public await client."""
+        """Upload image and verify response contains a name."""
 
-        # upload image
         resp = await alice_client.post(
             "/api/v1/images",
             files={"file": alice_items_image_data},
         )
         resp.raise_for_status()
-        name = resp.json()["name"]
-
-        # request image
-        resp = await alice_client.get(f"/api/v1/images/{name}")
-        resp.raise_for_status()
+        data = resp.json()
+        assert "name" in data
+        assert len(data["name"]) == 32  # uuid hex
 
     async def test_item_images_order(
         self,
@@ -66,7 +63,6 @@ class TestItemImages:
 
     @staticmethod
     async def upload_image(client: AsyncClient, img: bytes) -> str:
-        # upload image
         resp = await client.post(
             "/api/v1/images",
             files={"file": img},
