@@ -7,7 +7,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from app import services
 from app.database import get_session_maker
-from app.pubsub import get_broadcast
+from app.pubsub import get_broadcast, user_channel
 from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
 from app.schemas.chat.query import ChatMessageReadQueryFilter
 from app.schemas.pubsub import (
@@ -123,7 +123,7 @@ async def open_websocket(
                     websocket=websocket,
                     broadcast=broadcast,
                     client_id=client_id,
-                    channel=f"user{client_id}",
+                    channel=user_channel(client_id),
                 )
             )
             task_group.create_task(

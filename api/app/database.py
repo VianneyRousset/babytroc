@@ -24,6 +24,11 @@ def create_session_maker(db_url: URL, **engine_kwargs) -> async_sessionmaker:
 async def get_db_session() -> AsyncGenerator[AsyncSession]:
     async with _session_maker.begin() as session:
         yield session
+    # Flush pub/sub notifications after the transaction has committed
+    # (data is now visible to other connections)
+    from app.pubsub import flush_pending_notifications
+
+    await flush_pending_notifications(session)
 
 
 _session_maker: async_sessionmaker

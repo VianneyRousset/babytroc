@@ -29,8 +29,12 @@ async def app_config(
 @pytest.fixture(scope="class")
 async def app(
     app_config: Config,
+    database: sqlalchemy.URL,
 ) -> AsyncGenerator[FastAPI]:
-    app = create_app(app_config)
+    # Use the unique database name as pub/sub channel prefix to avoid
+    # cross-talk between xdist workers sharing the same Redis instance.
+    prefix = f"{database.database}:" if database.database else ""
+    app = create_app(app_config, pubsub_channel_prefix=prefix)
     async with LifespanManager(app):
         yield app
 

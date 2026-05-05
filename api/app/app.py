@@ -51,7 +51,11 @@ class DelayMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
-def create_app(config: Config | None = None) -> FastAPI:
+def create_app(
+    config: Config | None = None,
+    *,
+    pubsub_channel_prefix: str = "",
+) -> FastAPI:
     if config is None:
         config = Config.from_env()
 
@@ -79,7 +83,7 @@ def create_app(config: Config | None = None) -> FastAPI:
     # broadcaster
     broadcast = Broadcast(config.pubsub.url)
     app.state.broadcast = broadcast
-    init_broadcast_dependency(broadcast)
+    init_broadcast_dependency(broadcast, channel_prefix=pubsub_channel_prefix)
 
     # redis client and cache
     redis_client = create_redis_client(config.redis)

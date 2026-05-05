@@ -1,10 +1,9 @@
-import asyncio
-
 from broadcaster import Broadcast
-from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.pubsub import PubsubMessage
+
+_PENDING_NOTIFICATIONS_KEY = "_pending_pubsub_notifications"
 
 
 def get_broadcast() -> Broadcast:
@@ -12,11 +11,21 @@ def get_broadcast() -> Broadcast:
 
 
 _broadcast: Broadcast
+_channel_prefix: str = ""
 
 
-def init_broadcast_dependency(broadcast: Broadcast) -> None:
-    global _broadcast
+def init_broadcast_dependency(
+    broadcast: Broadcast,
+    *,
+    channel_prefix: str = "",
+) -> None:
+    global _broadcast, _channel_prefix
     _broadcast = broadcast
+    _channel_prefix = channel_prefix
+
+
+def user_channel(user_id: int) -> str:
+    return f"{_channel_prefix}user{user_id}"
 
 
 async def notify_user(
@@ -24,8 +33,10 @@ async def notify_user(
     user_id: int,
     message: PubsubMessage,
 ) -> None:
-    channel = f"user{user_id}"
-    await broadcast.publish(channel=channel, message=message.model_dump_json())
+    await broadcast.publish(
+        channel=user_channel(user_id),
+        message=message.model_dump_json(),
+    )
 
 
 def notify_user_after_commit(
@@ -34,19 +45,21 @@ def notify_user_after_commit(
     user_id: int,
     message: PubsubMessage,
 ) -> None:
-    """Schedule a notification to be published after the current transaction commits.
+    """Queue a notification to be published after the session commits.
 
-    Uses SQLAlchemy's ``after_commit`` session event so the Redis pub/sub message
-    is only sent once the data is visible to other connections.
+    Notifications are stored in ``session.info`` and flushed by
+    ``flush_pending_notifications`` which must be called after the session
+    transaction has been committed (i.e. after the data is visible).
     """
-    channel = f"user{user_id}"
+    channel = user_channel(user_id)
     payload = message.model_dump_json()
 
-    def _on_commit(session):
-        asyncio.get_event_loop().call_soon(
-            asyncio.ensure_future,
-            broadcast.publish(channel=channel, message=payload),
-        )
+    pending = db.info.setdefault(_PENDING_NOTIFICATIONS_KEY, [])
+    pending.append((broadcast, channel, payload))
 
-    # Register on the underlying sync session (async session proxies it).
-    event.listen(db.sync_session, "after_commit", _on_commit, once=True)
+
+async def flush_pending_notifications(db: AsyncSession) -> None:
+    """Publish all queued notifications. Call after session commit."""
+    pending = db.info.pop(_PENDING_NOTIFICATIONS_KEY, [])
+    for broadcast, channel, payload in pending:
+        await broadcast.publish(channel=channel, message=payload)

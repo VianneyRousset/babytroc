@@ -6,7 +6,7 @@ from app.clients.cache import Cache
 
 @pytest.fixture
 async def redis_client():
-    client = Redis(host="localhost", port=6379, db=3)
+    client = Redis(host="localhost", port=6379, db=4)
     await client.flushdb()
     yield client
     await client.flushdb()
