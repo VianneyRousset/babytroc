@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Babytroc API — FastAPI async backend for a baby-item lending platform. PostgreSQL via SQLAlchemy async (asyncpg). Real-time chat via Postgres `LISTEN/NOTIFY` + `broadcaster` + websockets. Image storage delegated to an `imgpush` service. JWT auth.
+Babytroc API — FastAPI async backend for a baby-item lending platform. PostgreSQL via SQLAlchemy async (asyncpg). Real-time chat via Postgres `LISTEN/NOTIFY` + `broadcaster` + websockets. Image storage via S3 (MinIO) with nginx reverse proxy for serving. JWT auth.
 
 ## Tooling
 
@@ -32,7 +32,7 @@ Task runner is `mise` (see `mise.toml`). Python 3.13, deps managed by `uv`. Virt
 
 ### Environment
 
-Required env vars (see `app/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `IMGPUSH_{HOST,PORT}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none). `mise.toml` loads `.env.yaml` automatically.
+Required env vars (see `app/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `S3_{ENDPOINT_URL,ACCESS_KEY,SECRET_KEY,BUCKET,PUBLIC_URL}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none). `mise.toml` loads `.env.yaml` automatically.
 
 ## Architecture
 
