@@ -115,17 +115,40 @@ class EmailConfig(NamedTuple):
         )
 
 
-class ImgpushConfig(NamedTuple):
-    url: str
+class S3Config(NamedTuple):
+    endpoint_url: str
+    access_key: str
+    secret_key: str
+    bucket: str
+    public_url: str
 
     @classmethod
-    def from_env(cls, url: str | None = None) -> Self:
-        if url is None:
-            imgpush_host = os.environ["IMGPUSH_HOST"]
-            imgpush_port = int(os.environ["IMGPUSH_PORT"])
-            url = f"http://{imgpush_host}:{imgpush_port}"
+    def from_env(
+        cls,
+        endpoint_url: str | None = None,
+        access_key: str | None = None,
+        secret_key: str | None = None,
+        bucket: str | None = None,
+        public_url: str | None = None,
+    ) -> Self:
+        if endpoint_url is None:
+            endpoint_url = os.environ["S3_ENDPOINT_URL"]
+        if access_key is None:
+            access_key = os.environ["S3_ACCESS_KEY"]
+        if secret_key is None:
+            secret_key = os.environ["S3_SECRET_KEY"]
+        if bucket is None:
+            bucket = os.environ["S3_BUCKET"]
+        if public_url is None:
+            public_url = os.environ["S3_PUBLIC_URL"]
 
-        return cls(url=url)
+        return cls(
+            endpoint_url=endpoint_url,
+            access_key=access_key,
+            secret_key=secret_key,
+            bucket=bucket,
+            public_url=public_url,
+        )
 
 
 class AuthConfig(NamedTuple):
@@ -183,7 +206,7 @@ class Config(NamedTuple):
     database: DatabaseConfig
     pubsub: PubsubConfig
     email: EmailConfig
-    imgpush: ImgpushConfig
+    s3: S3Config
     redis: RedisConfig
     auth: AuthConfig
 
@@ -198,7 +221,7 @@ class Config(NamedTuple):
         database: DatabaseConfig | None = None,
         pubsub: PubsubConfig | None = None,
         email: EmailConfig | None = None,
-        imgpush: ImgpushConfig | None = None,
+        s3: S3Config | None = None,
         redis: RedisConfig | None = None,
         auth: AuthConfig | None = None,
     ) -> Self:
@@ -226,8 +249,8 @@ class Config(NamedTuple):
         if email is None:
             email = EmailConfig.from_env()
 
-        if imgpush is None:
-            imgpush = ImgpushConfig.from_env()
+        if s3 is None:
+            s3 = S3Config.from_env()
 
         if auth is None:
             auth = AuthConfig.from_env()
@@ -240,7 +263,7 @@ class Config(NamedTuple):
             database=database,
             pubsub=pubsub,
             email=email,
-            imgpush=imgpush,
+            s3=s3,
             redis=redis,
             auth=auth,
         )
