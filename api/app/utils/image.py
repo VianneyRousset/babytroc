@@ -99,3 +99,31 @@ def clear_exif(image: PIL.Image.Image) -> PIL.Image.Image:
         del exif[k]
 
     return image
+
+
+def generate_webp_variants(
+    fp: IO[bytes],
+    sizes: tuple[int, ...] = (256, 512, 1024),
+) -> dict[int, BytesIO]:
+    """Load image, validate, process, and return webp variants for each size."""
+
+    image = load_image(fp)
+
+    # Validate — this will raise if the file is not a valid image.
+    # We need to reload after verify() since it closes the image.
+    image.verify()
+    fp.seek(0)
+    image = load_image(fp)
+
+    image = apply_exif_orientation(image)
+    image = clear_exif(image)
+
+    variants: dict[int, BytesIO] = {}
+    for size in sizes:
+        resized = limit_image_size(image.copy(), size)
+        buf = BytesIO()
+        resized.save(buf, format="WEBP", quality=80)
+        buf.seek(0)
+        variants[size] = buf
+
+    return variants
