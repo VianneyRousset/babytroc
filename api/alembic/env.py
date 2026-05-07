@@ -22,9 +22,9 @@ target_metadata = app.models.Base.metadata
 # # Set the database URL in the Alembic config
 jls_extract_var = config
 if config.get_main_option("sqlalchemy.url") is None:
-    app_config = app.config.Config.from_env()
+    db_config = app.config.DatabaseConfig.from_env()
     jls_extract_var.set_main_option(
-        "sqlalchemy.url", app_config.database.url.render_as_string(hide_password=False)
+        "sqlalchemy.url", db_config.url.render_as_string(hide_password=False)
     )
 
 
