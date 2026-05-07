@@ -5,9 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
 import app
+from app.clients.cache import NullCache
 from app.schemas.region.create import RegionCreate as Region
 
 logger = logging.getLogger("seed")
+
+_cache = NullCache()
 
 
 async def check_regions(
@@ -16,7 +19,7 @@ async def check_regions(
     """Returns True if some regions are present in the database."""
 
     logger.debug("Checking regions: started")
-    regions = await app.services.region.list_regions(db)
+    regions = await app.services.region.list_regions(db, _cache)
     logger.debug("%i regions found", len(regions))
     res = len(regions) > 0
     logger.debug("Checking regions: done")

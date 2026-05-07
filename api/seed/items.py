@@ -8,6 +8,7 @@ from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
 import app
+from app.clients.cache import NullCache
 from app.schemas.item.base import MonthRange
 from app.schemas.item.constants import (
     DESCRIPTION_LENGTH,
@@ -18,6 +19,8 @@ from app.schemas.item.create import ItemCreate as Item
 from .config import get_config
 
 logger = logging.getLogger("seed")
+
+_cache = NullCache()
 
 word_generator = RandomWord()
 sentence_generator = RandomSentence()
@@ -119,8 +122,8 @@ async def populate_items(
 
     config = get_config()
     users = await app.services.user.list_users(db)
-    regions = await app.services.region.list_regions(db)
-    categories = await app.services.category.list_categories(db)
+    regions = await app.services.region.list_regions(db, _cache)
+    categories = await app.services.category.list_categories(db, _cache)
     child_category_slugs = [
         cat.slug for cat in categories if cat.parent_slug is not None
     ]

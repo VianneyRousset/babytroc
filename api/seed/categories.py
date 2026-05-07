@@ -5,9 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
 import app
+from app.clients.cache import NullCache
 from app.schemas.category.create import CategoryCreate as Category
 
 logger = logging.getLogger("seed")
+
+_cache = NullCache()
 
 
 async def check_categories(
@@ -16,7 +19,7 @@ async def check_categories(
     """Returns True if some categories are present in the database."""
 
     logger.debug("Checking categories: started")
-    categories = await app.services.category.list_categories(db)
+    categories = await app.services.category.list_categories(db, _cache)
     logger.debug("%i categories found", len(categories))
     res = len(categories) > 0
     logger.debug("Checking categories: done")

@@ -3,7 +3,31 @@ from collections.abc import Awaitable, Callable
 from redis.asyncio import Redis
 
 
-class Cache:
+class NullCache:
+    """No-op cache for contexts that don't need caching (e.g. seed scripts)."""
+
+    async def get(self, key: str) -> bytes | None:
+        return None
+
+    async def set(self, key: str, value: str, ttl: int) -> None:
+        pass
+
+    async def delete(self, *keys: str) -> None:
+        pass
+
+    async def delete_pattern(self, pattern: str) -> None:
+        pass
+
+    async def get_or_set(
+        self,
+        key: str,
+        ttl: int,
+        factory: Callable[[], Awaitable[str]],
+    ) -> str:
+        return await factory()
+
+
+class Cache(NullCache):
     def __init__(self, redis: Redis) -> None:
         self._redis = redis
 
