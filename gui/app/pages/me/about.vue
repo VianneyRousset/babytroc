@@ -76,6 +76,7 @@ main {
   font-weight: 200;
   font-size: 3rem;
   margin: 0;
+  text-align: center;
 }
 
 .tagline {
@@ -83,6 +84,10 @@ main {
   color: $text-secondary;
   font-size: 1.1rem;
   margin: 0;
+}
+
+:deep(.PanelBanner) {
+  padding: 2rem 0;
 }
 
 .card {
@@ -97,6 +102,7 @@ main {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
+    align-self: flex-start;
   }
 
   p, li {
@@ -109,6 +115,7 @@ main {
     padding-left: $space-6;
     @include flex-column;
     gap: $space-2;
+    align-self: stretch;
   }
 }
 </style>
