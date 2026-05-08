@@ -53,7 +53,7 @@ const stop = watch(() => props.item, (_item) => {
     targetedAgeMonths.value = string2range(_item.targeted_age_months)
     regions.value = new Set(_item.region_ids)
     categories.value = new Set(_item.category_slugs)
-    studioImages.value = _item.image_names.map((name: string) => useStudioImage(imagePath(name), { crop: 'center', maxSize: 1024 }))
+    studioImages.value = _item.image_names.map((name: string) => useStudioImage(imagePath(name, 1024), { crop: 'center', maxSize: 1024 }))
   }
 }, { immediate: true })
 tryOnUnmounted(stop)

@@ -12,8 +12,6 @@ const props = withDefaults(defineProps<{
 
 const { loanRequest } = toRefs(props)
 
-const { firstImagePath: itemImage } = useItemFirstImage(() => unref(loanRequest).item)
-
 const stateLabel = computed(() => {
   switch (unref(loanRequest).state) {
     case 1: return 'En attente'

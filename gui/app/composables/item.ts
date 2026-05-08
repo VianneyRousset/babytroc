@@ -13,7 +13,6 @@ export function useItem({ itemId }: { itemId: MaybeRefOrGetter<number> }) {
 export function useItemImages<T extends { image_names: Array<string> }>(item: MaybeRefOrGetter<T>) {
   return {
     imagesNames: computed(() => toValue(item).image_names),
-    imagesPaths: computed(() => toValue(item).image_names.map(imagePath)),
   }
 }
 
@@ -21,5 +20,4 @@ export function useItemImages<T extends { image_names: Array<string> }>(item: Ma
 
 export const useItemFirstImage = (item: MaybeRefOrGetter<ItemPreview>) => ({
   firstImageName: computed(() => toValue(item).first_image_name),
-  firstImagePath: computed(() => imagePath(toValue(item).first_image_name)),
 })

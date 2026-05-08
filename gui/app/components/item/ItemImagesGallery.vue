@@ -8,13 +8,13 @@ const props = withDefaults(defineProps<{
 
 const { item, wide } = toRefs(props)
 
-const { imagesPaths } = useItemImages(item)
+const { imagesNames } = useItemImages(item)
 </script>
 
 <template>
   <ImageGallery
     class="ItemImagesGallery"
-    :images="imagesPaths"
+    :images="imagesNames"
     :config="{ itemsToShow: wide ? 2.5 : 1 }"
   />
 </template>

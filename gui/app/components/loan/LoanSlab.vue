@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{
 
 const { loan } = toRefs(props)
 
-const { firstImagePath: itemImage } = useItemFirstImage(() => unref(loan).item)
+const { firstImageName: itemImageName } = useItemFirstImage(() => unref(loan).item)
 
 const formatedDuring = computed(() =>
   formatRelativeDateRange(loan.value.during),
@@ -39,7 +39,7 @@ const subLabel = computed(() =>
 
     <template #icon>
       <ImageAndAvatar
-        :image="itemImage"
+        :image-name="itemImageName"
         :avatar="otherUser.avatar_seed"
       />
     </template>

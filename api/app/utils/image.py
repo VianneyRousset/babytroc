@@ -103,7 +103,7 @@ def clear_exif(image: PIL.Image.Image) -> PIL.Image.Image:
 
 def generate_webp_variants(
     fp: IO[bytes],
-    sizes: tuple[int, ...] = (256, 512, 1024),
+    sizes: tuple[int, ...] = (128, 256, 512, 1024),
 ) -> dict[int, BytesIO]:
     """Load image, validate, process, and return webp variants for each size."""
 

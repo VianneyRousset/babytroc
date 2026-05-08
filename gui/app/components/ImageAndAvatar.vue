@@ -1,12 +1,15 @@
 <script setup lang="ts">
-// TODO query reduced image size
-
 const props = defineProps<{
-  image: string | null
+  imageName: string | null
   avatar: string | null
 }>()
 
-const { image, avatar } = toRefs(props)
+const { imageName, avatar } = toRefs(props)
+
+const image = computed(() => {
+  const name = unref(imageName)
+  return name ? imagePath(name, 256) : null
+})
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import aioboto3
 
 from app.config import S3Config
 
-IMAGE_SIZES = (256, 512, 1024)
+IMAGE_SIZES = (128, 256, 512, 1024)
 
 
 def _get_s3_client(config: S3Config):
@@ -49,8 +49,6 @@ async def delete_image_variants(
         await client.delete_objects(
             Bucket=config.bucket,
             Delete={
-                "Objects": [
-                    {"Key": image_key(name, size)} for size in IMAGE_SIZES
-                ],
+                "Objects": [{"Key": image_key(name, size)} for size in IMAGE_SIZES],
             },
         )

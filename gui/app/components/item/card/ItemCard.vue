@@ -12,14 +12,14 @@ const props = defineProps<{
 const { item } = toRefs(props)
 
 const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
-const { firstImagePath } = useItemFirstImage(item)
+const { firstImageName } = useItemFirstImage(item)
 
 const backgroundImage = computed(() => {
   const backgrounds = []
 
   backgrounds.push('linear-gradient(transparent 0 40%, #202020 100%)')
-  backgrounds.push(`url('${unref(firstImagePath)}?s=512')`)
-  backgrounds.push(`url('${unref(firstImagePath)}?s=32')`)
+  backgrounds.push(`url('${imagePath(unref(firstImageName), 512)}')`)
+  backgrounds.push(`url('${imagePath(unref(firstImageName), 128)}')`)
 
   return backgrounds.join(', ')
 })

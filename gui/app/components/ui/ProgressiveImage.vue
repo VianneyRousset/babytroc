@@ -1,10 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{
-  src: string
-  placeholderSrc: string
+  name: string
 }>()
 
-const { src, placeholderSrc } = toRefs(props)
+const { name } = toRefs(props)
+
+const src = computed(() => imagePath(unref(name), 1024))
+const placeholderSrc = computed(() => imagePath(unref(name), 128))
 
 const { data: imageData, status } = useQuery({
   key: () => ['image', unref(src)],

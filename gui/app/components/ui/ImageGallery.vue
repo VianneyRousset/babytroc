@@ -64,8 +64,7 @@ const carouselConfig = computed(() => ({
       >
         <ProgressiveImage
           class="carousel__item"
-          :src="`${image}`"
-          :placeholder-src="`${image}?s=16`"
+          :name="image"
         />
       </Slide>
 

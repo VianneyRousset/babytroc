@@ -11,7 +11,7 @@ const { chat, me } = toRefs(props)
 const { interlocutor } = useChatRoles(chat, me)
 
 // item image
-const { firstImagePath: itemImage } = useItemFirstImage(
+const { firstImageName: itemImageName } = useItemFirstImage(
   computed(() => unref(chat).item),
 )
 
@@ -25,7 +25,7 @@ const { hot } = useChatHot(chat)
 
     <template #icon>
       <ImageAndAvatar
-        :image="itemImage"
+        :image-name="itemImageName"
         :avatar="interlocutor.avatar_seed"
       />
     </template>
