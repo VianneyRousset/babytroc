@@ -31,7 +31,7 @@ function submit() {
     :max-width="600"
   >
     <main>
-      <section class="card intro">
+      <section class="section intro">
         <p>
           Une question, un problème ou une suggestion&nbsp;? Contactez-nous&nbsp;!
         </p>
@@ -40,7 +40,9 @@ function submit() {
         </p>
       </section>
 
-      <section class="card form">
+      <hr class="divider">
+
+      <section class="section form">
         <h2>Formulaire de contact</h2>
 
         <transition
@@ -113,19 +115,23 @@ function submit() {
 <style scoped lang="scss">
 main {
   @include flex-column;
-  gap: $space-4;
+  gap: 0;
   padding: $space-4;
 }
 
-.card {
-  background: $bg-surface;
-  border-radius: $radius-md;
-  box-shadow: $shadow-sm;
-  padding: $space-4;
+.divider {
+  border: none;
+  border-top: 1px solid $divider;
+  margin: $space-2 0;
+}
+
+.section {
+  padding: $space-6 0;
 }
 
 .intro {
   @include flex-column;
+  align-items: stretch;
   gap: $space-2;
 
   p {
@@ -142,21 +148,26 @@ main {
 
 .form {
   @include flex-column;
+  align-items: stretch;
   gap: $space-4;
 
   h2 {
-    font-size: 1.1rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.25rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     margin: 0;
   }
 
   form {
     @include flex-column;
+    align-items: stretch;
     gap: $space-4;
   }
 
   label {
     @include flex-column;
+    align-items: stretch;
     gap: $space-1;
     font-size: 0.875rem;
     font-weight: 500;

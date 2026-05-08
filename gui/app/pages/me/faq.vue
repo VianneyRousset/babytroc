@@ -70,6 +70,8 @@ main {
 
   summary {
     padding: $space-4;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     user-select: none;

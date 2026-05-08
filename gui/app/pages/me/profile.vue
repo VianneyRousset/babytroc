@@ -88,7 +88,8 @@ async function regenerateAvatar() {
     gap: $space-4;
 
     h1 {
-      font-size: 1.5rem;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
@@ -111,7 +112,7 @@ async function regenerateAvatar() {
 
       .value {
         @include font-jakarta;
-        font-size: 1.4rem;
+        font-size: 1.25rem;
         font-weight: 700;
         color: $text-primary;
       }

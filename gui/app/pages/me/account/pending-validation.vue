@@ -101,7 +101,7 @@ useLiveMessage('updated_account_validation', () => {
         </Panel>
       </transition>
     </main>
-  </AppPAge>
+  </AppPage>
 </template>
 
 <style scoped lang="scss">

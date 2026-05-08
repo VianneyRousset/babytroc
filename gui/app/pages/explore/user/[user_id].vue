@@ -120,7 +120,7 @@ const { loggedIn } = useAuth()
               </div>
             </div>
             <section>
-              <h2>Objects appartenants à {{ user.name }}</h2>
+              <h2>Objets appartenant à {{ user.name }}</h2>
               <ItemCardsCollection
                 :items="items"
                 :dense="false"
@@ -145,6 +145,13 @@ const { loggedIn } = useAuth()
     display: flex;
     flex-direction: column;
     gap: $space-3;
+
+    h2 {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
   }
 
   .user-profile-card {
@@ -159,7 +166,8 @@ const { loggedIn } = useAuth()
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.75rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
@@ -181,13 +189,13 @@ const { loggedIn } = useAuth()
 
         .value {
           @include font-jakarta;
-          font-size: 1.4rem;
+          font-size: 1.25rem;
           font-weight: 700;
           color: $text-primary;
         }
 
         .label {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: $text-secondary;
         }
       }

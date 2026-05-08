@@ -21,7 +21,7 @@ definePageMeta({
         </p>
       </PanelBanner>
 
-      <section class="card">
+      <section class="section">
         <h2>Notre mission</h2>
         <p>
           Babytroc est née d'une idée simple : les enfants grandissent vite,
@@ -31,7 +31,9 @@ definePageMeta({
         </p>
       </section>
 
-      <section class="card">
+      <hr class="divider">
+
+      <section class="section">
         <h2>Comment ça marche</h2>
         <ol>
           <li>
@@ -46,17 +48,19 @@ definePageMeta({
         </ol>
       </section>
 
-      <section class="card">
+      <hr class="divider">
+
+      <section class="section">
         <h2>Nos valeurs</h2>
         <ul>
           <li>
-            <strong>Confiance</strong> — Une communauté fondée sur la confiance entre parents
+            <strong>Confiance :</strong> une communauté fondée sur la confiance entre parents
           </li>
           <li>
-            <strong>Durabilité</strong> — Donner une seconde vie aux objets plutôt que d'acheter du neuf
+            <strong>Durabilité :</strong> donner une seconde vie aux objets plutôt que d'acheter du neuf
           </li>
           <li>
-            <strong>Communauté</strong> — Connecter les familles locales et renforcer les liens de voisinage
+            <strong>Communauté :</strong> connecter les familles locales et renforcer les liens de voisinage
           </li>
         </ul>
       </section>
@@ -67,7 +71,7 @@ definePageMeta({
 <style scoped lang="scss">
 main {
   @include flex-column;
-  gap: $space-4;
+  gap: 0;
   padding: $space-4;
 }
 
@@ -82,40 +86,75 @@ main {
 .tagline {
   text-align: center;
   color: $text-secondary;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
   margin: 0;
 }
 
 :deep(.PanelBanner) {
-  padding: 2rem 0;
+  padding: 3rem 0;
+
+  h1 {
+    margin-bottom: 0.75em;
+  }
 }
 
-.card {
+.divider {
+  border: none;
+  border-top: 1px solid $divider;
+  margin: $space-2 0;
+}
+
+.section {
   @include flex-column;
-  gap: $space-2;
-  background: $bg-surface;
-  border-radius: $radius-md;
-  box-shadow: $shadow-sm;
-  padding: $space-4;
+  align-items: stretch;
+  gap: $space-3;
+  padding: $space-6 0;
 
   h2 {
-    font-size: 1.1rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.25rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     margin: 0;
-    align-self: flex-start;
   }
 
-  p, li {
+  p {
+    margin: 0;
+    color: $text-secondary;
+    line-height: 1.6;
+  }
+
+  li {
     color: $text-secondary;
     line-height: 1.6;
   }
 
   ol, ul {
     margin: 0;
-    padding-left: $space-6;
+    padding-left: 0;
+    list-style: none;
     @include flex-column;
     gap: $space-2;
-    align-self: stretch;
+  }
+
+  ol {
+    counter-reset: steps;
+
+    li {
+      counter-increment: steps;
+
+      &::before {
+        content: counter(steps) ". ";
+        font-weight: 600;
+        color: $text-tertiary;
+      }
+    }
+  }
+
+  ul li::before {
+    content: "\2022\00a0";
+    color: $text-tertiary;
   }
 }
 </style>

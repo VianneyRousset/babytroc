@@ -76,11 +76,6 @@ async function reset() {
           v-if="resetPasswordStatus === 'pending'"
           class="vbox"
         >
-          <!-- <AccountPasswordInput -->
-          <!-- v-model="password" -->
-          <!-- @update:status="_status => (passwordStatus = _status)" -->
-          <!-- @enter="reset" -->
-          <!-- /> -->
           <TextButton
             aspect="flat"
             size="large"
@@ -110,7 +105,7 @@ main {
     font-family: "Plus Jakarta Sans", sans-serif;
     text-align: center;
     color: $neutral-800;
-    font-size: 1.4rem;
+    font-size: 1.75rem;
     font-weight: 700;
   }
 

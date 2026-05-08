@@ -230,8 +230,7 @@ async function submitUnsave() {
               wide
             />
             <section
-              class="h golden-left"
-              style="gap: 2em;"
+              class="h golden-left info-section"
             >
               <div class="name-description">
                 <h1>{{ item.name }}</h1>
@@ -331,8 +330,19 @@ async function submitUnsave() {
     }
   }
 
+  .info-section {
+    gap: $space-8;
+  }
+
   section {
     font-size: clamp(0.6em, 2vw, 1em);
+
+    h2 {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
 
     .ItemAge {
       color: $text-tertiary;

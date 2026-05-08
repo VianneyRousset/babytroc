@@ -12,7 +12,7 @@ definePageMeta({
     :max-width="600"
   >
     <main>
-      <section class="card">
+      <section class="section">
         <h2>Conditions d'utilisation</h2>
         <ul>
           <li>
@@ -37,7 +37,9 @@ definePageMeta({
         </ul>
       </section>
 
-      <section class="card">
+      <hr class="divider">
+
+      <section class="section">
         <h2>Politique de confidentialité</h2>
         <ul>
           <li>
@@ -64,7 +66,9 @@ definePageMeta({
         </ul>
       </section>
 
-      <section class="card">
+      <hr class="divider">
+
+      <section class="section">
         <h2>Règles de la communauté</h2>
         <ul>
           <li>Seuls les articles pour enfants sont autorisés.</li>
@@ -107,29 +111,28 @@ definePageMeta({
 <style scoped lang="scss">
 main {
   @include flex-column;
-  gap: $space-4;
+  gap: 0;
   padding: $space-4;
 }
 
-.card {
+.divider {
+  border: none;
+  border-top: 1px solid $divider;
+  margin: $space-2 0;
+}
+
+.section {
   @include flex-column;
-  gap: $space-2;
-  background: $bg-surface;
-  border-radius: $radius-md;
-  box-shadow: $shadow-sm;
-  padding: $space-4;
+  align-items: stretch;
+  gap: $space-3;
+  padding: $space-6 0;
 
   h2 {
-    font-size: 1.1rem;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.25rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     margin: 0;
-  }
-
-  ul {
-    margin: 0;
-    padding-left: $space-6;
-    @include flex-column;
-    gap: $space-2;
   }
 
   li {
@@ -137,8 +140,22 @@ main {
     line-height: 1.6;
   }
 
+  ul {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    @include flex-column;
+    gap: $space-2;
+  }
+
+  ul li::before {
+    content: "\2022\00a0";
+    color: $text-tertiary;
+  }
+
   li > ul {
     margin-top: $space-2;
+    padding-left: $space-4;
   }
 }
 </style>
