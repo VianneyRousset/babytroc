@@ -26,9 +26,12 @@ function submit() {
 </script>
 
 <template>
-  <AppPage :max-width="600">
-    <Panel>
-      <section class="intro">
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <main>
+      <section class="card intro">
         <p>
           Une question, un problème ou une suggestion&nbsp;? Contactez-nous&nbsp;!
         </p>
@@ -37,7 +40,7 @@ function submit() {
         </p>
       </section>
 
-      <section class="form">
+      <section class="card form">
         <h2>Formulaire de contact</h2>
 
         <transition
@@ -103,11 +106,24 @@ function submit() {
           </form>
         </transition>
       </section>
-    </Panel>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
+main {
+  @include flex-column;
+  gap: $space-4;
+  padding: $space-4;
+}
+
+.card {
+  background: $bg-surface;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  padding: $space-4;
+}
+
 .intro {
   @include flex-column;
   gap: $space-2;

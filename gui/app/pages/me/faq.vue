@@ -38,8 +38,11 @@ const faq = [
 </script>
 
 <template>
-  <AppPage :max-width="600">
-    <Panel>
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <main>
       <details
         v-for="(item, i) in faq"
         :key="i"
@@ -48,14 +51,21 @@ const faq = [
         <summary>{{ item.q }}</summary>
         <p>{{ item.a }}</p>
       </details>
-    </Panel>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
+main {
+  @include flex-column;
+  gap: $space-4;
+  padding: $space-4;
+}
+
 .faq-item {
-  border: 1px solid $border-default;
-  border-radius: $radius-sm;
+  background: $bg-surface;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
   overflow: hidden;
 
   summary {

@@ -7,9 +7,12 @@ definePageMeta({
 </script>
 
 <template>
-  <AppPage :max-width="600">
-    <Panel>
-      <section>
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <main>
+      <section class="card">
         <h2>Conditions d'utilisation</h2>
         <ul>
           <li>
@@ -34,7 +37,7 @@ definePageMeta({
         </ul>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Politique de confidentialité</h2>
         <ul>
           <li>
@@ -61,7 +64,7 @@ definePageMeta({
         </ul>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Règles de la communauté</h2>
         <ul>
           <li>Seuls les articles pour enfants sont autorisés.</li>
@@ -97,14 +100,24 @@ definePageMeta({
           </li>
         </ul>
       </section>
-    </Panel>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
-section {
+main {
+  @include flex-column;
+  gap: $space-4;
+  padding: $space-4;
+}
+
+.card {
   @include flex-column;
   gap: $space-2;
+  background: $bg-surface;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  padding: $space-4;
 
   h2 {
     font-size: 1.1rem;

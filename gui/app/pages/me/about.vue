@@ -7,8 +7,11 @@ definePageMeta({
 </script>
 
 <template>
-  <AppPage :max-width="600">
-    <Panel>
+  <AppPage
+    with-header
+    :max-width="600"
+  >
+    <main>
       <PanelBanner>
         <h1 class="logo">
           Babytroc
@@ -18,7 +21,7 @@ definePageMeta({
         </p>
       </PanelBanner>
 
-      <section>
+      <section class="card">
         <h2>Notre mission</h2>
         <p>
           Babytroc est née d'une idée simple : les enfants grandissent vite,
@@ -28,7 +31,7 @@ definePageMeta({
         </p>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Comment ça marche</h2>
         <ol>
           <li>
@@ -43,7 +46,7 @@ definePageMeta({
         </ol>
       </section>
 
-      <section>
+      <section class="card">
         <h2>Nos valeurs</h2>
         <ul>
           <li>
@@ -57,11 +60,17 @@ definePageMeta({
           </li>
         </ul>
       </section>
-    </Panel>
+    </main>
   </AppPage>
 </template>
 
 <style scoped lang="scss">
+main {
+  @include flex-column;
+  gap: $space-4;
+  padding: $space-4;
+}
+
 .logo {
   font-family: "Plus Jakarta Sans", sans-serif;
   font-weight: 200;
@@ -76,9 +85,13 @@ definePageMeta({
   margin: 0;
 }
 
-section {
+.card {
   @include flex-column;
   gap: $space-2;
+  background: $bg-surface;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  padding: $space-4;
 
   h2 {
     font-size: 1.1rem;
