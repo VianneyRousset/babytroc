@@ -1,3 +1,1 @@
-AVATAR_SEED_LENGTH = range(5, 10)
-NAME_LENGTH = range(3, 30)
-PASSWORD_MIN_LENGTH = 7
+from app.domains.user.schemas.constants import *  # noqa: F401,F403
