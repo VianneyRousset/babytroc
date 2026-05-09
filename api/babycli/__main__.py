@@ -6,9 +6,11 @@ app = App(
     help="Babytroc API operations CLI.",
 )
 
+from .check import check_app
 from .danger import danger_mode_app
 from .logs import logs_app
 
+app.command(check_app)
 app.command(danger_mode_app)
 app.command(logs_app)
 
