@@ -211,10 +211,24 @@ async def list_items(  # noqa: C901
             )
             raise TypeError(msg)
 
-        if cursor.words_match is not None:
+        if cursor.words_match is not None and cursor.item_id is not None:
+            # composite seek: everything strictly after (words_match, id) in
+            # ORDER BY words_match DESC, id DESC
+            stmt = stmt.where(
+                BooleanClauseList.or_(
+                    words_match < cursor.words_match,
+                    BooleanClauseList.and_(
+                        words_match == cursor.words_match,
+                        Item.id < cursor.item_id,
+                    ),
+                )
+            )
+        elif cursor.words_match is not None:
             stmt = stmt.where(words_match <= cursor.words_match)
+        elif cursor.item_id is not None:
+            stmt = stmt.where(Item.id < cursor.item_id)
 
-    if cursor.item_id is not None:
+    elif cursor.item_id is not None:
         stmt = stmt.where(Item.id < cursor.item_id)
 
     stmt = stmt.options(undefer(Item.first_image_name))
@@ -243,7 +257,7 @@ async def list_items(  # noqa: C901
         next_cursor: ItemQueryPageCursor | ItemMatchingWordsQueryPageCursor | None = (
             ItemMatchingWordsQueryPageCursor(
                 words_match=rows[-1].words_match,
-                item_id=items[0].id,
+                item_id=items[-1].id,
             )
             if rows
             else None
