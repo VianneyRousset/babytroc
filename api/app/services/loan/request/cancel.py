@@ -93,7 +93,7 @@ async def cancel_item_active_loan_request(
             ),
         )
 
-    result = await get_loan_request(
+    loan_request_read = await get_loan_request(
         db=db,
         loan_request_id=loan_request.id,
     )
@@ -103,12 +103,12 @@ async def cancel_item_active_loan_request(
 
         await invalidate_loan_request_state_changed(
             cache,
-            item_id=result.item.id,
-            borrower_id=result.borrower.id,
-            owner_id=result.item.owner_id,
+            item_id=loan_request_read.item.id,
+            borrower_id=loan_request_read.borrower.id,
+            owner_id=loan_request_read.item.owner_id,
         )
 
-    return result
+    return loan_request_read
 
 
 async def cancel_loan_request(

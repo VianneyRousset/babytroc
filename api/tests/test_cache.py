@@ -1,7 +1,7 @@
 import pytest
 from redis.asyncio import Redis
 
-from app.clients.cache import Cache
+from app.clients.cache import RedisCache
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ async def redis_client(worker_id: str):
 
 @pytest.fixture
 def cache(redis_client):
-    return Cache(redis_client)
+    return RedisCache(redis_client)
 
 
 class TestCache:

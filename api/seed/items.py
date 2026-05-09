@@ -160,7 +160,7 @@ async def populate_items(
                 description=random_item_description(),
                 images=random_item_images(images[user.id]),
                 targeted_age_months=random_item_targeted_age_months(),
-                regions=random_item_regions([reg.id for reg in regions]),
+                regions=set(random_item_regions([reg.id for reg in regions])),
                 categories=set(random_item_categories(child_category_slugs)),
                 blocked=False,
             ),

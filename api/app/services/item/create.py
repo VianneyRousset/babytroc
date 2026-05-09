@@ -58,10 +58,7 @@ class InsertItemCategoryAssociation(SchemaBase):
         item_id: int,
         category_slugs: set[str],
     ) -> list[Self]:
-        return [
-            cls(item_id=item_id, category_slug=slug)
-            for slug in category_slugs
-        ]
+        return [cls(item_id=item_id, category_slug=slug) for slug in category_slugs]
 
 
 class InsertItemImageAssociation(SchemaBase):

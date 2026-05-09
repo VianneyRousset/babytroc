@@ -13,7 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.errors import ApiError
 
 from .cache import init_cache_dependency
-from .clients.cache import Cache
+from .clients.cache import RedisCache
 from .clients.redis import create_redis_client
 from .config import Config
 from .database import create_session_maker, init_db_session_dependency
@@ -88,7 +88,7 @@ def create_app(
     # redis client and cache
     redis_client = create_redis_client(config.redis)
     app.state.redis = redis_client
-    cache = Cache(redis_client)
+    cache = RedisCache(redis_client)
     app.state.cache = cache
     init_cache_dependency(cache)
 

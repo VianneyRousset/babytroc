@@ -1,19 +1,26 @@
+from __future__ import annotations
+
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 import jwt
 import pytest
 from fastapi import status
-from httpx import AsyncClient
 from httpx_ws import aconnect_ws
-from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.schemas.auth.availability import AuthAccountAvailability
 from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
 from app.services.auth.refresh_token import list_account_password_reset_authorizations
 from app.services.user import get_user_validation_code_by_email
 from tests.fixtures.clients import create_client
-from tests.fixtures.users import UserData
 from tests.fixtures.websockets import WebSocketRecorder
+
+if TYPE_CHECKING:
+    from httpx import AsyncClient
+    from httpx_ws import AsyncWebSocketSession
+    from sqlalchemy.ext.asyncio import async_sessionmaker
+
+    from tests.fixtures.users import UserData
 
 
 @pytest.mark.usefixtures("alice")
@@ -164,7 +171,8 @@ class TestAuthNewAccount:
         await ws_client.__aenter__()
         ws_client.cookies = client.cookies
 
-        async with aconnect_ws("/api/v1/me/websocket", ws_client) as websocket:  # type: AsyncWebSocketSession
+        websocket: AsyncWebSocketSession
+        async with aconnect_ws("/api/v1/me/websocket", ws_client) as websocket:
             websocket_recorder = WebSocketRecorder(websocket)
 
             async with websocket_recorder:
@@ -298,10 +306,12 @@ class TestAuthPasswordReset:
             authorization_code = authorizations[0].authorization_code
 
         # apply account password reset
-        (await client.post(
-            f"/api/v1/auth/reset-password/{authorization_code}",
-            json={"password": new_password},
-        )).raise_for_status()
+        (
+            await client.post(
+                f"/api/v1/auth/reset-password/{authorization_code}",
+                json={"password": new_password},
+            )
+        ).raise_for_status()
 
         # shouldn't be able to reuse account password reset authorization_code
         resp = await client.post(
@@ -311,14 +321,16 @@ class TestAuthPasswordReset:
         assert not resp.is_success
 
         # login should now succeed
-        (await client.post(
-            "/api/v1/auth/login",
-            data={
-                "grant_type": "password",
-                "username": alice_user_data["email"],
-                "password": new_password,
-            },
-        )).raise_for_status()
+        (
+            await client.post(
+                "/api/v1/auth/login",
+                data={
+                    "grant_type": "password",
+                    "username": alice_user_data["email"],
+                    "password": new_password,
+                },
+            )
+        ).raise_for_status()
 
     async def test_password_reset_wrong_email(
         self,
