@@ -52,8 +52,8 @@ jobs:
         ports:
           - 5000:5000
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
       - run: mise run test
         working-directory: ./api
         env:
