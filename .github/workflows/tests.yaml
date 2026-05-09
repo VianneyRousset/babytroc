@@ -19,7 +19,6 @@ jobs:
     services:
       postgres:
         image: postgres:18
-        command: -c 'max_connections=400'
         env:
           POSTGRES_USER: babytroc
           POSTGRES_PASSWORD: xxx
