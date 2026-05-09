@@ -4,69 +4,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Babytroc API — FastAPI async backend for a baby-item lending platform. PostgreSQL via SQLAlchemy async (asyncpg). Real-time chat via Postgres `LISTEN/NOTIFY` + `broadcaster` + websockets. Image storage via S3 (MinIO) with nginx reverse proxy for serving. JWT auth.
+Babytroc API — FastAPI async backend for a baby-item lending platform. PostgreSQL via SQLAlchemy async (asyncpg). Real-time chat via Redis pubsub + `broadcaster` + websockets. Image storage via S3 (MinIO). JWT auth.
+
+## Directory Layout
+
+```
+alembic/              # DB migration scripts + env.py
+alembic.ini           # alembic config (stays at root)
+src/
+  babytroc/           # main API package
+    app.py            # create_app factory
+    main.py           # uvicorn entry (babytroc.main:application)
+    domains/          # DDD-lite domain packages (auth, chat, item, loan, user, image, region, category, report)
+    infrastructure/   # config, database, cache, email, pubsub, redis, storage, events
+    routers/          # FastAPI route handlers (v1/)
+    shared/           # base models, schemas, errors, pagination, hash
+  babycli/            # operations CLI
+    seed/             # dev data seeding logic
+    resources/seed/   # seed data files (data.json + images)
+    boundaries.py     # domain boundary violation checker
+stubs/                # type stubs (wonderwords)
+tests/
+docs/
+```
 
 ## Tooling
 
-Task runner is `mise` (see `mise.toml`). Python 3.13, deps managed by `uv`. Virtualenv at `.venv`.
+Task runner is `mise` (see `mise.toml`). Python 3.13, deps managed by `uv`. Virtualenv at `.venv`. Build backend is `uv_build` with `module-root = "src"`.
 
 ### Common commands
 
-- `mise run dev` — install deps, run alembic migrations, start uvicorn via `./entrypoint.sh`
+- `mise run dev` — install deps, run alembic migrations, start uvicorn via babycli
 - `mise run prepare` — `alembic upgrade head`
-- `mise run seed` — `python -m seed populate all` (dev data)
 - `mise run lint` — runs `lint:ruff` + `lint:mypy`
 - `mise run lint:ruff` — `ruff check .`
-- `mise run lint:mypy` — `mypy stubs app seed tests`
-- `mise run test` — `pytest -n logical --dist loadscope -maxfail=1`
+- `mise run lint:mypy` — `mypy stubs src tests`
+- `mise run test` — `pytest -n logical --dist loadfile --maxfail=1`
 - `mise run build` — `docker build . --tag=vianneyrousset/babytroc-api`
+- `mise run babycli` — run babycli operations CLI
 - `mise run clear-mypy-cache`
+
+### babycli (operations CLI)
+
+Invoked via `uv run babycli` or `mise run babycli`. Entry point: `babycli:main`.
+
+Key commands:
+- `babycli setup` — guided onboarding wizard for new installations
+- `babycli check [postgres|redis|s3|email|migrations]` — health checks (scriptable exit codes)
+- `babycli db migrate|downgrade|status|reset|seed` — database management
+- `babycli db seed all|regions|categories|users|items` — dev data seeding
+- `babycli server start [--host --port --workers --reload]` — start uvicorn (runs migrations first)
+- `babycli stats [users|items|loans|chats]` — DB counts
+- `babycli user list|get|search|create|disable|enable|reset-password|delete` — admin user ops
+- `babycli config show|validate` — show/validate configuration
+- `babycli lint [ruff|mypy|boundaries]` — code quality checks
+- `babycli danger-mode enable|disable|status` — toggle danger mode for destructive ops
+- `babycli logs` — stub (future Grafana/Loki)
+
+Destructive commands (`user create/delete/disable/reset-password`, `db reset`, `db seed --force`) require `--danger` flag or active danger mode session.
 
 ### Running a single test
 
-`pytest tests/chat/test_chat_text.py::test_name` (pytest is configured with `asyncio_mode = auto` and `timeout = 10` in `pyproject.toml`). When running the full suite, keep `-n logical --dist loadscope` so fixtures sharing a session-scoped event loop stay on the same worker.
+`pytest tests/chat/test_chat_text.py::test_name` (pytest configured with `asyncio_mode = auto`, `timeout = 10`, `pythonpath = "src"` in `pyproject.toml`).
 
 ### Alembic
 
-`alembic upgrade head` / `alembic revision --autogenerate -m "msg"`. Config at `alembic.ini`, versions in `alembic/versions/`. Migrations run automatically on container start (see `entrypoint.sh`).
+`alembic upgrade head` / `alembic revision --autogenerate -m "msg"`. Config at `alembic.ini`, versions in `alembic/versions/`. Migrations run automatically via `babycli server start`.
 
 ### Environment
 
-Required env vars (see `app/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `S3_{ENDPOINT_URL,ACCESS_KEY,SECRET_KEY,BUCKET,PUBLIC_URL}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none). `mise.toml` loads `.env.yaml` automatically.
+Required env vars (see `src/babytroc/infrastructure/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `S3_{ENDPOINT_URL,ACCESS_KEY,SECRET_KEY,BUCKET,PUBLIC_URL}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none). `mise.toml` loads `.env.yaml` automatically.
 
 ## Architecture
 
-### Layered structure under `app/`
+### Domain structure under `src/babytroc/`
 
 Strict layering, each layer imports only from layers below:
 
-- `routers/` — FastAPI route handlers. Versioned under `routers/v1/`. Endpoint groups: `auth`, `items`, `me` (current-user-scoped: chats, loans, items, borrowings, saved, liked, websocket), `users`, `images`, `utils`. Routers only handle request/response translation and dependency injection — business logic lives in `services/`.
-- `services/` — business logic, grouped by domain (`auth`, `chat`, `image`, `item`, `loan`, `region`, `user`). Services take an `AsyncSession` and call models. Subpackages split CRUD (`create.py`, `read/`, `update.py`, `delete.py`) — follow this pattern when adding new operations. Services raise `ApiError` subclasses from `app/errors/` rather than returning error results.
-- `models/` — SQLAlchemy ORM models (`item/`, `chat`, `user`, `loan`, `auth`, `report`). `models/base.py` defines the declarative base.
-- `schemas/` — Pydantic request/response schemas, mirroring the model domains. `schemas/utils.py` + `schemas/query.py` host shared types.
-- `clients/` — external service adapters (`database/`, `email/`, `networking/` — imgpush).
-- `domain/` — pure domain helpers (e.g. `star.py`).
-- `errors/` — `ApiError` hierarchy per domain. All raised errors are caught by the global exception handler in `app/app.py` and serialised to JSON with `status_code`, `message`, `creation_date`.
+- `routers/` — FastAPI route handlers. Versioned under `routers/v1/`. Endpoint groups: `auth`, `items`, `me` (current-user-scoped: chats, loans, items, borrowings, saved, liked, websocket), `users`, `images`, `utils`. Routers only handle request/response translation and dependency injection — business logic lives in services.
+- `domains/` — DDD-lite domain packages (`auth`, `chat`, `image`, `item`, `loan`, `region`, `category`, `user`, `report`). Each domain has `models.py`, `schemas/`, `services/`, `errors.py`, optionally `events.py` + `handlers.py`. Services take an `AsyncSession` and call models. Services raise `ApiError` subclasses rather than returning error results.
+- `infrastructure/` — cross-cutting: `config.py`, `database.py`, `cache.py`, `email.py`, `pubsub.py`, `redis.py`, `storage.py`, `events.py` (event bus).
+- `shared/` — base classes: `models.py` (declarative base), `schemas.py`, `errors.py`, `pagination.py`, `hash.py`.
 
-### App lifecycle
+### Event bus
 
-`app/main.py` → `app/app.py::create_app` builds the `FastAPI` instance and attaches to `app.state`: `config`, `db_session_maker`, `broadcast` (pubsub), `email_client`. `create_app` also calls `define_functions_and_triggers` to install Postgres triggers on startup — specifically the `notify_chat_members_new_message` trigger on `chat_message` that `pg_notify`s `user{id}` channels. Request/websocket handlers resolve `app` via the `get_app` dependency in `app/database.py` (works for both HTTP and WS contexts) and obtain a session via `get_db_session`.
+`src/babytroc/infrastructure/events.py` — synchronous in-process event bus. Domains emit events via `await emit(db, event)`. Handlers registered via `@on(EventType)` decorator in `domains/*/handlers.py`. Handlers run in same transaction. Cross-domain writes go through events; cross-domain reads are allowed directly.
+
+### Domain boundary rules
+
+Enforced by `babycli lint boundaries`:
+- Any domain may import and read-query any other domain's models
+- Write operations across domains must go through events
+- `handlers.py` files are exempt (they are the cross-domain write path)
+- Allowed structural direct writes: auth→user, loan→item
 
 ### Real-time chat
 
-New messages hit the DB → Postgres trigger emits `NOTIFY` on `user{borrower_id}` and `user{owner_id}` → `broadcaster` (backed by Postgres LISTEN) fans out to subscribed websockets under `routers/v1/me/websocket.py`. Keep this path in mind when changing `models/chat.py`, `services/chat/`, or the websocket router — end-to-end delivery depends on the trigger, the notify payload shape (`{type, chat_message_id}`), and the broadcaster channel name matching `user{id}`.
+New messages → Redis pubsub notification scheduled after commit → `broadcaster` fans out to subscribed websockets under `routers/v1/me/websocket.py`. Channel prefix per worker/deployment prevents cross-talk.
 
 ### Config
 
-`app/config.py` — nested `NamedTuple` config (`Config`, `DatabaseConfig`, `PubsubConfig`, `EmailConfig`, `ImgpushConfig`, `AuthConfig`), all built via `from_env()` classmethods. `Config.test` is auto-set when `PYTEST_CURRENT_TEST` is in env (suppresses email sending).
+`src/babytroc/infrastructure/config.py` — nested `NamedTuple` config (`Config`, `DatabaseConfig`, `PubsubConfig`, `EmailConfig`, `S3Config`, `RedisConfig`, `AuthConfig`), all built via `from_env()` classmethods. `Config.test` is auto-set when `PYTEST_CURRENT_TEST` is in env (suppresses email sending).
 
 ## Testing
 
 - `pytest-asyncio` in auto mode. Session-scoped event loop (`asyncio_default_*_loop_scope = "session"`).
-- Fixtures split across `tests/fixtures/{database,app,regions,users,clients,items,loans,websockets,chat}.py`, registered via `tests/conftest.py::pytest_plugins`.
-- HTTP tests use `httpx.AsyncClient` over `httpx_ws.transport.ASGIWebSocketTransport` (so the same client handles HTTP + WS). Base URL is `https://babytroc.ch`, root path `/api` — endpoints are called as `/api/v1/...`.
-- Standard user fixtures: `alice`, `bob`, `carol` with matching `{name}_client` fixtures that log in via `/api/v1/auth/login` (OAuth2 password grant). Prefer these over building new auth setups.
-- Tests live in `tests/{chat,item,loan,user}/` plus top-level `test_auth.py`, `test_utils.py`. `tests/utils.py` holds shared helpers.
+- **Per-function DB isolation**: each test gets a fresh database cloned from a seeded template via `CREATE DATABASE ... TEMPLATE`. Template contains users (alice, bob, carol), regions, categories, and images.
+- **Session-scoped app**: one FastAPI instance per xdist worker. DB session maker swapped per test via `_swap_app_db` autouse fixture. Redis flushed per test.
+- **Heavy test dirs** (`tests/item/`, `tests/loan/`, `tests/chat/`): local `conftest.py` overrides `database` to class-scoped to avoid recreating 256+ items per test.
+- Fixtures split across `tests/fixtures/{database,app,regions,users,clients,items,loans,websockets,chat,categories,s3}.py`, registered via `tests/conftest.py::pytest_plugins`.
+- HTTP tests use `httpx.AsyncClient` over `httpx_ws.transport.ASGIWebSocketTransport`. Base URL is `https://babytroc.ch`, root path `/api` — endpoints called as `/api/v1/...`.
+- Standard user fixtures: `alice`, `bob`, `carol` with matching `{name}_client` fixtures that log in via OAuth2 password grant. Prefer these over building new auth setups.
+- S3 uploads mocked globally via `tests/fixtures/s3.py` (session-scoped `mock_s3_uploads`).
 - `timeout = 10` per test — if a WS/broadcast test hangs, suspect a missing notify or a broadcaster channel mismatch before raising the timeout.
 
 ## Lint conventions
