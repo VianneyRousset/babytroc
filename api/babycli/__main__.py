@@ -10,8 +10,10 @@ from .check import check_app
 from .config import config_app
 from .danger import danger_mode_app
 from .db import db_app
+from .lint import lint_app
 from .logs import logs_app
 from .server import server_app
+from .setup import setup_app
 from .stats import stats_app
 from .user import user_app
 
@@ -19,8 +21,10 @@ app.command(check_app)
 app.command(config_app)
 app.command(danger_mode_app)
 app.command(db_app)
+app.command(lint_app)
 app.command(logs_app)
 app.command(server_app)
+app.command(setup_app)
 app.command(stats_app)
 app.command(user_app)
 
