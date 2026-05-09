@@ -26,17 +26,12 @@ run = "uv sync --group dev"
 [tasks.dev]
 description = "Run the application"
 depends = ["deps", "deps-dev", "prepare"]
-run = "./entrypoint.sh"
+run = "uv run babycli server start"
 
 [tasks.prepare]
 description = "Prepare database"
 depends = ["deps"]
 run = "alembic upgrade head"
-
-[tasks.seed]
-description = "Seed database"
-depends = ["deps", "deps-dev", "prepare"]
-run = "python -m seed populate all"
 
 [tasks."lint:ruff"]
 description = "Lint - ruff pass"
@@ -46,7 +41,7 @@ run = "ruff check ."
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
 depends = ["deps", "deps-dev"]
-run = "mypy stubs src seed tests"
+run = "mypy stubs src tests"
 
 [tasks.lint]
 description = "Lint the code"

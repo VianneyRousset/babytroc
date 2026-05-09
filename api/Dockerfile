@@ -17,10 +17,8 @@ RUN uv sync --no-group dev
 EXPOSE 8080
 
 COPY src ./src
-COPY entrypoint.sh .
 COPY alembic.ini .
 COPY alembic ./alembic
 
 # Define entrypoint
-# docker will run the following script when started
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["uv", "run", "babycli", "server", "start"]
