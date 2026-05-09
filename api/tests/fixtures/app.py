@@ -13,17 +13,14 @@ from babytroc.infrastructure.config import (
     RedisConfig,
     S3Config,
 )
+from babytroc.infrastructure.database import init_db_session_dependency
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 async def app_config(
-    database: sqlalchemy.URL,
+    primary_database: sqlalchemy.URL,
     worker_id: str,
 ) -> Config:
-    """App config."""
-
-    # Each xdist worker gets its own Redis DB to avoid cross-worker flushdb races.
-    # worker_id is "master" (no xdist) or "gw0", "gw1", etc.
     if worker_id == "master":
         redis_db = 3
     else:
@@ -32,9 +29,7 @@ async def app_config(
     redis_config = RedisConfig.from_env(db=redis_db)
 
     return Config.from_env(
-        database=DatabaseConfig.from_env(
-            url=database,
-        ),
+        database=DatabaseConfig.from_env(url=primary_database),
         pubsub=PubsubConfig(url=redis_config.url),
         redis=redis_config,
         s3=S3Config(
@@ -47,22 +42,25 @@ async def app_config(
     )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 async def app(
     app_config: Config,
-    database: sqlalchemy.URL,
+    worker_id: str,
 ) -> AsyncGenerator[FastAPI]:
-    # Use the unique database name as pub/sub channel prefix to avoid
-    # cross-talk between xdist workers sharing the same Redis instance.
-    prefix = f"{database.database}:" if database.database else ""
+    prefix = f"worker-{worker_id}:"
     app = create_app(app_config, pubsub_channel_prefix=prefix)
     async with LifespanManager(app):
         yield app
 
 
-@pytest.fixture(autouse=True, scope="class")
-async def flush_redis_cache(app: FastAPI):
-    """Flush Redis test DB before each test class."""
+@pytest.fixture(autouse=True)
+async def _swap_app_db(app: FastAPI, database_sessionmaker):
+    init_db_session_dependency(database_sessionmaker)
+    yield
+
+
+@pytest.fixture(autouse=True)
+async def _flush_redis(app: FastAPI):
     await app.state.redis.flushdb()
     yield
     await app.state.redis.flushdb()
