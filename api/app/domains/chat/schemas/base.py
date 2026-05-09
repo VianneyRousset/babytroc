@@ -1,5 +1,5 @@
-from app.schemas.base import Base
-from app.schemas.loan.base import ItemBorrowerId
+from app.shared.schemas import Base
+from app.domains.loan.schemas.base import ItemBorrowerId
 
 
 class ChatBase(Base):

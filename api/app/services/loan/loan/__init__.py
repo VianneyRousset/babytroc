@@ -1,7 +1,1 @@
-from . import create, read, update
-
-__all__ = [
-    "create",
-    "read",
-    "update",
-]
+from app.domains.loan.services.loan import *  # noqa: F401,F403
