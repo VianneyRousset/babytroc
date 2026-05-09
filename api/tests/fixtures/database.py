@@ -6,7 +6,6 @@ from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
-import alembic.config
 import pytest
 from alembic.config import Config as AlembicConfig
 from sqlalchemy import URL, text
@@ -28,7 +27,6 @@ def run_alembic_upgrade_head(url: URL):
     alembic_cfg.set_main_option(
         "sqlalchemy.url", url.render_as_string(hide_password=False)
     )
-    alembic.config.main(["upgrade", "head"])
     command.upgrade(alembic_cfg, "head")
 
 
