@@ -20,6 +20,7 @@ from babytroc.domains.region.schemas.read import RegionRead
 from babytroc.domains.user import services as user_services
 from babytroc.domains.user.schemas.private import UserPrivateRead
 from babytroc.infrastructure.cache_client import NullCache
+from babytroc.infrastructure.database import init_db_session_dependency
 from tests.fixtures.database import create_database, drop_database
 
 
@@ -51,6 +52,13 @@ async def database_sessionmaker(
     )
     yield async_sessionmaker(bind=engine)
     await engine.dispose()
+
+
+@pytest.fixture(autouse=True, scope="class")
+async def _swap_app_db(app: FastAPI, database_sessionmaker):
+    """Class-scoped DB swap for heavy tests."""
+    init_db_session_dependency(database_sessionmaker)
+    yield
 
 
 @pytest.fixture(autouse=True, scope="class")
