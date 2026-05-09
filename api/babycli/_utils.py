@@ -1,5 +1,4 @@
 import subprocess
-import sys
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -50,5 +49,5 @@ async def async_db_session() -> AsyncGenerator[AsyncSession]:
 
 
 def run_subprocess(cmd: list[str]) -> int:
-    result = subprocess.run(cmd, check=False)
+    result = subprocess.run(cmd, check=False)  # noqa: S603
     return result.returncode

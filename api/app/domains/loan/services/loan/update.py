@@ -1,20 +1,14 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.send import SendChatMessageLoanEnded
-from app.domains.chat.services import send_many_chat_messages
 from app.domains.loan.errors import LoanAlreadyInactiveError
+from app.domains.loan.events import LoanEnded
 from app.domains.loan.models import Loan
 from app.domains.loan.schemas.query import LoanReadQueryFilter, LoanUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRead
+from app.infrastructure.events import emit
 
 from .read import get_many_loans
-
-if TYPE_CHECKING:
-    from app.infrastructure.cache_client import Cache
 
 
 async def end_loan(
@@ -23,7 +17,6 @@ async def end_loan(
     *,
     query_filter: LoanUpdateQueryFilter | None = None,
     send_message: bool = True,
-    cache: "Cache | None" = None,
 ) -> LoanRead:
     """Set loan end date to now.
     The loan must be active.
@@ -35,17 +28,6 @@ async def end_loan(
         query_filter=query_filter,
         send_messages=send_message,
     )
-
-    if cache is not None:
-        from app.domains.loan.services.cache import invalidate_loan_ended
-
-        loan = loans[0]
-        await invalidate_loan_ended(
-            cache,
-            item_id=loan.item.id,
-            borrower_id=loan.borrower.id,
-            owner_id=loan.item.owner_id,
-        )
 
     return loans[0]
 
@@ -103,20 +85,17 @@ async def end_many_loans(
         loan_ids=loan_ids,
     )
 
-    # create chat message
+    # emit events
     if send_messages:
-        await send_many_chat_messages(
-            db=db,
-            messages=[
-                SendChatMessageLoanEnded(
-                    chat_id=ChatId.from_values(
-                        item_id=loan.item.id,
-                        borrower_id=loan.borrower.id,
-                    ),
+        for loan in loans:
+            await emit(
+                db,
+                LoanEnded(
                     loan_id=loan.id,
-                )
-                for loan in loans
-            ],
-        )
+                    item_id=loan.item.id,
+                    borrower_id=loan.borrower.id,
+                    owner_id=loan.item.owner_id,
+                ),
+            )
 
     return loans

@@ -1,8 +1,4 @@
-from itertools import groupby
-from typing import TYPE_CHECKING, Self, cast
-
-if TYPE_CHECKING:
-    from app.infrastructure.cache_client import Cache
+from typing import Self, cast
 
 from sqlalchemy import ColumnClause, Integer, column, insert, select, values
 from sqlalchemy.exc import IntegrityError
@@ -13,6 +9,7 @@ from app.domains.image.services.read import (
     check_image_owners,
     get_many_images,
 )
+from app.domains.item.events import ItemCreated
 from app.domains.item.models import Item
 from app.domains.item.models.category import ItemCategoryAssociation
 from app.domains.item.models.image import ItemImage, ItemImageAssociation
@@ -21,8 +18,7 @@ from app.domains.item.schemas.create import ItemCreate
 from app.domains.item.schemas.read import ItemRead
 from app.domains.region.services import get_many_regions
 from app.domains.user.services.read import get_many_users
-from app.domains.user.services.star import AddUserStars, add_many_stars_to_users
-from app.domains.user.star import stars_gain_when_adding_item
+from app.infrastructure.events import emit
 from app.shared.schemas import Base as SchemaBase
 
 from .read import get_many_items
@@ -94,8 +90,6 @@ async def create_item(
     db: AsyncSession,
     owner_id: int,
     item_create: ItemCreate,
-    *,
-    cache: "Cache | None" = None,
 ) -> ItemRead:
     """Create a new item in the database."""
 
@@ -108,11 +102,6 @@ async def create_item(
             )
         ],
     )
-
-    if cache is not None:
-        from app.domains.item.services.cache import invalidate_item_created
-
-        await invalidate_item_created(cache, owner_id=owner_id)
 
     return items[0]
 
@@ -163,22 +152,22 @@ async def create_many_items(
             ],
         )
 
-    # add stars to owner for adding an item
-    await add_many_stars_to_users(
-        db=db,
-        stars=[
-            AddUserStars(
-                user_id=user_id,
-                stars_count=stars_gain_when_adding_item(len(list(group))),
-            )
-            for user_id, group in groupby(sorted([item.owner_id for item in items]))
-        ],
-    )
-
-    return await get_many_items(
+    item_reads = await get_many_items(
         db=db,
         item_ids=set(item_ids),
     )
+
+    # emit events
+    for item_read in item_reads:
+        await emit(
+            db,
+            ItemCreated(
+                item_id=item_read.id,
+                owner_id=item_read.owner.id,
+            ),
+        )
+
+    return item_reads
 
 
 async def _insert_items(

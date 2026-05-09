@@ -1,10 +1,4 @@
-# babycli/__main__.py
 from cyclopts import App
-
-app = App(
-    name="babycli",
-    help="Babytroc API operations CLI.",
-)
 
 from .check import check_app
 from .config import config_app
@@ -16,6 +10,11 @@ from .server import server_app
 from .setup import setup_app
 from .stats import stats_app
 from .user import user_app
+
+app = App(
+    name="babycli",
+    help="Babytroc API operations CLI.",
+)
 
 app.command(check_app)
 app.command(config_app)

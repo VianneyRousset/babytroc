@@ -85,6 +85,7 @@ def reset(
 
     if with_seed:
         import asyncio
+
         from seed.__main__ import populate_all
         asyncio.run(populate_all())
         console_ok("Seed data populated")
@@ -115,7 +116,10 @@ async def seed_all(
     ] = False,
     danger: Annotated[
         bool,
-        Parameter(name="--danger", help="Confirm destructive operation (required with --force)."),
+        Parameter(
+            name="--danger",
+            help="Confirm destructive operation (required with --force).",
+        ),
     ] = False,
 ):
     """Populate all dev data (regions, categories, users, items)."""

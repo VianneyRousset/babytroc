@@ -6,8 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domains.loan import services as loan_services
 from app.domains.loan.schemas.query import LoanRequestUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
-from app.infrastructure.cache import get_cache
-from app.infrastructure.cache_client import Cache
 from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
@@ -22,7 +20,6 @@ async def accept_client_item_loan_request(
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
-    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
@@ -33,7 +30,6 @@ async def accept_client_item_loan_request(
             item_id=item_id,
             owner_id=client_id,
         ),
-        cache=cache,
     )
 
 
@@ -43,7 +39,6 @@ async def reject_client_item_loan_request(
     item_id: item_id_annotation,
     loan_request_id: loan_request_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
-    cache: Annotated[Cache, Depends(get_cache)],
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 
@@ -54,5 +49,4 @@ async def reject_client_item_loan_request(
             item_id=item_id,
             owner_id=client_id,
         ),
-        cache=cache,
     )

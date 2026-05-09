@@ -1,12 +1,12 @@
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from ._utils import console_err, console_ok, console_warn, confirm_prompt
+from ._utils import console_err, console_ok, console_warn
 
 DANGER_DIR = Path.home() / ".babytroc"
 DANGER_FILE_NAME = ".danger-mode"
@@ -24,7 +24,7 @@ def _get_danger_file() -> Path:
 def _write_danger_file(ttl_minutes: int) -> None:
     DANGER_DIR.mkdir(parents=True, exist_ok=True)
     data = {
-        "enabled_at": datetime.now(tz=timezone.utc).isoformat(),
+        "enabled_at": datetime.now(tz=UTC).isoformat(),
         "ttl_minutes": ttl_minutes,
     }
     _get_danger_file().write_text(json.dumps(data))
@@ -52,9 +52,9 @@ def is_danger_mode() -> bool:
         return False
     enabled_at = datetime.fromisoformat(data["enabled_at"])
     ttl_minutes = data["ttl_minutes"]
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     if enabled_at.tzinfo is None:
-        enabled_at = enabled_at.replace(tzinfo=timezone.utc)
+        enabled_at = enabled_at.replace(tzinfo=UTC)
     elapsed = (now - enabled_at).total_seconds() / 60
     if elapsed > ttl_minutes:
         _clear_danger_file()
@@ -68,9 +68,9 @@ def remaining_minutes() -> float:
         return 0.0
     enabled_at = datetime.fromisoformat(data["enabled_at"])
     if enabled_at.tzinfo is None:
-        enabled_at = enabled_at.replace(tzinfo=timezone.utc)
+        enabled_at = enabled_at.replace(tzinfo=UTC)
     ttl_minutes = data["ttl_minutes"]
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     elapsed = (now - enabled_at).total_seconds() / 60
     return max(0.0, ttl_minutes - elapsed)
 

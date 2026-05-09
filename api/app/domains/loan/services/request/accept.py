@@ -1,18 +1,12 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.send import SendChatMessageLoanRequestAccepted
-from app.domains.chat.services import send_many_chat_messages
 from app.domains.loan.enums import LoanRequestState
+from app.domains.loan.events import LoanRequestAccepted
 from app.domains.loan.schemas.query import LoanRequestUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
+from app.infrastructure.events import emit
 
 from .update import update_many_loan_requests_state
-
-if TYPE_CHECKING:
-    from app.infrastructure.cache_client import Cache
 
 
 async def accept_loan_request(
@@ -20,8 +14,6 @@ async def accept_loan_request(
     loan_request_id: int,
     query_filter: LoanRequestUpdateQueryFilter | None = None,
     check_state: bool = True,
-    *,
-    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Set loan request state to `accepted`.
 
@@ -35,19 +27,6 @@ async def accept_loan_request(
         query_filter=query_filter,
         check_state=check_state,
     )
-
-    if cache is not None:
-        from app.domains.loan.services.cache import (
-            invalidate_loan_request_state_changed,
-        )
-
-        lr = loan_requests[0]
-        await invalidate_loan_request_state_changed(
-            cache,
-            item_id=lr.item.id,
-            borrower_id=lr.borrower.id,
-            owner_id=lr.item.owner_id,
-        )
 
     return loan_requests[0]
 
@@ -82,20 +61,17 @@ async def accept_many_loan_requests(
         query_filter=query_filter,
     )
 
-    # create chat message
+    # emit events
     if send_messages:
-        await send_many_chat_messages(
-            db=db,
-            messages=[
-                SendChatMessageLoanRequestAccepted(
-                    chat_id=ChatId.from_values(
-                        item_id=loan_request.item.id,
-                        borrower_id=loan_request.borrower.id,
-                    ),
-                    loan_request_id=loan_request.id,
-                )
-                for loan_request in loan_requests
-            ],
-        )
+        for lr in loan_requests:
+            await emit(
+                db,
+                LoanRequestAccepted(
+                    loan_request_id=lr.id,
+                    item_id=lr.item.id,
+                    borrower_id=lr.borrower.id,
+                    owner_id=lr.item.owner_id,
+                ),
+            )
 
     return loan_requests

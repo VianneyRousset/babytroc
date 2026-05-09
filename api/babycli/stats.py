@@ -25,9 +25,8 @@ async def stats_users():
 
     async with async_db_session() as db:
         total = (await db.execute(select(func.count(User.id)))).scalar() or 0
-        validated = (
-            await db.execute(select(func.count(User.id)).where(User.validated.is_(True)))
-        ).scalar() or 0
+        q = select(func.count(User.id)).where(User.validated.is_(True))
+        validated = (await db.execute(q)).scalar() or 0
         unvalidated = total - validated
 
     _print_table("Users", [
@@ -61,7 +60,8 @@ async def stats_loans():
     from app.domains.loan.models import Loan, LoanRequest, LoanRequestState
 
     async with async_db_session() as db:
-        total_requests = (await db.execute(select(func.count(LoanRequest.id)))).scalar() or 0
+        q = select(func.count(LoanRequest.id))
+        total_requests = (await db.execute(q)).scalar() or 0
         pending = (
             await db.execute(
                 select(func.count(LoanRequest.id)).where(
@@ -106,8 +106,10 @@ async def stats_chats():
     from app.domains.chat.models import Chat, ChatMessage
 
     async with async_db_session() as db:
-        total_chats = (await db.execute(select(func.count()).select_from(Chat))).scalar() or 0
-        total_messages = (await db.execute(select(func.count(ChatMessage.id)))).scalar() or 0
+        q = select(func.count()).select_from(Chat)
+        total_chats = (await db.execute(q)).scalar() or 0
+        q = select(func.count(ChatMessage.id))
+        total_messages = (await db.execute(q)).scalar() or 0
         unread = (
             await db.execute(
                 select(func.count(ChatMessage.id)).where(ChatMessage.seen.is_(False))

@@ -1,17 +1,11 @@
 from collections.abc import Iterable
 from itertools import repeat
-from typing import TYPE_CHECKING, cast
-
-if TYPE_CHECKING:
-    from app.infrastructure.cache_client import Cache
+from typing import cast
 
 from sqlalchemy import ColumnClause, insert, select, values
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.send import SendChatMessageLoanRequestCreated
-from app.domains.chat.services import send_many_chat_messages
 from app.domains.item.models import Item
 from app.domains.item.services import get_many_items
 from app.domains.loan.enums import LoanRequestState
@@ -19,11 +13,13 @@ from app.domains.loan.errors import (
     LoanRequestAlreadyExistsError,
     LoanRequestOwnItemError,
 )
+from app.domains.loan.events import LoanRequestCreated
 from app.domains.loan.models import LoanRequest
 from app.domains.loan.schemas.base import ItemBorrowerId
 from app.domains.loan.schemas.query import LoanRequestReadQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
 from app.domains.loan.services.request.read import list_loan_requests
+from app.infrastructure.events import emit
 
 from .read import get_many_loan_requests
 
@@ -34,7 +30,6 @@ async def create_loan_request(
     item_id: int,
     borrower_id: int,
     send_message: bool = True,
-    cache: "Cache | None" = None,
 ) -> LoanRequestRead:
     """Create a loan request."""
 
@@ -44,17 +39,6 @@ async def create_loan_request(
         borrower_ids=borrower_id,
         send_messages=send_message,
     )
-
-    if cache is not None:
-        from app.domains.loan.services.cache import invalidate_loan_request_created
-
-        owner_id = loan_requests[0].item.owner_id
-        await invalidate_loan_request_created(
-            cache,
-            item_id=item_id,
-            borrower_id=borrower_id,
-            owner_id=owner_id,
-        )
 
     return loan_requests[0]
 
@@ -182,27 +166,25 @@ async def create_many_loan_requests(
         )
         raise RuntimeError(msg)
 
-    # create messages
-    if send_messages:
-        await send_many_chat_messages(
-            db=db,
-            messages=[
-                SendChatMessageLoanRequestCreated(
-                    chat_id=ChatId.from_values(
-                        item_id=loan_request.item_id,
-                        borrower_id=loan_request.borrower_id,
-                    ),
-                    loan_request_id=loan_request.id,
-                )
-                for loan_request in inserted_loan_requests
-            ],
-            ensure_chats=True,
-        )
-
-    return await get_many_loan_requests(
+    loan_request_reads = await get_many_loan_requests(
         db=db,
         loan_request_ids={req.id for req in inserted_loan_requests},
     )
+
+    # emit events
+    if send_messages:
+        for lr in loan_request_reads:
+            await emit(
+                db,
+                LoanRequestCreated(
+                    loan_request_id=lr.id,
+                    item_id=lr.item.id,
+                    borrower_id=lr.borrower.id,
+                    owner_id=lr.item.owner_id,
+                ),
+            )
+
+    return loan_request_reads
 
 
 def _loan_request_creates(

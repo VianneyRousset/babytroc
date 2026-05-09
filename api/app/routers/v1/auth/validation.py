@@ -10,8 +10,6 @@ from app.domains.auth.schemas.validation import (
     AuthValidation,
     AuthValidationResendEmail,
 )
-from app.infrastructure.cache import get_cache
-from app.infrastructure.cache_client import Cache
 from app.infrastructure.database import get_db_session
 from app.infrastructure.email import get_email_client
 
@@ -51,14 +49,12 @@ async def resend_validation_email(
 async def validate_user_account(
     db: Annotated[AsyncSession, Depends(get_db_session)],
     validation_code: UUID,
-    cache: Annotated[Cache, Depends(get_cache)],
 ) -> AuthValidation:
     """Validate user account."""
 
     await auth_services.validate_user_account(
         db=db,
         validation_code=validation_code,
-        cache=cache,
     )
 
     return AuthValidation(result="ok")

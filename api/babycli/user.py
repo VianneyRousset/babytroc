@@ -185,7 +185,8 @@ async def user_reset_password(
         if user is None:
             console_err(f"User {user_id} not found")
             sys.exit(1)
-        if not confirm_prompt(f"Reset password for user '{user.name}' (ID: {user_id})?"):
+        msg = f"Reset password for '{user.name}' (ID: {user_id})?"
+        if not confirm_prompt(msg):
             print("Aborted.")
             return
         user.password_hash = HashedStr(new_password)
@@ -209,7 +210,8 @@ async def user_delete(
         if user is None:
             console_err(f"User {user_id} not found")
             sys.exit(1)
-        if not confirm_prompt(f"DELETE user '{user.name}' (ID: {user_id})? This cannot be undone."):
+        msg = f"DELETE user '{user.name}' (ID: {user_id})? Cannot be undone."
+        if not confirm_prompt(msg):
             print("Aborted.")
             return
         await db.delete(user)

@@ -8,8 +8,6 @@ from app.domains.item.schemas.api import LikedItemApiQuery
 from app.domains.item.schemas.preview import ItemPreviewRead
 from app.domains.item.schemas.query import ItemReadQueryFilter
 from app.domains.item.schemas.read import ItemRead
-from app.infrastructure.cache import get_cache
-from app.infrastructure.cache_client import Cache
 from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 
@@ -24,7 +22,6 @@ async def add_item_to_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
-    cache: Annotated[Cache, Depends(get_cache)],
 ) -> None:
     """Add the specified item to client liked items."""
 
@@ -32,7 +29,6 @@ async def add_item_to_client_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
-        cache=cache,
     )
 
 
@@ -90,7 +86,6 @@ async def remove_item_from_client_liked_items(
     client_id: client_id_annotation,
     item_id: item_id_annotation,
     db: Annotated[AsyncSession, Depends(get_db_session)],
-    cache: Annotated[Cache, Depends(get_cache)],
 ) -> None:
     """Remove the specified item from client liked items."""
 
@@ -98,5 +93,4 @@ async def remove_item_from_client_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
-        cache=cache,
     )

@@ -1,4 +1,3 @@
-from typing import TYPE_CHECKING
 from uuid import UUID
 
 from fastapi import BackgroundTasks
@@ -11,21 +10,16 @@ from app.domains.auth.errors import (
     AuthAccountAlreadyValidatedError,
     AuthInvalidValidationCodeError,
 )
-from app.domains.chat.schemas.pubsub import PubsubMessageUpdatedAccountValidation
+from app.domains.auth.events import AccountValidated
 from app.domains.user.models import User
 from app.infrastructure.config import Config
 from app.infrastructure.email_auth import send_account_validation_email
-from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
-
-if TYPE_CHECKING:
-    from app.infrastructure.cache_client import Cache
+from app.infrastructure.events import emit
 
 
 async def validate_user_account(
     db: AsyncSession,
     validation_code: UUID,
-    *,
-    cache: "Cache | None" = None,
 ) -> None:
     """Mark user account with `validation_code` as validated."""
 
@@ -56,19 +50,7 @@ async def validate_user_account(
         # is already validated
         raise AuthAccountAlreadyValidatedError() from error
 
-    notify_user_after_commit(
-        db=db,
-        broadcast=get_broadcast(),
-        user_id=user.id,
-        message=PubsubMessageUpdatedAccountValidation(
-            validated=True,
-        ),
-    )
-
-    if cache is not None:
-        from app.domains.user.services.cache import invalidate_user_validated
-
-        await invalidate_user_validated(cache, user_id=user.id)
+    await emit(db, AccountValidated(user_id=user.id))
 
 
 async def send_validation_email(
