@@ -11,6 +11,10 @@ from pydantic import SecretStr
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import app.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
+import app.domains.chat.handlers  # noqa: F401
+import app.domains.item.handlers  # noqa: F401
+import app.domains.loan.handlers  # noqa: F401
+import app.domains.user.handlers  # noqa: F401
 from app.shared.errors import ApiError
 
 from .infrastructure.cache import init_cache_dependency
