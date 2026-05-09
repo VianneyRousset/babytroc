@@ -1,4 +1,4 @@
-# babycli/lint.py
+# src/babycli/lint.py
 import sys
 from typing import Annotated
 
@@ -26,7 +26,7 @@ def lint_ruff():
 @lint_app.command(name="mypy")
 def lint_mypy():
     """Run mypy type checker."""
-    code = run_subprocess(["mypy", "stubs", "src", "seed", "tests"])
+    code = run_subprocess(["mypy", "stubs", "src", "tests"])
     if code == 0:
         console_ok("mypy — no issues")
     else:
@@ -38,15 +38,28 @@ def lint_mypy():
 def lint_boundaries(
     strict: Annotated[
         bool,
-        Parameter(name="--strict", help="Also flag ambiguous cross-domain imports."),
+        Parameter(
+            name="--strict",
+            help="Also flag ambiguous cross-domain imports.",
+        ),
     ] = False,
 ):
     """Run domain boundary violation check."""
-    cmd = ["python", "scripts/check_domain_boundaries.py"]
-    if strict:
-        cmd.append("--strict")
-    code = run_subprocess(cmd)
-    sys.exit(code)
+    from .boundaries import check_boundaries
+
+    violations = check_boundaries(strict=strict)
+    if violations:
+        console_err(
+            f"Found {len(violations)} boundary violation(s):"
+        )
+        for v in violations:
+            print(f"  {v}")
+        console_err(
+            "Fix: move cross-domain writes to event handlers"
+        )
+        sys.exit(1)
+    else:
+        console_ok("boundaries — no violations")
 
 
 @lint_app.default
@@ -61,18 +74,24 @@ def lint_all():
         console_err("ruff — issues found")
         failed = True
 
-    code = run_subprocess(["mypy", "stubs", "src", "seed", "tests"])
+    code = run_subprocess(["mypy", "stubs", "src", "tests"])
     if code == 0:
         console_ok("mypy — no issues")
     else:
         console_err("mypy — issues found")
         failed = True
 
-    code = run_subprocess(["python", "scripts/check_domain_boundaries.py"])
-    if code == 0:
-        console_ok("boundaries — no issues")
+    from .boundaries import check_boundaries
+
+    violations = check_boundaries()
+    if not violations:
+        console_ok("boundaries — no violations")
     else:
-        console_err("boundaries — violations found")
+        console_err(
+            f"boundaries — {len(violations)} violation(s) found"
+        )
+        for v in violations:
+            print(f"  {v}")
         failed = True
 
     if failed:
