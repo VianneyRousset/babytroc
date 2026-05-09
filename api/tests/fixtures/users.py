@@ -17,7 +17,7 @@ class UserData(TypedDict):
     password: str
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def alice_user_data() -> UserData:
     """Alice user data."""
 
@@ -28,7 +28,7 @@ def alice_user_data() -> UserData:
     }
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def bob_user_data() -> UserData:
     """Bob user data."""
 
@@ -39,7 +39,7 @@ def bob_user_data() -> UserData:
     }
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def carol_user_data() -> UserData:
     """Carol user data."""
 
@@ -50,65 +50,43 @@ def carol_user_data() -> UserData:
     }
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice(
     database_sessionmaker: async_sessionmaker,
-    alice_user_data: UserData,
 ) -> UserPrivateRead:
-    """Ensures Alice exists."""
+    """Fetches the pre-seeded Alice user."""
 
     async with database_sessionmaker.begin() as session:
-        return (
-            await user_services.create_many_users_without_validation(
-                session,
-                [UserCreate(**alice_user_data)],
-                validated=True,
-            )
-        )[0]
+        return await user_services.get_user_by_email_private(session, "alice@babytroc.ch")
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def bob(
     database_sessionmaker: async_sessionmaker,
-    bob_user_data: UserData,
 ) -> UserPrivateRead:
-    """Ensures Bob exists."""
+    """Fetches the pre-seeded Bob user."""
 
     async with database_sessionmaker.begin() as session:
-        return (
-            await user_services.create_many_users_without_validation(
-                session,
-                [UserCreate(**bob_user_data)],
-                validated=True,
-            )
-        )[0]
+        return await user_services.get_user_by_email_private(session, "bob@babytroc.ch")
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def carol(
     database_sessionmaker: async_sessionmaker,
-    carol_user_data: UserData,
 ) -> UserPrivateRead:
-    """Ensures Carol exists."""
+    """Fetches the pre-seeded Carol user."""
 
     async with database_sessionmaker.begin() as session:
-        return (
-            await user_services.create_many_users_without_validation(
-                session,
-                [UserCreate(**carol_user_data)],
-                validated=True,
-            )
-        )[0]
+        return await user_services.get_user_by_email_private(session, "carol@babytroc.ch")
 
 
 def random_str(length: int) -> str:
     return "".join(random.choices(ascii_letters, k=length))
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_users(
     database_sessionmaker: async_sessionmaker,
-    bob_user_data: UserData,
 ) -> list[UserPrivateRead]:
     """Many users."""
 

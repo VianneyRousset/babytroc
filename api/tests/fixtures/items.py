@@ -1,19 +1,18 @@
 import random
-from io import BytesIO
 from typing import TypedDict
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from babytroc.domains.image import services as image_services
 from babytroc.domains.image.schemas.read import ItemImageRead
 from babytroc.domains.item import services as item_services
+from babytroc.domains.item.models.image import ItemImage
 from babytroc.domains.item.schemas.base import MonthRange
 from babytroc.domains.item.schemas.create import ItemCreate
 from babytroc.domains.item.schemas.read import ItemRead
 from babytroc.domains.region.schemas.read import RegionRead
 from babytroc.domains.user.schemas.private import UserPrivateRead
-from babytroc.infrastructure.config import Config
 from tests.utils import random_sample, random_str, random_targeted_age_months
 
 
@@ -31,7 +30,7 @@ class ItemData(TypedDict):
     images: list[str]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_items_data(
     alice_items_image: ItemImageRead,
     regions: list[RegionRead],
@@ -49,7 +48,7 @@ async def alice_items_data(
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_new_item_data(
     alice_new_item_images: list[ItemImageRead],
     regions: list[RegionRead],
@@ -65,7 +64,7 @@ async def alice_new_item_data(
     }
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_special_item_data(
     alice_special_item_images: list[ItemImageRead],
     regions: list[RegionRead],
@@ -81,7 +80,7 @@ async def alice_special_item_data(
     }
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def bob_items_data(
     bob_items_image: ItemImageRead,
     regions: list[RegionRead],
@@ -99,8 +98,8 @@ async def bob_items_data(
     ]
 
 
-@pytest.fixture(scope="class")
-async def alice_items_image_data() -> bytes:
+@pytest.fixture(scope="session")
+def alice_items_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -114,8 +113,8 @@ async def alice_items_image_data() -> bytes:
     ).encode()
 
 
-@pytest.fixture(scope="class")
-async def alice_new_item_image_data() -> bytes:
+@pytest.fixture(scope="session")
+def alice_new_item_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -129,8 +128,8 @@ async def alice_new_item_image_data() -> bytes:
     ).encode()
 
 
-@pytest.fixture(scope="class")
-async def alice_special_item_image_data() -> bytes:
+@pytest.fixture(scope="session")
+def alice_special_item_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -144,8 +143,8 @@ async def alice_special_item_image_data() -> bytes:
     ).encode()
 
 
-@pytest.fixture(scope="class")
-async def bob_items_image_data() -> bytes:
+@pytest.fixture(scope="session")
+def bob_items_image_data() -> bytes:
     """Basic PBM image."""
 
     return "\n".join(
@@ -159,85 +158,63 @@ async def bob_items_image_data() -> bytes:
     ).encode()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_items_image(
-    app_config: Config,
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_items_image_data: bytes,
 ) -> ItemImageRead:
-    """Ensure Alice's item image exists."""
+    """Reads Alice's first pre-seeded item image from DB."""
 
     async with database_sessionmaker.begin() as session:
-        return await image_services.upload_image(
-            db=session,
-            config=app_config,
-            owner_id=alice.id,
-            fp=BytesIO(alice_items_image_data),
-        )
+        row = (await session.execute(
+            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).limit(1)
+        )).scalar_one()
+        return ItemImageRead.model_validate(row)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_new_item_images(
-    app_config: Config,
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
-    """Ensure Alice's item image exists."""
+    """Reads Alice's 2nd–4th pre-seeded item images from DB."""
 
     async with database_sessionmaker.begin() as session:
-        return [
-            await image_services.upload_image(
-                db=session,
-                config=app_config,
-                owner_id=alice.id,
-                fp=BytesIO(image_data),
-            )
-            for image_data in [alice_new_item_image_data] * 3
-        ]
+        rows = (await session.execute(
+            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).offset(1).limit(3)
+        )).scalars().all()
+        return [ItemImageRead.model_validate(row) for row in rows]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_special_item_images(
-    app_config: Config,
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_new_item_image_data: bytes,
 ) -> list[ItemImageRead]:
-    """Ensure Alice's item image exists."""
+    """Reads Alice's 5th–6th pre-seeded item images from DB."""
 
     async with database_sessionmaker.begin() as session:
-        return [
-            await image_services.upload_image(
-                db=session,
-                config=app_config,
-                owner_id=alice.id,
-                fp=BytesIO(image_data),
-            )
-            for image_data in [alice_new_item_image_data] * 2
-        ]
+        rows = (await session.execute(
+            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).offset(4).limit(2)
+        )).scalars().all()
+        return [ItemImageRead.model_validate(row) for row in rows]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def bob_items_image(
-    app_config: Config,
     database_sessionmaker: async_sessionmaker,
     bob: UserPrivateRead,
-    bob_items_image_data: bytes,
 ) -> ItemImageRead:
-    """Ensure Bob's item image exists."""
+    """Reads Bob's first pre-seeded item image from DB."""
 
     async with database_sessionmaker.begin() as session:
-        return await image_services.upload_image(
-            db=session,
-            config=app_config,
-            owner_id=bob.id,
-            fp=BytesIO(bob_items_image_data),
-        )
+        row = (await session.execute(
+            select(ItemImage).where(ItemImage.owner_id == bob.id).order_by(ItemImage.name).limit(1)
+        )).scalar_one()
+        return ItemImageRead.model_validate(row)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -286,7 +263,7 @@ async def alice_new_item(
         )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_special_item(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -310,7 +287,7 @@ async def alice_special_item(
         )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_many_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -344,7 +321,7 @@ async def alice_many_items(
         return items
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def bob_items(
     database_sessionmaker: async_sessionmaker,
     bob: UserPrivateRead,
@@ -369,7 +346,7 @@ async def bob_items(
         ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def items(
     alice_items: list[ItemRead],
     bob_items: list[ItemRead],
@@ -382,7 +359,7 @@ async def items(
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -436,8 +413,8 @@ async def many_items(
         return items
 
 
-@pytest.fixture(scope="class")
-async def some_item_french_names() -> list[str]:
+@pytest.fixture(scope="session")
+def some_item_french_names() -> list[str]:
     """Some item French names."""
 
     random.seed(0xA19F)
@@ -460,7 +437,7 @@ async def some_item_french_names() -> list[str]:
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def some_items_with_french_names(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,

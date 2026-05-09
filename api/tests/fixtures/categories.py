@@ -5,57 +5,23 @@ from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from babytroc.domains.category import services as category_services
-from babytroc.domains.category.schemas.create import CategoryCreate
 from babytroc.domains.category.schemas.read import CategoryRead
 from babytroc.domains.item.models.category import ItemCategoryAssociation
 from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.infrastructure.cache_client import NullCache
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def categories(
     database_sessionmaker: async_sessionmaker,
 ) -> list[CategoryRead]:
-    """Ensures categories exist."""
-
-    parents = [
-        CategoryCreate(slug="clothing", name="Vêtements"),
-        CategoryCreate(slug="toys", name="Jouets"),
-        CategoryCreate(slug="gear", name="Équipement"),
-    ]
-
-    c = "clothing"
-    children = [
-        CategoryCreate(slug="clothing-bodysuits", name="Bodies", parent_slug=c),
-        CategoryCreate(slug="clothing-sleepwear", name="Pyjamas", parent_slug=c),
-        CategoryCreate(slug="clothing-outerwear", name="Manteaux", parent_slug=c),
-        CategoryCreate(slug="clothing-accessories", name="Accessoires", parent_slug=c),
-        CategoryCreate(slug="toys-bath", name="Jouets de bain", parent_slug="toys"),
-        CategoryCreate(slug="toys-soft", name="Peluches", parent_slug="toys"),
-        CategoryCreate(
-            slug="toys-educational",
-            name="Jouets éducatifs",
-            parent_slug="toys",
-        ),
-        CategoryCreate(slug="gear-strollers", name="Poussettes", parent_slug="gear"),
-        CategoryCreate(slug="gear-car-seats", name="Sièges auto", parent_slug="gear"),
-        CategoryCreate(slug="gear-carriers", name="Porte-bébés", parent_slug="gear"),
-    ]
+    """Fetches the pre-seeded categories."""
 
     async with database_sessionmaker.begin() as session:
-        created_parents = await category_services.create_many_categories(
-            session,
-            category_creates=parents,
-        )
-
-        created_children = await category_services.create_many_categories(
-            session,
-            category_creates=children,
-        )
-
-    return created_parents + created_children
+        return await category_services.list_categories(session, NullCache())
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_items_with_categories(
     database_sessionmaker: async_sessionmaker,
     alice_many_items: list[ItemRead],

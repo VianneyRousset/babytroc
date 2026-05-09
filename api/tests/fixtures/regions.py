@@ -4,8 +4,8 @@ import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from babytroc.domains.region import services as region_services
-from babytroc.domains.region.schemas.create import RegionCreate
 from babytroc.domains.region.schemas.read import RegionRead
+from babytroc.infrastructure.cache_client import NullCache
 
 
 class RegionData(TypedDict):
@@ -13,7 +13,7 @@ class RegionData(TypedDict):
     name: str
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def regions_data() -> list[RegionData]:
     """Regions data."""
     return [
@@ -28,18 +28,11 @@ def regions_data() -> list[RegionData]:
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def regions(
     database_sessionmaker: async_sessionmaker,
-    regions_data: list[RegionData],
 ) -> list[RegionRead]:
-    """Ensures the regions exists."""
+    """Fetches the pre-seeded regions."""
 
     async with database_sessionmaker.begin() as session:
-        return [
-            await region_services.create_region(
-                session,
-                RegionCreate(**region),
-            )
-            for region in regions_data
-        ]
+        return await region_services.list_regions(session, NullCache())
