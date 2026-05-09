@@ -1,8 +1,1 @@
-from app.schemas.base import ReadBase
-
-from .base import RegionBase
-
-
-class RegionRead(RegionBase, ReadBase):
-    id: int
-    name: str
+from app.domains.region.schemas.read import *  # noqa: F401,F403

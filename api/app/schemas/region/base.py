@@ -1,5 +1,1 @@
-from app.schemas.base import Base
-
-
-class RegionBase(Base):
-    pass
+from app.domains.region.schemas.base import *  # noqa: F401,F403

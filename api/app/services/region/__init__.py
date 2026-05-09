@@ -1,10 +1,2 @@
-from .create import create_many_regions, create_region
-from .read import get_many_regions, get_region, list_regions
-
-__all__ = [
-    "create_many_regions",
-    "create_region",
-    "get_many_regions",
-    "get_region",
-    "list_regions",
-]
+from app.domains.region.services import *  # noqa: F401,F403
+from app.domains.region.services import __all__  # noqa: F401

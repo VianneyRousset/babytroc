@@ -1,7 +1,1 @@
-from app.schemas.base import UpdateBase
-
-from .base import RegionBase
-
-
-class RegionUpdate(RegionBase, UpdateBase):
-    name: str
+from app.domains.region.schemas.update import *  # noqa: F401,F403

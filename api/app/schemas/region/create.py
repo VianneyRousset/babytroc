@@ -1,8 +1,1 @@
-from app.schemas.base import CreateBase
-
-from .base import RegionBase
-
-
-class RegionCreate(RegionBase, CreateBase):
-    id: int | None = None
-    name: str
+from app.domains.region.schemas.create import *  # noqa: F401,F403
