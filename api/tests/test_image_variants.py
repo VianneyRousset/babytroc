@@ -15,7 +15,7 @@ def test_generate_webp_variants_produces_three_sizes():
 
     variants = generate_webp_variants(fp)
 
-    assert set(variants.keys()) == {256, 512, 1024}
+    assert set(variants.keys()) == {128, 256, 512, 1024}
 
     for size, data in variants.items():
         result = PIL.Image.open(data)

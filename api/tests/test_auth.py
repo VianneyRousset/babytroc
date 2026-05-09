@@ -4,7 +4,7 @@ import jwt
 import pytest
 from fastapi import status
 from httpx import AsyncClient
-from httpx_ws import AsyncWebSocketSession, aconnect_ws
+from httpx_ws import aconnect_ws
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.schemas.auth.availability import AuthAccountAvailability
@@ -124,7 +124,7 @@ class TestAuthNewAccount:
         """Check that a new account can be created and validated."""
 
         email = "ojownlydifctujhohfzresasqaxe@hcycjxybfvvnfkbapireyezpxnt.com"
-        password = "xxxXXX42"  # noqa: S105
+        password = "xxxXXX42"
 
         # check forbidden access
         resp = await client.get("/api/v1/me")
@@ -272,7 +272,7 @@ class TestAuthPasswordReset:
     ):
         """Check that a new account can be created and validated."""
 
-        new_password = "newPassword42"  # noqa: S105
+        new_password = "newPassword42"
 
         # login should fail
         resp = await client.post(

@@ -15,6 +15,7 @@ TEST_S3_CONFIG = S3Config(
 
 async def test_upload_image_variants():
     variants = {
+        128: BytesIO(b"webp128"),
         256: BytesIO(b"webp256"),
         512: BytesIO(b"webp512"),
         1024: BytesIO(b"webp1024"),
@@ -39,7 +40,12 @@ async def test_upload_image_variants():
     call_keys = {
         call.kwargs["Key"] for call in mock_s3_client.put_object.call_args_list
     }
-    assert call_keys == {"abc123_256.webp", "abc123_512.webp", "abc123_1024.webp"}
+    assert call_keys == {
+        "abc123_128.webp",
+        "abc123_256.webp",
+        "abc123_512.webp",
+        "abc123_1024.webp",
+    }
 
     for call in mock_s3_client.put_object.call_args_list:
         assert call.kwargs["Bucket"] == "test-bucket"
@@ -64,4 +70,9 @@ async def test_delete_image_variants():
     call_kwargs = mock_s3_client.delete_objects.call_args.kwargs
     assert call_kwargs["Bucket"] == "test-bucket"
     keys = [obj["Key"] for obj in call_kwargs["Delete"]["Objects"]]
-    assert set(keys) == {"abc123_256.webp", "abc123_512.webp", "abc123_1024.webp"}
+    assert set(keys) == {
+        "abc123_128.webp",
+        "abc123_256.webp",
+        "abc123_512.webp",
+        "abc123_1024.webp",
+    }
