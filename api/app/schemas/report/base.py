@@ -1,5 +1,1 @@
-from app.schemas.base import Base
-
-
-class ReportBase(Base):
-    pass
+from app.domains.report.schemas.base import *  # noqa: F401,F403
