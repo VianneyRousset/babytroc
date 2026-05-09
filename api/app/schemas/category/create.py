@@ -1,9 +1,1 @@
-from app.schemas.base import CreateBase
-
-from .base import CategoryBase
-
-
-class CategoryCreate(CategoryBase, CreateBase):
-    slug: str
-    name: str
-    parent_slug: str | None = None
+from app.domains.category.schemas.create import *  # noqa: F401,F403

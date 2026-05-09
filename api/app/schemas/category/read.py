@@ -1,9 +1,1 @@
-from app.schemas.base import ReadBase
-
-from .base import CategoryBase
-
-
-class CategoryRead(CategoryBase, ReadBase):
-    slug: str
-    name: str
-    parent_slug: str | None
+from app.domains.category.schemas.read import *  # noqa: F401,F403

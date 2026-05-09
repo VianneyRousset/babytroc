@@ -1,9 +1,1 @@
-from .base import ApiError, NotFoundError
-
-
-class CategoryError(ApiError):
-    domain = "category"
-
-
-class CategoryNotFoundError(CategoryError, NotFoundError):
-    message = "Category not found."
+from app.domains.category.errors import *  # noqa: F401,F403

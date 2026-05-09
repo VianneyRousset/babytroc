@@ -1,5 +1,1 @@
-from app.schemas.base import Base
-
-
-class CategoryBase(Base):
-    pass
+from app.domains.category.schemas.base import *  # noqa: F401,F403
