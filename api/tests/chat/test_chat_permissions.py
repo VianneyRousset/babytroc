@@ -62,6 +62,7 @@ class TestForbiddenChatOperations:
 
         # check that Carol is not member of the chat
         res = await alice_client.get(f"/api/v1/me/chats/{chat_id}")
+        res.raise_for_status()
         chat = ChatRead.model_validate(res.json())
         assert chat.borrower.id != carol.id, "Carol should not be part of the chat"
         assert chat.owner.id != carol.id, "Carol should not be part of the chat"
@@ -101,6 +102,7 @@ class TestForbiddenChatOperations:
 
         # check that Carol is not member of the chat
         res = await alice_client.get(f"/api/v1/me/chats/{chat_id}")
+        res.raise_for_status()
         chat = ChatRead.model_validate(res.json())
         assert chat.borrower.id != carol.id, "Carol should not be part of the chat"
         assert chat.owner.id != carol.id, "Carol should not be part of the chat"
@@ -158,6 +160,7 @@ class TestForbiddenChatOperations:
             f"/api/v1/me/chats/{main_chat_id}/messages",
             json={"text": "test"},
         )
+        res.raise_for_status()
         message = ChatMessageRead.model_validate(res.json())
 
         # check message properly received

@@ -44,6 +44,7 @@ class TestChatTextMessages:
                 f"/api/v1/me/chats/{chat_id}/messages",
                 json={"text": text},
             )
+            res.raise_for_status()
             message = ChatMessageRead.model_validate(res.json())
 
         # construct expected chat message
