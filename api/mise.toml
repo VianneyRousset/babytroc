@@ -68,3 +68,8 @@ run = "docker build . --tag=vianneyrousset/babytroc-api"
 [tasks.clear-mypy-cache]
 description = "Clear mypy cache"
 run = "rm -rf `find -iname '.mypy_cache'`"
+
+[tasks.babycli]
+description = "Run babycli operations CLI"
+depends = ["deps", "deps-dev"]
+run = "uv run python -m babycli"
