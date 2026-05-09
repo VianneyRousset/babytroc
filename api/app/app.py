@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+import app.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
 from broadcaster import Broadcast
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError

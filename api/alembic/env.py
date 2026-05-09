@@ -5,8 +5,10 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-import app
+import app.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
 from alembic import context
+from app.infrastructure.config import DatabaseConfig
+from app.shared.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,13 +19,12 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = app.models.Base.metadata
+target_metadata = Base.metadata
 
-# # Set the database URL in the Alembic config
-jls_extract_var = config
+# Set the database URL in the Alembic config
 if config.get_main_option("sqlalchemy.url") is None:
-    db_config = app.config.DatabaseConfig.from_env()
-    jls_extract_var.set_main_option(
+    db_config = DatabaseConfig.from_env()
+    config.set_main_option(
         "sqlalchemy.url", db_config.url.render_as_string(hide_password=False)
     )
 
