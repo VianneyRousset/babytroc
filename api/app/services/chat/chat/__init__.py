@@ -1,6 +1,1 @@
-from . import read, report
-
-__all__ = [
-    "read",
-    "report",
-]
+from app.domains.chat.services.chat import *  # noqa: F401,F403

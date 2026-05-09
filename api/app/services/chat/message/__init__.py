@@ -1,7 +1,1 @@
-from . import create, read, update
-
-__all__ = [
-    "create",
-    "read",
-    "update",
-]
+from app.domains.chat.services.message import *  # noqa: F401,F403
