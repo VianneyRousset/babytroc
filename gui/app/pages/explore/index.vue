@@ -70,10 +70,10 @@ const activeFilterChips = computed<FilterChip[]>(() => {
   const chips: FilterChip[] = []
   const f = unref(filters)
 
-  if (!f.available && f.unavailable) {
+  if (f.available && !f.unavailable) {
+    chips.push({ label: 'Disponible', remove: () => { f.unavailable = true } })
+  } else if (!f.available && f.unavailable) {
     chips.push({ label: 'Non-disponible', remove: () => { f.available = true; f.unavailable = false } })
-  } else if (f.available && f.unavailable) {
-    chips.push({ label: 'Tous', remove: () => { f.available = true; f.unavailable = false } })
   }
 
   for (const slug of f.categories) {
