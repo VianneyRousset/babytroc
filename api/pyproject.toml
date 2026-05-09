@@ -1,7 +1,8 @@
 [project]
 name = "babytroc"
 version = "0.0.0"
-requires-python = ">=3.12"
+description = "The babytroc API."
+requires-python = ">=3.13"
 dependencies = [
   "fastapi[standard]==0.*",
   "alembic>=1.15.2",
@@ -24,6 +25,17 @@ dependencies = [
   "graphifyy>=0.4.1",
   "aioboto3>=13.0.0",
 ]
+
+[project.scripts]
+babycli = "babycli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.9,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "babycli"
+module-root = ""
 
 [dependency-groups]
 dev = [
@@ -49,10 +61,6 @@ dev = [
   "unidecode>=1.4.0",
   "wonderwords>=2.2.0",
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-exclude = ["alembic", "stubs"]
 
 [tool.ruff]
 exclude = ["stubs"]
@@ -93,7 +101,7 @@ extend-immutable-calls = [
 timeout = 10
 timeout_func_only = true
 pythonpath = "."
-addopts = "-vv"
+addopts = "-vv -n logical --dist loadscope --maxfail=1"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
