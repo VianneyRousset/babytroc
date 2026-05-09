@@ -6,7 +6,7 @@ from app.clients.cache import Cache
 
 @pytest.fixture
 async def redis_client(worker_id: str):
-    db = 14 if worker_id == "master" else 14 + int(worker_id.replace("gw", ""))
+    db = 11 if worker_id == "master" else 11
     client = Redis(host="localhost", port=6379, db=db)
     await client.flushdb()
     yield client
