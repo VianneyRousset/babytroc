@@ -1,13 +1,6 @@
-from app.clients.cache import Cache
-
-
-def get_cache() -> Cache:
-    return _cache
-
-
-_cache: Cache
-
-
-def init_cache_dependency(cache: Cache) -> None:
-    global _cache
-    _cache = cache
+# Compatibility shim — real module has moved to app.infrastructure.cache
+from app.infrastructure.cache import *  # noqa: F401,F403
+from app.infrastructure.cache import (
+    get_cache,
+    init_cache_dependency,
+)

@@ -12,13 +12,13 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.errors import ApiError
 
-from .cache import init_cache_dependency
-from .clients.cache import RedisCache
-from .clients.redis import create_redis_client
-from .config import Config
-from .database import create_session_maker, init_db_session_dependency
-from .email import init_email_dependency
-from .pubsub import init_broadcast_dependency
+from .infrastructure.cache import init_cache_dependency
+from .infrastructure.cache_client import RedisCache
+from .infrastructure.redis import create_redis_client
+from .infrastructure.config import Config
+from .infrastructure.database import create_session_maker, init_db_session_dependency
+from .infrastructure.email import init_email_dependency
+from .infrastructure.pubsub import init_broadcast_dependency
 from .routers.v1 import router
 
 

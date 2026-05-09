@@ -23,7 +23,7 @@ async def test_upload_image_variants():
 
     mock_s3_client = AsyncMock()
 
-    with patch("app.clients.storage.s3._get_s3_client") as mock_get:
+    with patch("app.infrastructure.storage._get_s3_client") as mock_get:
         mock_ctx = AsyncMock()
         mock_ctx.__aenter__ = AsyncMock(return_value=mock_s3_client)
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
@@ -55,7 +55,7 @@ async def test_upload_image_variants():
 async def test_delete_image_variants():
     mock_s3_client = AsyncMock()
 
-    with patch("app.clients.storage.s3._get_s3_client") as mock_get:
+    with patch("app.infrastructure.storage._get_s3_client") as mock_get:
         mock_ctx = AsyncMock()
         mock_ctx.__aenter__ = AsyncMock(return_value=mock_s3_client)
         mock_ctx.__aexit__ = AsyncMock(return_value=False)

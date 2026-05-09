@@ -1,13 +1,6 @@
-from fastapi_mail import FastMail
-
-
-def get_email_client() -> FastMail:
-    return _email_client
-
-
-_email_client: FastMail
-
-
-def init_email_dependency(email_client: FastMail) -> None:
-    global _email_client
-    _email_client = email_client
+# Compatibility shim — real module has moved to app.infrastructure.email
+from app.infrastructure.email import *  # noqa: F401,F403
+from app.infrastructure.email import (
+    get_email_client,
+    init_email_dependency,
+)
