@@ -7,18 +7,18 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.clients import email
-from app.config import Config
+from app.infrastructure.email_auth import send_account_validation_email
+from app.infrastructure.config import Config
 from app.domains.auth.errors import (
     AuthAccountAlreadyValidatedError,
     AuthInvalidValidationCodeError,
 )
-from app.models.user import User
-from app.pubsub import get_broadcast, notify_user_after_commit
-from app.schemas.pubsub import PubsubMessageUpdatedAccountValidation
+from app.domains.user.models import User
+from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
+from app.domains.chat.schemas.pubsub import PubsubMessageUpdatedAccountValidation
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def validate_user_account(
@@ -66,7 +66,7 @@ async def validate_user_account(
     )
 
     if cache is not None:
-        from app.services.user.cache import invalidate_user_validated
+        from app.domains.user.services.cache import invalidate_user_validated
 
         await invalidate_user_validated(cache, user_id=user.id)
 
@@ -91,7 +91,7 @@ async def send_validation_email(
         raise AuthAccountAlreadyValidatedError()
 
     # send email
-    email.send_account_validation_email(
+    send_account_validation_email(
         email_client=email_client,
         background_tasks=background_tasks,
         host_name=config.host_name,

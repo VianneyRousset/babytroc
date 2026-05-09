@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
 import app
-from app.clients.cache import NullCache
-from app.schemas.region.create import RegionCreate as Region
+from app.infrastructure.cache_client import NullCache
+from app.domains.region.schemas.create import RegionCreate as Region
 
 logger = logging.getLogger("seed")
 

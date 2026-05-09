@@ -1,7 +1,7 @@
 import pytest
 from redis.asyncio import Redis
 
-from app.clients.cache import RedisCache
+from app.infrastructure.cache_client import RedisCache
 
 
 @pytest.fixture

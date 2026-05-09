@@ -1,7 +1,7 @@
 from pydantic import EmailStr
 
 from app.domains.user.models import User
-from app.schemas.base import QueryFilter, StatementT
+from app.shared.schemas import QueryFilter, StatementT
 
 
 class UserQueryFilterName(QueryFilter):

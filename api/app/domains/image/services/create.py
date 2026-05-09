@@ -5,12 +5,12 @@ from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import utils
-from app.clients.storage import s3
-from app.config import Config
-from app.models.item.image import ItemImage
+from app.infrastructure import storage
+from app.shared import image as image_utils
+from app.infrastructure.config import Config
+from app.domains.item.models.image import ItemImage
 from app.domains.image.schemas.read import ItemImageRead
-from app.services.user.read import get_user
+from app.domains.user.services.read import get_user
 
 
 async def upload_image(
@@ -23,13 +23,13 @@ async def upload_image(
     """Upload a new item image. Generates 3 webp variants and stores in S3."""
 
     # Process image and generate webp variants
-    variants = utils.image.generate_webp_variants(fp)
+    variants = image_utils.generate_webp_variants(fp)
 
     # Generate a unique name
     name = uuid.uuid4().hex
 
     # Upload all variants to S3
-    await s3.upload_image_variants(
+    await storage.upload_image_variants(
         config=config.s3,
         name=name,
         variants=variants,

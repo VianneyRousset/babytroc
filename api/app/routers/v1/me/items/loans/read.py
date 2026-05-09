@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.loan import services as loan_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
 from app.routers.v1.me.items.annotations import item_id_annotation
-from app.schemas.loan.api import LoanApiQuery
-from app.schemas.loan.query import LoanReadQueryFilter
-from app.schemas.loan.read import LoanRead
+from app.domains.loan.schemas.api import LoanApiQuery
+from app.domains.loan.schemas.query import LoanReadQueryFilter
+from app.domains.loan.schemas.read import LoanRead
 
 from .annotations import loan_id_annotation
 from .router import router
@@ -26,7 +26,7 @@ async def list_item_loans(
 ) -> list[LoanRead]:
     """List loans of the item owned by the client."""
 
-    result = await services.loan.list_loans(
+    result = await loan_services.list_loans(
         db=db,
         query_filter=LoanReadQueryFilter.model_validate(
             {
@@ -52,7 +52,7 @@ async def get_client_loan(
 ) -> LoanRead:
     """Get loan where the client is the owner."""
 
-    return await services.loan.get_loan(
+    return await loan_services.get_loan(
         db=db,
         loan_id=loan_id,
         query_filter=LoanReadQueryFilter(

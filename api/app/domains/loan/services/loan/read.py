@@ -3,11 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.domains.loan.errors import LoanNotFoundError
-from app.models.item import Item
+from app.domains.item.models import Item
 from app.domains.loan.models import Loan, LoanRequest
 from app.domains.loan.schemas.query import LoanQueryPageCursor, LoanReadQueryFilter
 from app.domains.loan.schemas.read import LoanRead
-from app.schemas.query import QueryPageOptions, QueryPageResult
+from app.shared.pagination import QueryPageOptions, QueryPageResult
 
 
 async def get_loan(

@@ -5,11 +5,11 @@ from sqlalchemy.orm import selectinload
 
 from app.domains.chat.errors import ChatNotFoundError
 from app.domains.chat.models import Chat, ChatMessage
-from app.models.item import Item
+from app.domains.item.models import Item
 from app.domains.chat.schemas.base import ChatId
 from app.domains.chat.schemas.query import ChatQueryPageCursor, ChatReadQueryFilter
 from app.domains.chat.schemas.read import ChatRead
-from app.schemas.query import QueryPageOptions, QueryPageResult
+from app.shared.pagination import QueryPageOptions, QueryPageResult
 
 
 async def get_chat(

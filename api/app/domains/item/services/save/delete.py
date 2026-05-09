@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domains.item.models.save import ItemSave
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def remove_item_from_user_saved_items(

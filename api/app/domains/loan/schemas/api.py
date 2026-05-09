@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from app.enums import LoanRequestState
-from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
-from app.schemas.query import QueryPageOptions
+from app.domains.loan.enums import LoanRequestState
+from app.shared.schemas import ApiQueryBase, FieldWithAlias, PageLimitField
+from app.shared.pagination import QueryPageOptions
 
 from .query import (
     LoanQueryPageCursor,

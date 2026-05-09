@@ -6,13 +6,13 @@ from sqlalchemy import delete, func, insert, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.clients import email
-from app.config import AuthConfig
+from app.infrastructure.email_auth import send_account_password_reset_authorization
+from app.infrastructure.config import AuthConfig
 from app.domains.auth.errors import AuthUnauthorizedAccountPasswordResetError
 from app.domains.auth.models import AuthAccountPasswordResetAuthorization
-from app.models.user import User
-from app.services.user import get_user_by_email_private
-from app.utils.hash import HashedStr
+from app.domains.user.models import User
+from app.domains.user.services import get_user_by_email_private
+from app.shared.hash import HashedStr
 
 
 async def create_account_password_reset_authrorization(
@@ -39,7 +39,7 @@ async def create_account_password_reset_authrorization(
     authorization_code = (await db.execute(stmt)).unique().scalar_one()
 
     if send_email:
-        email.send_account_password_reset_authorization(
+        send_account_password_reset_authorization(
             email_client=email_client,
             background_tasks=background_tasks,
             host_name=host_name,

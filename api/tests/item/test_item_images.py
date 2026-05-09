@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.read import ItemRead
 from tests.fixtures.items import ItemData
 
 

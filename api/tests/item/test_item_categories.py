@@ -2,8 +2,8 @@ from typing import Any
 
 from httpx import AsyncClient
 
-from app.schemas.category.read import CategoryRead
-from app.schemas.item.read import ItemRead
+from app.domains.category.schemas.read import CategoryRead
+from app.domains.item.schemas.read import ItemRead
 from app.utils.pagination import iter_paginated_endpoint
 
 

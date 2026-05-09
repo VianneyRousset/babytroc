@@ -3,8 +3,8 @@ from typing import Annotated
 from sqlalchemy import Select, tuple_
 
 from app.domains.chat.models import Chat, ChatMessage
-from app.models.item import Item
-from app.schemas.base import (
+from app.domains.item.models import Item
+from app.shared.schemas import (
     DeleteQueryFilter,
     FieldWithAlias,
     Joins,
@@ -14,7 +14,7 @@ from app.schemas.base import (
     UpdateQueryFilter,
 )
 from app.domains.chat.schemas.base import ChatId
-from app.schemas.query import QueryPageCursor
+from app.shared.pagination import QueryPageCursor
 
 
 class ChatQueryFilterChatId(QueryFilter):

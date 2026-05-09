@@ -2,17 +2,17 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.enums import LoanRequestState
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.send import SendChatMessageLoanRequestRejected
+from app.domains.loan.enums import LoanRequestState
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.send import SendChatMessageLoanRequestRejected
 from app.domains.loan.schemas.query import LoanRequestUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
-from app.services.chat import send_many_chat_messages
+from app.domains.chat.services import send_many_chat_messages
 
 from .update import update_many_loan_requests_state
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def reject_loan_request(

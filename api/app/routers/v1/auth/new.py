@@ -4,11 +4,12 @@ from fastapi import BackgroundTasks, Depends, Request, Response
 from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
-from app.email import get_email_client
-from app.schemas.auth.credentials import UserCredentialsInfo
-from app.schemas.user.create import UserCreate
+from app.domains.auth import services as auth_services
+from app.domains.user import services as user_services
+from app.infrastructure.database import get_db_session
+from app.infrastructure.email import get_email_client
+from app.domains.auth.schemas.credentials import UserCredentialsInfo
+from app.domains.user.schemas.create import UserCreate
 
 from .cookies import set_response_with_token_cookies
 from .router import router
@@ -25,7 +26,7 @@ async def create_user(
 ) -> UserCredentialsInfo:
     """Create a new user."""
 
-    await services.user.create_user(
+    await user_services.create_user(
         db=db,
         email_client=email_client,
         host_name=request.app.state.config.host_name,
@@ -34,7 +35,7 @@ async def create_user(
         user_create=user_create,
     )
 
-    credentials = await services.auth.login_user(
+    credentials = await auth_services.login_user(
         db=db,
         email=user_create.email,
         password=user_create.password,

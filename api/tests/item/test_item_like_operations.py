@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.read import ItemRead
 
 
 class TestItemLikeOperations:

@@ -3,16 +3,17 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.domains.loan import services as loan_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemReadQueryFilter
-from app.schemas.loan.api import LoanRequestApiQuery
-from app.schemas.loan.query import (
+from app.domains.item.schemas.query import ItemReadQueryFilter
+from app.domains.loan.schemas.api import LoanRequestApiQuery
+from app.domains.loan.schemas.query import (
     LoanRequestReadQueryFilter,
     LoanRequestUpdateQueryFilter,
 )
-from app.schemas.loan.read import LoanRequestRead
+from app.domains.loan.schemas.read import LoanRequestRead
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router
@@ -32,7 +33,7 @@ async def list_client_item_loan_requests(
     """List loan requests of the item owned by the client."""
 
     # get item to check it is owned by the client
-    item = await services.item.get_item(
+    item = await item_services.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(
@@ -41,7 +42,7 @@ async def list_client_item_loan_requests(
     )
 
     # get list of loan requests of the item
-    result = await services.loan.list_loan_requests(
+    result = await loan_services.list_loan_requests(
         db=db,
         query_filter=LoanRequestReadQueryFilter.model_validate(
             {
@@ -70,7 +71,7 @@ async def get_client_item_loan_request(
     """Get client's item loan request by id."""
 
     # get item to check it is owned by the client
-    item = await services.item.get_item(
+    item = await item_services.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(
@@ -78,7 +79,7 @@ async def get_client_item_loan_request(
         ),
     )
 
-    return await services.loan.get_loan_request(
+    return await loan_services.get_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestReadQueryFilter(
@@ -99,7 +100,7 @@ async def accept_client_item_loan_request(
 ) -> LoanRequestRead:
     """Accept client's item loan request."""
 
-    return await services.loan.accept_loan_request(
+    return await loan_services.accept_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestUpdateQueryFilter(
@@ -121,7 +122,7 @@ async def reject_client_item_loan_request(
 ) -> LoanRequestRead:
     """Reject client's item loan request."""
 
-    return await services.loan.reject_loan_request(
+    return await loan_services.reject_loan_request(
         db=db,
         loan_request_id=loan_request_id,
         query_filter=LoanRequestUpdateQueryFilter(

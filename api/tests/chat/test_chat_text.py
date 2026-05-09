@@ -2,11 +2,11 @@ import pytest
 from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession
 
-from app.enums import ChatMessageType
-from app.schemas.chat.read import ChatMessageRead
-from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.chat.enums import ChatMessageType
+from app.domains.chat.schemas.read import ChatMessageRead
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.schemas.read import LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
 from tests.fixtures.chat import ReceivedChatMessageChecker
 
 pytestmark = pytest.mark.timeout(30)

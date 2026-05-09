@@ -9,7 +9,7 @@ from app.domains.chat.schemas.query import (
     ChatMessageReadQueryFilter,
 )
 from app.domains.chat.schemas.read import ChatMessageRead
-from app.schemas.query import QueryPageOptions, QueryPageResult
+from app.shared.pagination import QueryPageOptions, QueryPageResult
 
 
 async def get_message(

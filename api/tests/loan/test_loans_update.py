@@ -2,9 +2,9 @@ from datetime import UTC, datetime, timedelta
 
 from httpx import AsyncClient
 
-from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRead, LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.schemas.read import LoanRead, LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
 
 
 class TestLoanUpdate:

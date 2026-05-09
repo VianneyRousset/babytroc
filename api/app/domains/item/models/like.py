@@ -7,7 +7,7 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from app.models.base import Base
+from app.shared.models import Base
 
 
 class ItemLike(Base):

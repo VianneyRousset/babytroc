@@ -2,8 +2,8 @@ from typing import Annotated, Literal
 
 from pydantic import Field, TypeAdapter
 
-from app.enums import ChatMessageType
-from app.schemas.base import BaseModel
+from app.domains.chat.enums import ChatMessageType
+from app.shared.schemas import BaseModel
 
 from .base import ChatId
 

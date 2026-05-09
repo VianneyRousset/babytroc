@@ -2,9 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import AuthConfig
-from app.errors.user import UserNotFoundError
-from app.models.user import User
+from app.infrastructure.config import AuthConfig
+from app.domains.user.errors import UserNotFoundError
+from app.domains.user.models import User
 from app.domains.auth.schemas.credentials import UserCredentials
 
 from .access_token import create_access_token

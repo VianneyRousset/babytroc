@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from typing import Any
 
-from app.errors.base import ApiError, ConflictError, NotFoundError
+from app.shared.errors import ApiError, ConflictError, NotFoundError
 
 
 class ItemError(ApiError):

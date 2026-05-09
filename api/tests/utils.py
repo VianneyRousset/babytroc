@@ -4,7 +4,7 @@ from collections.abc import AsyncIterable, AsyncIterator, Iterable, Iterator
 from string import ascii_letters
 from typing import Any, Self, TypeVar, TypeVarTuple, overload
 
-from app.schemas.item.base import MonthRange
+from app.domains.item.schemas.base import MonthRange
 
 T = TypeVar("T")
 TP = TypeVarTuple("TP")

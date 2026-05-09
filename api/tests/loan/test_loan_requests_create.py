@@ -2,7 +2,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.read import ItemRead
 
 
 @pytest.mark.usefixtures("items")

@@ -8,10 +8,10 @@ import pytest
 from fastapi import status
 from httpx_ws import aconnect_ws
 
-from app.schemas.auth.availability import AuthAccountAvailability
-from app.schemas.websocket import WebsocketMessageUpdatedAccountValidation
-from app.services.auth.refresh_token import list_account_password_reset_authorizations
-from app.services.user import get_user_validation_code_by_email
+from app.domains.auth.schemas.availability import AuthAccountAvailability
+from app.domains.chat.schemas.websocket import WebsocketMessageUpdatedAccountValidation
+from app.domains.auth.services.refresh_token import list_account_password_reset_authorizations
+from app.domains.user.services import get_user_validation_code_by_email
 from tests.fixtures.clients import create_client
 from tests.fixtures.websockets import WebSocketRecorder
 

@@ -5,16 +5,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.loan.errors import LoanAlreadyInactiveError
 from app.domains.loan.models import Loan
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.send import SendChatMessageLoanEnded
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.send import SendChatMessageLoanEnded
 from app.domains.loan.schemas.query import LoanReadQueryFilter, LoanUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRead
-from app.services.chat import send_many_chat_messages
+from app.domains.chat.services import send_many_chat_messages
 
 from .read import get_many_loans
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def end_loan(

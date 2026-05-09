@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.cache_keys import (
+from app.infrastructure.cache_keys import (
     TTL_USER_LIKED,
     TTL_USER_SAVED,
     key_user_liked_items,
@@ -13,7 +13,7 @@ from app.cache_keys import (
 from app.domains.item.models import ItemLike, ItemSave
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def get_user_liked_item_ids(

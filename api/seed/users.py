@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
 import app
-from app.schemas.user.create import UserCreate as User
+from app.domains.user.schemas.create import UserCreate as User
 
 logger = logging.getLogger("seed")
 

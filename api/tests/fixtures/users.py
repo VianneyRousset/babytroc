@@ -5,9 +5,9 @@ from typing import TypedDict
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app import services
-from app.schemas.user.create import UserCreate
-from app.schemas.user.private import UserPrivateRead
+from app.domains.user import services as user_services
+from app.domains.user.schemas.create import UserCreate
+from app.domains.user.schemas.private import UserPrivateRead
 from app.utils.hash import HashedStr
 
 
@@ -59,7 +59,7 @@ async def alice(
 
     async with database_sessionmaker.begin() as session:
         return (
-            await services.user.create_many_users_without_validation(
+            await user_services.create_many_users_without_validation(
                 session,
                 [UserCreate(**alice_user_data)],
                 validated=True,
@@ -76,7 +76,7 @@ async def bob(
 
     async with database_sessionmaker.begin() as session:
         return (
-            await services.user.create_many_users_without_validation(
+            await user_services.create_many_users_without_validation(
                 session,
                 [UserCreate(**bob_user_data)],
                 validated=True,
@@ -93,7 +93,7 @@ async def carol(
 
     async with database_sessionmaker.begin() as session:
         return (
-            await services.user.create_many_users_without_validation(
+            await user_services.create_many_users_without_validation(
                 session,
                 [UserCreate(**carol_user_data)],
                 validated=True,
@@ -127,7 +127,7 @@ async def many_users(
     ]
 
     async with database_sessionmaker.begin() as session:
-        return await services.user.create_many_users_without_validation(
+        return await user_services.create_many_users_without_validation(
             session,
             user_creates=user_creates,
             validated=True,

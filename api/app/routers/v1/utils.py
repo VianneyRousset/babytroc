@@ -3,12 +3,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
-from app.schemas.category.read import CategoryRead
-from app.schemas.region.read import RegionRead
+from app.domains.category import services as category_services
+from app.domains.region import services as region_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
+from app.domains.category.schemas.read import CategoryRead
+from app.domains.region.schemas.read import RegionRead
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ async def list_regions(
 ) -> list[RegionRead]:
     """List regions."""
 
-    return await services.region.list_regions(db, cache)
+    return await region_services.list_regions(db, cache)
 
 
 @router.get("/categories", status_code=status.HTTP_200_OK)
@@ -30,4 +31,4 @@ async def list_categories(
 ) -> list[CategoryRead]:
     """List categories."""
 
-    return await services.category.list_categories(db, cache)
+    return await category_services.list_categories(db, cache)

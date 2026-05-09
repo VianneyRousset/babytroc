@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.item import ItemImage
+from app.domains.item.models import ItemImage
 
 
 def create_image(

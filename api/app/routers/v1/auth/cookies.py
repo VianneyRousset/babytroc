@@ -1,6 +1,6 @@
 from fastapi import Request, Response
 
-from app.schemas.auth.credentials import UserCredentials
+from app.domains.auth.schemas.credentials import UserCredentials
 
 
 def set_response_with_token_cookies(

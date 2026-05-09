@@ -18,14 +18,14 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.enums import LoanRequestState
-from app.schemas.chat.base import ChatId
+from app.domains.loan.enums import LoanRequestState
+from app.domains.chat.schemas.base import ChatId
 
-from app.models.base import Base, CreationDate, IntegerIdentifier
+from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:
-    from app.models.item import Item
-    from app.models.user import User
+    from app.domains.item.models import Item
+    from app.domains.user.models import User
 
 
 class LoanRequest(IntegerIdentifier, CreationDate, Base):

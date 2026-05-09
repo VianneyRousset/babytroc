@@ -3,9 +3,9 @@ from typing import TypedDict
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app import services
-from app.schemas.region.create import RegionCreate
-from app.schemas.region.read import RegionRead
+from app.domains.region import services as region_services
+from app.domains.region.schemas.create import RegionCreate
+from app.domains.region.schemas.read import RegionRead
 
 
 class RegionData(TypedDict):
@@ -37,7 +37,7 @@ async def regions(
 
     async with database_sessionmaker.begin() as session:
         return [
-            await services.region.create_region(
+            await region_services.create_region(
                 session,
                 RegionCreate(**region),
             )

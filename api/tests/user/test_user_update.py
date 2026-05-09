@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 
-from app.schemas.user.private import UserPrivateRead
+from app.domains.user.schemas.private import UserPrivateRead
 
 
 class TestUpdateUser:

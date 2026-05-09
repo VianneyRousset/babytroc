@@ -1,10 +1,10 @@
 from collections.abc import Collection, Mapping
 from typing import Any
 
-from app.enums import LoanRequestState
+from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.schemas.base import ItemBorrowerId
 
-from app.errors.base import ApiError, BadRequestError, ConflictError, NotFoundError
+from app.shared.errors import ApiError, BadRequestError, ConflictError, NotFoundError
 
 
 class LoanError(ApiError):

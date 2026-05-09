@@ -9,9 +9,9 @@ from sqlalchemy.orm import (
     mapped_column,
 )
 
-from app.enums import ReportType
+from app.domains.report.enums import ReportType
 
-from app.models.base import Base, CreationDate, IntegerIdentifier
+from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 
 class Report(IntegerIdentifier, CreationDate, Base):

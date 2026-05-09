@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemDeleteQueryFilter
+from app.domains.item.schemas.query import ItemDeleteQueryFilter
 
 from .annotations import item_id_annotation
 from .router import router
@@ -23,7 +23,7 @@ async def delete_client_item(
 ):
     """Delete the specified item owned by the client."""
 
-    return await services.item.delete_item(
+    return await item_services.delete_item(
         db=db,
         item_id=item_id,
         query_filter=ItemDeleteQueryFilter(

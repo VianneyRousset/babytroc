@@ -1,5 +1,5 @@
 from app.domains.auth.models import AuthRefreshToken
-from app.schemas.base import QueryFilter, StatementT
+from app.shared.schemas import QueryFilter, StatementT
 
 
 class AuthRefreshTokenQueryFilter(QueryFilter):

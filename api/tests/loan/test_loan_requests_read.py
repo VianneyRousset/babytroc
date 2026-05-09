@@ -3,10 +3,10 @@ from typing import Any
 import pytest
 from httpx import AsyncClient
 
-from app.enums import LoanRequestState
-from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.loan.enums import LoanRequestState
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.schemas.read import LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 

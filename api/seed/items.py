@@ -8,13 +8,13 @@ from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
 import app
-from app.clients.cache import NullCache
-from app.schemas.item.base import MonthRange
-from app.schemas.item.constants import (
+from app.infrastructure.cache_client import NullCache
+from app.domains.item.schemas.base import MonthRange
+from app.domains.item.schemas.constants import (
     DESCRIPTION_LENGTH,
     NAME_LENGTH,
 )
-from app.schemas.item.create import ItemCreate as Item
+from app.domains.item.schemas.create import ItemCreate as Item
 
 from .config import get_config
 

@@ -1,4 +1,4 @@
-from app.cache_keys import (
+from app.infrastructure.cache_keys import (
     key_item,
     key_user,
     key_user_chats,
@@ -8,7 +8,7 @@ from app.cache_keys import (
     pattern_user_items,
     pattern_user_loans,
 )
-from app.clients.cache import Cache
+from app.infrastructure.cache_client import Cache
 
 
 async def invalidate_item_created(cache: Cache, *, owner_id: int) -> None:

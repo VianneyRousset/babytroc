@@ -6,7 +6,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import AuthConfig
+from app.infrastructure.config import AuthConfig
 from app.domains.auth.errors import (
     AuthAccountPasswordResetAuthorizationNotFoundError,
     AuthRefreshTokenNotFoundError,

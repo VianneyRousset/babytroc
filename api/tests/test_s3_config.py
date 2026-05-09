@@ -1,4 +1,4 @@
-from app.config import S3Config
+from app.infrastructure.config import S3Config
 
 
 def test_s3_config_from_env(monkeypatch):

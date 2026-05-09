@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from http import HTTPStatus
 from typing import Any
 
-from app.errors.base import ApiError, NotFoundError
+from app.shared.errors import ApiError, NotFoundError
 
 
 class AuthError(ApiError):

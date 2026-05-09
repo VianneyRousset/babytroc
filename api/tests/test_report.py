@@ -6,11 +6,11 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.enums import ReportType
-from app.models.report import Report
-from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.report.enums import ReportType
+from app.domains.report.models import Report
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.schemas.read import LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
 
 
 class TestReportUser:

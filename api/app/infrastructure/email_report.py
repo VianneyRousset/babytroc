@@ -1,7 +1,7 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from pydantic import NameEmail
 
-from app.enums import ReportType
+from app.domains.report.enums import ReportType
 
 
 async def send_report_email(

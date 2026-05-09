@@ -24,8 +24,8 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.models.base import Base, CreationDate, UpdateDate
-from app.models.loan import Loan
+from app.shared.models import Base, CreationDate, UpdateDate
+from app.domains.loan.models import Loan
 
 from .category import Category, ItemCategoryAssociation
 from .image import ItemImage, ItemImageAssociation
@@ -33,7 +33,7 @@ from .like import ItemLike
 from .region import ItemRegionAssociation, Region
 
 if TYPE_CHECKING:
-    from app.models.user import User
+    from app.domains.user.models import User
 
 
 class Item(CreationDate, UpdateDate, Base):

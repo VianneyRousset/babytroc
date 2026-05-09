@@ -5,15 +5,15 @@ from fastapi import BackgroundTasks, Depends, Request
 from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
-from app.email import get_email_client
-from app.schemas.auth.create import AuthAccountPasswordResetAuthorizationCreate
-from app.schemas.auth.reset import (
+from app.domains.auth import services as auth_services
+from app.infrastructure.database import get_db_session
+from app.infrastructure.email import get_email_client
+from app.domains.auth.schemas.create import AuthAccountPasswordResetAuthorizationCreate
+from app.domains.auth.schemas.reset import (
     AuthAccountPasswordResetAuthorizationCreated,
     AuthAccountPasswordResetDone,
 )
-from app.schemas.user.update import UserPasswordUpdate
+from app.domains.user.schemas.update import UserPasswordUpdate
 
 from .router import router
 
@@ -28,7 +28,7 @@ async def create_account_password_reset_authorization(
 ) -> AuthAccountPasswordResetAuthorizationCreated:
     """Send a account password reset authorization by email."""
 
-    await services.auth.create_account_password_reset_authrorization(
+    await auth_services.create_account_password_reset_authrorization(
         db=db,
         user_email=authorization_create.email,
         email_client=email_client,
@@ -51,7 +51,7 @@ async def apply_account_password_reset(
 ) -> AuthAccountPasswordResetDone:
     """Apply the account password reset with `authorization_code`."""
 
-    await services.auth.apply_account_password_reset(
+    await auth_services.apply_account_password_reset(
         db=db,
         authorization_code=authorization_code,
         new_password=user_password_update.password,

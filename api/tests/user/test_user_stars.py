@@ -2,10 +2,10 @@ import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.domain.star import stars_gain_when_adding_item
-from app.errors.user import UserNotFoundError
-from app.schemas.user.private import UserPrivateRead
-from app.services.user import get_user
-from app.services.user.star.update import (
+from app.domains.user.errors import UserNotFoundError
+from app.domains.user.schemas.private import UserPrivateRead
+from app.domains.user.services import get_user
+from app.domains.user.services.star.update import (
     AddUserStars,
     add_many_stars_to_users,
     add_stars_to_user,

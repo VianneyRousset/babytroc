@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import AliasChoices, Field
 
-from app.schemas.base import ReadBase
+from app.shared.schemas import ReadBase
 from .base import ItemBase
 
 from .base import MonthRange

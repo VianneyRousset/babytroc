@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.create import ItemCreate
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.create import ItemCreate
+from app.domains.item.schemas.read import ItemRead
 
 from .router import router
 
@@ -26,7 +26,7 @@ async def create_client_item(
 ) -> ItemRead:
     """Create an item owned by the client."""
 
-    return await services.item.create_item(
+    return await item_services.create_item(
         db=db,
         owner_id=client_id,
         item_create=item_create,

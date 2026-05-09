@@ -3,10 +3,10 @@ import json
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.cache_keys import TTL_REGIONS, key_regions
-from app.clients.cache import Cache
+from app.infrastructure.cache_keys import TTL_REGIONS, key_regions
+from app.infrastructure.cache_client import Cache
 from app.domains.region.errors import RegionNotFoundError
-from app.models.item import Region
+from app.domains.item.models import Region
 from app.domains.region.schemas.read import RegionRead
 
 

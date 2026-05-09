@@ -7,7 +7,7 @@ from app.domains.item.models import Item
 from app.domains.item.models.like import ItemLike
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def remove_item_from_user_liked_items(

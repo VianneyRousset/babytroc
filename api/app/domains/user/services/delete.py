@@ -7,7 +7,7 @@ from app.domains.user.errors import UserNotFoundError
 from app.domains.user.models import User
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def delete_user(

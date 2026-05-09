@@ -5,12 +5,12 @@ from fastapi import BackgroundTasks, Depends, Request
 from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
-from app.email import get_email_client
-from app.schemas.auth.validation import AuthValidation, AuthValidationResendEmail
+from app.domains.auth import services as auth_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
+from app.infrastructure.email import get_email_client
+from app.domains.auth.schemas.validation import AuthValidation, AuthValidationResendEmail
 
 from .router import router
 from .verification import oauth2_scheme, verify_request_credentials_no_validation_check
@@ -33,7 +33,7 @@ async def resend_validation_email(
     )
 
     # send email
-    await services.auth.send_validation_email(
+    await auth_services.send_validation_email(
         db=db,
         user_id=client_id,
         email_client=email_client,
@@ -52,7 +52,7 @@ async def validate_user_account(
 ) -> AuthValidation:
     """Validate user account."""
 
-    await services.auth.validate_user_account(
+    await auth_services.validate_user_account(
         db=db,
         validation_code=validation_code,
         cache=cache,

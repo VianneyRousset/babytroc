@@ -16,9 +16,9 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.types import UUID, TypeDecorator
 
-from app.utils.hash import HashedStr
+from app.shared.hash import HashedStr
 
-from app.models.base import Base, CreationDate, IntegerIdentifier
+from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 
 class HashedString(TypeDecorator):

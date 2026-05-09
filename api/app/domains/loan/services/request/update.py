@@ -1,7 +1,7 @@
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.enums import LoanRequestState
+from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.errors import LoanRequestStateError
 from app.domains.loan.models import LoanRequest
 from app.domains.loan.schemas.query import (

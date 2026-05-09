@@ -5,9 +5,9 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.cache_keys import TTL_USER, key_user
+from app.infrastructure.cache_keys import TTL_USER, key_user
 from app.domains.user.errors import UserNotFoundError
-from app.models.item import Item, ItemLike
+from app.domains.item.models import Item, ItemLike
 from app.domains.user.models import User
 from app.domains.user.schemas.preview import UserPreviewRead
 from app.domains.user.schemas.private import UserPrivateRead
@@ -15,7 +15,7 @@ from app.domains.user.schemas.query import UserReadQueryFilter
 from app.domains.user.schemas.read import UserRead
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def get_user(

@@ -3,7 +3,7 @@ from sqlalchemy import Integer, column, update, values
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.user.models import User
-from app.schemas.base import Base as SchemaBase
+from app.shared.schemas import Base as SchemaBase
 from app.domains.user.services.read import get_many_users
 
 

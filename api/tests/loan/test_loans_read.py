@@ -4,7 +4,7 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from app.schemas.loan.read import LoanRead
+from app.domains.loan.schemas.read import LoanRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 

@@ -1,4 +1,4 @@
-from app.schemas.base import UpdateBase
+from app.shared.schemas import UpdateBase
 
 from .base import RegionBase
 

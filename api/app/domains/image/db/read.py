@@ -3,7 +3,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from app.domains.image.errors import ItemImageNotFoundError
-from app.models.item import ItemImage
+from app.domains.item.models import ItemImage
 
 
 def get_image(

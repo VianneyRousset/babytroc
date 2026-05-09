@@ -1,4 +1,4 @@
-from app.cache_keys import cache_key_hash
+from app.infrastructure.cache_keys import cache_key_hash
 
 
 class TestCacheKeyHash:

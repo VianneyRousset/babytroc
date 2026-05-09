@@ -19,11 +19,11 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.enums import ChatMessageType
+from app.domains.chat.enums import ChatMessageType
 from app.domains.chat.errors import ChatNotFoundError
 from app.domains.chat.models import Chat, ChatMessage
-from app.models.item import Item
-from app.pubsub import get_broadcast, notify_user_after_commit
+from app.domains.item.models import Item
+from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
 from app.domains.chat.schemas.read import ChatMessageRead
 from app.domains.chat.schemas.send import SendChatMessage, SendChatMessageText
 from app.domains.chat.schemas.pubsub import PubsubMessageNewChatMessage
@@ -160,8 +160,8 @@ async def send_many_chat_messages(
     # 4. The loan does not exist
     except IntegrityError as error:
         from app.domains.chat.services import get_many_chats
-        from app.services.loan import get_many_loan_requests, get_many_loans
-        from app.services.user import get_many_users
+        from app.domains.loan.services import get_many_loan_requests, get_many_loans
+        from app.domains.user.services import get_many_users
 
         # raise ChatNotFoundError if not all chats exist (1.)
         await get_many_chats(
@@ -231,7 +231,7 @@ async def send_many_chat_messages(
             notify_user_after_commit(db, broadcast, user_id, pubsub_msg)
 
     # Invalidate cache for affected chats
-    from app.cache import get_cache
+    from app.infrastructure.cache import get_cache
     from app.domains.chat.services.cache import invalidate_chat_message_sent
 
     cache = get_cache()

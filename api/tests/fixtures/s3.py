@@ -7,7 +7,7 @@ import pytest
 def mock_s3_uploads():
     """Mock S3 uploads globally for all tests."""
     with patch(
-        "app.clients.storage.s3.upload_image_variants",
+        "app.infrastructure.storage.upload_image_variants",
         new_callable=AsyncMock,
     ) as mock:
         mock.return_value = None

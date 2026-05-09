@@ -1,9 +1,9 @@
-from app.cache_keys import (
+from app.infrastructure.cache_keys import (
     key_user,
     pattern_items_list,
     pattern_user_all,
 )
-from app.clients.cache import Cache
+from app.infrastructure.cache_client import Cache
 
 
 async def invalidate_user_updated(cache: Cache, *, user_id: int) -> None:

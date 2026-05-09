@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.image.errors import ItemImageNotFoundError, ItemImageNotOwnedError
-from app.models.item.image import ItemImage
-from app.schemas.base import Base as SchemaBase
+from app.domains.item.models.image import ItemImage
+from app.shared.schemas import Base as SchemaBase
 from app.domains.image.schemas.read import ItemImageRead
 
 

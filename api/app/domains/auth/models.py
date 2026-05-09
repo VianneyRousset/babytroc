@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import UUID
 
-from app.models.base import Base, CreationDate
+from app.shared.models import Base, CreationDate
 
 
 class AuthRefreshToken(CreationDate, Base):

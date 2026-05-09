@@ -9,15 +9,16 @@ from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app import services
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatMessageReadQueryFilter
-from app.schemas.chat.read import ChatMessageRead, ChatRead
-from app.schemas.chat.send import SendChatMessageText
-from app.schemas.item.read import ItemRead
-from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
-from app.schemas.websocket import (
+from app.domains.chat import services as chat_services
+from app.domains.loan import services as loan_services
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
+from app.domains.chat.schemas.read import ChatMessageRead, ChatRead
+from app.domains.chat.schemas.send import SendChatMessageText
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.schemas.read import LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
+from app.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
@@ -164,7 +165,7 @@ async def alice_many_messages_to_bob(
     async with database_sessionmaker.begin() as session:
         # get current messages
         messages: list[ChatMessageRead] = (
-            await services.chat.list_messages(
+            await chat_services.list_messages(
                 db=session,
                 query_filter=ChatMessageReadQueryFilter(
                     chat_id=chat_id,
@@ -175,7 +176,7 @@ async def alice_many_messages_to_bob(
         # create extra messages
         extra_messages: list[
             ChatMessageRead
-        ] = await services.chat.send_many_chat_messages(
+        ] = await chat_services.send_many_chat_messages(
             db=session,
             messages=[
                 SendChatMessageText(
@@ -201,7 +202,7 @@ async def alice_many_chats(
 
     async with database_sessionmaker.begin() as session:
         loan_requests = [
-            await services.loan.create_loan_request(
+            await loan_services.create_loan_request(
                 db=session,
                 item_id=item.id,
                 borrower_id=alice.id if item.owner.id == bob.id else bob.id,
@@ -210,7 +211,7 @@ async def alice_many_chats(
             if item.owner.id in [alice.id, bob.id]
         ]
         return [
-            await services.chat.get_chat(
+            await chat_services.get_chat(
                 db=session,
                 chat_id=loan_request.chat_id,
             )

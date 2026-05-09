@@ -4,11 +4,11 @@ from sqlalchemy import and_, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload, undefer
 
-from app.cache_keys import TTL_ITEM, key_item
-from app.enums import LoanRequestState
+from app.infrastructure.cache_keys import TTL_ITEM, key_item
+from app.domains.loan.enums import LoanRequestState
 from app.domains.item.errors import ItemNotFoundError
 from app.domains.item.models import Item
-from app.models.loan import Loan, LoanRequest
+from app.domains.loan.models import Loan, LoanRequest
 from app.domains.item.schemas.query import ItemReadQueryFilter
 from app.domains.item.schemas.read import ItemRead
 
@@ -19,7 +19,7 @@ from .selections import (
 )
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def get_item(

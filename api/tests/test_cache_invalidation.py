@@ -1,8 +1,8 @@
 import pytest
 from redis.asyncio import Redis
 
-from app.clients.cache import RedisCache
-from app.services.item.cache import (
+from app.infrastructure.cache_client import RedisCache
+from app.domains.item.services.cache import (
     invalidate_item_created,
     invalidate_item_deleted,
     invalidate_item_updated,

@@ -1,7 +1,7 @@
 from broadcaster import Broadcast
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.pubsub import PubsubMessage
+from app.domains.chat.schemas.pubsub import PubsubMessage
 
 _PENDING_NOTIFICATIONS_KEY = "_pending_pubsub_notifications"
 

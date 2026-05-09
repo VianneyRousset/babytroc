@@ -3,14 +3,14 @@ from typing import Annotated
 from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.query import ItemUpdateQueryFilter
-from app.schemas.item.read import ItemRead
-from app.schemas.item.update import ItemUpdate
+from app.domains.item.schemas.query import ItemUpdateQueryFilter
+from app.domains.item.schemas.read import ItemRead
+from app.domains.item.schemas.update import ItemUpdate
 
 from .annotations import item_id_annotation
 from .router import router
@@ -29,7 +29,7 @@ async def update_client_item(
 ) -> ItemRead:
     """Update client's item."""
 
-    return await services.item.update_item(
+    return await item_services.update_item(
         db=db,
         item_id=item_id,
         item_update=item_update,

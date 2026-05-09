@@ -4,25 +4,25 @@ from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.enums import LoanRequestState
+from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.errors import LoanRequestNotFoundError, LoanRequestStateError
 from app.domains.loan.models import LoanRequest
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.send import SendChatMessageLoanRequestCancelled
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.send import SendChatMessageLoanRequestCancelled
 from app.domains.loan.schemas.query import (
     LoanRequestQueryPageCursor,
     LoanRequestReadQueryFilter,
     LoanRequestUpdateQueryFilter,
 )
 from app.domains.loan.schemas.read import LoanRequestRead
-from app.schemas.query import QueryPageOptions
-from app.services.chat import send_chat_message, send_many_chat_messages
+from app.shared.pagination import QueryPageOptions
+from app.domains.chat.services import send_chat_message, send_many_chat_messages
 
 from .read import get_loan_request, list_loan_requests
 from .update import update_many_loan_requests_state
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def cancel_item_active_loan_request(

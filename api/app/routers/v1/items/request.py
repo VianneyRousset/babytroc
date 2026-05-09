@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.loan import services as loan_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.loan.read import LoanRequestRead
+from app.domains.loan.schemas.read import LoanRequestRead
 
 from .annotations import item_id_annotation
 from .router import router
@@ -26,7 +26,7 @@ async def create_loan_request(
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
-    return await services.loan.create_loan_request(
+    return await loan_services.create_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,
@@ -47,7 +47,7 @@ async def cancel_item_active_loan_request(
 ) -> LoanRequestRead:
     """Add a loan request of the item."""
 
-    return await services.loan.cancel_item_active_loan_request(
+    return await loan_services.cancel_item_active_loan_request(
         db=db,
         item_id=item_id,
         borrower_id=client_id,

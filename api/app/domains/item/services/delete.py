@@ -10,7 +10,7 @@ from app.domains.item.models.region import ItemRegionAssociation
 from app.domains.item.schemas.query import ItemDeleteQueryFilter
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def delete_item(

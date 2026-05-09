@@ -6,7 +6,7 @@ from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 
 from app.app import create_app
-from app.config import Config, DatabaseConfig, PubsubConfig, RedisConfig, S3Config
+from app.infrastructure.config import Config, DatabaseConfig, PubsubConfig, RedisConfig, S3Config
 
 
 @pytest.fixture(scope="class")

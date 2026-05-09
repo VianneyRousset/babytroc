@@ -5,18 +5,18 @@ from broadcaster import Broadcast
 from fastapi import Depends, WebSocket
 from starlette.websockets import WebSocketDisconnect
 
-from app import services
-from app.database import get_session_maker
-from app.pubsub import get_broadcast, user_channel
+from app.domains.chat import services as chat_services
+from app.infrastructure.database import get_session_maker
+from app.infrastructure.pubsub import get_broadcast, user_channel
 from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
-from app.schemas.chat.query import ChatMessageReadQueryFilter
-from app.schemas.pubsub import (
+from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
+from app.domains.chat.schemas.pubsub import (
     PubsubMessageNewChatMessage,
     PubsubMessageTypeAdapter,
     PubsubMessageUpdatedAccountValidation,
     PubsubMessageUpdatedChatMessage,
 )
-from app.schemas.websocket import (
+from app.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebsocketMessageUpdatedAccountValidation,
     WebSocketMessageUpdatedChatMessage,
@@ -64,7 +64,7 @@ async def relay_broacast_events_to_websocket(
 
             if isinstance(pubsub_message, PubsubMessageNewChatMessage):
                 async with get_session_maker().begin() as db:
-                    chat_message = await services.chat.get_message(
+                    chat_message = await chat_services.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
                         query_filter=ChatMessageReadQueryFilter(
@@ -80,7 +80,7 @@ async def relay_broacast_events_to_websocket(
 
             elif isinstance(pubsub_message, PubsubMessageUpdatedChatMessage):
                 async with get_session_maker().begin() as db:
-                    chat_message = await services.chat.get_message(
+                    chat_message = await chat_services.get_message(
                         db=db,
                         message_id=pubsub_message.chat_message_id,
                         query_filter=ChatMessageReadQueryFilter(

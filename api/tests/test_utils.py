@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 
-from app.schemas.region.read import RegionRead
+from app.domains.region.schemas.read import RegionRead
 from tests.fixtures.regions import RegionData
 
 

@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.chat import services as chat_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.create import ChatMessageCreate
-from app.schemas.chat.read import ChatMessageRead
-from app.schemas.chat.send import SendChatMessageText
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.create import ChatMessageCreate
+from app.domains.chat.schemas.read import ChatMessageRead
+from app.domains.chat.schemas.send import SendChatMessageText
 
 from .annotations import chat_id_annotation
 from .router import router
@@ -33,7 +33,7 @@ async def send_message_to_chat(
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
-    return await services.chat.send_chat_message(
+    return await chat_services.send_chat_message(
         db=db,
         message=SendChatMessageText(
             chat_id=parsed_chat_id,

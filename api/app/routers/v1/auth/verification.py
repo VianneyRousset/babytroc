@@ -4,10 +4,10 @@ from fastapi import Depends, Request, WebSocket
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 
-from app import services
-from app.config import AuthConfig
-from app.errors.auth import InvalidCredentialError
-from app.schemas.auth.data import UserAccessTokenData
+from app.domains.auth import services as auth_services
+from app.infrastructure.config import AuthConfig
+from app.domains.auth.errors import InvalidCredentialError
+from app.domains.auth.schemas.data import UserAccessTokenData
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/v1/auth/login",
@@ -112,7 +112,7 @@ def get_and_verify_token(
 
         token = param
 
-    return services.auth.verify_access_token(
+    return auth_services.verify_access_token(
         token=token,
         config=config,
     )

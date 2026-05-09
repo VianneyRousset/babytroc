@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.user import services as user_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.report.create import ReportCreate
-from app.schemas.user.read import UserRead
+from app.domains.report.schemas.create import ReportCreate
+from app.domains.user.schemas.read import UserRead
 
 from .annotations import user_id_annotation
 from .router import router
@@ -23,7 +23,7 @@ async def get_user(
 ) -> UserRead:
     """Get user."""
 
-    return await services.user.get_user(
+    return await user_services.get_user(
         db=db,
         user_id=user_id,
         cache=cache,
@@ -43,7 +43,7 @@ async def report_user(
 ):
     """Report user."""
 
-    return await services.user.report_user(
+    return await user_services.report_user(
         db=db,
         user_id=user_id,
         reported_by_user_id=client_id,

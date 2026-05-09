@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, TypeAdapter
 
-from app.schemas.base import BaseModel
+from app.shared.schemas import BaseModel
 
 
 class PubsubBase(BaseModel):

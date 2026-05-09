@@ -3,11 +3,11 @@ from fastapi_mail import FastMail
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.clients import email
+from app.infrastructure.email_auth import send_account_validation_email
 from app.domains.user.models import User
 from app.domains.user.schemas.create import UserCreate
 from app.domains.user.schemas.private import UserPrivateRead
-from app.utils.hash import HashedStr
+from app.shared.hash import HashedStr
 
 from .read import get_many_users_private, get_user_private
 
@@ -35,7 +35,7 @@ async def create_user(
     await db.flush()
 
     if send_validation_email:
-        email.send_account_validation_email(
+        send_account_validation_email(
             email_client=email_client,
             background_tasks=background_tasks,
             host_name=host_name,

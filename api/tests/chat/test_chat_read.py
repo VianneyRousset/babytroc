@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from httpx import AsyncClient
 
-from app.schemas.chat.read import ChatMessageRead, ChatRead
+from app.domains.chat.schemas.read import ChatMessageRead, ChatRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 

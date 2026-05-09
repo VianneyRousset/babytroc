@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.api import ItemApiQuery
-from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.query import ItemReadQueryFilter
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.api import ItemApiQuery
+from app.domains.item.schemas.preview import ItemPreviewRead
+from app.domains.item.schemas.query import ItemReadQueryFilter
+from app.domains.item.schemas.read import ItemRead
 
 from .annotations import item_id_annotation
 from .router import router
@@ -25,7 +25,7 @@ async def list_items_owned_by_client(
 ) -> list[ItemPreviewRead]:
     """List items owned by the client."""
 
-    result = await services.item.list_items(
+    result = await item_services.list_items(
         db=db,
         query_filter=ItemReadQueryFilter.model_validate(
             {
@@ -49,7 +49,7 @@ async def get_client_item_by_id(
 ) -> ItemRead:
     """Get client's item by id."""
 
-    return await services.item.get_item(
+    return await item_services.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(

@@ -3,14 +3,14 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import maybe_client_id_annotation
-from app.schemas.item.api import ItemMatchinWordsApiQuery
-from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.api import ItemMatchinWordsApiQuery
+from app.domains.item.schemas.preview import ItemPreviewRead
+from app.domains.item.schemas.read import ItemRead
 
 from .annotations import item_id_annotation
 from .router import router
@@ -28,7 +28,7 @@ async def list_items(
 
     # words fuzzy search
     if query.words:
-        fuzzy_search_result = await services.item.list_items(
+        fuzzy_search_result = await item_services.list_items(
             db=db,
             words=query.words,
             query_filter=query.item_select_query_filter,
@@ -40,7 +40,7 @@ async def list_items(
 
         return fuzzy_search_result.data
 
-    result = await services.item.list_items(
+    result = await item_services.list_items(
         db=db,
         query_filter=query.item_select_query_filter,
         page_options=query.item_query_page_options,
@@ -61,7 +61,7 @@ async def get_item(
 ) -> ItemRead:
     """Get item."""
 
-    return await services.item.get_item(
+    return await item_services.get_item(
         db=db,
         item_id=item_id,
         client_id=client_id,

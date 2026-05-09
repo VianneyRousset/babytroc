@@ -3,23 +3,23 @@ from itertools import repeat
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 from sqlalchemy import ColumnClause, insert, select, values
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.enums import LoanRequestState
+from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.errors import LoanRequestAlreadyExistsError, LoanRequestOwnItemError
-from app.models.item import Item
+from app.domains.item.models import Item
 from app.domains.loan.models import LoanRequest
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.send import SendChatMessageLoanRequestCreated
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.send import SendChatMessageLoanRequestCreated
 from app.domains.loan.schemas.base import ItemBorrowerId
 from app.domains.loan.schemas.query import LoanRequestReadQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
-from app.services.chat import send_many_chat_messages
-from app.services.item import get_many_items
+from app.domains.chat.services import send_many_chat_messages
+from app.domains.item.services import get_many_items
 from app.domains.loan.services.request.read import list_loan_requests
 
 from .read import get_many_loan_requests
@@ -102,7 +102,7 @@ async def create_many_loan_requests(
     # 2. the item does not exist TODO
     # 3. if the loan requests aleady exists
     except IntegrityError as error:
-        from app.services.user import get_many_users
+        from app.domains.user.services import get_many_users
 
         # raise UserNotFoundError if borrower does not exist (1.)
         await get_many_users(

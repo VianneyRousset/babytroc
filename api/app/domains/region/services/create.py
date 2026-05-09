@@ -1,7 +1,7 @@
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.item.region import Region
+from app.domains.item.models.region import Region
 from app.domains.region.schemas.create import RegionCreate
 from app.domains.region.schemas.read import RegionRead
 

@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession, WebSocketUpgradeError, aconnect_ws
 
-from app.schemas.loan.read import LoanRequestRead
-from app.schemas.user.private import UserPrivateRead
-from app.schemas.websocket import (
+from app.domains.loan.schemas.read import LoanRequestRead
+from app.domains.user.schemas.private import UserPrivateRead
+from app.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )

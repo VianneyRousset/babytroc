@@ -5,14 +5,15 @@ from typing import TypedDict
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app import services
-from app.config import Config
-from app.schemas.image.read import ItemImageRead
-from app.schemas.item.base import MonthRange
-from app.schemas.item.create import ItemCreate
-from app.schemas.item.read import ItemRead
-from app.schemas.region.read import RegionRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.image import services as image_services
+from app.domains.item import services as item_services
+from app.infrastructure.config import Config
+from app.domains.image.schemas.read import ItemImageRead
+from app.domains.item.schemas.base import MonthRange
+from app.domains.item.schemas.create import ItemCreate
+from app.domains.item.schemas.read import ItemRead
+from app.domains.region.schemas.read import RegionRead
+from app.domains.user.schemas.private import UserPrivateRead
 from tests.utils import random_sample, random_str, random_targeted_age_months
 
 
@@ -168,7 +169,7 @@ async def alice_items_image(
     """Ensure Alice's item image exists."""
 
     async with database_sessionmaker.begin() as session:
-        return await services.image.upload_image(
+        return await image_services.upload_image(
             db=session,
             config=app_config,
             owner_id=alice.id,
@@ -187,7 +188,7 @@ async def alice_new_item_images(
 
     async with database_sessionmaker.begin() as session:
         return [
-            await services.image.upload_image(
+            await image_services.upload_image(
                 db=session,
                 config=app_config,
                 owner_id=alice.id,
@@ -208,7 +209,7 @@ async def alice_special_item_images(
 
     async with database_sessionmaker.begin() as session:
         return [
-            await services.image.upload_image(
+            await image_services.upload_image(
                 db=session,
                 config=app_config,
                 owner_id=alice.id,
@@ -228,7 +229,7 @@ async def bob_items_image(
     """Ensure Bob's item image exists."""
 
     async with database_sessionmaker.begin() as session:
-        return await services.image.upload_image(
+        return await image_services.upload_image(
             db=session,
             config=app_config,
             owner_id=bob.id,
@@ -246,7 +247,7 @@ async def alice_items(
 
     async with database_sessionmaker.begin() as session:
         return [
-            await services.item.create_item(
+            await item_services.create_item(
                 db=session,
                 owner_id=alice.id,
                 item_create=ItemCreate(
@@ -270,7 +271,7 @@ async def alice_new_item(
     """Alice's new item."""
 
     async with database_sessionmaker.begin() as session:
-        return await services.item.create_item(
+        return await item_services.create_item(
             db=session,
             owner_id=alice.id,
             item_create=ItemCreate(
@@ -294,7 +295,7 @@ async def alice_special_item(
     """Alice's special item."""
 
     async with database_sessionmaker.begin() as session:
-        return await services.item.create_item(
+        return await item_services.create_item(
             db=session,
             owner_id=alice.id,
             item_create=ItemCreate(
@@ -322,10 +323,10 @@ async def alice_many_items(
     random.seed(0x25D4)
 
     async with database_sessionmaker.begin() as session:
-        items = await services.item.create_many_items(
+        items = await item_services.create_many_items(
             db=session,
             items=[
-                services.item.create.CreateItem(
+                item_services.create.CreateItem(
                     owner_id=alice.id,
                     item_create=ItemCreate(
                         name=random_str(8),
@@ -353,7 +354,7 @@ async def bob_items(
 
     async with database_sessionmaker.begin() as session:
         return [
-            await services.item.create_item(
+            await item_services.create_item(
                 db=session,
                 owner_id=bob.id,
                 item_create=ItemCreate(
@@ -410,10 +411,10 @@ async def many_items(
     ]
 
     async with database_sessionmaker.begin() as session:
-        items = await services.item.create_many_items(
+        items = await item_services.create_many_items(
             db=session,
             items=[
-                services.item.create.CreateItem(
+                item_services.create.CreateItem(
                     owner_id=owner_id,
                     item_create=ItemCreate(
                         name=random_str(8),
@@ -488,10 +489,10 @@ async def some_items_with_french_names(
     ]
 
     async with database_sessionmaker.begin() as session:
-        items = await services.item.create_many_items(
+        items = await item_services.create_many_items(
             db=session,
             items=[
-                services.item.create.CreateItem(
+                item_services.create.CreateItem(
                     owner_id=owner_id,
                     item_create=ItemCreate(
                         name=name,

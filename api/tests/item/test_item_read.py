@@ -4,9 +4,9 @@ import pytest
 from httpx import AsyncClient
 from unidecode import unidecode
 
-from app.schemas.item.query import ItemQueryAvailability
-from app.schemas.item.read import ItemRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.item.schemas.query import ItemQueryAvailability
+from app.domains.item.schemas.read import ItemRead
+from app.domains.user.schemas.private import UserPrivateRead
 from app.utils.pagination import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 

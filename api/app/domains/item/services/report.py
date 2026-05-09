@@ -2,12 +2,12 @@ import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.clients.email.report import send_report_email
-from app.enums import ReportType
-from app.models.report import Report
-from app.schemas.report.create import ReportCreate
+from app.infrastructure.email_report import send_report_email
+from app.domains.report.enums import ReportType
+from app.domains.report.models import Report
+from app.domains.report.schemas.create import ReportCreate
 from app.domains.item.services.read import get_item
-from app.services.user.read import get_user_private
+from app.domains.user.services.read import get_user_private
 
 
 async def report_item(

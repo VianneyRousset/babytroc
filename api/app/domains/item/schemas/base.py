@@ -3,8 +3,8 @@ from typing import Self
 from pydantic import RootModel, model_validator
 from sqlalchemy.dialects.postgresql import Range as SQLRange
 
-from app.schemas.base import Base
-from app.schemas.utils import integer_range_to_inclusive
+from app.shared.schemas import Base
+from app.shared.utils import integer_range_to_inclusive
 
 
 class ItemBase(Base):

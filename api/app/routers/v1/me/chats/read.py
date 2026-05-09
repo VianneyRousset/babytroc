@@ -3,13 +3,13 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.chat import services as chat_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.chat.api import ChatApiQuery, ChatMessageApiQuery
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatMessageReadQueryFilter, ChatReadQueryFilter
-from app.schemas.chat.read import ChatMessageRead, ChatRead
+from app.domains.chat.schemas.api import ChatApiQuery, ChatMessageApiQuery
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.query import ChatMessageReadQueryFilter, ChatReadQueryFilter
+from app.domains.chat.schemas.read import ChatMessageRead, ChatRead
 
 from .annotations import chat_id_annotation, message_id_annotation
 from .router import router
@@ -25,7 +25,7 @@ async def list_client_chats(
 ) -> list[ChatRead]:
     """List all chats where the client is a member."""
 
-    result = await services.chat.list_chats(
+    result = await chat_services.list_chats(
         db=db,
         query_filter=ChatReadQueryFilter.model_validate(
             {
@@ -51,7 +51,7 @@ async def get_client_chat(
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
-    return await services.chat.get_chat(
+    return await chat_services.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -74,7 +74,7 @@ async def list_client_chat_messages(
     parsed_chat_id = ChatId.model_validate(chat_id)
 
     # check that client is member of the chat
-    chat = await services.chat.get_chat(
+    chat = await chat_services.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -83,7 +83,7 @@ async def list_client_chat_messages(
     )
 
     # get messages in the chat
-    result = await services.chat.list_messages(
+    result = await chat_services.list_messages(
         db=db,
         query_filter=ChatMessageReadQueryFilter.model_validate(
             {
@@ -114,7 +114,7 @@ async def get_client_chat_message_by_id(
     parsed_chat_id = ChatId.model_validate(chat_id)
 
     # check that client is member of the chat
-    chat = await services.chat.get_chat(
+    chat = await chat_services.get_chat(
         db=db,
         chat_id=parsed_chat_id,
         query_filter=ChatReadQueryFilter(
@@ -122,7 +122,7 @@ async def get_client_chat_message_by_id(
         ),
     )
 
-    return await services.chat.get_message(
+    return await chat_services.get_message(
         db=db,
         message_id=message_id,
         query_filter=ChatMessageReadQueryFilter(

@@ -3,15 +3,15 @@ from typing import Annotated
 from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.cache import get_cache
-from app.clients.cache import Cache
-from app.database import get_db_session
+from app.domains.item import services as item_services
+from app.infrastructure.cache import get_cache
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.item.api import LikedItemApiQuery
-from app.schemas.item.preview import ItemPreviewRead
-from app.schemas.item.query import ItemReadQueryFilter
-from app.schemas.item.read import ItemRead
+from app.domains.item.schemas.api import LikedItemApiQuery
+from app.domains.item.schemas.preview import ItemPreviewRead
+from app.domains.item.schemas.query import ItemReadQueryFilter
+from app.domains.item.schemas.read import ItemRead
 
 from .annotations import item_id_annotation
 from .me import router
@@ -28,7 +28,7 @@ async def add_item_to_client_liked_items(
 ) -> None:
     """Add the specified item to client liked items."""
 
-    await services.item.like.add_item_to_user_liked_items(
+    await item_services.like.add_item_to_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,
@@ -49,7 +49,7 @@ async def list_items_liked_by_client(
 ) -> list[ItemPreviewRead]:
     """List items like by client."""
 
-    result = await services.item.list_items(
+    result = await item_services.list_items(
         db=db,
         query_filter=ItemReadQueryFilter.model_validate(
             {
@@ -73,7 +73,7 @@ async def get_client_liked_item_by_id(
 ) -> ItemRead:
     """Get item liked by client."""
 
-    return await services.item.get_item(
+    return await item_services.get_item(
         db=db,
         item_id=item_id,
         query_filter=ItemReadQueryFilter(
@@ -94,7 +94,7 @@ async def remove_item_from_client_liked_items(
 ) -> None:
     """Remove the specified item from client liked items."""
 
-    await services.item.like.remove_item_from_user_liked_items(
+    await item_services.like.remove_item_from_user_liked_items(
         db=db,
         user_id=client_id,
         item_id=item_id,

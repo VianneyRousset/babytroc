@@ -1,7 +1,7 @@
 from typing import Annotated
 
-from app.schemas.base import ApiQueryBase, FieldWithAlias, PageLimitField
-from app.schemas.query import QueryPageOptions
+from app.shared.schemas import ApiQueryBase, FieldWithAlias, PageLimitField
+from app.shared.pagination import QueryPageOptions
 
 from .query import (
     ChatMessageQueryPageCursor,

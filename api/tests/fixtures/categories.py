@@ -4,11 +4,11 @@ import pytest
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app import services
-from app.models.item.category import ItemCategoryAssociation
-from app.schemas.category.create import CategoryCreate
-from app.schemas.category.read import CategoryRead
-from app.schemas.item.read import ItemRead
+from app.domains.category import services as category_services
+from app.domains.item.models.category import ItemCategoryAssociation
+from app.domains.category.schemas.create import CategoryCreate
+from app.domains.category.schemas.read import CategoryRead
+from app.domains.item.schemas.read import ItemRead
 
 
 @pytest.fixture(scope="class")
@@ -42,12 +42,12 @@ async def categories(
     ]
 
     async with database_sessionmaker.begin() as session:
-        created_parents = await services.category.create_many_categories(
+        created_parents = await category_services.create_many_categories(
             session,
             category_creates=parents,
         )
 
-        created_children = await services.category.create_many_categories(
+        created_children = await category_services.create_many_categories(
             session,
             category_creates=children,
         )
@@ -84,7 +84,7 @@ async def alice_items_with_categories(
         )
 
     # Re-read items to get updated category_slugs
-    from app.services.item import get_many_items
+    from app.domains.item.services import get_many_items
 
     async with database_sessionmaker() as session:
         items = await get_many_items(

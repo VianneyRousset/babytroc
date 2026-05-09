@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
-from app.schemas.auth.api import AuthAccountAvailabilityApiQuery
-from app.schemas.auth.availability import AuthAccountAvailability
-from app.schemas.user.query import UserReadQueryFilter
+from app.domains.user import services as user_services
+from app.infrastructure.database import get_db_session
+from app.domains.auth.schemas.api import AuthAccountAvailabilityApiQuery
+from app.domains.auth.schemas.availability import AuthAccountAvailability
+from app.domains.user.schemas.query import UserReadQueryFilter
 
 from .router import router
 
@@ -19,7 +19,7 @@ async def get_account_availability(
 ) -> AuthAccountAvailability:
     """Get account availability to be created."""
 
-    user_exists = await services.user.list_users(
+    user_exists = await user_services.list_users(
         db=db,
         query_filter=UserReadQueryFilter(
             name=query.name,

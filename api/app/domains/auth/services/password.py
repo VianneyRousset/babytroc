@@ -3,9 +3,9 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.auth.errors import IncorrectUsernameOrPasswordError
-from app.models.user import User
-from app.schemas.user.private import UserPrivateRead
-from app.services.user.read import get_user_private
+from app.domains.user.models import User
+from app.domains.user.schemas.private import UserPrivateRead
+from app.domains.user.services.read import get_user_private
 
 
 async def verify_user_password(

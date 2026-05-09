@@ -4,10 +4,10 @@ from fastapi import Depends, Request, Response
 from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
-from app.errors.auth import InvalidCredentialError
-from app.schemas.auth.credentials import UserCredentialsInfo
+from app.domains.auth import services as auth_services
+from app.infrastructure.database import get_db_session
+from app.domains.auth.errors import InvalidCredentialError
+from app.domains.auth.schemas.credentials import UserCredentialsInfo
 
 from .cookies import set_response_with_token_cookies
 from .router import router
@@ -32,7 +32,7 @@ async def refresh_credentials(
     if not authorization or scheme.lower() != "bearer":
         raise InvalidCredentialError()
 
-    credentials = await services.auth.refresh_user_credentials(
+    credentials = await auth_services.refresh_user_credentials(
         db=db,
         refresh_token=token,
         config=request.app.state.config.auth,

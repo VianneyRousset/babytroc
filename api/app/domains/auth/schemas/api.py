@@ -1,6 +1,6 @@
 from pydantic import EmailStr, field_validator
 
-from app.schemas.base import ApiQueryBase
+from app.shared.schemas import ApiQueryBase
 
 
 class AuthAccountAvailabilityApiQuery(ApiQueryBase):

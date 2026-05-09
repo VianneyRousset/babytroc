@@ -1,5 +1,5 @@
-from app.cache_keys import key_user_chats, pattern_chat_messages
-from app.clients.cache import Cache
+from app.infrastructure.cache_keys import key_user_chats, pattern_chat_messages
+from app.infrastructure.cache_client import Cache
 
 
 async def invalidate_chat_message_sent(

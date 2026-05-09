@@ -1,8 +1,8 @@
 import pytest
 from httpx import AsyncClient
 
-from app.schemas.item.read import ItemRead
-from app.schemas.user.private import UserPrivateRead
+from app.domains.item.schemas.read import ItemRead
+from app.domains.user.schemas.private import UserPrivateRead
 
 
 @pytest.mark.usefixtures("alice")

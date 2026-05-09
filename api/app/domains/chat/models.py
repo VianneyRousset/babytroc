@@ -15,14 +15,14 @@ from sqlalchemy import (
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import ChatMessageType
+from app.domains.chat.enums import ChatMessageType
 from app.domains.chat.schemas.base import ChatId
 
-from app.models.base import Base, CreationDate, IntegerIdentifier
+from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:
-    from app.models.item import Item
-    from app.models.user import User
+    from app.domains.item.models import Item
+    from app.domains.user.models import User
 
 
 class Chat(Base):

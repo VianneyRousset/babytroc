@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from app.cache_keys import key_categories, key_regions, key_user
+from app.infrastructure.cache_keys import key_categories, key_regions, key_user
 
 if TYPE_CHECKING:
     from fastapi import FastAPI
     from httpx import AsyncClient
 
-    from app.clients.cache import Cache
-    from app.schemas.user.private import UserPrivateRead
+    from app.infrastructure.cache_client import Cache
+    from app.domains.user.schemas.private import UserPrivateRead
 
 
 class TestCacheIntegrationRegions:

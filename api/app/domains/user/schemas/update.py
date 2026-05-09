@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Field, field_validator
 
-from app.schemas.base import UpdateBase
+from app.shared.schemas import UpdateBase
 
 from .base import UserBase
 from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH, PASSWORD_MIN_LENGTH

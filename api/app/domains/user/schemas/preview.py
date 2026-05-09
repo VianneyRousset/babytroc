@@ -1,4 +1,4 @@
-from app.schemas.base import ReadBase
+from app.shared.schemas import ReadBase
 
 from .base import UserBase
 

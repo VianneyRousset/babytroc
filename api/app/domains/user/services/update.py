@@ -8,12 +8,12 @@ from app.domains.user.errors import UserNotFoundError
 from app.domains.user.models import User
 from app.domains.user.schemas.private import UserPrivateRead
 from app.domains.user.schemas.update import UserUpdate
-from app.utils.hash import HashedStr
+from app.shared.hash import HashedStr
 
 from .read import get_user_private
 
 if TYPE_CHECKING:
-    from app.clients.cache import Cache
+    from app.infrastructure.cache_client import Cache
 
 
 async def update_user(

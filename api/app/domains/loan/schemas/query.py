@@ -2,17 +2,17 @@ from typing import Annotated
 
 from sqlalchemy import func, tuple_
 
-from app.enums import LoanRequestState
-from app.models.item import Item
+from app.domains.loan.enums import LoanRequestState
+from app.domains.item.models import Item
 from app.domains.loan.models import Loan, LoanRequest
-from app.schemas.base import (
+from app.shared.schemas import (
     FieldWithAlias,
     Joins,
     QueryFilter,
     StatementT,
 )
 from app.domains.loan.schemas.base import ItemBorrowerId
-from app.schemas.query import QueryPageCursor
+from app.shared.pagination import QueryPageCursor
 
 
 class LoanRequestQueryFilterItemBorrower(QueryFilter):

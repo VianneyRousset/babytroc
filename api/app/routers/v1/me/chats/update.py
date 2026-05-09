@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import services
-from app.database import get_db_session
+from app.domains.chat import services as chat_services
+from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.schemas.chat.base import ChatId
-from app.schemas.chat.query import ChatMessageReadQueryFilter
-from app.schemas.chat.read import ChatMessageRead
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
+from app.domains.chat.schemas.read import ChatMessageRead
 
 from .annotations import chat_id_annotation, message_id_annotation
 from .router import router
@@ -28,7 +28,7 @@ async def mark_client_chat_message_as_seen(
 
     parsed_chat_id = ChatId.model_validate(chat_id)
 
-    return await services.chat.mark_message_as_seen(
+    return await chat_services.mark_message_as_seen(
         db=db,
         message_id=message_id,
         query_filter=ChatMessageReadQueryFilter(

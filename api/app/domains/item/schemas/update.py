@@ -2,7 +2,7 @@ from typing import Annotated
 
 from pydantic import Field
 
-from app.schemas.base import UpdateBase
+from app.shared.schemas import UpdateBase
 from .base import ItemBase
 
 from .base import MonthRange

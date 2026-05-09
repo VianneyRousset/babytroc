@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import Field, field_serializer, field_validator
 
-from app.schemas.base import CreateBase
+from app.shared.schemas import CreateBase
 from .base import ItemBase
 
 from .base import MonthRange
