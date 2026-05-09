@@ -6,7 +6,6 @@ WORKDIR /usr/src/gui
 
 # copy configs
 COPY package.json package-lock.json ./
-COPY patches ./patches
 
 # install nodejs dependencies
 RUN npm ci
