@@ -78,6 +78,12 @@ class User(IntegerIdentifier, CreationDate, Base):
         default=0,
     )
 
+    disabled: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+    )
+
     _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
     __table_args__ = (
