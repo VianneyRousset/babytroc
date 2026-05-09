@@ -114,9 +114,9 @@ tryOnUnmounted(stop)
 
     border-radius: 1rem;
     border: 1px solid $neutral-300;
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: $shadow-sm;
     transition: box-shadow 0.2s ease-out,
-    all 0.2 ease-out;
+    border-color 0.2s ease-out;
 
     line-height: 1.2rem;
     padding-left: 1rem;
@@ -128,13 +128,13 @@ tryOnUnmounted(stop)
     font-size: 1rem;
 
     &::placeholder {
-      color: #9e9ea7;
+      color: $text-tertiary;
     }
 
     &:focus,
     &:hover {
       outline: none;
-      box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: $shadow-md;
     }
 
     &:focus {
@@ -150,7 +150,7 @@ tryOnUnmounted(stop)
     bottom: 28px;
 
     background: $primary-500;
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: $shadow-sm;
     box-sizing: border-box;
     width: 40px;
     height: 40px;

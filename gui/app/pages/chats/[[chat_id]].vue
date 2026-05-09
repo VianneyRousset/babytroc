@@ -154,8 +154,8 @@ main.desktop {
     position: absolute;
     top: 1em;
     left: 1em;
-    background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    background: $bg-surface;
+    box-shadow: $shadow-md;
   }
 
   & > .ConditionalDrawerOverlay {
