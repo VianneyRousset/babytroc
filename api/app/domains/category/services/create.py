@@ -1,9 +1,9 @@
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.category.models import Category
 from app.domains.category.schemas.create import CategoryCreate
 from app.domains.category.schemas.read import CategoryRead
-from app.domains.item.models.category import Category
 
 
 async def create_category(

@@ -3,10 +3,11 @@ from typing import Annotated
 from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.dialects.postgresql import INT4RANGE
 
+from app.domains.category.models import Category
 from app.domains.item.enums import ItemQueryAvailability
-from app.domains.item.models import Item, ItemLike, ItemSave, Region
-from app.domains.item.models.category import Category, ItemCategoryAssociation
+from app.domains.item.models import Item, ItemCategoryAssociation, ItemLike, ItemSave
 from app.domains.loan.models import Loan
+from app.domains.region.models import Region
 from app.shared.pagination import QueryPageCursor
 from app.shared.schemas import (
     DeleteQueryFilter,

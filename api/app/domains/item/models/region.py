@@ -1,31 +1,10 @@
 from sqlalchemy import (
     ForeignKey,
-    Identity,
     Integer,
-    String,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.models import Base
-
-
-class Region(Base):
-    __tablename__ = "region"
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        Identity(),
-        primary_key=True,
-        index=True,
-        autoincrement=True,
-    )
-
-    name: Mapped[str] = mapped_column(
-        String,
-    )
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} #{self.id!r} {self.name!r}>"
 
 
 class ItemRegionAssociation(Base):
@@ -43,7 +22,7 @@ class ItemRegionAssociation(Base):
         primary_key=True,
     )
 
-    region_id = mapped_column(
+    region_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
             "region.id",

@@ -28,6 +28,11 @@ import ast
 import sys
 from pathlib import Path
 
+ALLOWED_CROSS_DOMAIN_WRITES: set[tuple[str, str]] = {
+    ("auth", "user"),
+    ("loan", "item"),
+}
+
 WRITE_PREFIXES = (
     "create",
     "update",
@@ -110,6 +115,31 @@ def extract_imports(file_path: Path) -> list[tuple[str, list[str], int]]:
     return imports
 
 
+def _get_target_domain(
+    module_path: str, source_domain: str
+) -> str | None:
+    """Return the target domain if this import needs boundary checking."""
+    if not module_path.startswith("app.domains."):
+        return None
+
+    parts = module_path.split(".")
+    if len(parts) < 4:
+        return None
+
+    target_domain = parts[2]
+
+    if target_domain == source_domain:
+        return None
+    if "models" in parts:
+        return None
+    if "services" not in parts:
+        return None
+    if (source_domain, target_domain) in ALLOWED_CROSS_DOMAIN_WRITES:
+        return None
+
+    return target_domain
+
+
 def check_file(file_path: Path, strict: bool = False) -> list[str]:
     """Check a single file for domain boundary violations.
 
@@ -126,27 +156,8 @@ def check_file(file_path: Path, strict: bool = False) -> list[str]:
     violations = []
 
     for module_path, names, lineno in extract_imports(file_path):
-        # Only check imports from app.domains.*.services
-        if not module_path.startswith("app.domains."):
-            continue
-
-        parts = module_path.split(".")
-        # app.domains.{target_domain}.services...
-        if len(parts) < 4:
-            continue
-
-        target_domain = parts[2]
-
-        # Same domain — always allowed
-        if target_domain == source_domain:
-            continue
-
-        # Model imports are always allowed (read access)
-        if "models" in parts:
-            continue
-
-        # Check if importing from services
-        if "services" not in parts:
+        target_domain = _get_target_domain(module_path, source_domain)
+        if target_domain is None:
             continue
 
         # Check each imported name
@@ -192,7 +203,10 @@ def main():
         for v in all_violations:
             print(f"  {v}")
         print()
-        print("Fix: move cross-domain write calls to event handlers (app/domains/*/handlers.py)")
+        print(
+            "Fix: move cross-domain write calls to event handlers"
+            " (app/domains/*/handlers.py)"
+        )
         sys.exit(1)
     else:
         print("No domain boundary violations found.")

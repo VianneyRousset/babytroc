@@ -24,13 +24,15 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from app.domains.category.models import Category
 from app.domains.loan.models import Loan
+from app.domains.region.models import Region
 from app.shared.models import Base, CreationDate, UpdateDate
 
-from .category import Category, ItemCategoryAssociation
+from .category import ItemCategoryAssociation
 from .image import ItemImage, ItemImageAssociation
 from .like import ItemLike
-from .region import ItemRegionAssociation, Region
+from .region import ItemRegionAssociation
 
 if TYPE_CHECKING:
     from app.domains.user.models import User
