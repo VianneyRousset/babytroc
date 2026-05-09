@@ -133,7 +133,7 @@ async def bob_new_loan_of_alice_new_item(
         )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_loan_requests_for_alice_items(
     database_sessionmaker: async_sessionmaker,
     many_items: list[ItemRead],
@@ -272,7 +272,7 @@ async def many_loan_requests_for_alice_items(
     return loan_requests
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_loan_requests_for_alice_special_item(
     database_sessionmaker: async_sessionmaker,
     many_users: list[UserPrivateRead],
@@ -394,7 +394,7 @@ async def many_loan_requests_for_alice_special_item(
     return loan_requests
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_many_loans(
     database_sessionmaker: async_sessionmaker,
     alice_many_items: list[ItemRead],

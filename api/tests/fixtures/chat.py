@@ -145,7 +145,7 @@ class ReceivedChatMessageChecker(AbstractAsyncContextManager):
             )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def alice_many_messages_to_bob_text() -> list[str]:
     """Text of the many messages sent by Alice to Bob."""
     return [f"msg - {i}" for i in range(100)]
@@ -191,7 +191,7 @@ async def alice_many_messages_to_bob(
         return messages + extra_messages
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_many_chats(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
