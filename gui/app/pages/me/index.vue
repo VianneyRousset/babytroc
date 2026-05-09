@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { LucideIcon } from 'lucide-vue-next'
 import {
-  UserRound,
   Timer,
   Package,
   Gift,
@@ -47,7 +46,7 @@ const sections = computed<Array<SectionData>>(() => [
     title: 'Options',
     logged: true,
     slabs: [
-      { icon: UserPen, target: '/me/profile', text: 'Profile' },
+      { icon: UserPen, target: '/me/profile', text: 'Profil' },
       { icon: LockKeyhole, target: '/me/account', text: 'Compte' },
     ],
   },
@@ -55,7 +54,7 @@ const sections = computed<Array<SectionData>>(() => [
     title: 'Options',
     logged: false,
     slabs: [
-      { icon: LockKeyholeOpen, target: '/me/account', text: 'Compte' },
+      { icon: LockKeyholeOpen, target: '/me/account', text: 'Se connecter' },
     ],
   },
   {
@@ -83,7 +82,7 @@ const sections = computed<Array<SectionData>>(() => [
     <!-- Main content -->
     <main>
       <Panel>
-        <PanelBanner style="font-size: 4rem; font-family: 'Plus Jakarta Sans'; font-weight: 200;">
+        <PanelBanner class="logo-banner">
           Babytroc
         </PanelBanner>
         <section
@@ -119,7 +118,7 @@ main {
 
         h2 {
           color: $text-secondary;
-          font-size: 0.875rem;
+          font-size: 0.8125rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -136,5 +135,11 @@ main {
       }
     }
   }
+}
+
+.logo-banner {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 200;
+  font-size: 3.5rem;
 }
 </style>

@@ -34,7 +34,7 @@ const slots = useSlots()
 <style scoped lang="scss">
 .PanelBanner {
   @include flex-column-center;
-  gap: 2rem;
+  gap: $space-8;
   padding: 4rem 0;
   color: $neutral-600;
 

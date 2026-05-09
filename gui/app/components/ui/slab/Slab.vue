@@ -22,6 +22,7 @@ const NuxtLink = resolveComponent('NuxtLink')
     :is="target ? NuxtLink : 'div'"
     class="Slab"
     :to="target"
+    :role="target ? undefined : 'group'"
   >
     <!-- Icon -->
     <slot name="icon">
@@ -30,6 +31,7 @@ const NuxtLink = resolveComponent('NuxtLink')
         v-if="icon"
         :size="32"
         :stroke-width="1.5"
+        aria-hidden="true"
       />
     </slot>
 
@@ -69,6 +71,7 @@ const NuxtLink = resolveComponent('NuxtLink')
       v-if="chevron"
       :size="32"
       :stroke-width="1.5"
+      aria-hidden="true"
     />
   </component>
 </template>
@@ -88,8 +91,14 @@ a {
   transition: background 150ms ease-out;
 
   @include hover-only {
-    background: $bg-page !important;
-    border-color: transparent !important;
+    background: $bg-page;
+    border-color: transparent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-500;
+    outline-offset: -2px;
+    border-radius: $radius-sm;
   }
 
   @include touch-feedback;
@@ -100,18 +109,18 @@ a {
     gap: $space-1;
     flex: 1;
 
-    font-family: "Plus Jakarta Sans";
+    font-family: "Plus Jakarta Sans", sans-serif;
     overflow: hidden;
 
     div {
       @include ellipsis-overflow;
       color: $text-primary;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 500;
 
       &.sub {
         color: $text-secondary;
-        font-size: 0.85rem;
+        font-size: 0.8125rem;
         font-weight: 400;
       }
     }
@@ -137,7 +146,7 @@ a {
 
   /* chevron */
   & > svg {
-    color: #ccc;
+    color: $text-tertiary;
   }
 }
 </style>
