@@ -1,0 +1,78 @@
+from typing import Annotated, TypeVar, cast
+
+from fastapi import Request, Response
+from fastapi.datastructures import QueryParams
+from pydantic import Field
+
+from app.shared.schemas import Base
+
+
+class QueryPageBase(Base):
+    pass
+
+
+class QueryPageCursor(QueryPageBase):
+    """Page cursor."""
+
+    def query_params_from_request(self, request: Request) -> QueryParams:
+        """Return a merge of the request query params and the cursor."""
+
+        params = self.model_dump(by_alias=True)
+
+        return QueryParams(
+            [
+                *(
+                    (k, v)
+                    for k, v in request.query_params.multi_items()
+                    if k not in params
+                ),
+                *params.items(),
+            ]
+        )
+
+    def header_link_from_request(
+        self,
+        request: Request,
+        rel: str,
+    ) -> str:
+        """Return header link header."""
+
+        query_params = self.query_params_from_request(request)
+
+        return f'<{request.url.path}?{query_params}>; rel="{rel}"'
+
+
+QueryPageCursorT = TypeVar("QueryPageCursorT", bound=QueryPageCursor)
+QueryPageDataT = TypeVar("QueryPageDataT")
+
+
+class QueryPageOptions[QueryPageCursorT](QueryPageBase):
+    """Options on the queried page."""
+
+    limit: Annotated[int | None, Field(gt=0)] = None
+    cursor: QueryPageCursorT
+
+
+class QueryPageResult[QueryPageDataT, QueryPageCursorT](
+    QueryPageBase,
+    arbitrary_types_allowed=True,
+):
+    """Info on the result page."""
+
+    data: list[QueryPageDataT]
+    next_page_cursor: QueryPageCursorT | None
+
+    @property
+    def total_count(self):
+        return len(self.data)
+
+    def set_response_headers(
+        self,
+        response: Response,
+        request: Request,
+    ) -> None:
+        response.headers["X-Total-Count"] = str(self.total_count)
+
+        if self.next_page_cursor is not None:
+            cursor = cast("QueryPageCursor", self.next_page_cursor)
+            response.headers["Link"] = cursor.header_link_from_request(request, "next")
