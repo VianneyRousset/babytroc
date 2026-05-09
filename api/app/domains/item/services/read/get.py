@@ -4,19 +4,18 @@ from sqlalchemy import and_, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased, selectinload, undefer
 
-from app.infrastructure.cache_keys import TTL_ITEM, key_item
-from app.domains.loan.enums import LoanRequestState
 from app.domains.item.errors import ItemNotFoundError
-from app.domains.item.models import Item
-from app.domains.loan.models import Loan, LoanRequest
-from app.domains.item.schemas.query import ItemReadQueryFilter
-from app.domains.item.schemas.read import ItemRead
-
-from .selections import (
+from app.domains.item.filters import (
     select_liked,
     select_owned,
     select_saved,
 )
+from app.domains.item.models import Item
+from app.domains.item.schemas.query import ItemReadQueryFilter
+from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.enums import LoanRequestState
+from app.domains.loan.models import Loan, LoanRequest
+from app.infrastructure.cache_keys import TTL_ITEM, key_item
 
 if TYPE_CHECKING:
     from app.infrastructure.cache_client import Cache

@@ -11,7 +11,12 @@ from sqlalchemy import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import undefer
 
-from app.infrastructure.cache_keys import TTL_ITEMS_LIST, key_items_list
+from app.domains.item.filters import (
+    select_liked,
+    select_owned,
+    select_saved,
+    select_words_match,
+)
 from app.domains.item.models import Item
 from app.domains.item.schemas.preview import ItemPreviewRead
 from app.domains.item.schemas.query import (
@@ -19,9 +24,8 @@ from app.domains.item.schemas.query import (
     ItemQueryPageCursor,
     ItemReadQueryFilter,
 )
+from app.infrastructure.cache_keys import TTL_ITEMS_LIST, key_items_list
 from app.shared.pagination import QueryPageOptions, QueryPageResult
-
-from .selections import select_liked, select_owned, select_saved, select_words_match
 
 if TYPE_CHECKING:
     from app.infrastructure.cache_client import Cache
