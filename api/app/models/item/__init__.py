@@ -1,18 +1,2 @@
-from .category import Category, ItemCategoryAssociation
-from .image import ItemImage, ItemImageAssociation
-from .item import Item
-from .like import ItemLike
-from .region import ItemRegionAssociation, Region
-from .save import ItemSave
-
-__all__ = [
-    "Category",
-    "Item",
-    "ItemCategoryAssociation",
-    "ItemImage",
-    "ItemImageAssociation",
-    "ItemLike",
-    "ItemRegionAssociation",
-    "ItemSave",
-    "Region",
-]
+from app.domains.item.models import *  # noqa: F401,F403
+from app.domains.item.models import __all__  # noqa: F401
