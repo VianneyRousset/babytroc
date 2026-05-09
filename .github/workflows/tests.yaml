@@ -24,6 +24,24 @@ jobs:
           POSTGRES_PASSWORD: xxx
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U babytroc"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      prometheus:
+        image: prom/prometheus:latest
+        ports:
+          - 9090:9090
       imgpush:
         image: hauxir/imgpush
         env:
@@ -40,7 +58,14 @@ jobs:
         env:
           HOST_NAME: test
           APP_NAME: test
+          POSTGRES_USER: babytroc
           POSTGRES_PASSWORD: xxx
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DATABASE: babytroc
+          REDIS_HOST: localhost
+          REDIS_PORT: "6379"
+          PROMETHEUS_URL: "http://localhost:9090"
           JWT_ALGORITHM: "HS256"
           JWT_SECRET_KEY: "1234"
           JWT_REFRESH_TOKEN_DURATION_DAYS: "7"
@@ -52,3 +77,8 @@ jobs:
           EMAIL_PASSWORD: "test"
           EMAIL_FROM_EMAIL: "pqhyhijbblvtncgj@cbnfukghppneopdz.com"
           EMAIL_FROM_NAME: "test"
+          S3_ENDPOINT_URL: "http://localhost:9000"
+          S3_ACCESS_KEY: "test"
+          S3_SECRET_KEY: "test"
+          S3_BUCKET: "test"
+          S3_PUBLIC_URL: "http://localhost:9000/test"
