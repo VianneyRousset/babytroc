@@ -15,7 +15,7 @@ function done() {
 <template>
   <AppPage
     with-header
-    :max-width="800"
+    :max-width="600"
   >
     <!-- Main content -->
     <main>

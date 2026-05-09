@@ -150,6 +150,11 @@ tryOnUnmounted(stop)
     padding-top: 0.3rem;
     text-align: center;
     color: $neutral-300;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $neutral-500;
+    }
   }
 
   .hr-container {
@@ -172,6 +177,11 @@ tryOnUnmounted(stop)
     font-size: 1.5rem;
     padding: 0.6rem 1.5rem;
     color: $neutral-400;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $neutral-600;
+    }
   }
 
 }

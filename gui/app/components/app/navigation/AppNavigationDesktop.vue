@@ -22,9 +22,12 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
 <template>
   <nav class="AppNavigationDesktop">
     <div>
-      <div class="logo">
+      <NuxtLink
+        class="logo"
+        to="/"
+      >
         Babytroc
-      </div>
+      </NuxtLink>
       <ul>
         <li
           v-for="tab in tabs"
@@ -81,6 +84,7 @@ nav {
   }
 
   .logo {
+    @include reset-link;
     font-family: "Plus Jakarta Sans", sans-serif;
     font-weight: 700;
     font-size: 1.25rem;

@@ -15,7 +15,7 @@ tryOnUnmounted(stop)
 <template>
   <AppPage
     with-header
-    :max-width="800"
+    :max-width="600"
   >
     <!-- Header bar (mobile only) -->
     <template #mobile-header-bar>

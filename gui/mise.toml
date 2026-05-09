@@ -37,3 +37,10 @@ run = "npx nuxi dev"
 [tasks.build]
 description = "Build docker image"
 run = "docker build . --tag=vianneyrousset/babytroc-gui"
+
+[tasks.serve]
+description = "Run gui in production mode"
+depends = ["deps"]
+run = "npx nuxi prepare && npx nuxi build && ./entrypoint.sh"
+
+

@@ -28,8 +28,9 @@ provide('dropdown-menu-open', open)
       <!-- Menu content -->
       <DropdownMenuContent
         class="DropdownMenuContent"
-        :side-offset="8"
-        align="end"
+        :side-offset="0"
+        :collision-padding="20"
+        align="center"
       >
         <DropdownMenuArrow
           class="DropdownMenuArrow"
@@ -68,7 +69,7 @@ provide('dropdown-menu-open', open)
   min-width: 260px;
   background: $bg-surface;
   border-radius: $radius-md;
-  margin: 0 $space-4;
+  margin: 0;
   box-shadow: $shadow-lg;
 }
 
