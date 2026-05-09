@@ -1,5 +1,1 @@
-from app.schemas.base import Base
-
-
-class AuthBase(Base):
-    pass
+from app.domains.auth.schemas.base import *  # noqa: F401,F403

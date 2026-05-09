@@ -1,5 +1,1 @@
-from .base import AuthBase
-
-
-class AuthAccountAvailability(AuthBase):
-    available: bool
+from app.domains.auth.schemas.availability import *  # noqa: F401,F403

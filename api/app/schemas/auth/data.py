@@ -1,10 +1,1 @@
-from .base import AuthBase
-
-
-class TokenData(AuthBase):
-    pass
-
-
-class UserAccessTokenData(TokenData):
-    sub: int
-    validated: bool
+from app.domains.auth.schemas.data import *  # noqa: F401,F403

@@ -1,11 +1,1 @@
-from typing import Literal
-
-from .base import AuthBase
-
-
-class AuthValidation(AuthBase):
-    result: Literal["ok"]
-
-
-class AuthValidationResendEmail(AuthBase):
-    result: Literal["ok"]
+from app.domains.auth.schemas.validation import *  # noqa: F401,F403
