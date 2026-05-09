@@ -4,16 +4,16 @@ from fastapi import Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.item import services as item_services
-from app.domains.loan import services as loan_services
-from app.infrastructure.database import get_db_session
-from app.routers.v1.auth import client_id_annotation
 from app.domains.item.schemas.query import ItemReadQueryFilter
+from app.domains.loan import services as loan_services
 from app.domains.loan.schemas.api import LoanRequestApiQuery
 from app.domains.loan.schemas.query import (
     LoanRequestReadQueryFilter,
     LoanRequestUpdateQueryFilter,
 )
 from app.domains.loan.schemas.read import LoanRequestRead
+from app.infrastructure.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 
 from .annotations import item_id_annotation, loan_request_id_annotation
 from .router import router

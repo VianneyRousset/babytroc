@@ -1,9 +1,9 @@
 from datetime import datetime
 
 from app.domains.chat.enums import ChatMessageType
-from app.shared.schemas import ReadBase
 from app.domains.item.schemas.preview import ItemPreviewRead
 from app.domains.user.schemas.preview import UserPreviewRead
+from app.shared.schemas import ReadBase
 
 from .base import ChatBase, ChatId
 

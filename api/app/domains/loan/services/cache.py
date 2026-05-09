@@ -1,3 +1,4 @@
+from app.infrastructure.cache_client import Cache
 from app.infrastructure.cache_keys import (
     key_item,
     key_user_chats,
@@ -6,7 +7,6 @@ from app.infrastructure.cache_keys import (
     pattern_user_borrowings,
     pattern_user_loans,
 )
-from app.infrastructure.cache_client import Cache
 
 
 async def invalidate_loan_request_created(

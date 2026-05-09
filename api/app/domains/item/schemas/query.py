@@ -7,6 +7,7 @@ from app.domains.item.enums import ItemQueryAvailability
 from app.domains.item.models import Item, ItemLike, ItemSave, Region
 from app.domains.item.models.category import Category, ItemCategoryAssociation
 from app.domains.loan.models import Loan
+from app.shared.pagination import QueryPageCursor
 from app.shared.schemas import (
     DeleteQueryFilter,
     FieldWithAlias,
@@ -16,7 +17,6 @@ from app.shared.schemas import (
     StatementT,
     UpdateQueryFilter,
 )
-from app.shared.pagination import QueryPageCursor
 
 from .base import MonthRange
 

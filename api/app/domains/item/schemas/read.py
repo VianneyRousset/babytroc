@@ -3,12 +3,11 @@ from typing import Annotated
 
 from pydantic import AliasChoices, Field, field_serializer, field_validator
 
-from app.shared.schemas import ReadBase
-from .base import ItemBase
 from app.domains.loan.schemas.read import LoanRead, LoanRequestRead
 from app.domains.user.schemas.preview import UserPreviewRead
+from app.shared.schemas import ReadBase
 
-from .base import MonthRange
+from .base import ItemBase, MonthRange
 
 
 class ItemRead(ItemBase, ReadBase):

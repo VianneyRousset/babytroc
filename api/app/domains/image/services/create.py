@@ -5,12 +5,12 @@ from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure import storage
-from app.shared import image as image_utils
-from app.infrastructure.config import Config
-from app.domains.item.models.image import ItemImage
 from app.domains.image.schemas.read import ItemImageRead
+from app.domains.item.models.image import ItemImage
 from app.domains.user.services.read import get_user
+from app.infrastructure import storage
+from app.infrastructure.config import Config
+from app.shared import image as image_utils
 
 
 async def upload_image(

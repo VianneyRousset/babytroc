@@ -3,7 +3,6 @@ from typing import Any
 
 from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.schemas.base import ItemBorrowerId
-
 from app.shared.errors import ApiError, BadRequestError, ConflictError, NotFoundError
 
 

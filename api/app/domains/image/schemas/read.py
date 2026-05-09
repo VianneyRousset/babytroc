@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from app.shared.schemas import ReadBase
 from app.domains.image.schemas.base import ItemImageBase
+from app.shared.schemas import ReadBase
 
 
 class ItemImageRead(ItemImageBase, ReadBase):

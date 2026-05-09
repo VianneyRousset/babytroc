@@ -6,14 +6,14 @@ import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.domains.image import services as image_services
-from app.domains.item import services as item_services
-from app.infrastructure.config import Config
 from app.domains.image.schemas.read import ItemImageRead
+from app.domains.item import services as item_services
 from app.domains.item.schemas.base import MonthRange
 from app.domains.item.schemas.create import ItemCreate
 from app.domains.item.schemas.read import ItemRead
 from app.domains.region.schemas.read import RegionRead
 from app.domains.user.schemas.private import UserPrivateRead
+from app.infrastructure.config import Config
 from tests.utils import random_sample, random_str, random_targeted_age_months
 
 

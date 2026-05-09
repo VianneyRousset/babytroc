@@ -10,7 +10,7 @@
 # API_PORT [default: 8080]
 #   Bind socket to this port.
 #
-# API_APP [default: "app.main:app"]
+# API_APP [default: "app.main:application"]
 #   APP to run.
 
 set -eu
@@ -19,7 +19,7 @@ source .venv/bin/activate
 
 : ${API_HOST:="0.0.0.0"}
 : ${API_PORT:=8080}
-: ${API_APP:="app.main:app"}
+: ${API_APP:="app.main:application"}
 : ${API_PREFIX:=""}
 
 alembic upgrade head

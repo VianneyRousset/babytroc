@@ -7,14 +7,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
-import app
-from app.infrastructure.cache_client import NullCache
+from app.domains.category.services import list_categories
+from app.domains.image.services import upload_image as _upload_image
 from app.domains.item.schemas.base import MonthRange
 from app.domains.item.schemas.constants import (
     DESCRIPTION_LENGTH,
     NAME_LENGTH,
 )
 from app.domains.item.schemas.create import ItemCreate as Item
+from app.domains.item.services import create_item, list_items
+from app.domains.region.services import list_regions
+from app.domains.user.services import list_users
+from app.infrastructure.cache_client import NullCache
+from app.infrastructure.config import Config
 
 from .config import get_config
 
@@ -32,7 +37,7 @@ async def check_items(
     """Returns True if some items are present in the database."""
 
     logger.debug("Checking items: started")
-    result = await app.services.item.list_items(db)
+    result = await list_items(db)
     items = result.data
     logger.debug("%i (or more) items found", len(items))
     res = len(items) > 0
@@ -43,14 +48,14 @@ async def check_items(
 
 async def upload_image(
     db: AsyncSession,
-    config: app.config.Config,
+    config: Config,
     fp: Path,
     owner_id: int,
 ) -> str:
     """Upload image."""
 
     with fp.open(mode="rb") as f:
-        image = await app.services.image.upload_image(
+        image = await _upload_image(
             config=config,
             db=db,
             owner_id=owner_id,
@@ -121,9 +126,9 @@ async def populate_items(
     logger.debug("Populating items: started")
 
     config = get_config()
-    users = await app.services.user.list_users(db)
-    regions = await app.services.region.list_regions(db, _cache)
-    categories = await app.services.category.list_categories(db, _cache)
+    users = await list_users(db)
+    regions = await list_regions(db, _cache)
+    categories = await list_categories(db, _cache)
     child_category_slugs = [
         cat.slug for cat in categories if cat.parent_slug is not None
     ]
@@ -152,7 +157,7 @@ async def populate_items(
     for _ in tqdm(list(range(count))):
         user = choice(users)  # noqa: S311
 
-        await app.services.item.create_item(
+        await create_item(
             db=db,
             owner_id=user.id,
             item_create=Item(

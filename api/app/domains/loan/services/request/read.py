@@ -2,8 +2,8 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.domains.loan.errors import LoanRequestNotFoundError
 from app.domains.item.models import Item
+from app.domains.loan.errors import LoanRequestNotFoundError
 from app.domains.loan.models import LoanRequest
 from app.domains.loan.schemas.query import (
     LoanRequestQueryPageCursor,

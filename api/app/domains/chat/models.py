@@ -17,7 +17,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domains.chat.enums import ChatMessageType
 from app.domains.chat.schemas.base import ChatId
-
 from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:

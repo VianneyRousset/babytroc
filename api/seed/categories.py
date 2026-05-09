@@ -4,9 +4,9 @@ from collections.abc import Iterable
 from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
-import app
-from app.infrastructure.cache_client import NullCache
 from app.domains.category.schemas.create import CategoryCreate as Category
+from app.domains.category.services import create_category, list_categories
+from app.infrastructure.cache_client import NullCache
 
 logger = logging.getLogger("seed")
 
@@ -19,7 +19,7 @@ async def check_categories(
     """Returns True if some categories are present in the database."""
 
     logger.debug("Checking categories: started")
-    categories = await app.services.category.list_categories(db, _cache)
+    categories = await list_categories(db, _cache)
     logger.debug("%i categories found", len(categories))
     res = len(categories) > 0
     logger.debug("Checking categories: done")
@@ -36,7 +36,7 @@ async def populate_categories(
     logger.debug("Populating categories: started")
 
     for category in tqdm(categories):
-        await app.services.category.create_category(
+        await create_category(
             db=db,
             category_create=category,
         )

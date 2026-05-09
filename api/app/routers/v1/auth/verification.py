@@ -5,9 +5,9 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 
 from app.domains.auth import services as auth_services
-from app.infrastructure.config import AuthConfig
 from app.domains.auth.errors import InvalidCredentialError
 from app.domains.auth.schemas.data import UserAccessTokenData
+from app.infrastructure.config import AuthConfig
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/v1/auth/login",

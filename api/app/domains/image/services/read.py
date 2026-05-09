@@ -2,9 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.image.errors import ItemImageNotFoundError, ItemImageNotOwnedError
+from app.domains.image.schemas.read import ItemImageRead
 from app.domains.item.models.image import ItemImage
 from app.shared.schemas import Base as SchemaBase
-from app.domains.image.schemas.read import ItemImageRead
 
 
 class CheckImageOwner(SchemaBase):

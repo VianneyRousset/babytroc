@@ -8,8 +8,8 @@ if TYPE_CHECKING:
     from fastapi import FastAPI
     from httpx import AsyncClient
 
-    from app.infrastructure.cache_client import Cache
     from app.domains.user.schemas.private import UserPrivateRead
+    from app.infrastructure.cache_client import Cache
 
 
 class TestCacheIntegrationRegions:

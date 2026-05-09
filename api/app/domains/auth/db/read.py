@@ -8,7 +8,10 @@ from app.domains.auth.errors import (
     AuthAccountPasswordResetAuthorizationNotFoundError,
     AuthRefreshTokenNotFoundError,
 )
-from app.domains.auth.models import AuthAccountPasswordResetAuthorization, AuthRefreshToken
+from app.domains.auth.models import (
+    AuthAccountPasswordResetAuthorization,
+    AuthRefreshToken,
+)
 from app.domains.auth.schemas.query import AuthRefreshTokenReadQueryFilter
 
 

@@ -18,9 +18,8 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.domains.loan.enums import LoanRequestState
 from app.domains.chat.schemas.base import ChatId
-
+from app.domains.loan.enums import LoanRequestState
 from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 if TYPE_CHECKING:

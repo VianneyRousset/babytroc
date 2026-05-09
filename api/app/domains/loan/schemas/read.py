@@ -4,11 +4,11 @@ from datetime import datetime
 from pydantic import field_validator
 from sqlalchemy.dialects.postgresql import Range
 
-from app.domains.loan.enums import LoanRequestState
-from app.shared.schemas import ReadBase
 from app.domains.chat.schemas.base import ChatId
 from app.domains.item.schemas.preview import ItemPreviewRead
+from app.domains.loan.enums import LoanRequestState
 from app.domains.user.schemas.preview import UserPreviewRead
+from app.shared.schemas import ReadBase
 
 from .base import LoanBase, LoanRequestBase
 

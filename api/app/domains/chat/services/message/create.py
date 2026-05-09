@@ -22,12 +22,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domains.chat.enums import ChatMessageType
 from app.domains.chat.errors import ChatNotFoundError
 from app.domains.chat.models import Chat, ChatMessage
-from app.domains.item.models import Item
-from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
+from app.domains.chat.schemas.pubsub import PubsubMessageNewChatMessage
 from app.domains.chat.schemas.read import ChatMessageRead
 from app.domains.chat.schemas.send import SendChatMessage, SendChatMessageText
-from app.domains.chat.schemas.pubsub import PubsubMessageNewChatMessage
 from app.domains.chat.services.chat.create import ensure_many_chats
+from app.domains.item.models import Item
+from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
 
 
 async def send_chat_message(
@@ -231,8 +231,8 @@ async def send_many_chat_messages(
             notify_user_after_commit(db, broadcast, user_id, pubsub_msg)
 
     # Invalidate cache for affected chats
-    from app.infrastructure.cache import get_cache
     from app.domains.chat.services.cache import invalidate_chat_message_sent
+    from app.infrastructure.cache import get_cache
 
     cache = get_cache()
     for chat_msg in sent:

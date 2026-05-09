@@ -4,12 +4,12 @@ from fastapi import Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.chat import services as chat_services
-from app.infrastructure.database import get_db_session
-from app.routers.v1.auth import client_id_annotation
 from app.domains.chat.schemas.base import ChatId
 from app.domains.chat.schemas.create import ChatMessageCreate
 from app.domains.chat.schemas.read import ChatMessageRead
 from app.domains.chat.schemas.send import SendChatMessageText
+from app.infrastructure.database import get_db_session
+from app.routers.v1.auth import client_id_annotation
 
 from .annotations import chat_id_annotation
 from .router import router

@@ -5,9 +5,9 @@ from fastapi.security.utils import get_authorization_scheme_param
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.auth import services as auth_services
-from app.infrastructure.database import get_db_session
 from app.domains.auth.errors import InvalidCredentialError
 from app.domains.auth.schemas.credentials import UserCredentialsInfo
+from app.infrastructure.database import get_db_session
 
 from .cookies import set_response_with_token_cookies
 from .router import router

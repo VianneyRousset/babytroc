@@ -3,8 +3,8 @@ from typing import Any
 import pytest
 from httpx import AsyncClient
 
-from app.domains.loan.enums import LoanRequestState
 from app.domains.item.schemas.read import ItemRead
+from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.schemas.read import LoanRequestRead
 from app.domains.user.schemas.private import UserPrivateRead
 from app.shared.pagination_utils import iter_chunks, iter_paginated_endpoint

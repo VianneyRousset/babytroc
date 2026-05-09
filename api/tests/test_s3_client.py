@@ -1,8 +1,8 @@
 from io import BytesIO
 from unittest.mock import AsyncMock, patch
 
-from app.infrastructure.storage import delete_image_variants, upload_image_variants
 from app.infrastructure.config import S3Config
+from app.infrastructure.storage import delete_image_variants, upload_image_variants
 
 TEST_S3_CONFIG = S3Config(
     endpoint_url="http://minio:9000",

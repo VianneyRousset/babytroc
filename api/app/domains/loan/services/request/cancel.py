@@ -4,11 +4,12 @@ from sqlalchemy import update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.chat.schemas.base import ChatId
+from app.domains.chat.schemas.send import SendChatMessageLoanRequestCancelled
+from app.domains.chat.services import send_chat_message, send_many_chat_messages
 from app.domains.loan.enums import LoanRequestState
 from app.domains.loan.errors import LoanRequestNotFoundError, LoanRequestStateError
 from app.domains.loan.models import LoanRequest
-from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.send import SendChatMessageLoanRequestCancelled
 from app.domains.loan.schemas.query import (
     LoanRequestQueryPageCursor,
     LoanRequestReadQueryFilter,
@@ -16,7 +17,6 @@ from app.domains.loan.schemas.query import (
 )
 from app.domains.loan.schemas.read import LoanRequestRead
 from app.shared.pagination import QueryPageOptions
-from app.domains.chat.services import send_chat_message, send_many_chat_messages
 
 from .read import get_loan_request, list_loan_requests
 from .update import update_many_loan_requests_state
@@ -99,7 +99,9 @@ async def cancel_item_active_loan_request(
     )
 
     if cache is not None:
-        from app.domains.loan.services.cache import invalidate_loan_request_state_changed
+        from app.domains.loan.services.cache import (
+            invalidate_loan_request_state_changed,
+        )
 
         await invalidate_loan_request_state_changed(
             cache,
@@ -133,7 +135,9 @@ async def cancel_loan_request(
     )
 
     if cache is not None:
-        from app.domains.loan.services.cache import invalidate_loan_request_state_changed
+        from app.domains.loan.services.cache import (
+            invalidate_loan_request_state_changed,
+        )
 
         lr = loan_requests[0]
         await invalidate_loan_request_state_changed(

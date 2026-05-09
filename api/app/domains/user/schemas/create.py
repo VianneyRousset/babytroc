@@ -3,8 +3,8 @@ from typing import Annotated, TypeVar
 
 from pydantic import EmailStr, Field, field_validator
 
-from app.shared.schemas import CreateBase
 from app.shared.hash import HashedStr
+from app.shared.schemas import CreateBase
 
 from .base import UserBase
 from .constants import AVATAR_SEED_LENGTH, NAME_LENGTH, PASSWORD_MIN_LENGTH

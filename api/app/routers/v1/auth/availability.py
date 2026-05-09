@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.user import services as user_services
-from app.infrastructure.database import get_db_session
 from app.domains.auth.schemas.api import AuthAccountAvailabilityApiQuery
 from app.domains.auth.schemas.availability import AuthAccountAvailability
+from app.domains.user import services as user_services
 from app.domains.user.schemas.query import UserReadQueryFilter
+from app.infrastructure.database import get_db_session
 
 from .router import router
 

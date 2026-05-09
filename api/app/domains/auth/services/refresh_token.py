@@ -6,15 +6,18 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.config import AuthConfig
 from app.domains.auth.errors import (
     AuthAccountPasswordResetAuthorizationNotFoundError,
     AuthRefreshTokenNotFoundError,
     InvalidCredentialError,
 )
-from app.domains.auth.models import AuthAccountPasswordResetAuthorization, AuthRefreshToken
+from app.domains.auth.models import (
+    AuthAccountPasswordResetAuthorization,
+    AuthRefreshToken,
+)
 from app.domains.auth.schemas.query import AuthRefreshTokenReadQueryFilter
 from app.domains.auth.schemas.read import AuthRefreshTokenRead
+from app.infrastructure.config import AuthConfig
 
 
 async def create_refresh_token(

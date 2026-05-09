@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.loan.errors import LoanAlreadyInactiveError
-from app.domains.loan.models import Loan
 from app.domains.chat.schemas.base import ChatId
 from app.domains.chat.schemas.send import SendChatMessageLoanEnded
+from app.domains.chat.services import send_many_chat_messages
+from app.domains.loan.errors import LoanAlreadyInactiveError
+from app.domains.loan.models import Loan
 from app.domains.loan.schemas.query import LoanReadQueryFilter, LoanUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRead
-from app.domains.chat.services import send_many_chat_messages
 
 from .read import get_many_loans
 

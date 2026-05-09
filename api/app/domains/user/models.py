@@ -17,7 +17,6 @@ from sqlalchemy.orm import (
 from sqlalchemy.types import UUID, TypeDecorator
 
 from app.shared.hash import HashedStr
-
 from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 

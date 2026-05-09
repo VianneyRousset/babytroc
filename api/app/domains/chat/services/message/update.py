@@ -4,11 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.chat.errors import ChatMessageNotFoundError
 from app.domains.chat.models import ChatMessage
-from app.domains.item.models import Item
-from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
+from app.domains.chat.schemas.pubsub import PubsubMessageUpdatedChatMessage
 from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
 from app.domains.chat.schemas.read import ChatMessageRead
-from app.domains.chat.schemas.pubsub import PubsubMessageUpdatedChatMessage
+from app.domains.item.models import Item
+from app.infrastructure.pubsub import get_broadcast, notify_user_after_commit
 
 
 async def mark_message_as_seen(
@@ -54,8 +54,8 @@ async def mark_message_as_seen(
     result = ChatMessageRead.model_validate(message)
 
     # Invalidate cache
-    from app.infrastructure.cache import get_cache
     from app.domains.chat.services.cache import invalidate_chat_message_seen
+    from app.infrastructure.cache import get_cache
 
     cache = get_cache()
     await invalidate_chat_message_seen(

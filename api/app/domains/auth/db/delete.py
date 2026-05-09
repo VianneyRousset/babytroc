@@ -1,6 +1,9 @@
 from sqlalchemy.orm import Session
 
-from app.domains.auth.models import AuthAccountPasswordResetAuthorization, AuthRefreshToken
+from app.domains.auth.models import (
+    AuthAccountPasswordResetAuthorization,
+    AuthRefreshToken,
+)
 
 
 def delete_refresh_token(

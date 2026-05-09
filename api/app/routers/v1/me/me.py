@@ -4,12 +4,12 @@ from fastapi import Body, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.user import services as user_services
+from app.domains.user.schemas.private import UserPrivateRead
+from app.domains.user.schemas.update import UserUpdate
 from app.infrastructure.cache import get_cache
 from app.infrastructure.cache_client import Cache
 from app.infrastructure.database import get_db_session
 from app.routers.v1.auth import client_id_annotation
-from app.domains.user.schemas.private import UserPrivateRead
-from app.domains.user.schemas.update import UserUpdate
 
 from .router import router
 

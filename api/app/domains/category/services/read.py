@@ -3,10 +3,10 @@ import json
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.cache_keys import TTL_CATEGORIES, key_categories
-from app.infrastructure.cache_client import Cache
-from app.domains.item.models import Category
 from app.domains.category.schemas.read import CategoryRead
+from app.domains.item.models import Category
+from app.infrastructure.cache_client import Cache
+from app.infrastructure.cache_keys import TTL_CATEGORIES, key_categories
 
 
 async def list_categories(

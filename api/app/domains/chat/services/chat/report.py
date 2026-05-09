@@ -2,15 +2,18 @@ import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.email_report import send_report_email
-from app.domains.report.enums import ReportType
-from app.domains.report.models import Report
 from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.query import ChatMessageReadQueryFilter, ChatReadQueryFilter
-from app.domains.report.schemas.create import ReportCreate
+from app.domains.chat.schemas.query import (
+    ChatMessageReadQueryFilter,
+    ChatReadQueryFilter,
+)
 from app.domains.chat.services.chat.read import get_chat
 from app.domains.chat.services.message.read import list_messages
+from app.domains.report.enums import ReportType
+from app.domains.report.models import Report
+from app.domains.report.schemas.create import ReportCreate
 from app.domains.user.services.read import get_user_private
+from app.infrastructure.email_report import send_report_email
 
 
 async def report_chat(

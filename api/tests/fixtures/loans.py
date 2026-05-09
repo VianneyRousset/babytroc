@@ -3,9 +3,9 @@ import random
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from app.domains.item.schemas.read import ItemRead
 from app.domains.loan import services as loan_services
 from app.domains.loan.enums import LoanRequestState
-from app.domains.item.schemas.read import ItemRead
 from app.domains.loan.schemas.base import ItemBorrowerId
 from app.domains.loan.schemas.query import LoanRequestUpdateQueryFilter
 from app.domains.loan.schemas.read import LoanRead, LoanRequestRead

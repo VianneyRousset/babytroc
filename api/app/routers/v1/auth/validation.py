@@ -6,11 +6,14 @@ from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.auth import services as auth_services
+from app.domains.auth.schemas.validation import (
+    AuthValidation,
+    AuthValidationResendEmail,
+)
 from app.infrastructure.cache import get_cache
 from app.infrastructure.cache_client import Cache
 from app.infrastructure.database import get_db_session
 from app.infrastructure.email import get_email_client
-from app.domains.auth.schemas.validation import AuthValidation, AuthValidationResendEmail
 
 from .router import router
 from .verification import oauth2_scheme, verify_request_credentials_no_validation_check

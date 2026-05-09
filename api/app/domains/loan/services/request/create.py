@@ -9,17 +9,20 @@ from sqlalchemy import ColumnClause, insert, select, values
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domains.loan.enums import LoanRequestState
-from app.domains.loan.errors import LoanRequestAlreadyExistsError, LoanRequestOwnItemError
-from app.domains.item.models import Item
-from app.domains.loan.models import LoanRequest
 from app.domains.chat.schemas.base import ChatId
 from app.domains.chat.schemas.send import SendChatMessageLoanRequestCreated
+from app.domains.chat.services import send_many_chat_messages
+from app.domains.item.models import Item
+from app.domains.item.services import get_many_items
+from app.domains.loan.enums import LoanRequestState
+from app.domains.loan.errors import (
+    LoanRequestAlreadyExistsError,
+    LoanRequestOwnItemError,
+)
+from app.domains.loan.models import LoanRequest
 from app.domains.loan.schemas.base import ItemBorrowerId
 from app.domains.loan.schemas.query import LoanRequestReadQueryFilter
 from app.domains.loan.schemas.read import LoanRequestRead
-from app.domains.chat.services import send_many_chat_messages
-from app.domains.item.services import get_many_items
 from app.domains.loan.services.request.read import list_loan_requests
 
 from .read import get_many_loan_requests

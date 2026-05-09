@@ -4,9 +4,9 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
 
-from app.infrastructure.config import AuthConfig
 from app.domains.auth.errors import InvalidCredentialError
 from app.domains.auth.schemas.data import UserAccessTokenData
+from app.infrastructure.config import AuthConfig
 
 
 def create_access_token(

@@ -6,21 +6,21 @@ from fastapi import Depends, WebSocket
 from starlette.websockets import WebSocketDisconnect
 
 from app.domains.chat import services as chat_services
-from app.infrastructure.database import get_session_maker
-from app.infrastructure.pubsub import get_broadcast, user_channel
-from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
-from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
 from app.domains.chat.schemas.pubsub import (
     PubsubMessageNewChatMessage,
     PubsubMessageTypeAdapter,
     PubsubMessageUpdatedAccountValidation,
     PubsubMessageUpdatedChatMessage,
 )
+from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
 from app.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebsocketMessageUpdatedAccountValidation,
     WebSocketMessageUpdatedChatMessage,
 )
+from app.infrastructure.database import get_session_maker
+from app.infrastructure.pubsub import get_broadcast, user_channel
+from app.routers.v1.auth import verify_websocket_credentials_no_validation_check
 
 from .router import router
 

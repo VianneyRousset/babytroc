@@ -1,7 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
 
-import app.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
 from broadcaster import Broadcast
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -11,15 +10,16 @@ from fastapi_mail import FastMail
 from pydantic import SecretStr
 from starlette.middleware.base import BaseHTTPMiddleware
 
+import app.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
 from app.shared.errors import ApiError
 
 from .infrastructure.cache import init_cache_dependency
 from .infrastructure.cache_client import RedisCache
-from .infrastructure.redis import create_redis_client
 from .infrastructure.config import Config
 from .infrastructure.database import create_session_maker, init_db_session_dependency
 from .infrastructure.email import init_email_dependency
 from .infrastructure.pubsub import init_broadcast_dependency
+from .infrastructure.redis import create_redis_client
 from .routers.v1 import router
 
 

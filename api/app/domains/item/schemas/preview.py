@@ -3,9 +3,8 @@ from typing import Annotated
 from pydantic import AliasChoices, Field
 
 from app.shared.schemas import ReadBase
-from .base import ItemBase
 
-from .base import MonthRange
+from .base import ItemBase, MonthRange
 
 
 class ItemPreviewRead(ItemBase, ReadBase):

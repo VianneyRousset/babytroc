@@ -24,8 +24,8 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from app.shared.models import Base, CreationDate, UpdateDate
 from app.domains.loan.models import Loan
+from app.shared.models import Base, CreationDate, UpdateDate
 
 from .category import Category, ItemCategoryAssociation
 from .image import ItemImage, ItemImageAssociation

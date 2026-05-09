@@ -3,9 +3,8 @@ from typing import Annotated
 from pydantic import Field
 
 from app.shared.schemas import UpdateBase
-from .base import ItemBase
 
-from .base import MonthRange
+from .base import ItemBase, MonthRange
 from .constants import DESCRIPTION_LENGTH, NAME_LENGTH, NAME_PATTERN
 
 

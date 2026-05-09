@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domains.item.models import ItemLike, ItemSave
 from app.infrastructure.cache_keys import (
     TTL_USER_LIKED,
     TTL_USER_SAVED,
     key_user_liked_items,
     key_user_saved_items,
 )
-from app.domains.item.models import ItemLike, ItemSave
 
 if TYPE_CHECKING:
     from app.infrastructure.cache_client import Cache

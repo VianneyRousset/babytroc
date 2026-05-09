@@ -10,7 +10,6 @@ from sqlalchemy.orm import (
 )
 
 from app.domains.report.enums import ReportType
-
 from app.shared.models import Base, CreationDate, IntegerIdentifier
 
 

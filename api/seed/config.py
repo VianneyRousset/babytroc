@@ -1,5 +1,5 @@
-import app
+from app.infrastructure.config import Config
 
 
-def get_config():
-    return app.config.Config.from_env()
+def get_config() -> Config:
+    return Config.from_env()

@@ -5,11 +5,11 @@ from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domains.auth import services as auth_services
+from app.domains.auth.schemas.credentials import UserCredentialsInfo
 from app.domains.user import services as user_services
+from app.domains.user.schemas.create import UserCreate
 from app.infrastructure.database import get_db_session
 from app.infrastructure.email import get_email_client
-from app.domains.auth.schemas.credentials import UserCredentialsInfo
-from app.domains.user.schemas.create import UserCreate
 
 from .cookies import set_response_with_token_cookies
 from .router import router

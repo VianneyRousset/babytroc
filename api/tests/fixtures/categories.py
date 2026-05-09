@@ -5,9 +5,9 @@ from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.domains.category import services as category_services
-from app.domains.item.models.category import ItemCategoryAssociation
 from app.domains.category.schemas.create import CategoryCreate
 from app.domains.category.schemas.read import CategoryRead
+from app.domains.item.models.category import ItemCategoryAssociation
 from app.domains.item.schemas.read import ItemRead
 
 
