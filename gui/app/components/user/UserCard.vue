@@ -34,7 +34,7 @@ const _targetLocation = computed<string | RouteLocationGeneric | undefined>(
     </template>
     <template #mini>
       <HorizontalCounter
-        v-model="user.stars_count"
+        :model-value="user.stars_count"
         size="tiny"
       >
         <Heart
@@ -43,7 +43,7 @@ const _targetLocation = computed<string | RouteLocationGeneric | undefined>(
         />
       </HorizontalCounter>
       <HorizontalCounter
-        v-model="user.likes_count"
+        :model-value="user.likes_count"
         size="tiny"
       >
         <Star

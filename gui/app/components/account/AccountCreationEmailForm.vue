@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _email = defineModel<string>("email", { default: "" });
+const email = defineModel<string>("email", { default: "" });
 const valid = defineModel<boolean>("valid");
 const emit = defineEmits(["next"]);
 

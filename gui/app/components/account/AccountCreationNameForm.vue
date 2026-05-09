@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _name = defineModel<string>("name", { default: "" });
+const name = defineModel<string>("name", { default: "" });
 const valid = defineModel<boolean>("valid");
 const emit = defineEmits(["next"]);
 

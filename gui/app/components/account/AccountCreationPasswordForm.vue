@@ -6,7 +6,7 @@ const props = defineProps<{
 
 const { loading, disabled } = toRefs(props);
 
-const _password = defineModel<string>("password", { default: "" });
+const password = defineModel<string>("password", { default: "" });
 const valid = defineModel<boolean>("valid");
 const emit = defineEmits(["next"]);
 
