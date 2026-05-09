@@ -191,7 +191,7 @@ async def alice_many_messages_to_bob(
         return messages + extra_messages
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def alice_many_chats(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,

@@ -287,7 +287,7 @@ async def alice_special_item(
         )
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def alice_many_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -359,7 +359,7 @@ async def items(
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def many_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
@@ -437,7 +437,7 @@ def some_item_french_names() -> list[str]:
     ]
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def some_items_with_french_names(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,

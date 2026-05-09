@@ -21,7 +21,7 @@ async def categories(
         return await category_services.list_categories(session, NullCache())
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def alice_items_with_categories(
     database_sessionmaker: async_sessionmaker,
     alice_many_items: list[ItemRead],

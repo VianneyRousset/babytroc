@@ -84,7 +84,7 @@ def random_str(length: int) -> str:
     return "".join(random.choices(ascii_letters, k=length))
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 async def many_users(
     database_sessionmaker: async_sessionmaker,
 ) -> list[UserPrivateRead]:
