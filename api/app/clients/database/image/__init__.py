@@ -1,8 +1,2 @@
-from .create import create_image, insert_image
-from .read import get_image
-
-__all__ = [
-    "create_image",
-    "get_image",
-    "insert_image",
-]
+from app.domains.image.db import *  # noqa: F401,F403
+from app.domains.image.db import __all__  # noqa: F401

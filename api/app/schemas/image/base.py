@@ -1,5 +1,1 @@
-from app.schemas.base import Base
-
-
-class ItemImageBase(Base):
-    pass
+from app.domains.image.schemas.base import *  # noqa: F401,F403

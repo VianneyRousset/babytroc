@@ -1,2 +1,1 @@
-MAX_DIMENSION = 1024
-IMAGE_SIZES = (128, 256, 512, 1024)
+from app.domains.image.services.constants import *  # noqa: F401,F403
