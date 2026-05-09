@@ -3,6 +3,7 @@ import os
 import warnings
 from collections.abc import AsyncGenerator
 from functools import partial
+from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
@@ -14,6 +15,18 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 from alembic import command
+
+from babytroc.domains.category.schemas.create import CategoryCreate
+from babytroc.domains.category.services import create_many_categories
+from babytroc.domains.image.services import upload_image
+from babytroc.domains.region.schemas.create import RegionCreate
+from babytroc.domains.region.services import create_region
+from babytroc.domains.user.schemas.create import UserCreate
+from babytroc.domains.user.services import (
+    create_many_users_without_validation,
+    get_user_by_email_private,
+)
+from babytroc.infrastructure.config import Config, S3Config
 
 # make sqlalchemy warnings as errors
 warnings.simplefilter("error", SAWarning)
@@ -28,6 +41,160 @@ def run_alembic_upgrade_head(url: URL):
         "sqlalchemy.url", url.render_as_string(hide_password=False)
     )
     command.upgrade(alembic_cfg, "head")
+
+
+async def _seed_template(url: URL) -> None:
+    """Seed the template database with reference data."""
+
+    config = Config.from_env(
+        s3=S3Config(
+            endpoint_url="http://localhost:9000",
+            access_key="minioadmin",
+            secret_key="minioadmin",
+            bucket="test-bucket",
+            public_url="http://localhost:9000/test-bucket",
+        ),
+    )
+
+    engine = create_async_engine(url=url, echo=False, poolclass=NullPool)
+    session_maker = async_sessionmaker(bind=engine)
+
+    try:
+        async with session_maker() as db, db.begin():
+            # --- Users ---
+            await create_many_users_without_validation(
+                db=db,
+                user_creates=[
+                    UserCreate(
+                        name="alice",
+                        email="alice@babytroc.ch",
+                        password="password-Alice-42",
+                    ),
+                    UserCreate(
+                        name="bob",
+                        email="bob@babytroc.ch",
+                        password="password-Bob-42",
+                    ),
+                    UserCreate(
+                        name="carol",
+                        email="carol@babytroc.ch",
+                        password="password-Carol-42",
+                    ),
+                ],
+                validated=True,
+            )
+
+            # --- Regions ---
+            await create_region(db=db, region_create=RegionCreate(id=1, name="region1"))
+            await create_region(db=db, region_create=RegionCreate(id=2, name="region2"))
+
+            # --- Categories ---
+            parents = [
+                CategoryCreate(slug="clothing", name="Vêtements"),
+                CategoryCreate(slug="toys", name="Jouets"),
+                CategoryCreate(slug="gear", name="Équipement"),
+            ]
+            await create_many_categories(db=db, category_creates=parents)
+
+            children = [
+                CategoryCreate(
+                    slug="clothing-bodysuits",
+                    name="Bodies",
+                    parent_slug="clothing",
+                ),
+                CategoryCreate(
+                    slug="clothing-sleepwear",
+                    name="Pyjamas",
+                    parent_slug="clothing",
+                ),
+                CategoryCreate(
+                    slug="clothing-outerwear",
+                    name="Manteaux",
+                    parent_slug="clothing",
+                ),
+                CategoryCreate(
+                    slug="clothing-accessories",
+                    name="Accessoires",
+                    parent_slug="clothing",
+                ),
+                CategoryCreate(
+                    slug="toys-bath",
+                    name="Jouets de bain",
+                    parent_slug="toys",
+                ),
+                CategoryCreate(
+                    slug="toys-soft",
+                    name="Peluches",
+                    parent_slug="toys",
+                ),
+                CategoryCreate(
+                    slug="toys-educational",
+                    name="Jouets éducatifs",
+                    parent_slug="toys",
+                ),
+                CategoryCreate(
+                    slug="gear-strollers",
+                    name="Poussettes",
+                    parent_slug="gear",
+                ),
+                CategoryCreate(
+                    slug="gear-car-seats",
+                    name="Sièges auto",
+                    parent_slug="gear",
+                ),
+                CategoryCreate(
+                    slug="gear-carriers",
+                    name="Porte-bébés",
+                    parent_slug="gear",
+                ),
+            ]
+            await create_many_categories(db=db, category_creates=children)
+
+            # --- Images ---
+            alice = await get_user_by_email_private(db=db, email="alice@babytroc.ch")
+            bob = await get_user_by_email_private(db=db, email="bob@babytroc.ch")
+
+            alice_items_data = b"P1\n3 3\n101\n101\n010"
+            alice_new_item_data = b"P1\n3 3\n000\n111\n000"
+            alice_special_item_data = b"P1\n3 3\n101\n111\n010"
+            bob_items_data = b"P1\n3 3\n101\n101\n010"
+
+            # alice_items: 1 image
+            await upload_image(
+                config=config,
+                db=db,
+                owner_id=alice.id,
+                fp=BytesIO(alice_items_data),
+            )
+
+            # alice_new_item: 3 images
+            for _ in range(3):
+                await upload_image(
+                    config=config,
+                    db=db,
+                    owner_id=alice.id,
+                    fp=BytesIO(alice_new_item_data),
+                )
+
+            # alice_special_item: 2 images
+            for _ in range(2):
+                await upload_image(
+                    config=config,
+                    db=db,
+                    owner_id=alice.id,
+                    fp=BytesIO(alice_special_item_data),
+                )
+
+            # bob_items: 1 image
+            await upload_image(
+                config=config,
+                db=db,
+                owner_id=bob.id,
+                fp=BytesIO(bob_items_data),
+            )
+
+    finally:
+        await engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -50,6 +217,9 @@ async def primary_database() -> AsyncGenerator[URL]:
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, partial(run_alembic_upgrade_head, url))
 
+    # seed reference data
+    await _seed_template(url)
+
     # yield database url
     yield url
 
@@ -57,7 +227,7 @@ async def primary_database() -> AsyncGenerator[URL]:
     await drop_database(url)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 async def database(
     primary_database: URL,
     testrun_uid: str,
@@ -82,13 +252,11 @@ async def database(
     # yield database url
     yield url
 
-    return
-
     # destroy database
     await drop_database(url)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 async def database_sessionmaker(
     database: URL,
 ) -> AsyncGenerator[async_sessionmaker]:
