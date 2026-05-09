@@ -4,8 +4,8 @@ from collections.abc import Iterable
 from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
-from app.domains.user.schemas.create import UserCreate as User
-from app.domains.user.services import create_user_without_validation, list_users
+from babytroc.domains.user.schemas.create import UserCreate as User
+from babytroc.domains.user.services import create_user_without_validation, list_users
 
 logger = logging.getLogger("seed")
 

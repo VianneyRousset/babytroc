@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from app.infrastructure.events import _handlers, emit, on
+from babytroc.infrastructure.events import _handlers, emit, on
 
 
 @dataclass(frozen=True)

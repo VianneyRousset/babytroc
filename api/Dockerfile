@@ -16,7 +16,7 @@ RUN uv sync --no-group dev
 # Expose the port the app runs on
 EXPOSE 8080
 
-COPY app ./app
+COPY src ./src
 COPY entrypoint.sh .
 COPY alembic.ini .
 COPY alembic ./alembic

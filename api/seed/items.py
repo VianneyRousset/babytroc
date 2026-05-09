@@ -7,19 +7,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 from wonderwords import RandomSentence, RandomWord
 
-from app.domains.category.services import list_categories
-from app.domains.image.services import upload_image as _upload_image
-from app.domains.item.schemas.base import MonthRange
-from app.domains.item.schemas.constants import (
+from babytroc.domains.category.services import list_categories
+from babytroc.domains.image.services import upload_image as _upload_image
+from babytroc.domains.item.schemas.base import MonthRange
+from babytroc.domains.item.schemas.constants import (
     DESCRIPTION_LENGTH,
     NAME_LENGTH,
 )
-from app.domains.item.schemas.create import ItemCreate as Item
-from app.domains.item.services import create_item, list_items
-from app.domains.region.services import list_regions
-from app.domains.user.services import list_users
-from app.infrastructure.cache_client import NullCache
-from app.infrastructure.config import Config
+from babytroc.domains.item.schemas.create import ItemCreate as Item
+from babytroc.domains.item.services import create_item, list_items
+from babytroc.domains.region.services import list_regions
+from babytroc.domains.user.services import list_users
+from babytroc.infrastructure.cache_client import NullCache
+from babytroc.infrastructure.config import Config
 
 from .config import get_config
 

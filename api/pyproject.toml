@@ -35,7 +35,7 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "babycli"
-module-root = ""
+module-root = "src"
 
 [dependency-groups]
 dev = [
@@ -100,7 +100,7 @@ extend-immutable-calls = [
 [tool.pytest.ini_options]
 timeout = 10
 timeout_func_only = true
-pythonpath = "."
+pythonpath = "src"
 addopts = "-vv -n logical --dist loadscope --maxfail=1"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"

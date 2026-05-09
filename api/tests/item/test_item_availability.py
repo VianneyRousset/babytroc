@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
-from app.domains.item.schemas.read import ItemRead
-from app.domains.loan.schemas.read import LoanRead
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.loan.schemas.read import LoanRead
 
 
 class TestItemAvailabilityWithLoans:

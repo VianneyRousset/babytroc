@@ -9,19 +9,19 @@ from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.domains.chat import services as chat_services
-from app.domains.chat.schemas.base import ChatId
-from app.domains.chat.schemas.query import ChatMessageReadQueryFilter
-from app.domains.chat.schemas.read import ChatMessageRead, ChatRead
-from app.domains.chat.schemas.send import SendChatMessageText
-from app.domains.chat.schemas.websocket import (
+from babytroc.domains.chat import services as chat_services
+from babytroc.domains.chat.schemas.base import ChatId
+from babytroc.domains.chat.schemas.query import ChatMessageReadQueryFilter
+from babytroc.domains.chat.schemas.read import ChatMessageRead, ChatRead
+from babytroc.domains.chat.schemas.send import SendChatMessageText
+from babytroc.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from app.domains.item.schemas.read import ItemRead
-from app.domains.loan import services as loan_services
-from app.domains.loan.schemas.read import LoanRequestRead
-from app.domains.user.schemas.private import UserPrivateRead
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.loan import services as loan_services
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
 from tests.fixtures.websockets import WebSocketRecorder
 
 

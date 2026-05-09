@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from httpx_ws.transport import ASGIWebSocketTransport
 
-from app.domains.user.schemas.private import UserPrivateRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
 
 from .users import UserData
 

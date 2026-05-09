@@ -2,9 +2,9 @@ from typing import Any
 
 from httpx import AsyncClient
 
-from app.domains.category.schemas.read import CategoryRead
-from app.domains.item.schemas.read import ItemRead
-from app.shared.pagination_utils import iter_paginated_endpoint
+from babytroc.domains.category.schemas.read import CategoryRead
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.shared.pagination_utils import iter_paginated_endpoint
 
 
 class TestCategoriesList:

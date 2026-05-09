@@ -1,0 +1,108 @@
+from sqlalchemy import desc, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from babytroc.domains.item.models import Item
+from babytroc.domains.loan.errors import LoanRequestNotFoundError
+from babytroc.domains.loan.models import LoanRequest
+from babytroc.domains.loan.schemas.query import (
+    LoanRequestQueryPageCursor,
+    LoanRequestReadQueryFilter,
+)
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.shared.pagination import QueryPageOptions, QueryPageResult
+
+
+async def get_loan_request(
+    db: AsyncSession,
+    loan_request_id: int,
+    *,
+    query_filter: LoanRequestReadQueryFilter | None = None,
+) -> LoanRequestRead:
+    """Get loan request with `loan_request_id`."""
+
+    loan_requests = await get_many_loan_requests(
+        db=db,
+        loan_request_ids={loan_request_id},
+        query_filter=query_filter,
+    )
+
+    return loan_requests[0]
+
+
+async def get_many_loan_requests(
+    db: AsyncSession,
+    loan_request_ids: set[int],
+    *,
+    query_filter: LoanRequestReadQueryFilter | None = None,
+) -> list[LoanRequestRead]:
+    """Get all loan requests with the given loan request ids.
+
+    Raises LoanRequestNotFoundError if not all loan requests matching criterias exist.
+    """
+
+    # default query filter
+    query_filter = query_filter or LoanRequestReadQueryFilter()
+
+    stmt = query_filter.filter_read(
+        select(LoanRequest).where(LoanRequest.id.in_(loan_request_ids))
+    ).options(
+        selectinload(LoanRequest.item).undefer(Item.first_image_name),
+        selectinload(LoanRequest.borrower),
+    )
+
+    res = await db.execute(stmt)
+    loan_requests = res.unique().scalars().all()
+
+    missing_loan_request_ids = loan_request_ids - {req.id for req in loan_requests}
+    if missing_loan_request_ids:
+        key = query_filter.key | {"loan_request_ids": missing_loan_request_ids}
+        raise LoanRequestNotFoundError(key)
+
+    return [LoanRequestRead.model_validate(req) for req in loan_requests]
+
+
+async def list_loan_requests(
+    db: AsyncSession,
+    *,
+    query_filter: LoanRequestReadQueryFilter | None = None,
+    page_options: QueryPageOptions | None = None,
+) -> QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor]:
+    """List the loan requests matching criteria."""
+
+    # if no query filter is provided, use an empty filter
+    query_filter = query_filter or LoanRequestReadQueryFilter()
+
+    # if no page options are provided, use default page options
+    page_options = page_options or QueryPageOptions(
+        cursor=LoanRequestQueryPageCursor(),
+    )
+
+    # selection
+    stmt = select(LoanRequest).options(
+        selectinload(LoanRequest.item).undefer(Item.first_image_name),
+        selectinload(LoanRequest.borrower),
+    )
+
+    # apply filtering
+    stmt = query_filter.filter_read(stmt)
+
+    # apply ordering
+    stmt = stmt.order_by(desc(LoanRequest.id))
+
+    # apply pagination
+    stmt = stmt.limit(page_options.limit)
+    if page_options.cursor.loan_request_id is not None:
+        stmt = stmt.where(LoanRequest.id < page_options.cursor.loan_request_id)
+
+    res = await db.execute(stmt)
+    loan_requests = res.scalars().all()
+
+    return QueryPageResult[LoanRequestRead, LoanRequestQueryPageCursor](
+        data=[LoanRequestRead.model_validate(req) for req in loan_requests],
+        next_page_cursor=LoanRequestQueryPageCursor(
+            loan_request_id=loan_requests[-1].id,
+        )
+        if loan_requests
+        else None,
+    )

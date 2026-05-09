@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
-from app.domains.item.schemas.read import ItemRead
-from app.domains.loan.enums import LoanRequestState
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.loan.enums import LoanRequestState
 
 """Test loan request state diagram.
 

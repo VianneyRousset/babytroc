@@ -2,10 +2,10 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from app.domains.chat.schemas.read import ChatMessageRead, ChatRead
-from app.domains.item.schemas.read import ItemRead
-from app.domains.loan.schemas.read import LoanRequestRead
-from app.domains.user.schemas.private import UserPrivateRead
+from babytroc.domains.chat.schemas.read import ChatMessageRead, ChatRead
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
 
 pytestmark = pytest.mark.timeout(30)
 

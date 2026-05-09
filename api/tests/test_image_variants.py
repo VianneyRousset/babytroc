@@ -3,7 +3,7 @@ from io import BytesIO
 import PIL.Image
 import pytest
 
-from app.shared.image import generate_webp_variants
+from babytroc.shared.image import generate_webp_variants
 
 
 def test_generate_webp_variants_produces_three_sizes():

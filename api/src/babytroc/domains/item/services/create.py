@@ -1,0 +1,404 @@
+from typing import Self, cast
+
+from sqlalchemy import ColumnClause, Integer, column, insert, select, values
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from babytroc.domains.image.services.read import (
+    CheckImageOwner,
+    check_image_owners,
+    get_many_images,
+)
+from babytroc.domains.item.events import ItemCreated
+from babytroc.domains.item.models import Item
+from babytroc.domains.item.models.category import ItemCategoryAssociation
+from babytroc.domains.item.models.image import ItemImage, ItemImageAssociation
+from babytroc.domains.item.models.region import ItemRegionAssociation
+from babytroc.domains.item.schemas.create import ItemCreate
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.region.services import get_many_regions
+from babytroc.domains.user.services.read import get_many_users
+from babytroc.infrastructure.events import emit
+from babytroc.shared.schemas import Base as SchemaBase
+
+from .read import get_many_items
+
+
+class CreateItem(SchemaBase):
+    owner_id: int
+    item_create: ItemCreate
+
+
+class InsertItemRegionAssociation(SchemaBase):
+    item_id: int
+    region_id: int
+
+    @classmethod
+    def from_item_regions(
+        cls,
+        item_id: int,
+        region_ids: set[int],
+    ) -> list[Self]:
+        return [
+            cls(
+                item_id=item_id,
+                region_id=region_id,
+            )
+            for region_id in region_ids
+        ]
+
+
+class InsertItemCategoryAssociation(SchemaBase):
+    item_id: int
+    category_slug: str
+
+    @classmethod
+    def from_item_categories(
+        cls,
+        item_id: int,
+        category_slugs: set[str],
+    ) -> list[Self]:
+        return [cls(item_id=item_id, category_slug=slug) for slug in category_slugs]
+
+
+class InsertItemImageAssociation(SchemaBase):
+    item_id: int
+    owner_id: int
+    order: int
+    image_name: str
+
+    @classmethod
+    def from_item_images(
+        cls,
+        *,
+        item_id: int,
+        owner_id: int,
+        image_names: list[str],
+    ) -> list[Self]:
+        return [
+            cls(
+                item_id=item_id,
+                owner_id=owner_id,
+                order=i,
+                image_name=image_name,
+            )
+            for i, image_name in enumerate(image_names)
+        ]
+
+
+async def create_item(
+    db: AsyncSession,
+    owner_id: int,
+    item_create: ItemCreate,
+) -> ItemRead:
+    """Create a new item in the database."""
+
+    items = await create_many_items(
+        db=db,
+        items=[
+            CreateItem(
+                owner_id=owner_id,
+                item_create=item_create,
+            )
+        ],
+    )
+
+    return items[0]
+
+
+async def create_many_items(
+    db: AsyncSession,
+    items: list[CreateItem],
+) -> list[ItemRead]:
+    """Create many new items in the database."""
+
+    item_ids = await _insert_items(
+        db=db,
+        items=items,
+    )
+    await _insert_item_region_associations(
+        db=db,
+        associations=[
+            association
+            for item_id, item in zip(item_ids, items, strict=True)
+            for association in InsertItemRegionAssociation.from_item_regions(
+                item_id=item_id,
+                region_ids=item.item_create.regions,
+            )
+        ],
+    )
+    await _insert_item_image_associations(
+        db=db,
+        associations=[
+            association
+            for item_id, item in zip(item_ids, items, strict=True)
+            for association in InsertItemImageAssociation.from_item_images(
+                item_id=item_id,
+                owner_id=item.owner_id,
+                image_names=item.item_create.images,
+            )
+        ],
+    )
+    if any(item.item_create.categories for item in items):
+        await _insert_item_category_associations(
+            db=db,
+            associations=[
+                association
+                for item_id, item in zip(item_ids, items, strict=True)
+                for association in InsertItemCategoryAssociation.from_item_categories(
+                    item_id=item_id,
+                    category_slugs=item.item_create.categories,
+                )
+            ],
+        )
+
+    item_reads = await get_many_items(
+        db=db,
+        item_ids=set(item_ids),
+    )
+
+    # emit events
+    for item_read in item_reads:
+        await emit(
+            db,
+            ItemCreated(
+                item_id=item_read.id,
+                owner_id=item_read.owner.id,
+            ),
+        )
+
+    return item_reads
+
+
+async def _insert_items(
+    db: AsyncSession,
+    items: list[CreateItem],
+) -> list[int]:
+    """Insert items in database."""
+
+    # insert items from values given by `owner_ids` and `item_creates`
+    stmt = (
+        insert(Item)
+        .values(
+            [
+                {
+                    "owner_id": item.owner_id,
+                    "name": item.item_create.name,
+                    "description": item.item_create.description,
+                    "targeted_age_months": (
+                        item.item_create.targeted_age_months.as_sql_range
+                    ),
+                    "blocked": item.item_create.blocked,
+                }
+                for item in items
+            ]
+        )
+        .returning(Item.id)
+    )
+
+    # execute
+    try:
+        async with db.begin_nested():
+            res = await db.execute(stmt)
+            item_ids: list[int] = list(res.unique().scalars().all())
+
+    # If an IntegrityError is raised, it means either:
+    # 1. The owner does not exist
+    # 2. Unexpected error
+    except IntegrityError as error:
+        # raises UserNotFoundError if any owner does not exist (1.)
+        await get_many_users(
+            db=db,
+            user_ids={item.owner_id for item in items},
+        )
+
+        # unexpected error (2.)
+        raise error
+
+    # Check the number of inserted items matches the number of item creates
+    if len(item_ids) != len(items):
+        msg = (
+            "The number of inserted item does not match the number of item creates. "
+            "Unexpected reason"
+        )
+        raise RuntimeError(msg)
+
+    return item_ids
+
+
+async def _insert_item_region_associations(
+    db: AsyncSession,
+    associations: list[InsertItemRegionAssociation],
+) -> None:
+    """Insert item-region associations."""
+
+    # insert item-region associations from values given by `item_ids` and `item_creates`
+    stmt = (
+        insert(ItemRegionAssociation)
+        .values(
+            [
+                {
+                    "item_id": association.item_id,
+                    "region_id": association.region_id,
+                }
+                for association in associations
+            ]
+        )
+        .returning(ItemRegionAssociation)
+    )
+
+    # execute
+    try:
+        async with db.begin_nested():
+            inserted_associations = (await db.execute(stmt)).unique().scalars().all()
+
+    # If an IntegrityError is raised, it means either:
+    # 1. Some regions do not exist
+    # 2. Some items do not exist
+    # 3. Unexpected error
+    except IntegrityError as error:
+        # raise RegionNotFoundError if a region does not exist (1.)
+        await get_many_regions(
+            db=db,
+            region_ids={association.region_id for association in associations},
+        )
+
+        # raise ItemNotFoundError if an item does not exist (2.)
+        await get_many_items(
+            db=db,
+            item_ids={association.item_id for association in associations},
+        )
+
+        # unexpected error (3.)
+        raise error
+
+    # Check the number of inserted associations matches the total number of
+    # (item_id, region_id) tuples
+    if len(inserted_associations) != len(associations):
+        msg = (
+            "The number of inserted item-region association s"
+            f"({len(inserted_associations)}) does not match the number of given "
+            f"associations ({len(associations)}). Unexpected reason"
+        )
+        raise RuntimeError(msg)
+
+
+async def _insert_item_image_associations(
+    db: AsyncSession,
+    *,
+    associations=list[InsertItemImageAssociation],
+) -> None:
+    """Insert item-image associations."""
+
+    data = values(
+        cast("ColumnClause[int]", ItemImageAssociation.item_id),
+        column("order", Integer),
+        cast("ColumnClause[str]", ItemImageAssociation.image_name),
+        name="loan_request_data",
+    ).data(
+        [
+            (association.item_id, association.order, association.image_name)
+            for association in associations
+        ]
+    )
+
+    # insert item-image associations from values given by `item_ids` and `item_creates`.
+    # - filter images owned by the owner of the item
+    stmt = (
+        insert(ItemImageAssociation)
+        .from_select(
+            [
+                ItemImageAssociation.item_id,
+                ItemImageAssociation.order,
+                ItemImageAssociation.image_name,
+            ],
+            select(data)
+            .join(Item)
+            .join(ItemImage)
+            .where(Item.owner_id == ItemImage.owner_id)
+            .order_by(data.c.item_id, data.c.order),
+        )
+        .returning(ItemImageAssociation)
+    )
+
+    # execute
+    try:
+        async with db.begin_nested():
+            res = await db.execute(stmt)
+            inserted_associations = res.unique().scalars().all()
+
+    # If an IntegrityError is raised, it means either:
+    # 1. Some images do not exist
+    # 2. Some items do not exist
+    # 3. Unexpected error
+    except IntegrityError as error:
+        # raises ItemImageNotFound if an image does not exist (1.)
+        await get_many_images(
+            db=db, image_names={association.image_name for association in associations}
+        )
+        # raises ItemNotFoundError if an item does not exist (2.)
+        await get_many_items(
+            db=db,
+            item_ids={association.item_id for association in associations},
+        )
+
+        # unexpected error (3.)
+        raise error
+
+    # If the number of inserted associations does not match the number of given
+    # associations, it means either:
+    # 1. Some images are not owned by the same user that owns the item
+    # 2. Unexpected Error
+    if len(inserted_associations) != len(associations):
+        # raise ItemImageNotOwnedError if an image is not owned
+        await check_image_owners(
+            db=db,
+            image_owners=[
+                CheckImageOwner(
+                    image_name=association.image_name,
+                    owner_id=association.owner_id,
+                )
+                for association in associations
+            ],
+        )
+
+        msg = (
+            "The number of inserted item-image associations "
+            f"({len(inserted_associations)}) does not match the number "
+            f"of given associations ({len(associations)}). Unexpected reason"
+        )
+        raise RuntimeError(msg)
+
+
+async def _insert_item_category_associations(
+    db: AsyncSession,
+    associations: list[InsertItemCategoryAssociation],
+) -> None:
+    """Insert item-category associations."""
+
+    if not associations:
+        return
+
+    stmt = (
+        insert(ItemCategoryAssociation)
+        .values(
+            [
+                {
+                    "item_id": a.item_id,
+                    "category_slug": a.category_slug,
+                }
+                for a in associations
+            ]
+        )
+        .returning(ItemCategoryAssociation)
+    )
+
+    async with db.begin_nested():
+        inserted = (await db.execute(stmt)).unique().scalars().all()
+
+    if len(inserted) != len(associations):
+        msg = (
+            f"The number of inserted item-category associations ({len(inserted)}) "
+            f"does not match the expected ({len(associations)}). Unexpected reason"
+        )
+        raise RuntimeError(msg)

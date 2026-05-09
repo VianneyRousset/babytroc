@@ -7,7 +7,7 @@ import pytest
 from fastapi import FastAPI
 from httpx_ws import AsyncWebSocketSession, WebSocketDisconnect, aconnect_ws
 
-from app.domains.chat.schemas.websocket import (
+from babytroc.domains.chat.schemas.websocket import (
     WebSocketMessage,
     WebSocketMessageTypeAdapter,
 )

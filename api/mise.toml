@@ -46,7 +46,7 @@ run = "ruff check ."
 [tasks."lint:mypy"]
 description = "Lint - mypy pass"
 depends = ["deps", "deps-dev"]
-run = "mypy stubs app seed tests"
+run = "mypy stubs src seed tests"
 
 [tasks.lint]
 description = "Lint the code"

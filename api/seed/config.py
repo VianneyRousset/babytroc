@@ -1,4 +1,4 @@
-from app.infrastructure.config import Config
+from babytroc.infrastructure.config import Config
 
 
 def get_config() -> Config:

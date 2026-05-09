@@ -1,0 +1,80 @@
+from sqlalchemy import desc, select
+from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from babytroc.domains.chat.errors import ChatMessageNotFoundError
+from babytroc.domains.chat.models import ChatMessage
+from babytroc.domains.chat.schemas.query import (
+    ChatMessageQueryPageCursor,
+    ChatMessageReadQueryFilter,
+)
+from babytroc.domains.chat.schemas.read import ChatMessageRead
+from babytroc.shared.pagination import QueryPageOptions, QueryPageResult
+
+
+async def get_message(
+    db: AsyncSession,
+    message_id: int,
+    *,
+    query_filter: ChatMessageReadQueryFilter | None = None,
+) -> ChatMessageRead:
+    """Get message with `message_id`."""
+
+    # default query filter
+    query_filter = query_filter or ChatMessageReadQueryFilter()
+
+    stmt = select(ChatMessage).where(ChatMessage.id == message_id)
+
+    stmt = query_filter.filter_read(stmt)
+
+    try:
+        res = await db.execute(stmt)
+        message = res.unique().scalars().one()
+
+    except NoResultFound as error:
+        key = query_filter.key | {"id": message_id}
+        raise ChatMessageNotFoundError(key) from error
+
+    return ChatMessageRead.model_validate(message)
+
+
+async def list_messages(
+    db: AsyncSession,
+    *,
+    query_filter: ChatMessageReadQueryFilter | None = None,
+    page_options: QueryPageOptions[ChatMessageQueryPageCursor] | None = None,
+) -> QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor]:
+    """List messages."""
+
+    # if no page options are provided, use default page options
+    query_filter = query_filter or ChatMessageReadQueryFilter()
+
+    # default query filter
+    page_options = page_options or QueryPageOptions(
+        cursor=ChatMessageQueryPageCursor(),
+    )
+
+    # selection
+    stmt = select(ChatMessage)
+
+    # apply filtering
+    stmt = query_filter.filter_read(stmt)
+
+    # apply ordering
+    stmt = stmt.order_by(desc(ChatMessage.id))
+
+    # apply pagination
+    stmt = stmt.limit(page_options.limit)
+    if page_options.cursor.message_id:
+        stmt = stmt.where(ChatMessage.id < page_options.cursor.message_id)
+
+    messages = list((await db.execute(stmt)).scalars().all())
+
+    return QueryPageResult[ChatMessageRead, ChatMessageQueryPageCursor](
+        data=[ChatMessageRead.model_validate(message) for message in messages],
+        next_page_cursor=ChatMessageQueryPageCursor(
+            message_id=messages[-1].id,
+        )
+        if messages
+        else None,
+    )

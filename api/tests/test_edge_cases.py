@@ -1,7 +1,7 @@
 from fastapi import status
 from httpx import AsyncClient
 
-from app.domains.loan.schemas.read import LoanRequestRead
+from babytroc.domains.loan.schemas.read import LoanRequestRead
 
 
 class TestMalformedInputs:

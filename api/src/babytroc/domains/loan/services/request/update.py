@@ -1,0 +1,100 @@
+from sqlalchemy import update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from babytroc.domains.loan.enums import LoanRequestState
+from babytroc.domains.loan.errors import LoanRequestStateError
+from babytroc.domains.loan.models import LoanRequest
+from babytroc.domains.loan.schemas.query import (
+    LoanRequestReadQueryFilter,
+    LoanRequestUpdateQueryFilter,
+)
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.domains.loan.services.request.read import get_many_loan_requests
+
+
+async def update_loan_request_state(
+    db: AsyncSession,
+    loan_request_id: int,
+    state: LoanRequestState,
+    *,
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
+) -> LoanRequestRead:
+    """Set the state of given loan requests.
+
+    Errors are raised if any of the given loan requests does not match the
+    given query_filter.
+    """
+
+    loan_requests = await update_many_loan_requests_state(
+        db=db,
+        loan_request_ids={loan_request_id},
+        state=state,
+        query_filter=query_filter,
+    )
+
+    return loan_requests[0]
+
+
+async def update_many_loan_requests_state(
+    db: AsyncSession,
+    loan_request_ids: set[int],
+    state: LoanRequestState,
+    *,
+    query_filter: LoanRequestUpdateQueryFilter | None = None,
+) -> list[LoanRequestRead]:
+    """Set the state of given loan requests.
+
+    Errors are raised if any of the given loan requests does not match the
+    given query_filter.
+    """
+
+    query_filter = query_filter or LoanRequestUpdateQueryFilter()
+
+    # update all loan requests states to executed
+    stmt = query_filter.filter_update(
+        update(LoanRequest)
+        .values(state=state)
+        .where(LoanRequest.id.in_(loan_request_ids))
+    ).returning(LoanRequest.id)
+
+    result = await db.execute(stmt)
+    updated_loan_request_ids = set(result.unique().scalars().all())
+
+    # if not all given loan requests were updated it means either:
+    # 1. the given loan request matching the query_filter does not exist
+    # 2. the given loan request state is wrong
+    if len(updated_loan_request_ids) != len(loan_request_ids):
+        # find missing loan request ids
+        missing_loan_request_ids = loan_request_ids - updated_loan_request_ids
+
+        # raise LoanRequestNotFoundError if some loan requests do not exist (1.)
+        loan_requests = await get_many_loan_requests(
+            db=db,
+            loan_request_ids=missing_loan_request_ids,
+            query_filter=LoanRequestReadQueryFilter.model_validate(
+                {**query_filter.model_dump(exclude={"states"})}
+            ),
+        )
+
+        # raise LoanRequestStateError if loan request state is wrong (2.)
+        if query_filter.states is not None:
+            if wrong_states := {
+                req.state
+                for req in loan_requests
+                if req.state not in query_filter.states
+            }:
+                raise LoanRequestStateError(
+                    expected_state=query_filter.states,
+                    actual_state=wrong_states,
+                )
+
+        msg = (
+            "The number of updated loan requests does not match the number of given "
+            "loan request ids. The reason is unexpected."
+        )
+        raise RuntimeError(msg)
+
+    return await get_many_loan_requests(
+        db=db,
+        loan_request_ids=loan_request_ids,
+    )

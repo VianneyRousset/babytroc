@@ -1,0 +1,176 @@
+from typing import Annotated
+
+from babytroc.domains.item.enums import ItemQueryAvailability
+from babytroc.shared.pagination import QueryPageOptions
+from babytroc.shared.schemas import ApiQueryBase, FieldWithAlias, PageLimitField
+
+from .base import MonthRange
+from .query import (
+    ItemMatchingWordsQueryPageCursor,
+    ItemQueryPageCursor,
+    ItemReadQueryFilter,
+)
+
+
+class ItemLimitApiQueryBase(ApiQueryBase):
+    limit: Annotated[int, PageLimitField()] = 32
+
+
+class ItemTargetedAgeMonthsApiQueryBase(ApiQueryBase):
+    targeted_age_months: Annotated[
+        MonthRange | None,
+        FieldWithAlias(
+            name="targeted_age_months",
+            alias="mo",
+            title="Targeted age months",
+            description=(
+                "An item is returned if its targeted age months is included in this "
+                "range. The values are the targeted age in months. A null value "
+                "specify an infinite bound."
+            ),
+            examples=[
+                "3-12",
+                "8-",
+            ],
+        ),
+    ] = None
+
+
+class ItemAvailabilityApiQueryBase(ApiQueryBase):
+    availability: Annotated[
+        ItemQueryAvailability,
+        FieldWithAlias(
+            name="availability",
+            alias="av",
+            title="Availability",
+        ),
+    ] = ItemQueryAvailability.yes
+
+
+class ItemRegionsApiQueryBase(ApiQueryBase):
+    regions: Annotated[
+        list[int] | None,
+        FieldWithAlias(
+            name="regions",
+            alias="reg",
+            title="Regions",
+            description=(
+                "An item is returned if it is available in any of these regions IDs."
+            ),
+            examples=[
+                [4],
+                [2, 4, 7, 8],
+            ],
+        ),
+    ] = None
+
+
+class ItemCategoriesApiQueryBase(ApiQueryBase):
+    categories: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="categories",
+            alias="cat",
+            title="Categories",
+            description=(
+                "An item is returned if it belongs to any of these category slugs "
+                "or to a child of any of these category slugs."
+            ),
+            examples=[
+                ["clothing"],
+                ["clothing-bodysuits", "toys-bath"],
+            ],
+        ),
+    ] = None
+
+
+class ItemMatchingWordsApiQueryBase(ApiQueryBase):
+    words: Annotated[
+        list[str] | None,
+        FieldWithAlias(
+            name="words",
+            alias="q",
+            title="Words used for fuzzy search",
+            description=(
+                "An item is returned if any word in this list fuzzy-matches a word in "
+                "the item's name or description. However, the more given words that do "
+                "not match any word in the item's name or description, the higher the "
+                "word matching distance is."
+            ),
+            examples=[
+                ["chair"],
+                ["dog", "cat"],
+            ],
+        ),
+    ] = None
+
+
+class ItemApiQuery(
+    ItemLimitApiQueryBase,
+    ItemTargetedAgeMonthsApiQueryBase,
+    ItemAvailabilityApiQueryBase,
+    ItemRegionsApiQueryBase,
+    ItemCategoriesApiQueryBase,
+    ItemQueryPageCursor,
+):
+    @property
+    def item_select_query_filter(self) -> ItemReadQueryFilter:
+        return ItemReadQueryFilter(
+            targeted_age_months=self.targeted_age_months,
+            regions=self.regions,
+            categories=self.categories,
+            availability=self.availability,
+        )
+
+    @property
+    def item_query_page_cursor(self) -> ItemQueryPageCursor:
+        return ItemQueryPageCursor(
+            item_id=self.item_id,
+        )
+
+    @property
+    def item_query_page_options(self) -> QueryPageOptions[ItemQueryPageCursor]:
+        return QueryPageOptions[ItemQueryPageCursor](
+            limit=self.limit,
+            cursor=self.item_query_page_cursor,
+        )
+
+
+class ItemMatchinWordsApiQuery(
+    ItemApiQuery,
+    ItemMatchingWordsApiQueryBase,
+    ItemMatchingWordsQueryPageCursor,
+):
+    @property
+    def item_matching_words_query_page_cursor(self) -> ItemMatchingWordsQueryPageCursor:
+        return ItemMatchingWordsQueryPageCursor(
+            item_id=self.item_id,
+            words_match=self.words_match,
+        )
+
+    @property
+    def item_matching_words_query_page_options(
+        self,
+    ) -> QueryPageOptions[ItemMatchingWordsQueryPageCursor]:
+        return QueryPageOptions[ItemMatchingWordsQueryPageCursor](
+            limit=self.limit,
+            cursor=self.item_matching_words_query_page_cursor,
+        )
+
+
+class SavedItemApiQuery(
+    ItemApiQuery,
+):
+    # redefine with all availability by default
+    availability: Annotated[
+        ItemQueryAvailability,
+        FieldWithAlias(
+            name="availability",
+            alias="av",
+            title="Availability",
+        ),
+    ] = ItemQueryAvailability.all
+
+
+class LikedItemApiQuery(ItemApiQuery):
+    pass

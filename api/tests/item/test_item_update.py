@@ -2,9 +2,9 @@ import pytest
 from fastapi import status
 from httpx import AsyncClient
 
-from app.domains.image.schemas.read import ItemImageRead
-from app.domains.item.schemas.base import MonthRange
-from app.domains.item.schemas.read import ItemRead
+from babytroc.domains.image.schemas.read import ItemImageRead
+from babytroc.domains.item.schemas.base import MonthRange
+from babytroc.domains.item.schemas.read import ItemRead
 
 
 @pytest.mark.usefixtures("items")

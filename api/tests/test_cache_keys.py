@@ -1,4 +1,4 @@
-from app.infrastructure.cache_keys import cache_key_hash
+from babytroc.infrastructure.cache_keys import cache_key_hash
 
 
 class TestCacheKeyHash:

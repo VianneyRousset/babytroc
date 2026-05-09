@@ -5,8 +5,8 @@ import sqlalchemy
 from asgi_lifespan import LifespanManager
 from fastapi import FastAPI
 
-from app.app import create_app
-from app.infrastructure.config import (
+from babytroc.app import create_app
+from babytroc.infrastructure.config import (
     Config,
     DatabaseConfig,
     PubsubConfig,

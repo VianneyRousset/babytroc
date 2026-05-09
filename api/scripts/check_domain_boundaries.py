@@ -64,11 +64,11 @@ READ_PREFIXES = (
     "exists",
 )
 
-DOMAINS_ROOT = Path("app/domains")
+DOMAINS_ROOT = Path("src/babytroc/domains")
 
 
 def get_domain_name(file_path: Path) -> str | None:
-    """Extract domain name from a file path like app/domains/item/services/create.py."""
+    """Extract domain name from a file path like src/babytroc/domains/item/services/create.py."""
     parts = file_path.parts
     try:
         idx = parts.index("domains")
@@ -119,7 +119,7 @@ def _get_target_domain(
     module_path: str, source_domain: str
 ) -> str | None:
     """Return the target domain if this import needs boundary checking."""
-    if not module_path.startswith("app.domains."):
+    if not module_path.startswith("babytroc.domains."):
         return None
 
     parts = module_path.split(".")
@@ -205,7 +205,7 @@ def main():
         print()
         print(
             "Fix: move cross-domain write calls to event handlers"
-            " (app/domains/*/handlers.py)"
+            " (src/babytroc/domains/*/handlers.py)"
         )
         sys.exit(1)
     else:

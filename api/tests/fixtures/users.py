@@ -5,10 +5,10 @@ from typing import TypedDict
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.domains.user import services as user_services
-from app.domains.user.schemas.create import UserCreate
-from app.domains.user.schemas.private import UserPrivateRead
-from app.shared.hash import HashedStr
+from babytroc.domains.user import services as user_services
+from babytroc.domains.user.schemas.create import UserCreate
+from babytroc.domains.user.schemas.private import UserPrivateRead
+from babytroc.shared.hash import HashedStr
 
 
 class UserData(TypedDict):

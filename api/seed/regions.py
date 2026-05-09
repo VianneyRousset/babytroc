@@ -4,9 +4,9 @@ from collections.abc import Iterable
 from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
 
-from app.domains.region.schemas.create import RegionCreate as Region
-from app.domains.region.services import create_region, list_regions
-from app.infrastructure.cache_client import NullCache
+from babytroc.domains.region.schemas.create import RegionCreate as Region
+from babytroc.domains.region.services import create_region, list_regions
+from babytroc.infrastructure.cache_client import NullCache
 
 logger = logging.getLogger("seed")
 

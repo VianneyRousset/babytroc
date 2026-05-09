@@ -1,6 +1,6 @@
 from httpx import AsyncClient
 
-from app.domains.item.schemas.read import ItemRead
+from babytroc.domains.item.schemas.read import ItemRead
 
 
 class TestItemSave:

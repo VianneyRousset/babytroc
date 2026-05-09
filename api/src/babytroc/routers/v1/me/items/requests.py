@@ -1,0 +1,132 @@
+from typing import Annotated
+
+from fastapi import Depends, Query, Request, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from babytroc.domains.item import services as item_services
+from babytroc.domains.item.schemas.query import ItemReadQueryFilter
+from babytroc.domains.loan import services as loan_services
+from babytroc.domains.loan.schemas.api import LoanRequestApiQuery
+from babytroc.domains.loan.schemas.query import (
+    LoanRequestReadQueryFilter,
+    LoanRequestUpdateQueryFilter,
+)
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.infrastructure.database import get_db_session
+from babytroc.routers.v1.auth import client_id_annotation
+
+from .annotations import item_id_annotation, loan_request_id_annotation
+from .router import router
+
+# READ
+
+
+@router.get("/{item_id}/requests", status_code=status.HTTP_200_OK)
+async def list_client_item_loan_requests(
+    client_id: client_id_annotation,
+    request: Request,
+    response: Response,
+    item_id: item_id_annotation,
+    query: Annotated[LoanRequestApiQuery, Query()],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[LoanRequestRead]:
+    """List loan requests of the item owned by the client."""
+
+    # get item to check it is owned by the client
+    item = await item_services.get_item(
+        db=db,
+        item_id=item_id,
+        query_filter=ItemReadQueryFilter(
+            owner_id=client_id,
+        ),
+    )
+
+    # get list of loan requests of the item
+    result = await loan_services.list_loan_requests(
+        db=db,
+        query_filter=LoanRequestReadQueryFilter.model_validate(
+            {
+                **query.loan_request_select_query_filter.model_dump(),
+                "item_id": item.id,
+            }
+        ),
+        page_options=query.loan_request_query_page_options,
+    )
+
+    result.set_response_headers(response, request)
+
+    return result.data
+
+
+@router.get(
+    "/{item_id}/requests/{loan_request_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def get_client_item_loan_request(
+    client_id: client_id_annotation,
+    item_id: item_id_annotation,
+    loan_request_id: loan_request_id_annotation,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> LoanRequestRead:
+    """Get client's item loan request by id."""
+
+    # get item to check it is owned by the client
+    item = await item_services.get_item(
+        db=db,
+        item_id=item_id,
+        query_filter=ItemReadQueryFilter(
+            owner_id=client_id,
+        ),
+    )
+
+    return await loan_services.get_loan_request(
+        db=db,
+        loan_request_id=loan_request_id,
+        query_filter=LoanRequestReadQueryFilter(
+            item_id=item.id,
+        ),
+    )
+
+
+@router.post(
+    "/{item_id}/requests/{loan_request_id}/accept",
+    status_code=status.HTTP_200_OK,
+)
+async def accept_client_item_loan_request(
+    client_id: client_id_annotation,
+    item_id: item_id_annotation,
+    loan_request_id: loan_request_id_annotation,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> LoanRequestRead:
+    """Accept client's item loan request."""
+
+    return await loan_services.accept_loan_request(
+        db=db,
+        loan_request_id=loan_request_id,
+        query_filter=LoanRequestUpdateQueryFilter(
+            item_id=item_id,
+            owner_id=client_id,
+        ),
+    )
+
+
+@router.post(
+    "/{item_id}/requests/{loan_request_id}/reject",
+    status_code=status.HTTP_200_OK,
+)
+async def reject_client_item_loan_request(
+    client_id: client_id_annotation,
+    item_id: item_id_annotation,
+    loan_request_id: loan_request_id_annotation,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> LoanRequestRead:
+    """Reject client's item loan request."""
+
+    return await loan_services.reject_loan_request(
+        db=db,
+        loan_request_id=loan_request_id,
+        query_filter=LoanRequestUpdateQueryFilter(
+            item_id=item_id,
+            owner_id=client_id,
+        ),
+    )

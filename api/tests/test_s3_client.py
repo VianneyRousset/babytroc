@@ -1,8 +1,8 @@
 from io import BytesIO
 from unittest.mock import AsyncMock, patch
 
-from app.infrastructure.config import S3Config
-from app.infrastructure.storage import delete_image_variants, upload_image_variants
+from babytroc.infrastructure.config import S3Config
+from babytroc.infrastructure.storage import delete_image_variants, upload_image_variants
 
 TEST_S3_CONFIG = S3Config(
     endpoint_url="http://minio:9000",
@@ -23,7 +23,7 @@ async def test_upload_image_variants():
 
     mock_s3_client = AsyncMock()
 
-    with patch("app.infrastructure.storage._get_s3_client") as mock_get:
+    with patch("babytroc.infrastructure.storage._get_s3_client") as mock_get:
         mock_ctx = AsyncMock()
         mock_ctx.__aenter__ = AsyncMock(return_value=mock_s3_client)
         mock_ctx.__aexit__ = AsyncMock(return_value=False)
@@ -55,7 +55,7 @@ async def test_upload_image_variants():
 async def test_delete_image_variants():
     mock_s3_client = AsyncMock()
 
-    with patch("app.infrastructure.storage._get_s3_client") as mock_get:
+    with patch("babytroc.infrastructure.storage._get_s3_client") as mock_get:
         mock_ctx = AsyncMock()
         mock_ctx.__aenter__ = AsyncMock(return_value=mock_s3_client)
         mock_ctx.__aexit__ = AsyncMock(return_value=False)

@@ -4,10 +4,10 @@ import pytest
 from httpx import AsyncClient
 from unidecode import unidecode
 
-from app.domains.item.schemas.query import ItemQueryAvailability
-from app.domains.item.schemas.read import ItemRead
-from app.domains.user.schemas.private import UserPrivateRead
-from app.shared.pagination_utils import iter_chunks, iter_paginated_endpoint
+from babytroc.domains.item.schemas.query import ItemQueryAvailability
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
+from babytroc.shared.pagination_utils import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 
 

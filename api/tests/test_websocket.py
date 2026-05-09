@@ -4,12 +4,12 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from httpx_ws import AsyncWebSocketSession, WebSocketUpgradeError, aconnect_ws
 
-from app.domains.chat.schemas.websocket import (
+from babytroc.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from app.domains.loan.schemas.read import LoanRequestRead
-from app.domains.user.schemas.private import UserPrivateRead
+from babytroc.domains.loan.schemas.read import LoanRequestRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
 from tests.fixtures.clients import create_client
 from tests.fixtures.websockets import WebSocketRecorder
 

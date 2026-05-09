@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-from app.domains.item.schemas.read import ItemRead
+from babytroc.domains.item.schemas.read import ItemRead
 
 
 @pytest.mark.usefixtures("many_items")

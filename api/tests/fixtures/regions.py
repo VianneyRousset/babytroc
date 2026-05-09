@@ -3,9 +3,9 @@ from typing import TypedDict
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.domains.region import services as region_services
-from app.domains.region.schemas.create import RegionCreate
-from app.domains.region.schemas.read import RegionRead
+from babytroc.domains.region import services as region_services
+from babytroc.domains.region.schemas.create import RegionCreate
+from babytroc.domains.region.schemas.read import RegionRead
 
 
 class RegionData(TypedDict):

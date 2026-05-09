@@ -1,7 +1,7 @@
 from httpx import AsyncClient
 
-from app.domains.item.schemas.read import ItemRead
-from app.domains.user.schemas.private import UserPrivateRead
+from babytroc.domains.item.schemas.read import ItemRead
+from babytroc.domains.user.schemas.private import UserPrivateRead
 
 
 class TestUserDelete:
