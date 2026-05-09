@@ -13,6 +13,7 @@ from .db import db_app
 from .logs import logs_app
 from .server import server_app
 from .stats import stats_app
+from .user import user_app
 
 app.command(check_app)
 app.command(config_app)
@@ -21,6 +22,7 @@ app.command(db_app)
 app.command(logs_app)
 app.command(server_app)
 app.command(stats_app)
+app.command(user_app)
 
 
 def main():
