@@ -22,8 +22,8 @@ export function useApiQuery<
 	// @ts-expect-error avoid typing errors
 	return useQuery({
 		...options,
-		// @ts-expect-error avoid typing errors
 		query: () =>
+			// @ts-expect-error OpenFetch generic constraints too strict for spread
 			$api(url, {
 				...options,
 				query: toValue(options.query),
