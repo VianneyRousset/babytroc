@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { Heart } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'saved',
-})
+	layout: "saved",
+});
 
-const { items, error, isLoading, loadMore } = useSavedItems()
+const { items, error, isLoading, loadMore } = useSavedItems();
 </script>
 
 <template>

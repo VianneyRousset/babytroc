@@ -1,24 +1,26 @@
 <script setup lang="ts">
 const props = defineProps<{
-  name: string
-}>()
+	name: string;
+}>();
 
-const { name } = toRefs(props)
+const { name } = toRefs(props);
 
-const src = computed(() => imagePath(unref(name), 1024))
-const placeholderSrc = computed(() => imagePath(unref(name), 128))
+const src = computed(() => imagePath(unref(name), 1024));
+const placeholderSrc = computed(() => imagePath(unref(name), 128));
 
 const { data: imageData, status } = useQuery({
-  key: () => ['image', unref(src)],
-  query: async () => {
-    const request = new Request(unref(src))
-    const resp: Response = await fetch(request)
-    return URL.createObjectURL(await resp.blob())
-  },
-})
+	key: () => ["image", unref(src)],
+	query: async () => {
+		const request = new Request(unref(src));
+		const resp: Response = await fetch(request);
+		return URL.createObjectURL(await resp.blob());
+	},
+});
 
-const placeholder = computed(() => unref(status) !== 'success')
-const _src = computed(() => unref(placeholder) ? unref(placeholderSrc) : unref(imageData))
+const placeholder = computed(() => unref(status) !== "success");
+const _src = computed(() =>
+	unref(placeholder) ? unref(placeholderSrc) : unref(imageData),
+);
 </script>
 
 <template>

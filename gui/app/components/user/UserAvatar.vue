@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { createAvatar } from '@dicebear/core'
-import { thumbs } from '@dicebear/collection'
+import { thumbs } from "@dicebear/collection";
+import { createAvatar } from "@dicebear/core";
 
 const props = withDefaults(
-  defineProps<{
-    seed: string | null
-    size?: number
-  }>(),
-  {
-    size: 64,
-  },
-)
+	defineProps<{
+		seed: string | null;
+		size?: number;
+	}>(),
+	{
+		size: 64,
+	},
+);
 
-const { seed, size } = toRefs(props)
+const { seed, size } = toRefs(props);
 
-const avatar = computed(() =>
-  createAvatar(thumbs, {
-    seed: unref(seed) ?? '',
-    size: unref(size),
-    scale: 80,
-    radius: 50,
-    backgroundColor: ['c4d6c5'],
-    shapeColor: ['729577'],
-  }).toDataUri(),
-)
+const _avatar = computed(() =>
+	createAvatar(thumbs, {
+		seed: unref(seed) ?? "",
+		size: unref(size),
+		scale: 80,
+		radius: 50,
+		backgroundColor: ["c4d6c5"],
+		shapeColor: ["729577"],
+	}).toDataUri(),
+);
 </script>
 
 <template>

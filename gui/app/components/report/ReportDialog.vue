@@ -1,41 +1,40 @@
 <script setup lang="ts">
-import { ShieldAlert } from 'lucide-vue-next'
-
-const model = defineModel<boolean>({ default: false })
+const model = defineModel<boolean>({ default: false });
 
 const props = defineProps<{
-  submit: (data: { message: string, context: string }) => Promise<unknown>
-  context: string
-}>()
+	submit: (data: { message: string; context: string }) => Promise<unknown>;
+	context: string;
+}>();
 
-const message = ref('')
-const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
+const message = ref("");
+const status = ref<"idle" | "loading" | "success" | "error">("idle");
 
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
-async function send() {
-  if (unref(message).trim().length === 0) return
+async function _send() {
+	if (unref(message).trim().length === 0) return;
 
-  status.value = 'loading'
-  try {
-    await props.submit({
-      message: unref(message).trim(),
-      context: props.context,
-    })
-    status.value = 'success'
-    $toast.success('Signalement envoyé')
-    setTimeout(() => { model.value = false }, 1500)
-  }
-  catch {
-    status.value = 'error'
-    $toast.error('Échec de l\'envoi')
-  }
+	status.value = "loading";
+	try {
+		await props.submit({
+			message: unref(message).trim(),
+			context: props.context,
+		});
+		status.value = "success";
+		$toast.success("Signalement envoyé");
+		setTimeout(() => {
+			model.value = false;
+		}, 1500);
+	} catch {
+		status.value = "error";
+		$toast.error("Échec de l'envoi");
+	}
 }
 
-function onClose() {
-  model.value = false
-  message.value = ''
-  status.value = 'idle'
+function _onClose() {
+	model.value = false;
+	message.value = "";
+	status.value = "idle";
 }
 </script>
 

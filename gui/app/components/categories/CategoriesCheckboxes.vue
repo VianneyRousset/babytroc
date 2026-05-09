@@ -1,74 +1,70 @@
 <script setup lang="ts">
-import { ChevronDown } from 'lucide-vue-next'
-
-const model = defineModel<Set<string>>({ default: () => new Set() })
+const model = defineModel<Set<string>>({ default: () => new Set() });
 
 const props = withDefaults(
-  defineProps<{
-    size?: 'large' | 'normal'
-  }>(),
-  {
-    size: 'normal',
-  },
-)
+	defineProps<{
+		size?: "large" | "normal";
+	}>(),
+	{
+		size: "normal",
+	},
+);
 
-const { size } = toRefs(props)
+const { size } = toRefs(props);
 
-const { categories, status } = useCategoriesList()
-const { roots, childrenOf } = useCategoryTree(categories)
+const { categories, status } = useCategoriesList();
+const { roots, childrenOf } = useCategoryTree(categories);
 
 // Only one category can be expanded at a time
-const expandedSlug = ref<string | null>(null)
+const expandedSlug = ref<string | null>(null);
 
-function toggleExpand(slug: string) {
-  expandedSlug.value = unref(expandedSlug) === slug ? null : slug
+function _toggleExpand(slug: string) {
+	expandedSlug.value = unref(expandedSlug) === slug ? null : slug;
 }
 
-function parentState(parentSlug: string): 'all' | 'some' | 'none' {
-  const children = childrenOf(parentSlug)
-  if (children.length === 0) {
-    return model.value?.has(parentSlug) ? 'all' : 'none'
-  }
-  const selectedCount = children.filter(c => model.value?.has(c.slug)).length
-  if (selectedCount === 0 && !model.value?.has(parentSlug)) return 'none'
-  if (selectedCount === children.length) return 'all'
-  return 'some'
+function parentState(parentSlug: string): "all" | "some" | "none" {
+	const children = childrenOf(parentSlug);
+	if (children.length === 0) {
+		return model.value?.has(parentSlug) ? "all" : "none";
+	}
+	const selectedCount = children.filter((c) => model.value?.has(c.slug)).length;
+	if (selectedCount === 0 && !model.value?.has(parentSlug)) return "none";
+	if (selectedCount === children.length) return "all";
+	return "some";
 }
 
-function toggleParent(parentSlug: string) {
-  const children = childrenOf(parentSlug)
-  const next = new Set(model.value)
-  const state = parentState(parentSlug)
+function _toggleParent(parentSlug: string) {
+	const children = childrenOf(parentSlug);
+	const next = new Set(model.value);
+	const state = parentState(parentSlug);
 
-  if (state === 'all') {
-    // Deselect all
-    next.delete(parentSlug)
-    children.forEach(c => next.delete(c.slug))
-  }
-  else {
-    // Select all
-    next.add(parentSlug)
-    children.forEach(c => next.add(c.slug))
-  }
-  model.value = next
+	if (state === "all") {
+		// Deselect all
+		next.delete(parentSlug);
+		for (const c of children) next.delete(c.slug);
+	} else {
+		// Select all
+		next.add(parentSlug);
+		for (const c of children) next.add(c.slug);
+	}
+	model.value = next;
 }
 
-function toggleChild(parentSlug: string, childSlug: string) {
-  const children = childrenOf(parentSlug)
-  const next = new Set(model.value)
+function _toggleChild(parentSlug: string, childSlug: string) {
+	const children = childrenOf(parentSlug);
+	const next = new Set(model.value);
 
-  if (next.has(childSlug)) {
-    next.delete(childSlug)
-    next.delete(parentSlug)
-  }
-  else {
-    next.add(childSlug)
-    // If all children now selected, also select parent
-    if (children.every(c => c.slug === childSlug || next.has(c.slug))) {
-      next.add(parentSlug)
-    }
-  }
-  model.value = next
+	if (next.has(childSlug)) {
+		next.delete(childSlug);
+		next.delete(parentSlug);
+	} else {
+		next.add(childSlug);
+		// If all children now selected, also select parent
+		if (children.every((c) => c.slug === childSlug || next.has(c.slug))) {
+			next.add(parentSlug);
+		}
+	}
+	model.value = next;
 }
 </script>
 

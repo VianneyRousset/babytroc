@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ArrowLeft } from 'lucide-vue-next'
-
 const props = defineProps<{
-  fallback?: string
-}>()
+	fallback?: string;
+}>();
 
-const { fallback } = toRefs(props)
+const { fallback } = toRefs(props);
 
-const { goBack } = useNavigation()
+const { goBack } = useNavigation();
 </script>
 
 <template>

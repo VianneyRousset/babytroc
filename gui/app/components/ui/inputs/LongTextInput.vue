@@ -1,58 +1,56 @@
 <script setup lang="ts">
-import { Check, TriangleAlert } from 'lucide-vue-next'
-
 export type LongTextInputProps = {
-  placeholder?: string
-  autofocus?: boolean
-  tabindex?: number
-  status?: 'idle' | 'pending' | 'success' | 'error'
-  disabled?: boolean
-}
+	placeholder?: string;
+	autofocus?: boolean;
+	tabindex?: number;
+	status?: "idle" | "pending" | "success" | "error";
+	disabled?: boolean;
+};
 
-const model = defineModel<string>({ default: '' })
-const emit = defineEmits(['blur', 'submit'])
+const model = defineModel<string>({ default: "" });
+const emit = defineEmits(["blur", "submit"]);
 
 const props = withDefaults(defineProps<LongTextInputProps>(), {
-  status: 'idle',
-  disabled: false,
-})
+	status: "idle",
+	disabled: false,
+});
 
-const textarea = useTemplateRef<HTMLTextAreaElement>('textarea')
+const textarea = useTemplateRef<HTMLTextAreaElement>("textarea");
 
 // monitor icons container width to add padding to textarea element
 // thus avoiding overlaps
 const { width: iconsWidth } = useElementSize(
-  useTemplateRef<HTMLElement>('icons'),
-  undefined,
-  { box: 'border-box' },
-)
+	useTemplateRef<HTMLElement>("icons"),
+	undefined,
+	{ box: "border-box" },
+);
 
 useTextareaAutosize({
-  element: textarea,
-  input: model,
-  styleProp: 'minHeight',
-  watch: iconsWidth,
-})
+	element: textarea,
+	input: model,
+	styleProp: "minHeight",
+	watch: iconsWidth,
+});
 
-watch(textarea, _el => _el && props.autofocus ? _el.focus() : undefined)
+watch(textarea, (_el) => (_el && props.autofocus ? _el.focus() : undefined));
 
-const blur = () => unref(textarea)?.blur()
+const _blur = () => unref(textarea)?.blur();
 
-function enterDown(event: KeyboardEvent) {
-  // ignore keydown enter if shift is not rpressed
-  if (!event.shiftKey) event.preventDefault()
+function _enterDown(event: KeyboardEvent) {
+	// ignore keydown enter if shift is not rpressed
+	if (!event.shiftKey) event.preventDefault();
 }
 
-function enterUp(event: KeyboardEvent) {
-  // if shift key is pressed, handle it as a normal line return
-  if (event.shiftKey) return
+function _enterUp(event: KeyboardEvent) {
+	// if shift key is pressed, handle it as a normal line return
+	if (event.shiftKey) return;
 
-  event.preventDefault()
-  submit()
+	event.preventDefault();
+	submit();
 }
 
 function submit() {
-  emit('submit', model.value ?? '')
+	emit("submit", model.value ?? "");
 }
 </script>
 

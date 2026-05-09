@@ -1,26 +1,28 @@
 <script setup lang="ts">
-const model = defineModel<Set<number>>()
+const model = defineModel<Set<number>>();
 
-const props = withDefaults(defineProps<{
-  editable?: boolean
-}>(), {
-  editable: false,
-})
+const props = withDefaults(
+	defineProps<{
+		editable?: boolean;
+	}>(),
+	{
+		editable: false,
+	},
+);
 
-const { editable } = toRefs(props)
+const { editable } = toRefs(props);
 
-function toggle(regionId: number) {
-  // prevent modification if not editable
-  if (!unref(editable) || !model.value) return
+function _toggle(regionId: number) {
+	// prevent modification if not editable
+	if (!unref(editable) || !model.value) return;
 
-  const next = new Set(model.value)
-  if (next.has(regionId)) {
-    next.delete(regionId)
-  }
-  else {
-    next.add(regionId)
-  }
-  model.value = next
+	const next = new Set(model.value);
+	if (next.has(regionId)) {
+		next.delete(regionId);
+	} else {
+		next.add(regionId);
+	}
+	model.value = next;
 }
 </script>
 

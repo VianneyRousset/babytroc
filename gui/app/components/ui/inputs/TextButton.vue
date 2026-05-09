@@ -1,51 +1,54 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { LucideIcon } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
 const props = withDefaults(
-  defineProps<{
-    aspect?: 'flat' | 'outline'
-    size?: 'large' | 'normal' | 'small'
-    color?: 'neutral' | 'primary' | 'red'
-    loading?: boolean
-    timeout?: number
-    disabled?: boolean
-    icon?: LucideIcon
-    target?: string | RouteLocationGeneric
-  }>(),
-  {
-    aspect: 'flat',
-    size: 'normal',
-    color: 'neutral',
-    loading: false,
-    timeout: 500,
-    disabled: false,
-  },
-)
-const { aspect, size, color, loading, timeout, disabled, icon, target } = toRefs(props)
+	defineProps<{
+		aspect?: "flat" | "outline";
+		size?: "large" | "normal" | "small";
+		color?: "neutral" | "primary" | "red";
+		loading?: boolean;
+		timeout?: number;
+		disabled?: boolean;
+		icon?: LucideIcon;
+		target?: string | RouteLocationGeneric;
+	}>(),
+	{
+		aspect: "flat",
+		size: "normal",
+		color: "neutral",
+		loading: false,
+		timeout: 500,
+		disabled: false,
+	},
+);
+const { aspect, size, color, loading, timeout, disabled, icon, target } =
+	toRefs(props);
 
-const { value: longLoading } = useThrottle(loading, timeout)
+const { value: longLoading } = useThrottle(loading, timeout);
 
-const slots = useSlots()
+const _slots = useSlots();
 
-const iconSize = computed(() => ({ small: 16, normal: 24, large: 32 }[unref(size)]))
+const _iconSize = computed(
+	() => ({ small: 16, normal: 24, large: 32 })[unref(size)],
+);
 
-const classes = computed(() => ({
-  large: unref(size) === 'large',
-  small: unref(size) === 'small',
+const _classes = computed(() => ({
+	large: unref(size) === "large",
+	small: unref(size) === "small",
 
-  flat: unref(aspect) === 'flat',
-  outline: unref(aspect) === 'outline',
+	flat: unref(aspect) === "flat",
+	outline: unref(aspect) === "outline",
 
-  disabled: unref(disabled),
+	disabled: unref(disabled),
 
-  primary: unref(color) === 'primary',
-  red: unref(color) === 'red',
+	primary: unref(color) === "primary",
+	red: unref(color) === "red",
 
-  loading: unref(loading),
-}))
+	loading: unref(loading),
+}));
 
-const NuxtLink = resolveComponent('NuxtLink')
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

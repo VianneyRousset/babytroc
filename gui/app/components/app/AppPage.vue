@@ -4,82 +4,95 @@
  *
  **/
 
-import { HeartCrack } from 'lucide-vue-next'
-
 const props = withDefaults(
-  defineProps<{
-    // if false, the bar stays visible
-    // if true, the bar is hidden when scrolling down
-    hideBarOnScroll?: boolean
+	defineProps<{
+		// if false, the bar stays visible
+		// if true, the bar is hidden when scrolling down
+		hideBarOnScroll?: boolean;
 
-    // min scroll y value to hide the bar
-    // default to 0
-    hideBarScrollOffset?: number
+		// min scroll y value to hide the bar
+		// default to 0
+		hideBarScrollOffset?: number;
 
-    // save the page scroll position with the given name
-    savedScroll?: string
+		// save the page scroll position with the given name
+		savedScroll?: string;
 
-    // set infinite scroll to app page content
-    infiniteScroll?: boolean
+		// set infinite scroll to app page content
+		infiniteScroll?: boolean;
 
-    // ininite scroll distance
-    infiniteScrollDistance?: number
+		// ininite scroll distance
+		infiniteScrollDistance?: number;
 
-    // do not apply custom styling
-    customStyling?: boolean
+		// do not apply custom styling
+		customStyling?: boolean;
 
-    // max width
-    maxWidth?: number
+		// max width
+		maxWidth?: number;
 
-    withHeader?: boolean
-    loggedInOnly?: boolean
-  }>(),
-  {
-    hideBarOnScroll: false,
-    infiniteScroll: false,
-    empty: false,
-    withHeader: false,
-    loggedInOnly: false,
-    maxWidth: 1400,
-  },
-)
+		withHeader?: boolean;
+		loggedInOnly?: boolean;
+	}>(),
+	{
+		hideBarOnScroll: false,
+		infiniteScroll: false,
+		empty: false,
+		withHeader: false,
+		loggedInOnly: false,
+		maxWidth: 1400,
+	},
+);
 
-const emit = defineEmits<{
-  (event: 'more'): void
-}>()
+const emit = defineEmits<(event: "more") => void>();
 
-const { hideBarOnScroll, hideBarScrollOffset, savedScroll, infiniteScroll, infiniteScrollDistance, maxWidth, loggedInOnly, customStyling } = toRefs(props)
+const {
+	hideBarOnScroll,
+	hideBarScrollOffset,
+	savedScroll,
+	infiniteScroll,
+	infiniteScrollDistance,
+	maxWidth,
+	loggedInOnly,
+	customStyling,
+} = toRefs(props);
 
-const device = useDevice()
+const device = useDevice();
 
-const slots = useSlots()
-const route = useRoute()
+const _slots = useSlots();
+const route = useRoute();
 
 // Auto-render AppBack from page meta
-const appBack = computed(() => route.meta.appBack)
-const showAutoBack = computed(() => appBack.value != null && appBack.value !== false)
-const appTitle = computed(() => (route.meta.appTitle as string | undefined) ?? '')
+const appBack = computed(() => route.meta.appBack);
+const _showAutoBack = computed(
+	() => appBack.value != null && appBack.value !== false,
+);
+const _appTitle = computed(
+	() => (route.meta.appTitle as string | undefined) ?? "",
+);
 
 // whether to show loggin screen or not
-const { loggedIn, loginRoute } = useAuth()
-const loginScreen = computed(() => unref(loggedInOnly) && unref(loggedIn) !== true)
+const { loggedIn, loginRoute } = useAuth();
+const _loginScreen = computed(
+	() => unref(loggedInOnly) && unref(loggedIn) !== true,
+);
 
 // get header bar height and provide it to children elements
 // if no bar is present (e.g. in desktop mode), the height is 0
 const { height: appHeaderBarHeight } = useElementSize(
-  useTemplateRef('app-header-bar'),
-  undefined,
-  { box: 'border-box' },
-)
-provide('app-header-bar-height', appHeaderBarHeight)
+	useTemplateRef("app-header-bar"),
+	undefined,
+	{ box: "border-box" },
+);
+provide("app-header-bar-height", appHeaderBarHeight);
 
 // set infinite scroll
-const page = useTemplateRef<HTMLDivElement>('page')
+const page = useTemplateRef<HTMLDivElement>("page");
 useInfiniteScroll(
-  computed(() => unref(infiniteScroll) ? (device.isMobile ? unref(page) : document) : null),
-  () => emit('more'),
-  { distance: unref(infiniteScrollDistance) },
-)
+	computed(() =>
+		unref(infiniteScroll) ? (device.isMobile ? unref(page) : document) : null,
+	),
+	() => emit("more"),
+	{ distance: unref(infiniteScrollDistance) },
+);
 </script>
 
 <template>

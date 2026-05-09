@@ -1,31 +1,32 @@
 <script setup lang="ts">
-const model = defineModel<Set<number>>()
+const model = defineModel<Set<number>>();
 
-const props = withDefaults(defineProps<{
-  editable?: boolean
-  columns?: number
-}>(), {
-  editable: false,
-  columns: 3,
-})
+const props = withDefaults(
+	defineProps<{
+		editable?: boolean;
+		columns?: number;
+	}>(),
+	{
+		editable: false,
+		columns: 3,
+	},
+);
 
-const { editable, columns } = toRefs(props)
+const { editable, columns } = toRefs(props);
 
-function toggle(regionId: number) {
-  const _model = unref(model)
+function _toggle(regionId: number) {
+	const _model = unref(model);
 
-  if (_model == null)
-    return
+	if (_model == null) return;
 
-  if (_model.has(regionId)) {
-    _model.delete(regionId)
-  }
-  else {
-    _model.add(regionId)
-  }
+	if (_model.has(regionId)) {
+		_model.delete(regionId);
+	} else {
+		_model.add(regionId);
+	}
 }
 
-const { regions } = useRegionsList()
+const { regions } = useRegionsList();
 </script>
 
 <template>

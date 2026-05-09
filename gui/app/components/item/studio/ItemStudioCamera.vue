@@ -1,36 +1,36 @@
 <script setup lang="ts">
-const emit = defineEmits<(event: 'new-image', img: StudioImage) => void>()
+const emit = defineEmits<(event: "new-image", img: StudioImage) => void>();
 
-const video = useTemplateRef<HTMLVideoElement>('video')
+const video = useTemplateRef<HTMLVideoElement>("video");
 const {
-  capture: recordImage,
-  width: videoWidth,
-  height: videoHeight,
-  aspectRatio: videoAspectRatio,
-} = useVideoCamera(video)
+	capture: recordImage,
+	width: videoWidth,
+	height: videoHeight,
+	aspectRatio: videoAspectRatio,
+} = useVideoCamera(video);
 
-const {
-  width,
-  height,
-} = useObjectFit(
-  useTemplateRef<HTMLElement>('container'),
-  videoAspectRatio,
-  'cover',
-)
+const { width, height } = useObjectFit(
+	useTemplateRef<HTMLElement>("container"),
+	videoAspectRatio,
+	"cover",
+);
 
 defineExpose({
-  capture: () => {
-    const _w = unref(videoWidth)
-    const _h = unref(videoHeight)
+	capture: () => {
+		const _w = unref(videoWidth);
+		const _h = unref(videoHeight);
 
-    if (_w == null || _h == null)
-      throw new Error(`Invalid video dimensions ${_w}x${_h}`)
+		if (_w == null || _h == null)
+			throw new Error(`Invalid video dimensions ${_w}x${_h}`);
 
-    const _s: number = Math.min(_w, _h)
-    const image = useStudioImage(recordImage(), { crop: 'center', maxSize: 1024 })
-    emit('new-image', image)
-  },
-})
+		const _s: number = Math.min(_w, _h);
+		const image = useStudioImage(recordImage(), {
+			crop: "center",
+			maxSize: 1024,
+		});
+		emit("new-image", image);
+	},
+});
 </script>
 
 <template>

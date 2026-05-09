@@ -1,30 +1,29 @@
 <script setup lang="ts">
-const model = defineModel<Set<number>>()
+const model = defineModel<Set<number>>();
 
 const props = withDefaults(
-  defineProps<{
-    size?: 'large' | 'normal'
-  }>(),
-  {
-    size: 'normal',
-  },
-)
+	defineProps<{
+		size?: "large" | "normal";
+	}>(),
+	{
+		size: "normal",
+	},
+);
 
-const { size } = toRefs(props)
+const { size } = toRefs(props);
 
-function onChange(regionId: number, state: boolean) {
-  if (!model.value) return
-  const next = new Set(model.value)
-  if (state) {
-    next.add(regionId)
-  }
-  else {
-    next.delete(regionId)
-  }
-  model.value = next
+function _onChange(regionId: number, state: boolean) {
+	if (!model.value) return;
+	const next = new Set(model.value);
+	if (state) {
+		next.add(regionId);
+	} else {
+		next.delete(regionId);
+	}
+	model.value = next;
 }
 
-const { regions, status } = useRegionsList()
+const { regions, status } = useRegionsList();
 </script>
 
 <template>

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 const props = defineProps<{
-  slugs: string[]
-}>()
+	slugs: string[];
+}>();
 
-const { categories } = useCategoriesList()
+const { categories } = useCategoriesList();
 
-const resolved = computed(() => {
-  const all = unref(categories) ?? []
-  return props.slugs
-    .map(slug => all.find(c => c.slug === slug))
-    .filter(c => c != null)
-})
+const _resolved = computed(() => {
+	const all = unref(categories) ?? [];
+	return props.slugs
+		.map((slug) => all.find((c) => c.slug === slug))
+		.filter((c) => c != null);
+});
 </script>
 
 <template>

@@ -1,44 +1,44 @@
 <script setup lang="ts">
-import { Check, TriangleAlert, Eye, EyeOff } from 'lucide-vue-next'
-
-type InputType = ('email' | 'password' | 'search' | 'tel' | 'text' | 'url')
+type InputType = "email" | "password" | "search" | "tel" | "text" | "url";
 
 export type TextInputProps = {
-  placeholder?: string
-  type?: InputType
-  autofocus?: boolean
-  tabindex?: number
-  status?: 'idle' | 'pending' | 'success' | 'error'
-  disabled?: boolean
-}
+	placeholder?: string;
+	type?: InputType;
+	autofocus?: boolean;
+	tabindex?: number;
+	status?: "idle" | "pending" | "success" | "error";
+	disabled?: boolean;
+};
 
-const model = defineModel<string>()
-const emit = defineEmits(['blur'])
+const _model = defineModel<string>();
+const _emit = defineEmits(["blur"]);
 
 const props = withDefaults(defineProps<TextInputProps>(), {
-  status: 'idle',
-  disabled: false,
-})
+	status: "idle",
+	disabled: false,
+});
 
-const inputElement = useTemplateRef<HTMLElement>('input')
+const inputElement = useTemplateRef<HTMLElement>("input");
 
-watch(inputElement, _el => _el && props.autofocus ? _el.focus() : undefined)
+watch(inputElement, (_el) =>
+	_el && props.autofocus ? _el.focus() : undefined,
+);
 
-const showPassword = ref<boolean>(false)
+const showPassword = ref<boolean>(false);
 
 // monitor icons container width to add padding to input element
 // thus avoiding overlaps
 const { width: iconsWidth } = useElementSize(
-  useTemplateRef<HTMLElement>('icons'),
-  undefined,
-  { box: 'border-box' },
-)
+	useTemplateRef<HTMLElement>("icons"),
+	undefined,
+	{ box: "border-box" },
+);
 
-const type = computed(() => {
-  if (props.type === 'password')
-    return unref(showPassword) ? 'text' : 'password'
-  return props.type
-})
+const _type = computed(() => {
+	if (props.type === "password")
+		return unref(showPassword) ? "text" : "password";
+	return props.type;
+});
 </script>
 
 <template>

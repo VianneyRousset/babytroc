@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import VSwitch from '@lmiller1990/v-switch'
-import { ChatMessageType } from '~/types/chat'
-
 const props = defineProps<{
-  messages: Array<ChatMessage>
-  chat: Chat
-  me: UserPrivate
-}>()
+	messages: Array<ChatMessage>;
+	chat: Chat;
+	me: UserPrivate;
+}>();
 
-const { messages, chat, me } = toRefs(props)
+const { messages, chat, me } = toRefs(props);
 
 // group messages
-const { dateGroups } = useChatMessageDateGroups(messages, me)
+const { dateGroups } = useChatMessageDateGroups(messages, me);
 
-const { isUserBorrowing } = useChatRoles(chat, me)
+const { isUserBorrowing } = useChatRoles(chat, me);
 </script>
 
 <template>

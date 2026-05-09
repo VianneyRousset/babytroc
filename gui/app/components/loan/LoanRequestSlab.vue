@@ -1,32 +1,41 @@
 <script setup lang="ts">
-import { Clock, CheckCircle, XCircle } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import { CheckCircle, Clock, XCircle } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
-const props = withDefaults(defineProps<{
-  loanRequest: LoanRequest
-  target?: string | RouteLocationGeneric
-  chevron?: boolean
-}>(), {
-  chevron: false,
-})
+const props = withDefaults(
+	defineProps<{
+		loanRequest: LoanRequest;
+		target?: string | RouteLocationGeneric;
+		chevron?: boolean;
+	}>(),
+	{
+		chevron: false,
+	},
+);
 
-const { loanRequest } = toRefs(props)
+const { loanRequest } = toRefs(props);
 
-const stateLabel = computed(() => {
-  switch (unref(loanRequest).state) {
-    case 1: return 'En attente'
-    case 3: return 'Acceptée'
-    default: return ''
-  }
-})
+const _stateLabel = computed(() => {
+	switch (unref(loanRequest).state) {
+		case 1:
+			return "En attente";
+		case 3:
+			return "Acceptée";
+		default:
+			return "";
+	}
+});
 
-const stateIcon = computed(() => {
-  switch (unref(loanRequest).state) {
-    case 1: return Clock
-    case 3: return CheckCircle
-    default: return XCircle
-  }
-})
+const _stateIcon = computed(() => {
+	switch (unref(loanRequest).state) {
+		case 1:
+			return Clock;
+		case 3:
+			return CheckCircle;
+		default:
+			return XCircle;
+	}
+});
 </script>
 
 <template>

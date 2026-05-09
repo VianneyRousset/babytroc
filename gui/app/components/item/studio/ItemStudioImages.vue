@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import { Plus } from 'lucide-vue-next'
-import draggable from 'vuedraggable'
-
-const images = defineModel<Array<StudioImage>>()
+const _images = defineModel<Array<StudioImage>>();
 
 const props = defineProps<{
-  selected?: number
-}>()
+	selected?: number;
+}>();
 
-const { selected } = toRefs(props)
+const { selected } = toRefs(props);
 
-const emit = defineEmits<(e: 'select', id: number | undefined) => void>()
+const emit = defineEmits<(e: "select", id: number | undefined) => void>();
 
-function select(event: { item: HTMLElement }) {
-  const id = Number.parseInt(event.item.getAttribute('element-id') ?? '')
-  emit('select', isNaN(id) ? undefined : id)
+function _select(event: { item: HTMLElement }) {
+	const id = Number.parseInt(event.item.getAttribute("element-id") ?? "", 10);
+	emit("select", Number.isNaN(id) ? undefined : id);
 }
 </script>
 

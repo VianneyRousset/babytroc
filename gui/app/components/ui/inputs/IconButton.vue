@@ -1,27 +1,35 @@
 <script setup lang="ts">
-import { Square, type LucideIcon } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { LucideIcon } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
 const props = withDefaults(
-  defineProps<{
-    active?: boolean
-    disabled?: boolean
-    icon?: LucideIcon
-    target?: string | RouteLocationGeneric
-    size?: number
-    strokeWidth?: number
-    absoluteStrokeWidth?: boolean
-  }>(),
-  {
-    active: false,
-    disabled: false,
-    size: 32,
-  },
-)
+	defineProps<{
+		active?: boolean;
+		disabled?: boolean;
+		icon?: LucideIcon;
+		target?: string | RouteLocationGeneric;
+		size?: number;
+		strokeWidth?: number;
+		absoluteStrokeWidth?: boolean;
+	}>(),
+	{
+		active: false,
+		disabled: false,
+		size: 32,
+	},
+);
 
-const { disabled, active, icon, target, size, strokeWidth, absoluteStrokeWidth } = toRefs(props)
+const {
+	disabled,
+	active,
+	icon,
+	target,
+	size,
+	strokeWidth,
+	absoluteStrokeWidth,
+} = toRefs(props);
 
-const NuxtLink = resolveComponent('NuxtLink')
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

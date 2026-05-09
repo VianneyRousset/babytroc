@@ -1,53 +1,47 @@
 <script setup lang="ts" generic="T extends { owned?: boolean | null, active_loan_request?: LoanRequest | null, active_loan?: Loan | null }">
-import VSwitch from '@lmiller1990/v-switch'
-import { ChevronRight } from 'lucide-vue-next'
-
 const props = defineProps<{
-  item: T
-}>()
+	item: T;
+}>();
 
-const router = useRouter()
+const router = useRouter();
 
-const { item } = toRefs(props)
+const { item } = toRefs(props);
 
-const state = computed<'none' | 'activeBorrowingRequest' | 'activeBorrowing' | 'activeLoan'>(() => {
-  const _item = unref(item)
+const _state = computed<
+	"none" | "activeBorrowingRequest" | "activeBorrowing" | "activeLoan"
+>(() => {
+	const _item = unref(item);
 
-  if (_item.owned === true) {
-    if (_item.active_loan)
-      return 'activeLoan'
-  }
-  else {
-    if (_item.active_loan != null) {
-      return 'activeBorrowing'
-    }
-    else if (_item.loan_request != null) {
-      return 'activeBorrowingRequest'
-    }
-  }
+	if (_item.owned === true) {
+		if (_item.active_loan) return "activeLoan";
+	} else {
+		if (_item.active_loan != null) {
+			return "activeBorrowing";
+		} else if (_item.loan_request != null) {
+			return "activeBorrowingRequest";
+		}
+	}
 
-  return 'none'
-})
+	return "none";
+});
 
-function navigateToChat() {
-  const _item = unref(item)
+function _navigateToChat() {
+	const _item = unref(item);
 
-  if (_item == null)
-    throw new Error('Cannot navigate to chat if item is null')
+	if (_item == null) throw new Error("Cannot navigate to chat if item is null");
 
-  const chatId = _item.active_loan ?? _item.loan_request
+	const chatId = _item.active_loan ?? _item.loan_request;
 
-  if (chatId == null)
-    throw new Error('Cannot deduce chat id')
+	if (chatId == null) throw new Error("Cannot deduce chat id");
 
-  return navigateTo(
-    router.resolve({
-      name: 'chats-chat_id',
-      params: {
-        chat_id: chatId,
-      },
-    }),
-  )
+	return navigateTo(
+		router.resolve({
+			name: "chats-chat_id",
+			params: {
+				chat_id: chatId,
+			},
+		}),
+	);
 }
 </script>
 

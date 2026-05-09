@@ -1,15 +1,18 @@
 <script setup lang="ts">
-const { loggedIn } = useAuth()
+const { loggedIn } = useAuth();
 
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-})
+	layout: "me",
+	appBack: true,
+});
 
 // redirect once logged in
-const { redirect } = useRedirect()
-const stop = watch(loggedIn, (newState, oldState) => (oldState === false && newState === true) && redirect())
-tryOnUnmounted(stop)
+const { redirect } = useRedirect();
+const stop = watch(
+	loggedIn,
+	(newState, oldState) => oldState === false && newState === true && redirect(),
+);
+tryOnUnmounted(stop);
 </script>
 
 <template>

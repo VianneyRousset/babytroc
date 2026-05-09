@@ -1,11 +1,16 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Demandes de prêts',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Demandes de prêts",
+});
 
-const { loans: requests, isLoading, error, loadMore } = useMeLoanRequests({ active: true })
+const {
+	loans: requests,
+	isLoading,
+	error,
+	loadMore,
+} = useMeLoanRequests({ active: true });
 </script>
 
 <template>

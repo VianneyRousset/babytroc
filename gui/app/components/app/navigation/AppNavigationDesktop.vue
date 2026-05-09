@@ -1,22 +1,22 @@
 <script setup lang="ts">
-const { appSectionUrls, activeAppSection } = useNavigation()
+const { appSectionUrls, activeAppSection } = useNavigation();
 
-const { hot } = useChats()
+const { hot } = useChats();
 
-const { narrowWindow } = useNarrowWindow()
+const { narrowWindow } = useNarrowWindow();
 
 type ClassSpecifications = {
-  section: AppSection
-  name?: string
-  badge?: boolean
-  class?: Record<string, boolean>
-}
+	section: AppSection;
+	name?: string;
+	badge?: boolean;
+	class?: Record<string, boolean>;
+};
 
-const tabs = computed<Array<ClassSpecifications>>(() => [
-  { section: 'explore', name: 'Explorer' },
-  { section: 'saved', name: 'Favorits' },
-  { section: 'chats', name: 'Chats', badge: unref(hot) },
-])
+const _tabs = computed<Array<ClassSpecifications>>(() => [
+	{ section: "explore", name: "Explorer" },
+	{ section: "saved", name: "Favorits" },
+	{ section: "chats", name: "Chats", badge: unref(hot) },
+]);
 </script>
 
 <template>

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { MessageCircleQuestion, Archive } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Mes emprunts',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Mes emprunts",
+});
 
-const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: true })
+const { loans, isLoading, error, loadMore } = useMeBorrowings({ active: true });
 </script>
 
 <template>

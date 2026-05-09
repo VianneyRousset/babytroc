@@ -1,30 +1,31 @@
 <script setup lang="ts" generic="T extends ItemPreview">
-import { Heart, Clock } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { RouteLocationGeneric } from "vue-router";
 
 // TODO "missing image" if item.image is missing
 
 const props = defineProps<{
-  item: T
-  target?: string | RouteLocationGeneric
-}>()
+	item: T;
+	target?: string | RouteLocationGeneric;
+}>();
 
-const { item } = toRefs(props)
+const { item } = toRefs(props);
 
-const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item)
-const { firstImageName } = useItemFirstImage(item)
+const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item);
+const { firstImageName } = useItemFirstImage(item);
 
-const backgroundImage = computed(() => {
-  const backgrounds = []
+const _backgroundImage = computed(() => {
+	const backgrounds = [];
 
-  backgrounds.push('linear-gradient(transparent 0 40%, rgba(18, 28, 20, 0.85) 100%)')
-  backgrounds.push(`url('${imagePath(unref(firstImageName), 512)}')`)
-  backgrounds.push(`url('${imagePath(unref(firstImageName), 128)}')`)
+	backgrounds.push(
+		"linear-gradient(transparent 0 40%, rgba(18, 28, 20, 0.85) 100%)",
+	);
+	backgrounds.push(`url('${imagePath(unref(firstImageName), 512)}')`);
+	backgrounds.push(`url('${imagePath(unref(firstImageName), 128)}')`);
 
-  return backgrounds.join(', ')
-})
+	return backgrounds.join(", ");
+});
 
-const NuxtLink = resolveComponent('NuxtLink')
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

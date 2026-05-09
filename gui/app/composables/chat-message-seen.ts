@@ -10,43 +10,59 @@
  *                         is already seen and whatever is the origin.
  **/
 export function useChatMessageSeen<
-  MessageT extends { id: number, chat_id: string, seen: boolean, sender_id: number | null },
-  UserT extends { id: number },
+	MessageT extends {
+		id: number;
+		chat_id: string;
+		seen: boolean;
+		sender_id: number | null;
+	},
+	UserT extends { id: number },
 >(
-  message: MaybeRefOrGetter<MessageT>,
-  me: MaybeRefOrGetter<UserT>,
-  options: {
-    monitor?: MaybeRefOrGetter<HTMLElement | undefined | null>
-    timeout?: MaybeRefOrGetter<number>
-  },
+	message: MaybeRefOrGetter<MessageT>,
+	me: MaybeRefOrGetter<UserT>,
+	options: {
+		monitor?: MaybeRefOrGetter<HTMLElement | undefined | null>;
+		timeout?: MaybeRefOrGetter<number>;
+	},
 ): {
-  hot: MaybeRefOrGetter<boolean>
-  markAsSeen: () => Promise<void>
+	hot: MaybeRefOrGetter<boolean>;
+	markAsSeen: () => Promise<void>;
 } {
-  // if the element `monitor` is visible for `timeout` ms, call `markAsSeen`
-  const { value: visible } = useThrottle(useElementVisibility(() => toValue(options.monitor)), () => toValue(options.timeout) ?? 2000)
-  const stop = watch(visible, state => state === true && markAsSeen(), { immediate: true })
+	// if the element `monitor` is visible for `timeout` ms, call `markAsSeen`
+	const { value: visible } = useThrottle(
+		useElementVisibility(() => toValue(options.monitor)),
+		() => toValue(options.timeout) ?? 2000,
+	);
+	const stop = watch(visible, (state) => state === true && markAsSeen(), {
+		immediate: true,
+	});
 
-  // is unseen for me
-  const hot = computed(() => getChatMessageHot(toValue(message), toValue(me)))
+	// is unseen for me
+	const hot = computed(() => getChatMessageHot(toValue(message), toValue(me)));
 
-  // mutation to mark as seen
-  const { asyncStatus, mutateAsync } = useMarkChatMessageAsSeenMutation(message)
+	// mutation to mark as seen
+	const { asyncStatus, mutateAsync } =
+		useMarkChatMessageAsSeenMutation(message);
 
-  async function markAsSeen() {
-    const _msg = toValue(message)
+	async function markAsSeen() {
+		const _msg = toValue(message);
 
-    // skip if message is already marked as seen, if the sender is me or if a request
-    // is already pending
-    if (_msg.seen || _msg.sender_id === toValue(me).id || toValue(asyncStatus) === 'loading') return
+		// skip if message is already marked as seen, if the sender is me or if a request
+		// is already pending
+		if (
+			_msg.seen ||
+			_msg.sender_id === toValue(me).id ||
+			toValue(asyncStatus) === "loading"
+		)
+			return;
 
-    await mutateAsync()
-  }
+		await mutateAsync();
+	}
 
-  tryOnUnmounted(stop)
+	tryOnUnmounted(stop);
 
-  return {
-    hot,
-    markAsSeen,
-  }
+	return {
+		hot,
+		markAsSeen,
+	};
 }

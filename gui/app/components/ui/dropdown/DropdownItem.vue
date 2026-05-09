@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { LucideIcon } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
-const props = withDefaults(defineProps<{
-  target?: string | RouteLocationGeneric
-  icon?: LucideIcon
-  red?: boolean
-}>(), {
-  red: false,
-})
+const props = withDefaults(
+	defineProps<{
+		target?: string | RouteLocationGeneric;
+		icon?: LucideIcon;
+		red?: boolean;
+	}>(),
+	{
+		red: false,
+	},
+);
 
-const { target, icon, red } = toRefs(props)
+const { target, icon, red } = toRefs(props);
 
-const menuOpen = inject('dropdown-menu-open')
-const NuxtLink = resolveComponent('NuxtLink')
+const _menuOpen = inject("dropdown-menu-open");
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

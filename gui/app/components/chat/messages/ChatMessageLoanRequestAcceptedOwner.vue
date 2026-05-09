@@ -1,31 +1,28 @@
 <script setup lang="ts">
-import { PartyPopper, X } from 'lucide-vue-next'
-import { LoanRequestState } from '~/types/loan'
-
 const props = defineProps<{
-  message: ChatMessage
-  me: UserPrivate
-  chat: Chat
-  loanRequestId: number
-}>()
+	message: ChatMessage;
+	me: UserPrivate;
+	chat: Chat;
+	loanRequestId: number;
+}>();
 
 // chat
-const { me, chat, message, loanRequestId } = toRefs(props)
+const { me, chat, message, loanRequestId } = toRefs(props);
 
 // get loan request
 const { data: loanRequest } = useItemLoanRequestQuery({
-  itemId: () => unref(chat).item.id,
-  loanRequestId,
-})
+	itemId: () => unref(chat).item.id,
+	loanRequestId,
+});
 
 // muations
 const {
-  mutateAsync: rejectLoanRequest,
-  asyncStatus: rejectLoanRequestAsyncStatus,
-} = useRejectLoanRequestMutation()
+	mutateAsync: rejectLoanRequest,
+	asyncStatus: rejectLoanRequestAsyncStatus,
+} = useRejectLoanRequestMutation();
 
 // popup
-const showPopup = ref(false)
+const _showPopup = ref(false);
 </script>
 
 <template>

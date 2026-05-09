@@ -1,45 +1,46 @@
 <script setup lang="ts">
-import { Images, Camera, ArrowRight } from 'lucide-vue-next'
-
-const props = withDefaults(defineProps<{
-  disableShoot?: boolean
-  disableGallery?: boolean
-  disableDone?: boolean
-}>(),
-{
-  disableShoot: false,
-  disableGallery: false,
-  disableDone: false,
-},
-)
+const props = withDefaults(
+	defineProps<{
+		disableShoot?: boolean;
+		disableGallery?: boolean;
+		disableDone?: boolean;
+	}>(),
+	{
+		disableShoot: false,
+		disableGallery: false,
+		disableDone: false,
+	},
+);
 
 const emit = defineEmits<{
-  (event: 'capture' | 'done'): void
-  (event: 'new-image', img: StudioImage): void
-}>()
+	(event: "capture" | "done"): void;
+	(event: "new-image", img: StudioImage): void;
+}>();
 
-const { disableShoot, disableGallery } = toRefs(props)
+const { disableShoot, disableGallery } = toRefs(props);
 
 const { open, onChange } = useFileDialog({
-  accept: 'image/*',
-  reset: true,
-})
+	accept: "image/*",
+	reset: true,
+});
 
 onChange((files) => {
-  for (const file of files ?? [])
-    emitImageFromFile(file)
-})
+	for (const file of files ?? []) emitImageFromFile(file);
+});
 
 function emitImageFromFile(file: File) {
-  const fileReader = new FileReader()
-  fileReader.onload = () => {
-    if (typeof fileReader.result !== 'string')
-      throw new Error('File reader result is not a string')
+	const fileReader = new FileReader();
+	fileReader.onload = () => {
+		if (typeof fileReader.result !== "string")
+			throw new Error("File reader result is not a string");
 
-    const image = useStudioImage(fileReader.result, { crop: 'center', maxSize: 1024 })
-    emit('new-image', image)
-  }
-  fileReader.readAsDataURL(file)
+		const image = useStudioImage(fileReader.result, {
+			crop: "center",
+			maxSize: 1024,
+		});
+		emit("new-image", image);
+	};
+	fileReader.readAsDataURL(file);
 }
 </script>
 

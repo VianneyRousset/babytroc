@@ -1,61 +1,59 @@
 <script setup lang="ts">
-import { Send } from 'lucide-vue-next'
-
-const model = defineModel<string>()
+const model = defineModel<string>();
 
 // props
 const props = withDefaults(
-  defineProps<{
-    loading?: boolean
-  }>(),
-  {
-    loading: false,
-  },
-)
-const { loading } = toRefs(props)
+	defineProps<{
+		loading?: boolean;
+	}>(),
+	{
+		loading: false,
+	},
+);
+const { loading } = toRefs(props);
 
-const emit = defineEmits<(e: 'submit', value: string) => void>()
+const emit = defineEmits<(e: "submit", value: string) => void>();
 
-const { textarea, input: autosizeInput } = useTextareaAutosize()
+const { textarea, input: autosizeInput } = useTextareaAutosize();
 
 const input = computed({
-  get: () => model.value,
-  set: (newValue) => {
-    model.value = newValue
-    autosizeInput.value = newValue ?? ''
-  },
-})
+	get: () => model.value,
+	set: (newValue) => {
+		model.value = newValue;
+		autosizeInput.value = newValue ?? "";
+	},
+});
 
 const stop = watch(input, (v) => {
-  input.value = v?.substring(0, 1000)
-})
+	input.value = v?.substring(0, 1000);
+});
 
-function blur() {
-  if (textarea.value) textarea.value.blur()
+function _blur() {
+	if (textarea.value) textarea.value.blur();
 }
 
-function enterDown(event: KeyboardEvent) {
-  // ignore keydown enter if shift is not rpressed
-  if (!event.shiftKey) event.preventDefault()
+function _enterDown(event: KeyboardEvent) {
+	// ignore keydown enter if shift is not rpressed
+	if (!event.shiftKey) event.preventDefault();
 }
 
-function enterUp(event: KeyboardEvent) {
-  // if shift key is pressed, handle it as a normal line return
-  if (event.shiftKey) return
+function _enterUp(event: KeyboardEvent) {
+	// if shift key is pressed, handle it as a normal line return
+	if (event.shiftKey) return;
 
-  event.preventDefault()
-  submit()
+	event.preventDefault();
+	submit();
 }
 
 function submit() {
-  emit('submit', model.value ?? '')
+	emit("submit", model.value ?? "");
 }
 
-const disabled = computed(
-  () => model.value?.trim().length === 0 || loading.value,
-)
+const _disabled = computed(
+	() => model.value?.trim().length === 0 || loading.value,
+);
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

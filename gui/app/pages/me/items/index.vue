@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { CirclePlus } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-})
+	layout: "me",
+	appBack: true,
+});
 
 // query items
-const { items, error, isLoading, loadMore: loadMoreItems } = useMeItems()
+const { items, error, isLoading, loadMore: loadMoreItems } = useMeItems();
 
 // auth
-useAuth({ fallbackRoute: '/me' })
+useAuth({ fallbackRoute: "/me" });
 </script>
 
 <template>

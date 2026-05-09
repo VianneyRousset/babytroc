@@ -1,23 +1,24 @@
 <script setup lang="ts">
 const props = withDefaults(
-  defineProps<{
-    position?: 'left' | 'right' | 'bottom'
-  }>(), {
-    position: 'left',
-  },
-)
+	defineProps<{
+		position?: "left" | "right" | "bottom";
+	}>(),
+	{
+		position: "left",
+	},
+);
 
-const { position } = toRefs(props)
+const { position } = toRefs(props);
 
-const model = defineModel<boolean>({ default: false })
+const _model = defineModel<boolean>({ default: false });
 
-const slots = useSlots()
-const device = useDevice()
+const _slots = useSlots();
+const device = useDevice();
 
 // On mobile, force bottom position for bottom-sheet behavior
-const effectivePosition = computed(() =>
-  device.isMobile ? 'bottom' : unref(position),
-)
+const _effectivePosition = computed(() =>
+	device.isMobile ? "bottom" : unref(position),
+);
 </script>
 
 <template>

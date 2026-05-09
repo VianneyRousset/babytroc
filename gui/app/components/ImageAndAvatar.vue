@@ -1,15 +1,15 @@
 <script setup lang="ts">
 const props = defineProps<{
-  imageName: string | null
-  avatar: string | null
-}>()
+	imageName: string | null;
+	avatar: string | null;
+}>();
 
-const { imageName, avatar } = toRefs(props)
+const { imageName, avatar } = toRefs(props);
 
-const image = computed(() => {
-  const name = unref(imageName)
-  return name ? imagePath(name, 256) : null
-})
+const _image = computed(() => {
+	const name = unref(imageName);
+	return name ? imagePath(name, 256) : null;
+});
 </script>
 
 <template>

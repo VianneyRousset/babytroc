@@ -1,109 +1,123 @@
 <script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'category_slugs' | 'blocked'>">
-const emit = defineEmits<(event: 'submit', data: ItemCreate) => void>()
+const emit = defineEmits<(event: "submit", data: ItemCreate) => void>();
 
-const props = withDefaults(defineProps<{
-  item?: ItemData
-  isLoading?: boolean
-}>(), {
-  isLoading: false,
-})
+const props = withDefaults(
+	defineProps<{
+		item?: ItemData;
+		isLoading?: boolean;
+	}>(),
+	{
+		isLoading: false,
+	},
+);
 
 // name
-const name = ref('')
-const nameValid = ref(false)
-const nameTouched = ref(false)
+const name = ref("");
+const nameValid = ref(false);
+const nameTouched = ref(false);
 
 // description
-const description = ref('')
-const descriptionValid = ref(false)
-const descriptionTouched = ref(false)
+const description = ref("");
+const descriptionValid = ref(false);
+const descriptionTouched = ref(false);
 
 // age
-const targetedAgeMonths = ref<AgeRange>([null, null])
+const targetedAgeMonths = ref<AgeRange>([null, null]);
 
 // regions
-const regions = ref(new Set<number>())
-const regionsValid = ref(false)
-const regionsTouched = ref(false)
+const regions = ref(new Set<number>());
+const regionsValid = ref(false);
+const regionsTouched = ref(false);
 
 // categories
-const categories = ref(new Set<string>())
+const categories = ref(new Set<string>());
 
 // images
-const imageUploader = useImageUploader()
-const studioImages = ref<Array<StudioImage>>([])
-const { data: images, status: imagesStatus } = (
-  imageUploader
-    .uploadMany(() => unref(studioImages)
-      .map(img => img.cropped)
-      .filter(img => img != null))
-)
-const imagesTouched = ref(false)
-const imagesValid = ref(false)
+const imageUploader = useImageUploader();
+const studioImages = ref<Array<StudioImage>>([]);
+const { data: images, status: imagesStatus } = imageUploader.uploadMany(() =>
+	unref(studioImages)
+		.map((img) => img.cropped)
+		.filter((img) => img != null),
+);
+const imagesTouched = ref(false);
+const imagesValid = ref(false);
 
 // studio
-const studioOverlay = ref(false)
-const tmpStudioImages = ref<Array<StudioImage>>([])
+const studioOverlay = ref(false);
+const tmpStudioImages = ref<Array<StudioImage>>([]);
 
 // load data on props.data change
-const stop = watch(() => props.item, (_item) => {
-  if (_item) {
-    name.value = _item.name
-    description.value = _item.description
-    targetedAgeMonths.value = string2range(_item.targeted_age_months)
-    regions.value = new Set(_item.region_ids)
-    categories.value = new Set(_item.category_slugs)
-    studioImages.value = _item.image_names.map((name: string) => useStudioImage(imagePath(name, 1024), { crop: 'center', maxSize: 1024 }))
-  }
-}, { immediate: true })
-tryOnUnmounted(stop)
+const stop = watch(
+	() => props.item,
+	(_item) => {
+		if (_item) {
+			name.value = _item.name;
+			description.value = _item.description;
+			targetedAgeMonths.value = string2range(_item.targeted_age_months);
+			regions.value = new Set(_item.region_ids);
+			categories.value = new Set(_item.category_slugs);
+			studioImages.value = _item.image_names.map((name: string) =>
+				useStudioImage(imagePath(name, 1024), {
+					crop: "center",
+					maxSize: 1024,
+				}),
+			);
+		}
+	},
+	{ immediate: true },
+);
+tryOnUnmounted(stop);
 
 // all field validation must pass and upload succeeded
-const valid = computed(() => (
-  [nameValid, descriptionValid, regionsValid, imagesValid].every(v => unref(v) === true)
-  && unref(imagesStatus) === 'success'
-  && unref(images).every((img: string | undefined) => img != null)
-))
+const valid = computed(
+	() =>
+		[nameValid, descriptionValid, regionsValid, imagesValid].every(
+			(v) => unref(v) === true,
+		) &&
+		unref(imagesStatus) === "success" &&
+		unref(images).every((img: string | undefined) => img != null),
+);
 
-function openStudioOverlay() {
-  tmpStudioImages.value = unref(studioImages).map(img => img.copy())
-  studioOverlay.value = true
+function _openStudioOverlay() {
+	tmpStudioImages.value = unref(studioImages).map((img) => img.copy());
+	studioOverlay.value = true;
 }
 
-function closeStudioOverlay() {
-  studioOverlay.value = false
+function _closeStudioOverlay() {
+	studioOverlay.value = false;
 }
 
-function saveStudioImages() {
-  studioImages.value = unref(tmpStudioImages).map(img => img.copy())
+function _saveStudioImages() {
+	studioImages.value = unref(tmpStudioImages).map((img) => img.copy());
 }
 
 function touchAll() {
-  nameTouched.value = true
-  descriptionTouched.value = true
-  regionsTouched.value = true
-  imagesTouched.value = true
+	nameTouched.value = true;
+	descriptionTouched.value = true;
+	regionsTouched.value = true;
+	imagesTouched.value = true;
 }
 
-function onclick() {
-  touchAll()
+function _onclick() {
+	touchAll();
 
-  if (unref(valid)) {
-    const _images = unref(images)
+	if (unref(valid)) {
+		const _images = unref(images);
 
-    if (!_images.every(img => img != null))
-      throw new Error('Cannot create object with null image')
+		if (!_images.every((img) => img != null))
+			throw new Error("Cannot create object with null image");
 
-    emit('submit', {
-      name: unref(name),
-      description: unref(description),
-      images: _images,
-      targeted_age_months: range2string(unref(targetedAgeMonths)),
-      regions: [...unref(regions)],
-      categories: [...unref(categories)],
-      blocked: false,
-    })
-  }
+		emit("submit", {
+			name: unref(name),
+			description: unref(description),
+			images: _images,
+			targeted_age_months: range2string(unref(targetedAgeMonths)),
+			regions: [...unref(regions)],
+			categories: [...unref(categories)],
+			blocked: false,
+		});
+	}
 }
 </script>
 

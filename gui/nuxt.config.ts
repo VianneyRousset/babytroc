@@ -1,133 +1,144 @@
-import Components from 'unplugin-vue-components/vite'
-import RadixVueResolver from 'radix-vue/resolver'
+import RadixVueResolver from "radix-vue/resolver";
+import Components from "unplugin-vue-components/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+	/* Extends */
+	modules: [
+		"nuxt-open-fetch",
+		"@pinia/nuxt",
+		"@vueuse/nuxt",
+		"radix-vue/nuxt",
+		"@pinia/colada-nuxt",
+		"floating-vue/nuxt",
+		"@nuxtjs/device",
+	],
 
-  /* Extends */
-  modules: [
-    'nuxt-open-fetch',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    'radix-vue/nuxt',
-    '@pinia/colada-nuxt',
-    'floating-vue/nuxt',
-    '@nuxtjs/device',
-  ],
+	// disable server-side rendering
+	ssr: false,
 
-  // disable server-side rendering
-  ssr: false,
+	/* Nuxt Core Features */
+	// do not name components based on path
+	components: [
+		{
+			path: "~/components",
+			pathPrefix: false,
+		},
+	],
 
-  /* Nuxt Core Features */
-  // do not name components based on path
-  components: [
-    {
-      path: '~/components',
-      pathPrefix: false,
-    },
-  ],
+	// import pinia-colada queries and mutations
+	imports: {
+		dirs: [
+			"types",
+			"queries",
+			"queries/**",
+			"mutations",
+			"mutations/**",
+			"stores",
+			"stores/**",
+		],
+	},
 
-  // import pinia-colada queries and mutations
-  imports: {
-    dirs: ['types', 'queries', 'queries/**', 'mutations', 'mutations/**', 'stores', 'stores/**'],
-  },
+	devtools: { enabled: false },
 
-  devtools: { enabled: false },
+	/* Client-side Integrations */
+	app: {
+		head: {
+			title: "Babytroc", // default fallback title
+			htmlAttrs: {
+				lang: "fr",
+			},
+			meta: [
+				// set mobile status bar color
+				{ name: "theme-color", content: "#ffffff" },
+				{ name: "msapplication-navbutton-color", content: "#ffffff" },
+				{ name: "apple-mobile-web-app-status-bar-style", content: "#ffffff" },
+			],
+		},
+		layoutTransition: {
+			name: "fade",
+			mode: "out-in",
+		},
+	},
 
-  /* Client-side Integrations */
-  app: {
-    head: {
-      title: 'Babytroc', // default fallback title
-      htmlAttrs: {
-        lang: 'fr',
-      },
-      meta: [
-        // set mobile status bar color
-        { name: 'theme-color', content: '#ffffff' },
-        { name: 'msapplication-navbutton-color', content: '#ffffff' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: '#ffffff' },
-      ],
-    },
-    layoutTransition: {
-      name: 'fade',
-      mode: 'out-in',
-    },
-  },
+	// inject SCSS code (colors definition)
+	css: [
+		"assets/styles/main.scss",
+		"assets/styles/animations.scss",
+		"assets/styles/floating-vue.scss",
+	],
 
-  // inject SCSS code (colors definition)
-  css: ['assets/styles/main.scss', 'assets/styles/animations.scss', 'assets/styles/floating-vue.scss'],
+	runtimeConfig: {
+		public: {
+			openFetch: {
+				api: {
+					baseURL: "/api",
+				},
+			},
+		},
+	},
 
-  runtimeConfig: {
-    public: {
-      openFetch: {
-        api: {
-          baseURL: '/api',
-        },
-      },
-    },
-  },
+	/* Build Pipeline Configs */
+	routeRules: {
+		"/": { redirect: "/explore" },
+		"/newitem": { redirect: "/newitem/studio" },
+	},
 
-  /* Build Pipeline Configs */
-  routeRules: {
-    '/': { redirect: '/explore' },
-    '/newitem': { redirect: '/newitem/studio' },
-  },
+	/* Feature flags */
+	future: {
+		compatibilityVersion: 4,
+	},
+	compatibilityDate: "2024-11-01",
 
-  /* Feature flags */
-  future: {
-    compatibilityVersion: 4,
-  },
-  compatibilityDate: '2024-11-01',
+	experimental: {
+		viteEnvironmentApi: true,
+	},
 
-  experimental: {
-    viteEnvironmentApi: true,
-  },
-
-  /* Tooling Integrations */
-  vite: {
-    css: {
-      preprocessorOptions: {
-        scss: {
-          additionalData: `
+	/* Tooling Integrations */
+	vite: {
+		css: {
+			preprocessorOptions: {
+				scss: {
+					additionalData: `
           @use "~/assets/styles/_constants.scss" as *;
           @use "~/assets/styles/_colors.scss" as *;
           @use "~/assets/styles/_mixings.scss" as *;
           @use "~/assets/styles/_fonts.scss" as *;
         `,
-        },
-      },
-    },
+				},
+			},
+		},
 
-    plugins: [
-      Components({
-        dts: true,
-        resolvers: [RadixVueResolver()],
-      }),
-    ],
-  },
+		plugins: [
+			Components({
+				dts: true,
+				resolvers: [RadixVueResolver()],
+			}),
+		],
+	},
 
-  // use typescript type checking
-  typescript: {
-    strict: true,
-    typeCheck: true,
-  },
+	// use typescript type checking
+	typescript: {
+		strict: true,
+		typeCheck: true,
+	},
 
-  openFetch: {
-    // use custom plugin to integrated auth considerations
-    // https://nuxt-open-fetch.vercel.app/advanced/custom-client
-    disableNuxtPlugin: true,
-    clients: {
-      api: {
-        baseURL: '/api',
-      },
-    },
-    openAPITS: {
-      enum: true,
-    },
-  },
+	openFetch: {
+		// use custom plugin to integrated auth considerations
+		// https://nuxt-open-fetch.vercel.app/advanced/custom-client
+		disableNuxtPlugin: true,
+		clients: {
+			api: {
+				baseURL: "/api",
+			},
+		},
+		openAPITS: {
+			enum: true,
+		},
+	},
 
-  pinia: {
-    // accept nested store directories
-    storesDirs: ['app/stores/**'],
-  },
-})
+	pinia: {
+		// accept nested store directories
+		storesDirs: ["app/stores/**"],
+	},
+});

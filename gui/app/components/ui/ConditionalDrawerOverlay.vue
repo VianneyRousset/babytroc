@@ -1,15 +1,18 @@
 <script setup lang="ts">
-const drawerOpen = defineModel<boolean>({ default: false })
+const _drawerOpen = defineModel<boolean>({ default: false });
 
-const props = withDefaults(defineProps<{
-  position: 'left' | 'right'
-  drawer: boolean
-  page?: boolean
-}>(), {
-  page: true,
-})
+const props = withDefaults(
+	defineProps<{
+		position: "left" | "right";
+		drawer: boolean;
+		page?: boolean;
+	}>(),
+	{
+		page: true,
+	},
+);
 
-const { position, drawer, page } = toRefs(props)
+const { position, drawer, page } = toRefs(props);
 </script>
 
 <template>

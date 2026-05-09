@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { Box, LogOut, LogIn, Settings, Ellipsis } from 'lucide-vue-next'
+const props = withDefaults(
+	defineProps<{
+		compact?: boolean;
+	}>(),
+	{
+		compact: false,
+	},
+);
 
-const props = withDefaults(defineProps<{
-  compact?: boolean
-}>(), {
-  compact: false,
-})
+const { compact } = toRefs(props);
 
-const { compact } = toRefs(props)
+const { loggedIn } = useAuth();
 
-const { loggedIn } = useAuth()
-
-const { me } = useMe()
-const { logout } = useLogout()
-const open = ref(false)
+const { me } = useMe();
+const { logout } = useLogout();
+const _open = ref(false);
 </script>
 
 <template>

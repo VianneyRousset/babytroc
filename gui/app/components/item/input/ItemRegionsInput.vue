@@ -1,22 +1,24 @@
 <script setup lang="ts">
 const props = defineProps<{
-  msgPlacement?: MsgPlacement
-  columns?: number
-}>()
+	msgPlacement?: MsgPlacement;
+	columns?: number;
+}>();
 
-const { msgPlacement, columns } = toRefs(props)
+const { msgPlacement, columns } = toRefs(props);
 
-const regions = defineModel<Set<number>>('regions', { default: new Set<number>() })
-const valid = defineModel<boolean>('valid', { default: false })
-const touched = defineModel<boolean>('touched', { default: false })
+const regions = defineModel<Set<number>>("regions", {
+	default: new Set<number>(),
+});
+const valid = defineModel<boolean>("valid", { default: false });
+const touched = defineModel<boolean>("touched", { default: false });
 
-const { status, error } = useItemRegionsValidity(regions, touched)
+const { status, error } = useItemRegionsValidity(regions, touched);
 
 const stop = watchEffect(() => {
-  valid.value = unref(status) === 'success'
-})
+	valid.value = unref(status) === "success";
+});
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

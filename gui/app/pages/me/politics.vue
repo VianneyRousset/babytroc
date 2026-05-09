@@ -1,9 +1,9 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Politiques',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Politiques",
+});
 </script>
 
 <template>

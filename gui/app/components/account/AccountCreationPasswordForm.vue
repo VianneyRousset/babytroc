@@ -1,16 +1,16 @@
 <script setup lang="ts">
 const props = defineProps<{
-  loading?: boolean
-  disabled?: boolean
-}>()
+	loading?: boolean;
+	disabled?: boolean;
+}>();
 
-const { loading, disabled } = toRefs(props)
+const { loading, disabled } = toRefs(props);
 
-const password = defineModel<string>('password', { default: '' })
-const valid = defineModel<boolean>('valid')
-const emit = defineEmits(['next'])
+const _password = defineModel<string>("password", { default: "" });
+const valid = defineModel<boolean>("valid");
+const emit = defineEmits(["next"]);
 
-const next = () => unref(valid) && emit('next')
+const _next = () => unref(valid) && emit("next");
 </script>
 
 <template>

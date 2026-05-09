@@ -1,59 +1,57 @@
 <script setup lang="ts">
-import { UserRoundPlus, ArrowLeft, AtSign, KeyRound, Check, OctagonAlert } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me',
-  appBack: '/me/account',
-})
+	layout: "me",
+	appBack: "/me/account",
+});
 
-const name = ref('')
-const email = ref('')
-const password = ref('')
+const name = ref("");
+const email = ref("");
+const password = ref("");
 
-const modeCounter = ref(0)
-const mode = computed(() => {
-  return {
-    0: 'name',
-    1: 'email',
-    2: 'password',
-  }[unref(status) === 'success' ? 2 : unref(modeCounter)]
-})
+const modeCounter = ref(0);
+const _mode = computed(() => {
+	return {
+		0: "name",
+		1: "email",
+		2: "password",
+	}[unref(status) === "success" ? 2 : unref(modeCounter)];
+});
 
 // account creation
 const { createAccount, isLoading, status } = useCreateAccount({
-  onSuccess: () => setTimeout(() => navigateTo('/me/account/pending-validation'), 1200),
-})
+	onSuccess: () =>
+		setTimeout(() => navigateTo("/me/account/pending-validation"), 1200),
+});
 
-const { goBack } = useNavigation()
+const { goBack } = useNavigation();
 
 // when the account creation request is pending or succeeded
 // it is impossible to go back or resend a request
-const freeze = computed(() => unref(isLoading) || unref(status) === 'success')
+const freeze = computed(() => unref(isLoading) || unref(status) === "success");
 
-async function next() {
-  const _modeCounter = unref(modeCounter)
+async function _next() {
+	const _modeCounter = unref(modeCounter);
 
-  if (unref(freeze)) return
+	if (unref(freeze)) return;
 
-  if (_modeCounter === 2)
-    return await createAccount({
-      name: unref(name),
-      email: unref(email),
-      password: unref(password),
-    })
+	if (_modeCounter === 2)
+		return await createAccount({
+			name: unref(name),
+			email: unref(email),
+			password: unref(password),
+		});
 
-  modeCounter.value = _modeCounter + 1
+	modeCounter.value = _modeCounter + 1;
 }
 
-function previous() {
-  const _modeCounter = unref(modeCounter)
+function _previous() {
+	const _modeCounter = unref(modeCounter);
 
-  if (unref(freeze)) return
+	if (unref(freeze)) return;
 
-  if (_modeCounter === 0)
-    return goBack('/me/account')
+	if (_modeCounter === 0) return goBack("/me/account");
 
-  modeCounter.value = _modeCounter - 1
+	modeCounter.value = _modeCounter - 1;
 }
 </script>
 

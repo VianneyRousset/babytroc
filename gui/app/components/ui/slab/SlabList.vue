@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  light?: boolean
-}>(), {
-  light: false,
-})
+const props = withDefaults(
+	defineProps<{
+		light?: boolean;
+	}>(),
+	{
+		light: false,
+	},
+);
 
-const { light } = toRefs(props)
+const { light } = toRefs(props);
 </script>
 
 <template>

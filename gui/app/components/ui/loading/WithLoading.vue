@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  loading?: boolean
-}>(), {
-  loading: false,
-})
+const props = withDefaults(
+	defineProps<{
+		loading?: boolean;
+	}>(),
+	{
+		loading: false,
+	},
+);
 
-const { loading } = toRefs(props)
+const { loading } = toRefs(props);
 </script>
 
 <template>

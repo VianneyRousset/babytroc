@@ -1,13 +1,16 @@
 <script setup lang="ts">
-const model = defineModel<number>()
+const _model = defineModel<number>();
 
-const props = withDefaults(defineProps<{
-  size?: 'large' | 'medium'
-}>(), {
-  size: 'medium',
-})
+const props = withDefaults(
+	defineProps<{
+		size?: "large" | "medium";
+	}>(),
+	{
+		size: "medium",
+	},
+);
 
-const { size } = toRefs(props)
+const { size } = toRefs(props);
 </script>
 
 <template>

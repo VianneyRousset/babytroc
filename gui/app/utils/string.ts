@@ -1,5 +1,5 @@
-const consecutiveWhitespacesRegex = /[ ]{2,}/g
+const consecutiveWhitespacesRegex = /[ ]{2,}/g;
 
 export function avoidConsecutiveWhitespaces(str: string): string {
-  return str.replace(consecutiveWhitespacesRegex, ' ')
+	return str.replace(consecutiveWhitespacesRegex, " ");
 }

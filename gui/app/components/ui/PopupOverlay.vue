@@ -1,14 +1,17 @@
 <script setup lang="ts">
-const model = defineModel<boolean>()
+const _model = defineModel<boolean>();
 
-const props = withDefaults(defineProps<{
-  page?: boolean
-}>(), {
-  page: true,
-})
+const props = withDefaults(
+	defineProps<{
+		page?: boolean;
+	}>(),
+	{
+		page: true,
+	},
+);
 
-const { page } = toRefs(props)
-const slots = useSlots()
+const { page } = toRefs(props);
+const _slots = useSlots();
 </script>
 
 <template>

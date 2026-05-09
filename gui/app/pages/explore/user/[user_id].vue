@@ -1,27 +1,30 @@
 <script setup lang="ts">
-import { ShieldAlert } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'explore',
-})
+	layout: "explore",
+});
 
 // get user ID from route
-const route = useRoute()
-const userId = Number.parseInt(route.params.user_id as string) // TODO avoid this hack
+const route = useRoute();
+const userId = Number.parseInt(route.params.user_id as string, 10); // TODO avoid this hack
 
-const { currentTab } = useTab()
+const { currentTab } = useTab();
 
 // goto tab main page if invalid itemId
-if (Number.isNaN(userId)) navigateTo(`/${currentTab}`)
+if (Number.isNaN(userId)) navigateTo(`/${currentTab}`);
 
 // get user data
-const { user, isLoading } = useUser({ userId })
+const { user, isLoading } = useUser({ userId });
 
 // query items
-const { items, error: itemsError, isLoading: itemsIsLoading, loadMore: loadMoreItems } = useUserItems({ userId })
+const {
+	items,
+	error: itemsError,
+	isLoading: itemsIsLoading,
+	loadMore: loadMoreItems,
+} = useUserItems({ userId });
 
 // auth
-const { loggedIn } = useAuth()
+const { loggedIn } = useAuth();
 </script>
 
 <template>

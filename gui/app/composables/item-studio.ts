@@ -1,160 +1,177 @@
-import { useImage } from '@vueuse/core'
-import { cloneDeep } from 'lodash'
+import { useImage } from "@vueuse/core";
+import { cloneDeep } from "lodash";
 
-let studioImageIndex = 0
+let studioImageIndex = 0;
 
 type UseStudioImageOptions = {
-  crop?: StudioImageCrop | 'center' | 'all'
-  maxSize?: number
-}
+	crop?: StudioImageCrop | "center" | "all";
+	maxSize?: number;
+};
 
 function readCrop(
-  crop: StudioImageCrop | 'center' | 'all',
-  { width, height }: {
-    width: number
-    height: number
-  },
+	crop: StudioImageCrop | "center" | "all",
+	{
+		width,
+		height,
+	}: {
+		width: number;
+		height: number;
+	},
 ): StudioImageCrop {
-  const s = Math.min(width, height)
-  return crop === 'center'
-    ? {
-        width: s,
-        height: s,
-        top: (height - s) / 2,
-        left: (width - s) / 2,
-      }
-    : crop === 'all'
-      ? {
-          width,
-          height,
-          top: 0,
-          left: 0,
-        }
-      : crop
+	const s = Math.min(width, height);
+	return crop === "center"
+		? {
+				width: s,
+				height: s,
+				top: (height - s) / 2,
+				left: (width - s) / 2,
+			}
+		: crop === "all"
+			? {
+					width,
+					height,
+					top: 0,
+					left: 0,
+				}
+			: crop;
 }
 
-const textEncoder = new TextEncoder()
+const textEncoder = new TextEncoder();
 
 export function useStudioImage(
-  src: string,
-  options?: UseStudioImageOptions,
+	src: string,
+	options?: UseStudioImageOptions,
 ): StudioImage {
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  const maxSize = ref(options?.maxSize)
-  const original = ref(src)
-  const { state: img } = useImage(() => ({ src: unref(original) }))
-  const _crop = ref(options?.crop ?? 'all')
-  const crop = computed<StudioImageCrop | undefined>(() => {
-    const _img = unref(img)
-    return _img && readCrop(unref(_crop), { width: _img.width, height: _img.height })
-  })
+	const canvas = document.createElement("canvas");
+	const context = canvas.getContext("2d");
+	const maxSize = ref(options?.maxSize);
+	const original = ref(src);
+	const { state: img } = useImage(() => ({ src: unref(original) }));
+	const _crop = ref(options?.crop ?? "all");
+	const crop = computed<StudioImageCrop | undefined>(() => {
+		const _img = unref(img);
+		return (
+			_img && readCrop(unref(_crop), { width: _img.width, height: _img.height })
+		);
+	});
 
-  if (!context)
-    throw new Error('Unsupported context identifier')
+	if (!context) throw new Error("Unsupported context identifier");
 
-  const cropped = computed<string | undefined>(() => {
-    const _img = unref(img)
+	const cropped = computed<string | undefined>(() => {
+		const _img = unref(img);
 
-    if (_img == null)
-      return
+		if (_img == null) return;
 
-    const _maxSize = unref(maxSize)
-    const __crop = unref(crop)
+		const _maxSize = unref(maxSize);
+		const __crop = unref(crop);
 
-    if (__crop == null)
-      return
+		if (__crop == null) return;
 
-    const { width, height, top, left } = __crop
+		const { width, height, top, left } = __crop;
 
-    const scaleDown: number = (_maxSize == null)
-      ? 1
-      : Math.max(width / _maxSize, height / _maxSize, 1)
+		const scaleDown: number =
+			_maxSize == null ? 1 : Math.max(width / _maxSize, height / _maxSize, 1);
 
-    canvas.width = width / scaleDown
-    canvas.height = height / scaleDown
+		canvas.width = width / scaleDown;
+		canvas.height = height / scaleDown;
 
-    context.drawImage(
-      _img,
-      -left / scaleDown,
-      -top / scaleDown,
-      _img.width / scaleDown,
-      _img.height / scaleDown,
-    )
+		context.drawImage(
+			_img,
+			-left / scaleDown,
+			-top / scaleDown,
+			_img.width / scaleDown,
+			_img.height / scaleDown,
+		);
 
-    return canvas.toDataURL('image/jpeg')
-  })
+		return canvas.toDataURL("image/jpeg");
+	});
 
-  const hash = computedAsync<string | undefined>(async () => {
-    const _cropped = unref(cropped)
-    if (_cropped == null)
-      return undefined
-    const hashBuffer = await window.crypto.subtle.digest('SHA-1', textEncoder.encode(_cropped))
-    return new Uint8Array(hashBuffer).toHex()
-  })
+	const hash = computedAsync<string | undefined>(async () => {
+		const _cropped = unref(cropped);
+		if (_cropped == null) return undefined;
+		const hashBuffer = await window.crypto.subtle.digest(
+			"SHA-1",
+			textEncoder.encode(_cropped),
+		);
+		return new Uint8Array(hashBuffer).toHex();
+	});
 
-  const copy = (): StudioImage => useStudioImage(unref(original), { crop: unref(_crop), maxSize: unref(maxSize) })
+	const copy = (): StudioImage =>
+		useStudioImage(unref(original), {
+			crop: unref(_crop),
+			maxSize: unref(maxSize),
+		});
 
-  function setCrop(newCrop: StudioImageCrop) {
-    _crop.value = cloneDeep(newCrop)
-  }
+	function setCrop(newCrop: StudioImageCrop) {
+		_crop.value = cloneDeep(newCrop);
+	}
 
-  return reactive({
-    id: studioImageIndex++,
-    hash,
-    original: src,
-    width: computed(() => unref(img)?.width),
-    height: computed(() => unref(img)?.height),
-    maxSize,
-    copy,
-    crop,
-    setCrop,
-    cropped,
-  })
+	return reactive({
+		id: studioImageIndex++,
+		hash,
+		original: src,
+		width: computed(() => unref(img)?.width),
+		height: computed(() => unref(img)?.height),
+		maxSize,
+		copy,
+		crop,
+		setCrop,
+		cropped,
+	});
 }
 
 export function useItemStudioImages(
-  images: Ref<Array<StudioImage>>,
-  options?: {
-    maxImages?: number
-  },
+	images: Ref<Array<StudioImage>>,
+	options?: {
+		maxImages?: number;
+	},
 ) {
-  const selectedImage = ref<StudioImage | undefined>(unref(images)[0])
-  const disabledNewImage = computed(() => options?.maxImages != null && unref(images).length >= options.maxImages)
+	const selectedImage = ref<StudioImage | undefined>(unref(images)[0]);
+	const disabledNewImage = computed(
+		() =>
+			options?.maxImages != null && unref(images).length >= options.maxImages,
+	);
 
-  function selectImage(id: number | undefined) {
-    selectedImage.value = unref(images).find(img => img.id === id)
-  }
+	function selectImage(id: number | undefined) {
+		selectedImage.value = unref(images).find((img) => img.id === id);
+	}
 
-  function addImage(img: StudioImage) {
-    if (unref(disabledNewImage))
-      return
+	function addImage(img: StudioImage) {
+		if (unref(disabledNewImage)) return;
 
-    unref(images).push(img)
-  }
+		unref(images).push(img);
+	}
 
-  function deleteImage(id: number) {
-    let _images = unref(images)
+	function deleteImage(id: number) {
+		let _images = unref(images);
 
-    // get selected image index
-    const index: number | undefined = images.value.findIndex(img => img.id === id)
-    const nextIndex = Math.min(Math.max(0, index - 1), _images.length - 1)
+		// get selected image index
+		const index: number | undefined = images.value.findIndex(
+			(img) => img.id === id,
+		);
+		const nextIndex = Math.min(Math.max(0, index - 1), _images.length - 1);
 
-    // remove image from array
-    _images = _images.filter(img => img.id !== id)
+		// remove image from array
+		_images = _images.filter((img) => img.id !== id);
 
-    selectedImage.value = _images[nextIndex]
-    images.value = _images
-  }
+		selectedImage.value = _images[nextIndex];
+		images.value = _images;
+	}
 
-  function cropSelectedImage(crop: StudioImageCrop) {
-    const _selectedImage = unref(selectedImage)
+	function cropSelectedImage(crop: StudioImageCrop) {
+		const _selectedImage = unref(selectedImage);
 
-    if (_selectedImage == null)
-      return
+		if (_selectedImage == null) return;
 
-    _selectedImage.setCrop(crop)
-  }
+		_selectedImage.setCrop(crop);
+	}
 
-  return { selectedImage, disabledNewImage, selectImage, addImage, deleteImage, cropSelectedImage }
+	return {
+		selectedImage,
+		disabledNewImage,
+		selectImage,
+		addImage,
+		deleteImage,
+		cropSelectedImage,
+	};
 }

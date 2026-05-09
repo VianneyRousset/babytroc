@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import { Menu, MessageSquare, Package, ShieldAlert } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'chats',
-})
+	layout: "chats",
+});
 
 // get chat ID from route
-const route = useRoute()
+const route = useRoute();
 const chatId = computed<string | undefined>(() => {
-  const _chatId = String(route.params.chat_id)
-  return verifyChatIdFormat(_chatId) ? _chatId : undefined
-})
-useAuth({ fallbackRoute: '/chats' })
+	const _chatId = String(route.params.chat_id);
+	return verifyChatIdFormat(_chatId) ? _chatId : undefined;
+});
+useAuth({ fallbackRoute: "/chats" });
 
-const { me } = useMe()
+const { me } = useMe();
 
 // chat data for dropdown menu
-const { chat } = useChat(computed(() => unref(chatId) ?? ''))
+const { chat } = useChat(computed(() => unref(chatId) ?? ""));
 
-const { narrowWindow } = useNarrowWindow()
-const drawerMode = computed<boolean>(() => unref(narrowWindow))
+const { narrowWindow } = useNarrowWindow();
+const _drawerMode = computed<boolean>(() => unref(narrowWindow));
 
 // chats drawer open state
-const chatsDrawerOpen = ref(false)
+const _chatsDrawerOpen = ref(false);
 
 // report
-const reportDialogOpen = ref(false)
-const { mutateAsync: reportChat } = useReportChatMutation(computed(() => unref(chatId) ?? ''))
+const _reportDialogOpen = ref(false);
+const { mutateAsync: reportChat } = useReportChatMutation(
+	computed(() => unref(chatId) ?? ""),
+);
 </script>
 
 <template>

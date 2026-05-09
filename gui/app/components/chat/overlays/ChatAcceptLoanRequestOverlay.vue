@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { Gift } from 'lucide-vue-next'
-
-const model = defineModel<boolean>()
+const _model = defineModel<boolean>();
 
 const props = defineProps<{
-  item: Item | ItemPreview
-  user: User | UserPreview
-  loanRequestId: number
-}>()
+	item: Item | ItemPreview;
+	user: User | UserPreview;
+	loanRequestId: number;
+}>();
 
 // chat
-const { item, user, loanRequestId } = toRefs(props)
+const { item, user, loanRequestId } = toRefs(props);
 
 // mutations
 const {
-  mutateAsync: acceptLoanRequest,
-  asyncStatus: acceptLoanRequestAsyncStatus,
-} = useAcceptLoanRequestMutation()
+	mutateAsync: acceptLoanRequest,
+	asyncStatus: acceptLoanRequestAsyncStatus,
+} = useAcceptLoanRequestMutation();
 </script>
 
 <template>

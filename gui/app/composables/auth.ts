@@ -1,101 +1,97 @@
-import type {
-  DataState,
-  UseQueryOptions,
-  UseQueryReturn,
-} from '@pinia/colada'
-import { useQuery } from '@pinia/colada'
-import type { RouteLocationGeneric } from 'vue-router'
-import { StatusCodes } from 'http-status-codes'
+import type { DataState, UseQueryOptions, UseQueryReturn } from "@pinia/colada";
+import { useQuery } from "@pinia/colada";
+import { StatusCodes } from "http-status-codes";
+import type { RouteLocationGeneric } from "vue-router";
 
 type UseAuthOptions = {
-  fallbackRoute?: MaybeRefOrGetter<string | RouteLocationGeneric>
-}
+	fallbackRoute?: MaybeRefOrGetter<string | RouteLocationGeneric>;
+};
 
 export function useAuth(options?: UseAuthOptions) {
-  const { $api } = useNuxtApp()
-  const route = useRoute()
-  const router = useRouter()
+	const { $api } = useNuxtApp();
+	const route = useRoute();
+	const router = useRouter();
 
-  // default options
-  options = options ?? {
-    fallbackRoute: undefined,
-  }
+	// default options
+	options = options ?? {
+		fallbackRoute: undefined,
+	};
 
-  const { data: me, status: meStatus } = useQuery({
-    key: () => ['auth'],
-    query: () =>
-      $api('/v1/me', {
-        onResponse: async (ctx) => {
-          if (ctx.response.status === StatusCodes.UNAUTHORIZED) {
-            ctx.error = undefined
-            ctx.response = new Response('null')
-          }
-        },
-      }),
-    refetchOnMount: false,
-  })
+	const { data: me, status: meStatus } = useQuery({
+		key: () => ["auth"],
+		query: () =>
+			$api("/v1/me", {
+				onResponse: async (ctx) => {
+					if (ctx.response.status === StatusCodes.UNAUTHORIZED) {
+						ctx.error = undefined;
+						ctx.response = new Response("null");
+					}
+				},
+			}),
+		refetchOnMount: false,
+	});
 
-  // login path
-  const loginRoute = computed(() =>
-    router.resolve({
-      path: '/me/account',
-      query: {
-        redirect: route.fullPath,
-      },
-    }),
-  )
+	// login path
+	const loginRoute = computed(() =>
+		router.resolve({
+			path: "/me/account",
+			query: {
+				redirect: route.fullPath,
+			},
+		}),
+	);
 
-  const loggedIn = computed(() => unref(meStatus) === 'pending' ? undefined : unref(me) != null)
+	const loggedIn = computed(() =>
+		unref(meStatus) === "pending" ? undefined : unref(me) != null,
+	);
 
-  // if fallbackRoute is given, navigate to it when logged out
-  const stop = watchEffect(() => {
-    const _route = toValue(options.fallbackRoute)
-    if (_route != null && unref(loggedIn) == false)
-      navigateTo(_route)
-  })
+	// if fallbackRoute is given, navigate to it when logged out
+	const stop = watchEffect(() => {
+		const _route = toValue(options.fallbackRoute);
+		if (_route != null && unref(loggedIn) === false) navigateTo(_route);
+	});
 
-  tryOnUnmounted(stop)
+	tryOnUnmounted(stop);
 
-  return { loggedIn, loginRoute }
+	return { loggedIn, loginRoute };
 }
 
 export function useQueryWithAuth<
-  TResult,
-  TError,
-  TDataInitial extends TResult | undefined = undefined,
+	TResult,
+	TError,
+	TDataInitial extends TResult | undefined = undefined,
 >(
-  options: UseQueryOptions<TResult, TError, TDataInitial>,
+	options: UseQueryOptions<TResult, TError, TDataInitial>,
 ): UseQueryReturn<TResult, TError, TDataInitial> {
-  const { loggedIn } = useAuth()
+	const { loggedIn } = useAuth();
 
-  const { state, ...queryResult } = useQuery<TResult, TError, TDataInitial>({
-    enabled: () => unref(loggedIn) === true,
-    ...options,
-  })
+	const { state, ...queryResult } = useQuery<TResult, TError, TDataInitial>({
+		enabled: () => unref(loggedIn) === true,
+		...options,
+	});
 
-  const modifiedState = computed<DataState<TResult, TError, TDataInitial>>(
-    () => {
-      const _state = unref(state)
+	const modifiedState = computed<DataState<TResult, TError, TDataInitial>>(
+		() => {
+			const _state = unref(state);
 
-      if (unref(loggedIn) === true) return _state
+			if (unref(loggedIn) === true) return _state;
 
-      return {
-        status: 'success',
-        data: undefined as TResult,
-        error: null,
-      }
-    },
-  )
+			return {
+				status: "success",
+				data: undefined as TResult,
+				error: null,
+			};
+		},
+	);
 
-  return {
-    ...queryResult,
-    state: modifiedState,
+	return {
+		...queryResult,
+		state: modifiedState,
 
-    status: computed(() => unref(modifiedState).status),
-    data: computed(() => unref(modifiedState).data),
-    error: computed(() => unref(modifiedState).error),
+		status: computed(() => unref(modifiedState).status),
+		data: computed(() => unref(modifiedState).data),
+		error: computed(() => unref(modifiedState).error),
 
-    isPending: computed(() => unref(modifiedState).status === 'pending'),
-  }
+		isPending: computed(() => unref(modifiedState).status === "pending"),
+	};
 }
-

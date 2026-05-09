@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
+const images = defineModel<Array<StudioImage>>({ default: [] });
 
-const images = defineModel<Array<StudioImage>>({ default: [] })
-
-const emit = defineEmits(['exit', 'done'])
+const _emit = defineEmits(["exit", "done"]);
 const {
-  selectedImage,
-  disabledNewImage,
-  selectImage,
-  addImage,
-  deleteImage,
-  cropSelectedImage,
-} = useItemStudioImages(images, { maxImages: 6 })
+	selectedImage,
+	disabledNewImage,
+	selectImage,
+	addImage,
+	deleteImage,
+	cropSelectedImage,
+} = useItemStudioImages(images, { maxImages: 6 });
 
-const mode = ref<'view' | 'crop'>('view')
-const camera = useTemplateRef('camera')
+const _mode = ref<"view" | "crop">("view");
+const _camera = useTemplateRef("camera");
 </script>
 
 <template>

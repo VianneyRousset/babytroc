@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const props = defineProps<{
-  small?: boolean
-}>()
+	small?: boolean;
+}>();
 
-const { small } = toRefs(props)
+const { small } = toRefs(props);
 </script>
 
 <template>

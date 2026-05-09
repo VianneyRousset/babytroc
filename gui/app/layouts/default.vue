@@ -1,15 +1,15 @@
 <script setup lang="ts">
-const device = useDevice()
+const _device = useDevice();
 
 // get footer bar height and provide it to children elements
 // if no bar is present (e.g. in desktop mode), the height is 0
 const { height: appFooterBarHeight } = useElementSize(
-  useTemplateRef('app-footer-bar'),
-  undefined,
-  { box: 'border-box' },
-)
+	useTemplateRef("app-footer-bar"),
+	undefined,
+	{ box: "border-box" },
+);
 
-provide('app-footer-bar-height', appFooterBarHeight)
+provide("app-footer-bar-height", appFooterBarHeight);
 </script>
 
 <template>

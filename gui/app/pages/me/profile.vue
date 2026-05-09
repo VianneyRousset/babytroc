@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import { RefreshCw } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Profile',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Profile",
+});
 
-const { me } = useMe()
-const { mutateAsync: updateProfile, isLoading } = useUpdateProfileMutation()
-const { $toast } = useNuxtApp()
+const { me } = useMe();
+const { mutateAsync: updateProfile, isLoading } = useUpdateProfileMutation();
+const { $toast } = useNuxtApp();
 
 function randomSeed() {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  const length = 5 + Math.floor(Math.random() * 6) // 5-10 chars
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+	const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+	const length = 5 + Math.floor(Math.random() * 6); // 5-10 chars
+	return Array.from(
+		{ length },
+		() => chars[Math.floor(Math.random() * chars.length)],
+	).join("");
 }
 
-async function regenerateAvatar() {
-  await updateProfile({ avatar_seed: randomSeed() }).catch(() => {
-    $toast.error('Échec de la mise à jour')
-  })
+async function _regenerateAvatar() {
+	await updateProfile({ avatar_seed: randomSeed() }).catch(() => {
+		$toast.error("Échec de la mise à jour");
+	});
 }
 </script>
 

@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'empty',
-  appBack: true,
-})
+	layout: "empty",
+	appBack: true,
+});
 
-const { $toast } = useNuxtApp()
-const { mutateAsync: create, isLoading } = useCreateItemMutation()
+const { $toast } = useNuxtApp();
+const { mutateAsync: create, isLoading } = useCreateItemMutation();
 
-async function submit(data: ItemCreate) {
-  const item = await create(data).catch((err) => {
-    $toast.error('Échec de la création de l\'objet')
-    throw err
-  })
+async function _submit(data: ItemCreate) {
+	const _item = await create(data).catch((err) => {
+		$toast.error("Échec de la création de l'objet");
+		throw err;
+	});
 
-  return navigateTo('/me/items')
+	return navigateTo("/me/items");
 }
 </script>
 

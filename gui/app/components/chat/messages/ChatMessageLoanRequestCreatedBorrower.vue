@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { MessageCircleQuestion, X } from 'lucide-vue-next'
-import { LoanRequestState } from '~/types/loan'
-
 const props = defineProps<{
-  message: ChatMessage
-  me: UserPrivate
-  chat: Chat
-  loanRequestId: number
-}>()
+	message: ChatMessage;
+	me: UserPrivate;
+	chat: Chat;
+	loanRequestId: number;
+}>();
 
-const { me, chat, message, loanRequestId } = toRefs(props)
+const { me, chat, message, loanRequestId } = toRefs(props);
 
 // get loan request
-const { data: loanRequest } = useBorrowingsLoanRequestQuery(loanRequestId)
+const { data: loanRequest } = useBorrowingsLoanRequestQuery(loanRequestId);
 
-const { unrequest, loading } = useItemLoanRequest({ itemId: unref(chat).item.id })
+const { unrequest, loading } = useItemLoanRequest({
+	itemId: unref(chat).item.id,
+});
 
 // popup
-const showPopup = ref(false)
+const _showPopup = ref(false);
 </script>
 
 <template>

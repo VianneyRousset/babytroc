@@ -1,67 +1,65 @@
 <script setup lang="ts">
-import { ChatMessages } from '#components'
-import { Package, ShieldAlert } from 'lucide-vue-next'
-
 const props = defineProps<{
-  chatId: string
-}>()
+	chatId: string;
+}>();
 
-const { chatId } = toRefs(props)
+const { chatId } = toRefs(props);
 
-const { chat, isLoading: chatIsLoading, addMessage } = useChat(chatId)
+const { chat, isLoading: chatIsLoading, addMessage } = useChat(chatId);
 
 // report
-const reportDialogOpen = ref(false)
-const { mutateAsync: reportChat } = useReportChatMutation(chatId)
+const _reportDialogOpen = ref(false);
+const { mutateAsync: reportChat } = useReportChatMutation(chatId);
 
 // TODO add meIsLoading
-const { me } = useMe()
-const { messages, isLoading: messagesIsLoading, loadMore, end } = useChatMessages(() => ({ id: unref(chatId) }))
+const { me } = useMe();
+const {
+	messages,
+	isLoading: messagesIsLoading,
+	loadMore,
+	end,
+} = useChatMessages(() => ({ id: unref(chatId) }));
 
-const scroller = useTemplateRef<HTMLElement>('scroller')
+const scroller = useTemplateRef<HTMLElement>("scroller");
 
-const outbox = ref('')
+const outbox = ref("");
 
-const { send, isLoading: sendIsLoading } = useSendChatMessage(() => ({ id: unref(chatId) }))
+const { send, isLoading: sendIsLoading } = useSendChatMessage(() => ({
+	id: unref(chatId),
+}));
 
-useInfiniteScroll(
-  scroller,
-  loadMore,
-  {
-    canLoadMore: () => !unref(end),
-    direction: 'top',
-    distance: 500,
-    offset: {
-      // distance does not work if flex-direction: column-reverse is used
-      bottom: 500,
-    },
-  },
-)
+useInfiniteScroll(scroller, loadMore, {
+	canLoadMore: () => !unref(end),
+	direction: "top",
+	distance: 500,
+	offset: {
+		// distance does not work if flex-direction: column-reverse is used
+		bottom: 500,
+	},
+});
 
-const { y } = useScroll(scroller)
-const { height } = useElementSize(useTemplateRef<HTMLElement>('messages-list'))
+const { y } = useScroll(scroller);
+const { height } = useElementSize(useTemplateRef<HTMLElement>("messages-list"));
 
 watch(height, (newH, oldH) => {
-  y.value = unref(y) + newH - oldH
-})
+	y.value = unref(y) + newH - oldH;
+});
 
-const { $toast } = useNuxtApp()
+const { $toast } = useNuxtApp();
 
-async function sendMessage() {
-  let msg: ChatMessage | undefined = undefined
+async function _sendMessage() {
+	let msg: ChatMessage | undefined;
 
-  try {
-    msg = await send(unref(outbox))
-  }
-  catch (error) {
-    $toast.error('Envoi échoué')
-    throw error
-  }
+	try {
+		msg = await send(unref(outbox));
+	} catch (error) {
+		$toast.error("Envoi échoué");
+		throw error;
+	}
 
-  if (msg)
-    addMessage(msg)
+	if (msg) addMessage(msg);
 
-  outbox.value = ''
+	outbox.value = "";
 }
 </script>
 

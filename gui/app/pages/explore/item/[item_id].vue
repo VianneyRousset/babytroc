@@ -1,76 +1,78 @@
 <script setup lang="ts">
-import { Pencil, ShieldAlert, X, Trash, HeartPlus, HeartMinus } from 'lucide-vue-next'
+import { HeartMinus, HeartPlus } from "lucide-vue-next";
 
 definePageMeta({
-  layout: 'explore',
-})
+	layout: "explore",
+});
 
 // get item ID from route
-const route = useRoute()
-const itemId = Number.parseInt(route.params.item_id as string) // TODO avoid this hack
-const { currentTab } = useTab()
+const route = useRoute();
+const itemId = Number.parseInt(route.params.item_id as string, 10); // TODO avoid this hack
+const { currentTab } = useTab();
 
 // goto tab main page if invalid itemId
-if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`)
+if (Number.isNaN(itemId)) navigateTo(`/${currentTab}`);
 
 // query item
-const { item, isLoading } = useItem({ itemId })
+const { item, isLoading } = useItem({ itemId });
 
 // auth
-const { loggedIn } = useAuth()
+const { loggedIn } = useAuth();
 
-const editMode = ref(false)
+const editMode = ref(false);
 
-const device = useDevice()
+const _device = useDevice();
 
-const { goBack } = useNavigation()
-const deleteItemPopup = ref(false)
-const reportDialogOpen = ref(false)
+const { goBack } = useNavigation();
+const _deleteItemPopup = ref(false);
+const _reportDialogOpen = ref(false);
 
 // report
-const { mutateAsync: reportItem } = useReportItemMutation(itemId)
+const { mutateAsync: reportItem } = useReportItemMutation(itemId);
 
-const { $toast } = useNuxtApp()
-const { mutateAsync: updateItem, isLoading: updateItemIsLoading } = useUpdateItemMutation(itemId)
-const { mutateAsync: deleteItem, isLoading: deleteItemIsLoading } = useDeleteItemMutation(itemId)
+const { $toast } = useNuxtApp();
+const { mutateAsync: updateItem, isLoading: updateItemIsLoading } =
+	useUpdateItemMutation(itemId);
+const { mutateAsync: deleteItem, isLoading: deleteItemIsLoading } =
+	useDeleteItemMutation(itemId);
 
 // save
-const { save, unsave } = useItemSave({ itemId })
+const { save, unsave } = useItemSave({ itemId });
 
-async function submitUpdateItem(data: ItemUpdate) {
-  await updateItem(data).catch((err) => {
-    $toast.error('Échec de la modification de l\'objet')
-    throw err
-  })
-  editMode.value = false
+async function _submitUpdateItem(data: ItemUpdate) {
+	await updateItem(data).catch((err) => {
+		$toast.error("Échec de la modification de l'objet");
+		throw err;
+	});
+	editMode.value = false;
 }
 
-async function submitDeleteItem() {
-  await deleteItem().catch((err) => {
-    $toast.error('Échec de la suppression de l\'objet')
-    throw err
-  })
-  return goBack()
+async function _submitDeleteItem() {
+	await deleteItem().catch((err) => {
+		$toast.error("Échec de la suppression de l'objet");
+		throw err;
+	});
+	return goBack();
 }
 
-async function submitSave() {
-  await save().catch((err) => {
-    $toast.error('Échec de l\'enregistrement de l\'objet')
-    throw err
-  })
-  $toast.success('Objet enregistré dans vos favorits', {
-    icon: () => h(HeartPlus),
-  })
+async function _submitSave() {
+	await save().catch((err) => {
+		$toast.error("Échec de l'enregistrement de l'objet");
+		throw err;
+	});
+	$toast.success("Objet enregistré dans vos favorits", {
+		icon: () => h(HeartPlus),
+	});
 }
 
-async function submitUnsave() {
-  await unsave().catch((err) => {
-    $toast.error('Échec de l\'oubli de l\'objet')
-    throw err
-  })
-  $toast.success('Objet enlevé de vos favorits', {
-    icon: () => h(HeartMinus),
-  })
+async function _submitUnsave() {
+	await unsave().catch((err) => {
+		$toast.error("Échec de l'oubli de l'objet");
+		throw err;
+	});
+	$toast.success("Objet enlevé de vos favorits", {
+		icon: () => h(HeartMinus),
+	});
 }
 </script>
 

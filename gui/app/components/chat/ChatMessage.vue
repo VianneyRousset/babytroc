@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { Check, CheckCheck } from 'lucide-vue-next'
-
 const props = defineProps<{
-  me: UserPrivate
-  message: ChatMessage
-}>()
+	me: UserPrivate;
+	message: ChatMessage;
+}>();
 
-const { me, message } = toRefs(props)
+const { me, message } = toRefs(props);
 
-const slots = useSlots()
+const _slots = useSlots();
 
-const { origin } = useChatMessageOrigin(message, me)
+const { origin } = useChatMessageOrigin(message, me);
 
 // mark message as seen when component is visible for a while
-const component = useTemplateRef<HTMLElement>('chat-message')
-const { hot } = useChatMessageSeen(message, me, { monitor: component })
+const component = useTemplateRef<HTMLElement>("chat-message");
+const { hot } = useChatMessageSeen(message, me, { monitor: component });
 
-const { formattedHour } = useChatMessageTime(message)
+const { formattedHour } = useChatMessageTime(message);
 </script>
 
 <template>

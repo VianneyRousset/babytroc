@@ -35,7 +35,7 @@ async def test_upload_image_variants():
             variants=variants,
         )
 
-    assert mock_s3_client.put_object.call_count == 3
+    assert mock_s3_client.put_object.call_count == 4
 
     call_keys = {
         call.kwargs["Key"] for call in mock_s3_client.put_object.call_args_list

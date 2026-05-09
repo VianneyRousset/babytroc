@@ -1,15 +1,15 @@
 <script setup lang="ts">
-const filters = defineModel<ItemFilters>({ required: true })
+const _filters = defineModel<ItemFilters>({ required: true });
 
 const props = withDefaults(
-  defineProps<{
-    size?: 'large' | 'normal'
-  }>(),
-  {
-    size: 'normal',
-  },
-)
-const { size } = toRefs(props)
+	defineProps<{
+		size?: "large" | "normal";
+	}>(),
+	{
+		size: "normal",
+	},
+);
+const { size } = toRefs(props);
 </script>
 
 <template>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-const { goBack } = useNavigation()
+const { goBack } = useNavigation();
 
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Mot de passe oublié',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Mot de passe oublié",
+});
 
-function done() {
-  setTimeout(() => goBack(), 10000)
+function _done() {
+	setTimeout(() => goBack(), 10000);
 }
 </script>
 

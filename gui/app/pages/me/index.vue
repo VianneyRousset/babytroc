@@ -1,72 +1,74 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
+import type { LucideIcon } from "lucide-vue-next";
 import {
-  Timer,
-  Package,
-  Gift,
-  UserPen,
-  LockKeyhole,
-  LockKeyholeOpen,
-  Info,
-  MessageCircleQuestion,
-  Scale,
-  AtSign,
-} from 'lucide-vue-next'
+	AtSign,
+	Gift,
+	Info,
+	LockKeyhole,
+	LockKeyholeOpen,
+	MessageCircleQuestion,
+	Package,
+	Scale,
+	Timer,
+	UserPen,
+} from "lucide-vue-next";
 
 definePageMeta({
-  layout: 'me',
-})
+	layout: "me",
+});
 
 // auth session
-const { loggedIn } = useAuth()
+const { loggedIn } = useAuth();
 
 type SlabData = {
-  icon: LucideIcon
-  target: string
-  text: string
-}
+	icon: LucideIcon;
+	target: string;
+	text: string;
+};
 
 type SectionData = {
-  title: string
-  logged?: boolean
-  slabs: Array<SlabData>
-}
+	title: string;
+	logged?: boolean;
+	slabs: Array<SlabData>;
+};
 
-const sections = computed<Array<SectionData>>(() => [
-  {
-    title: 'Mes activités',
-    logged: true,
-    slabs: [
-      { icon: Package, target: '/me/items', text: 'Mes objets' },
-      { icon: Gift, target: '/me/loans', text: 'Mes prêts' },
-      { icon: Timer, target: '/me/borrowings', text: 'Mes emprunts' },
-    ],
-  },
-  {
-    title: 'Options',
-    logged: true,
-    slabs: [
-      { icon: UserPen, target: '/me/profile', text: 'Profil' },
-      { icon: LockKeyhole, target: '/me/account', text: 'Compte' },
-    ],
-  },
-  {
-    title: 'Options',
-    logged: false,
-    slabs: [
-      { icon: LockKeyholeOpen, target: '/me/account', text: 'Se connecter' },
-    ],
-  },
-  {
-    title: 'Info',
-    slabs: [
-      { icon: Info, target: '/me/about', text: 'A propos de Babytroc' },
-      { icon: MessageCircleQuestion, target: '/me/faq', text: 'FAQ' },
-      { icon: Scale, target: '/me/politics', text: 'Politiques' },
-      { icon: AtSign, target: '/me/contact', text: 'Contact' },
-    ],
-  },
-].filter(sec => sec.logged == null || unref(loggedIn) === sec.logged))
+const _sections = computed<Array<SectionData>>(() =>
+	[
+		{
+			title: "Mes activités",
+			logged: true,
+			slabs: [
+				{ icon: Package, target: "/me/items", text: "Mes objets" },
+				{ icon: Gift, target: "/me/loans", text: "Mes prêts" },
+				{ icon: Timer, target: "/me/borrowings", text: "Mes emprunts" },
+			],
+		},
+		{
+			title: "Options",
+			logged: true,
+			slabs: [
+				{ icon: UserPen, target: "/me/profile", text: "Profil" },
+				{ icon: LockKeyhole, target: "/me/account", text: "Compte" },
+			],
+		},
+		{
+			title: "Options",
+			logged: false,
+			slabs: [
+				{ icon: LockKeyholeOpen, target: "/me/account", text: "Se connecter" },
+			],
+		},
+		{
+			title: "Info",
+			slabs: [
+				{ icon: Info, target: "/me/about", text: "A propos de Babytroc" },
+				{ icon: MessageCircleQuestion, target: "/me/faq", text: "FAQ" },
+				{ icon: Scale, target: "/me/politics", text: "Politiques" },
+				{ icon: AtSign, target: "/me/contact", text: "Contact" },
+			],
+		},
+	].filter((sec) => sec.logged == null || unref(loggedIn) === sec.logged),
+);
 </script>
 
 <template>

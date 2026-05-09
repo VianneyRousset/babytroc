@@ -1,50 +1,51 @@
 <script setup lang="ts">
-import { Check, OctagonAlert, LockKeyholeOpen } from 'lucide-vue-next'
+const { login: _login, isLoading, status } = useLogin();
 
-const { login: _login, isLoading, status } = useLogin()
-
-const username = ref('')
-const password = ref('')
+const username = ref("");
+const password = ref("");
 
 // login form validity
-const valid = computed<boolean>(() => unref(username).length > 0 && unref(password).length > 0)
+const valid = computed<boolean>(
+	() => unref(username).length > 0 && unref(password).length > 0,
+);
 
-const router = useRouter()
+const router = useRouter();
 async function login() {
-  // skip if invalid login form
-  if (!unref(valid))
-    return
+	// skip if invalid login form
+	if (!unref(valid)) return;
 
-  // login request
-  const credentials_info = await _login({
-    username: unref(username),
-    password: unref(password),
-  })
+	// login request
+	const credentials_info = await _login({
+		username: unref(username),
+		password: unref(password),
+	});
 
-  // navigate to pending account validation page if account is not validated yet
-  if (credentials_info.validated === false) {
-    navigateTo(router.resolve({
-      name: 'me-account-pending-validation',
-      query: {
-        sendEmail: null,
-      },
-    }))
-  }
+	// navigate to pending account validation page if account is not validated yet
+	if (credentials_info.validated === false) {
+		navigateTo(
+			router.resolve({
+				name: "me-account-pending-validation",
+				query: {
+					sendEmail: null,
+				},
+			}),
+		);
+	}
 }
 
 // input elements
-const usernameInput = useTemplateRef<HTMLInputElement>('usernameInput')
-const passwordInput = useTemplateRef<HTMLInputElement>('passwordInput')
+const _usernameInput = useTemplateRef<HTMLInputElement>("usernameInput");
+const _passwordInput = useTemplateRef<HTMLInputElement>("passwordInput");
 
 // empty form inputs if status transitions to error
 const stop = watch(status, (newStatus, oldStatus) => {
-  if (oldStatus !== 'error' && newStatus === 'error') {
-    username.value = ''
-    password.value = ''
-  }
-})
+	if (oldStatus !== "error" && newStatus === "error") {
+		username.value = "";
+		password.value = "";
+	}
+});
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

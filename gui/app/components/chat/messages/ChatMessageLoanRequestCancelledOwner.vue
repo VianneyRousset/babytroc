@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { X } from 'lucide-vue-next'
-
 const props = defineProps<{
-  message: ChatMessage
-  me: UserPrivate
-  chat: Chat
-}>()
+	message: ChatMessage;
+	me: UserPrivate;
+	chat: Chat;
+}>();
 
-const { message, me } = toRefs(props)
+const { message, me } = toRefs(props);
 </script>
 
 <template>

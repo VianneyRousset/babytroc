@@ -1,28 +1,27 @@
 <script setup lang="ts">
-import { Gift, Import } from 'lucide-vue-next'
-
 const props = defineProps<{
-  message: ChatMessage
-  me: UserPrivate
-  chat: Chat
-  loanId: number
-}>()
+	message: ChatMessage;
+	me: UserPrivate;
+	chat: Chat;
+	loanId: number;
+}>();
 
 // chat
-const { me, chat, message, loanId } = toRefs(props)
+const { me, chat, message, loanId } = toRefs(props);
 
 // get loan
-const { data: loan } = useLoanQuery({ loanId })
+const { data: loan } = useLoanQuery({ loanId });
 
 // mutations
-const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } = useEndLoanMutation()
+const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } =
+	useEndLoanMutation();
 
 // popup
-const showPopup = ref(false)
+const showPopup = ref(false);
 
-async function end() {
-  await endLoan({ loanId: unref(loanId) })
-  showPopup.value = false
+async function _end() {
+	await endLoan({ loanId: unref(loanId) });
+	showPopup.value = false;
 }
 </script>
 

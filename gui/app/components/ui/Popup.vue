@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const model = defineModel<boolean>()
-const slots = useSlots()
+const _model = defineModel<boolean>();
+const _slots = useSlots();
 </script>
 
 <template>

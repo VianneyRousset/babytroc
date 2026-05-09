@@ -1,52 +1,53 @@
 <script setup lang="ts" generic="T extends ItemPreview">
-import type { RouteLocationGeneric } from 'vue-router'
+import type { RouteLocationGeneric } from "vue-router";
 
 // items: all the item cards to show
 // error: if true, an error message is shown instead of the cards
 // loading: if true, show a loading spinner after the cards
-const props = withDefaults(defineProps<{
-  items?: Array<T>
-  error?: boolean
-  loading?: boolean
-  dense?: boolean
-  minColumnsCount?: number
-  maxColumnsCount?: number
-  target?: (itemId: number) => string | RouteLocationGeneric
-}>(), {
-  error: false,
-  loading: false,
-  dense: false,
-})
-const { items, error, loading, dense, target } = toRefs(props)
+const props = withDefaults(
+	defineProps<{
+		items?: Array<T>;
+		error?: boolean;
+		loading?: boolean;
+		dense?: boolean;
+		minColumnsCount?: number;
+		maxColumnsCount?: number;
+		target?: (itemId: number) => string | RouteLocationGeneric;
+	}>(),
+	{
+		error: false,
+		loading: false,
+		dense: false,
+	},
+);
+const { items, error, loading, dense, target } = toRefs(props);
 
 // emit a 'select' event with the item id when a card is select
-const emit = defineEmits<
-  (e: 'select', itemId: number) => void
->()
+const _emit = defineEmits<(e: "select", itemId: number) => void>();
 
 // adjust the number of columns and the font-size with the width of the component
 const { width: collectionElementWidth } = useElementSize(
-  useTemplateRef('collection'),
-  undefined,
-  { box: 'border-box' },
-)
+	useTemplateRef("collection"),
+	undefined,
+	{ box: "border-box" },
+);
 
 const widthSteps = {
-  default: [500, 800],
-  dense: [200, 500],
-}
+	default: [500, 800],
+	dense: [200, 500],
+};
 
 const columnsCount = computed(() => {
-  const _w = unref(collectionElementWidth)
-  const _steps = widthSteps[unref(dense) ? 'dense' : 'default']
-  const i = _steps.findIndex(step => _w < step)
-  return ((i < 0) ? _steps.length : i) + 1
-})
+	const _w = unref(collectionElementWidth);
+	const _steps = widthSteps[unref(dense) ? "dense" : "default"];
+	const i = _steps.findIndex((step) => _w < step);
+	return (i < 0 ? _steps.length : i) + 1;
+});
 
-const fontSize = computed(() => {
-  const _w = unref(collectionElementWidth)
-  return _w / unref(columnsCount) / 26
-})
+const _fontSize = computed(() => {
+	const _w = unref(collectionElementWidth);
+	return _w / unref(columnsCount) / 26;
+});
 </script>
 
 <template>

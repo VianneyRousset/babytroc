@@ -4,13 +4,15 @@
 // const footprintTop = defineModel<number>('footprint-top')
 // const footprintBottom = defineModel<number>('footprint-bottom')
 
-const container = useTemplateRef<HTMLElement>('container')
-const floating = useTemplateRef<HTMLElement>('floating')
+const container = useTemplateRef<HTMLElement>("container");
+const floating = useTemplateRef<HTMLElement>("floating");
 
-const { bottom: containerBottom } = useElementBounding(container)
-const { y: floatingTop } = useElementBounding(floating)
+const { bottom: containerBottom } = useElementBounding(container);
+const { y: floatingTop } = useElementBounding(floating);
 
-const footprintBottom = computed(() => unref(containerBottom) - unref(floatingTop))
+const _footprintBottom = computed(
+	() => unref(containerBottom) - unref(floatingTop),
+);
 </script>
 
 <template>

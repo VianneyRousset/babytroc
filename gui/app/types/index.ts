@@ -1,31 +1,44 @@
-import type { FetchError } from 'ofetch'
-import type { VisibleArea } from 'vue-advanced-cropper'
-import type { AsyncDataRequestStatus } from '#app'
+import type { FetchError } from "ofetch";
+import type { VisibleArea } from "vue-advanced-cropper";
+import type { AsyncDataRequestStatus } from "#app";
 
 export interface PaginatedSource<T> {
-  data: Array<T>
-  more: () => Promise<void>
-  reset: () => void
-  end: boolean
-  error: FetchError | null
-  status: AsyncDataRequestStatus
+	data: Array<T>;
+	more: () => Promise<void>;
+	reset: () => void;
+	end: boolean;
+	error: FetchError | null;
+	status: AsyncDataRequestStatus;
 }
 
-export type StudioImageCrop = VisibleArea
+export type StudioImageCrop = VisibleArea;
 
 export type StudioImage = {
-  id: number
-  hash: string | undefined
-  original: string
-  width: number | undefined
-  height: number | undefined
-  maxWidth?: number
-  crop: StudioImageCrop | undefined
-  copy: () => StudioImage
-  setCrop: (crop: StudioImageCrop) => void
-  cropped: string | undefined
-}
+	id: number;
+	hash: string | undefined;
+	original: string;
+	width: number | undefined;
+	height: number | undefined;
+	maxWidth?: number;
+	crop: StudioImageCrop | undefined;
+	copy: () => StudioImage;
+	setCrop: (crop: StudioImageCrop) => void;
+	cropped: string | undefined;
+};
 
-export type MsgPlacement = ('auto' | 'auto-start' | 'auto-end' | 'top' | 'top-start' | 'top-end'
-  | 'right' | 'right-start' | 'right-end' | 'bottom' | 'bottom-start' | 'bottom-end'
-  | 'left' | 'left-start' | 'left-end')
+export type MsgPlacement =
+	| "auto"
+	| "auto-start"
+	| "auto-end"
+	| "top"
+	| "top-start"
+	| "top-end"
+	| "right"
+	| "right-start"
+	| "right-end"
+	| "bottom"
+	| "bottom-start"
+	| "bottom-end"
+	| "left"
+	| "left-start"
+	| "left-end";

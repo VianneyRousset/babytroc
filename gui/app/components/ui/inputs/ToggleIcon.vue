@@ -1,27 +1,24 @@
 <script setup lang="ts">
-import { Square, type LucideIcon } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { LucideIcon } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
-const model = defineModel<boolean>()
+const _model = defineModel<boolean>();
 
 export type ToggleIconProps = {
-  active?: boolean
-  disabled?: boolean
-  icon?: LucideIcon
-  target?: string | RouteLocationGeneric
-}
+	active?: boolean;
+	disabled?: boolean;
+	icon?: LucideIcon;
+	target?: string | RouteLocationGeneric;
+};
 
-const props = withDefaults(
-  defineProps<ToggleIconProps>(),
-  {
-    active: false,
-    disabled: false,
-  },
-)
+const props = withDefaults(defineProps<ToggleIconProps>(), {
+	active: false,
+	disabled: false,
+});
 
-const { disabled, active, icon, target } = toRefs(props)
+const { disabled, active, icon, target } = toRefs(props);
 
-const NuxtLink = resolveComponent('NuxtLink')
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

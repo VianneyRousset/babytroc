@@ -1,51 +1,48 @@
 <script setup lang="ts">
-import { MessageCircleQuestion, X, Check } from 'lucide-vue-next'
-import { LoanRequestState } from '~/types/loan'
-
 const props = defineProps<{
-  message: ChatMessage
-  me: UserPrivate
-  chat: Chat
-  loanRequestId: number
-}>()
+	message: ChatMessage;
+	me: UserPrivate;
+	chat: Chat;
+	loanRequestId: number;
+}>();
 
 // chat
-const { me, chat, message, loanRequestId } = toRefs(props)
+const { me, chat, message, loanRequestId } = toRefs(props);
 
 // get loan request
 const { data: loanRequest } = useItemLoanRequestQuery({
-  itemId: () => unref(chat).item.id,
-  loanRequestId,
-})
+	itemId: () => unref(chat).item.id,
+	loanRequestId,
+});
 
 // muations
 const {
-  mutateAsync: rejectLoanRequest,
-  asyncStatus: rejectLoanRequestAsyncStatus,
-} = useRejectLoanRequestMutation()
+	mutateAsync: rejectLoanRequest,
+	asyncStatus: rejectLoanRequestAsyncStatus,
+} = useRejectLoanRequestMutation();
 const {
-  mutateAsync: acceptLoanRequest,
-  asyncStatus: acceptLoanRequestAsyncStatus,
-} = useAcceptLoanRequestMutation()
+	mutateAsync: acceptLoanRequest,
+	asyncStatus: acceptLoanRequestAsyncStatus,
+} = useAcceptLoanRequestMutation();
 
 // popup
-const showAcceptPopup = ref(false)
-const showRejectPopup = ref(false)
+const showAcceptPopup = ref(false);
+const showRejectPopup = ref(false);
 
-async function reject() {
-  await rejectLoanRequest({
-    itemId: unref(chat).item.id,
-    loanRequestId: unref(loanRequestId),
-  })
-  showRejectPopup.value = false
+async function _reject() {
+	await rejectLoanRequest({
+		itemId: unref(chat).item.id,
+		loanRequestId: unref(loanRequestId),
+	});
+	showRejectPopup.value = false;
 }
 
-async function accept() {
-  await acceptLoanRequest({
-    itemId: unref(chat).item.id,
-    loanRequestId: unref(loanRequestId),
-  })
-  showAcceptPopup.value = false
+async function _accept() {
+	await acceptLoanRequest({
+		itemId: unref(chat).item.id,
+		loanRequestId: unref(loanRequestId),
+	});
+	showAcceptPopup.value = false;
 }
 </script>
 

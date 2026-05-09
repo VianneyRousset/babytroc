@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight } from 'lucide-vue-next'
-
-const open = defineModel<boolean>()
+const _open = defineModel<boolean>();
 </script>
 
 <template>

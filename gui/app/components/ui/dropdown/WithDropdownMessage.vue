@@ -1,31 +1,34 @@
 <script setup lang="ts">
-import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
+import type { AsyncDataRequestStatus as AsyncStatus } from "#app";
 
-const props = withDefaults(defineProps<{
-  status?: AsyncStatus
-  distance?: number
-  msgError?: string
-  msgSuccess?: string
-  msgPlacement?: MsgPlacement
-}>(), {
-  status: 'idle',
-  distance: 8,
-  msgPlacement: 'auto',
-})
+const props = withDefaults(
+	defineProps<{
+		status?: AsyncStatus;
+		distance?: number;
+		msgError?: string;
+		msgSuccess?: string;
+		msgPlacement?: MsgPlacement;
+	}>(),
+	{
+		status: "idle",
+		distance: 8,
+		msgPlacement: "auto",
+	},
+);
 
-const message = computed<string | undefined>(() => {
-  switch (props.status) {
-    case 'idle':
-    case 'pending':
-      return undefined
-    case 'error':
-      return props.msgError
-    case 'success':
-      return props.msgSuccess
-  }
+const _message = computed<string | undefined>(() => {
+	switch (props.status) {
+		case "idle":
+		case "pending":
+			return undefined;
+		case "error":
+			return props.msgError;
+		case "success":
+			return props.msgSuccess;
+	}
 
-  return undefined
-})
+	return undefined;
+});
 </script>
 
 <template>

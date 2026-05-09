@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { Minus } from 'lucide-vue-next'
-
-const checked = defineModel<boolean>()
+const checked = defineModel<boolean>();
 
 const props = withDefaults(
-  defineProps<{
-    size?: 'large' | 'normal'
-    indeterminate?: boolean
-  }>(),
-  {
-    size: 'normal',
-    indeterminate: false,
-  },
-)
+	defineProps<{
+		size?: "large" | "normal";
+		indeterminate?: boolean;
+	}>(),
+	{
+		size: "normal",
+		indeterminate: false,
+	},
+);
 
-const { size, indeterminate } = toRefs(props)
+const { size, indeterminate } = toRefs(props);
 
-const radixChecked = computed<boolean | 'indeterminate'>({
-  get: () => unref(indeterminate) ? 'indeterminate' : (checked.value ?? false),
-  set: (v) => { checked.value = v === true },
-})
+const _radixChecked = computed<boolean | "indeterminate">({
+	get: () =>
+		unref(indeterminate) ? "indeterminate" : (checked.value ?? false),
+	set: (v) => {
+		checked.value = v === true;
+	},
+});
 </script>
 
 <template>

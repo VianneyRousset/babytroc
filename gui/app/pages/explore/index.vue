@@ -11,94 +11,127 @@
  *      └─► <input>
  **/
 
-import { Filter, LayoutGrid, Grid3x3, ArrowLeft, Repeat, X } from 'lucide-vue-next'
-import { AppPage } from '#components'
-import { isEqual, cloneDeep } from 'lodash'
+import { cloneDeep, isEqual } from "lodash";
 
 definePageMeta({
-  layout: 'explore',
-})
+	layout: "explore",
+});
 
-const device = useDevice()
+const device = useDevice();
 
 // item filters
-const { filters, isDefault: isFiltersDefault, reset: resetFilters, loadFiltersFromQueryParams, dumpFiltersAsQueryParams } = useItemFilters()
+const {
+	filters,
+	isDefault: isFiltersDefault,
+	reset: resetFilters,
+	loadFiltersFromQueryParams,
+	dumpFiltersAsQueryParams,
+} = useItemFilters();
 
 // synced store and route query params
-const { queryParams } = useItemExploreQueryParams()
+const { queryParams } = useItemExploreQueryParams();
 
 // update filters when route query params changes
-watch(queryParams, newQueryParams => loadFiltersFromQueryParams(newQueryParams), { immediate: true })
+watch(
+	queryParams,
+	(newQueryParams) => loadFiltersFromQueryParams(newQueryParams),
+	{ immediate: true },
+);
 
 // query items
-const { items, error, isLoading, loadMore, end } = useItemExplore({ queryParams })
+const { items, error, isLoading, loadMore, end } = useItemExplore({
+	queryParams,
+});
 
 // filters are applied by updating the route query params
-const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
+const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams());
 
 // dense layout
-const dense = ref(false)
+const _dense = ref(false);
 
-const { narrowWindow } = useNarrowWindow()
-const drawerMode = computed<boolean>(() => device.isMobile || unref(narrowWindow))
+const { narrowWindow } = useNarrowWindow();
+const drawerMode = computed<boolean>(
+	() => device.isMobile || unref(narrowWindow),
+);
 
 // filters drawer open state
-const filtersDrawerOpen = ref(false)
+const filtersDrawerOpen = ref(false);
 
 // in panel mode (no drawer), the filters updates the queryparams without having to trigger applyFilters() manually
-watch(computed(() => cloneDeep(unref(filters))), (newFilters, oldFilters) => {
-  // skip if no change or not in panel model
-  if (unref(drawerMode) || isEqual(newFilters, oldFilters))
-    return
+watch(
+	computed(() => cloneDeep(unref(filters))),
+	(newFilters, oldFilters) => {
+		// skip if no change or not in panel model
+		if (unref(drawerMode) || isEqual(newFilters, oldFilters)) return;
 
-  setTimeout(applyFilters, 500)
-}, { deep: true })
+		setTimeout(applyFilters, 500);
+	},
+	{ deep: true },
+);
 
 // apply filter when drawer is closed
 watch(filtersDrawerOpen, (newState, oldState) => {
-  if (!newState && oldState)
-    applyFilters()
-})
+	if (!newState && oldState) applyFilters();
+});
 
 // active filter chips
-const { categories } = useCategoriesList()
-const { regions } = useRegionsList()
+const { categories } = useCategoriesList();
+const { regions } = useRegionsList();
 
-type FilterChip = { label: string, remove: () => void }
+type FilterChip = { label: string; remove: () => void };
 
-const activeFilterChips = computed<FilterChip[]>(() => {
-  const chips: FilterChip[] = []
-  const f = unref(filters)
+const _activeFilterChips = computed<FilterChip[]>(() => {
+	const chips: FilterChip[] = [];
+	const f = unref(filters);
 
-  if (f.available && !f.unavailable) {
-    chips.push({ label: 'Disponible', remove: () => { f.unavailable = true } })
-  } else if (!f.available && f.unavailable) {
-    chips.push({ label: 'Non-disponible', remove: () => { f.available = true; f.unavailable = false } })
-  }
+	if (f.available && !f.unavailable) {
+		chips.push({
+			label: "Disponible",
+			remove: () => {
+				f.unavailable = true;
+			},
+		});
+	} else if (!f.available && f.unavailable) {
+		chips.push({
+			label: "Non-disponible",
+			remove: () => {
+				f.available = true;
+				f.unavailable = false;
+			},
+		});
+	}
 
-  for (const slug of f.categories) {
-    const cat = unref(categories)?.find(c => c.slug === slug)
-    if (cat) {
-      chips.push({ label: cat.name, remove: () => f.categories.delete(slug) })
-    }
-  }
+	for (const slug of f.categories) {
+		const cat = unref(categories)?.find((c) => c.slug === slug);
+		if (cat) {
+			chips.push({ label: cat.name, remove: () => f.categories.delete(slug) });
+		}
+	}
 
-  if (f.targetedAge[0] !== 0 || f.targetedAge[1] !== null) {
-    const from = f.targetedAge[0]
-    const to = f.targetedAge[1]
-    const label = to == null ? `Dès ${from} mois` : `${from}–${to} mois`
-    chips.push({ label, remove: () => { f.targetedAge = [0, null] } })
-  }
+	if (f.targetedAge[0] !== 0 || f.targetedAge[1] !== null) {
+		const from = f.targetedAge[0];
+		const to = f.targetedAge[1];
+		const label = to == null ? `Dès ${from} mois` : `${from}–${to} mois`;
+		chips.push({
+			label,
+			remove: () => {
+				f.targetedAge = [0, null];
+			},
+		});
+	}
 
-  for (const regionId of f.regions) {
-    const region = unref(regions)?.find(r => r.id === regionId)
-    if (region) {
-      chips.push({ label: region.name, remove: () => f.regions.delete(regionId) })
-    }
-  }
+	for (const regionId of f.regions) {
+		const region = unref(regions)?.find((r) => r.id === regionId);
+		if (region) {
+			chips.push({
+				label: region.name,
+				remove: () => f.regions.delete(regionId),
+			});
+		}
+	}
 
-  return chips
-})
+	return chips;
+});
 </script>
 
 <template>

@@ -1,31 +1,34 @@
 <script setup lang="ts">
-import { Check, OctagonAlert, KeyRound } from 'lucide-vue-next'
-import type { AsyncDataRequestStatus as AsyncStatus } from '#app'
+import type { AsyncDataRequestStatus as AsyncStatus } from "#app";
 
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Réinitialiser le mot de passe',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Réinitialiser le mot de passe",
+});
 
 const {
-  mutateAsync: resetPassword,
-  status: resetPasswordStatus,
-  asyncStatus: resetPasswordAsyncStatus,
-} = useResetPasswordMutation()
+	mutateAsync: resetPassword,
+	status: resetPasswordStatus,
+	asyncStatus: resetPasswordAsyncStatus,
+} = useResetPasswordMutation();
 
-const route = useRoute()
+const route = useRoute();
 
-const password = ref('')
-const passwordStatus = ref<AsyncStatus>('idle')
+const password = ref("");
+const passwordStatus = ref<AsyncStatus>("idle");
 
-async function reset() {
-  if (unref(passwordStatus) !== 'success')
-    return
+async function _reset() {
+	if (unref(passwordStatus) !== "success") return;
 
-  const code = Array.isArray(route.query.code) ? route.query.code[0] ?? '' : route.query.code ?? ''
+	const code = Array.isArray(route.query.code)
+		? (route.query.code[0] ?? "")
+		: (route.query.code ?? "");
 
-  await resetPassword({ authorizationCode: code, newPassword: unref(password) })
+	await resetPassword({
+		authorizationCode: code,
+		newPassword: unref(password),
+	});
 }
 </script>
 

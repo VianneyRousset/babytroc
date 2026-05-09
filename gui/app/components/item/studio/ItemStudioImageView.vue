@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { Trash2, Crop } from 'lucide-vue-next'
-
-const img = defineModel<StudioImage>()
-const emit = defineEmits(['delete', 'crop'])
+const _img = defineModel<StudioImage>();
+const _emit = defineEmits(["delete", "crop"]);
 </script>
 
 <template>

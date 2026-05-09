@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { Check, OctagonAlert, KeyRound } from 'lucide-vue-next'
+const emit = defineEmits(["done"]);
 
-const emit = defineEmits(['done'])
+const email = ref("");
 
-const email = ref('')
+const {
+	askPasswordReset,
+	isLoading,
+	status,
+	validationStatus,
+	validationError,
+} = useAskPasswordReset(email);
 
-const { askPasswordReset, isLoading, status, validationStatus, validationError } = useAskPasswordReset(email)
+async function _go() {
+	if (unref(validationStatus) !== "success") return;
 
-async function go() {
-  if (unref(validationStatus) !== 'success')
-    return
-
-  await askPasswordReset()
-  emit('done')
+	await askPasswordReset();
+	emit("done");
 }
 </script>
 

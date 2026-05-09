@@ -1,34 +1,28 @@
 <script setup lang="ts">
-import {
-  Plus,
-  Search,
-  Heart,
-  MessageSquare,
-  UserRound,
-} from 'lucide-vue-next'
-import type { FunctionalComponent } from 'vue'
+import { Heart, MessageSquare, Plus, Search, UserRound } from "lucide-vue-next";
+import type { FunctionalComponent } from "vue";
 
-const { appSectionUrls, activeAppSection } = useNavigation()
+const { appSectionUrls, activeAppSection } = useNavigation();
 
-const { hot } = useChats()
-const { loggedIn } = useAuth()
+const { hot } = useChats();
+const { loggedIn } = useAuth();
 
 type ClassSpecifications = {
-  section: AppSection
-  target?: string
-  name?: string
-  icon?: FunctionalComponent
-  badge?: boolean
-  iconSize?: number
-}
+	section: AppSection;
+	target?: string;
+	name?: string;
+	icon?: FunctionalComponent;
+	badge?: boolean;
+	iconSize?: number;
+};
 
-const tabs = computed<Array<ClassSpecifications>>(() => [
-  { section: 'explore', name: 'Explorer', icon: Search },
-  { section: 'saved', name: 'Favorits', icon: Heart },
-  { section: 'newitem', target: '/me/items/new', icon: Plus, iconSize: 53 },
-  { section: 'chats', icon: MessageSquare, name: 'Chats', badge: unref(hot) },
-  { section: 'me', icon: UserRound, name: 'Moi' },
-])
+const _tabs = computed<Array<ClassSpecifications>>(() => [
+	{ section: "explore", name: "Explorer", icon: Search },
+	{ section: "saved", name: "Favorits", icon: Heart },
+	{ section: "newitem", target: "/me/items/new", icon: Plus, iconSize: 53 },
+	{ section: "chats", icon: MessageSquare, name: "Chats", badge: unref(hot) },
+	{ section: "me", icon: UserRound, name: "Moi" },
+]);
 </script>
 
 <template>

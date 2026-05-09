@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import type { LucideIcon } from 'lucide-vue-next'
+import type { LucideIcon } from "lucide-vue-next";
 
-const props = withDefaults(defineProps<{
-  icon?: LucideIcon
-  color?: 'neutral' | 'primary' | 'red'
-}>(), {
-  color: 'neutral',
-})
+const props = withDefaults(
+	defineProps<{
+		icon?: LucideIcon;
+		color?: "neutral" | "primary" | "red";
+	}>(),
+	{
+		color: "neutral",
+	},
+);
 
-const { icon } = toRefs(props)
-const slots = useSlots()
+const { icon } = toRefs(props);
+const _slots = useSlots();
 </script>
 
 <template>

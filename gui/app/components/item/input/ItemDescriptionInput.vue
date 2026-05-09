@@ -1,33 +1,37 @@
 <script setup lang="ts">
-import type { LongTextInputProps } from '../../ui/inputs/LongTextInput.vue'
+import type { LongTextInputProps } from "../../ui/inputs/LongTextInput.vue";
 
-const props = withDefaults(defineProps<{
-  msgPlacement?: MsgPlacement
-} & Omit<LongTextInputProps, 'modelValue' | 'status'>>(), {
-  type: 'text',
-  placeholder: 'Description',
-})
+const props = withDefaults(
+	defineProps<
+		{
+			msgPlacement?: MsgPlacement;
+		} & Omit<LongTextInputProps, "modelValue" | "status">
+	>(),
+	{
+		type: "text",
+		placeholder: "Description",
+	},
+);
 
-const { msgPlacement } = toRefs(props)
+const { msgPlacement } = toRefs(props);
 
-const description = defineModel<string>('description', { default: '' })
-const valid = defineModel<boolean>('valid', { default: false })
-const touched = defineModel<boolean>('touched', { default: false })
+const description = defineModel<string>("description", { default: "" });
+const valid = defineModel<boolean>("valid", { default: false });
+const touched = defineModel<boolean>("touched", { default: false });
 
-const emit = defineEmits(['next', 'blur'])
+const emit = defineEmits(["next", "blur"]);
 
-const { status, error } = useItemDescriptionValidity(description, touched)
+const { status, error } = useItemDescriptionValidity(description, touched);
 
 const stop = watchEffect(() => {
-  valid.value = unref(status) === 'success'
-})
+	valid.value = unref(status) === "success";
+});
 
-function next() {
-  if (unref(valid))
-    emit('next')
+function _next() {
+	if (unref(valid)) emit("next");
 }
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

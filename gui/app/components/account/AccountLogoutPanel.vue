@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { LockKeyhole, Check, OctagonAlert } from 'lucide-vue-next'
-
-const { data: me } = useMeQuery()
-const { logout: _logout, isLoading } = useLogout()
-const { $toast } = useNuxtApp()
+const { data: me } = useMeQuery();
+const { logout: _logout, isLoading } = useLogout();
+const { $toast } = useNuxtApp();
 
 async function logout() {
-  try {
-    await _logout()
-  }
-  catch {
-    $toast.error('Une erreur s\'est produite')
-  }
+	try {
+		await _logout();
+	} catch {
+		$toast.error("Une erreur s'est produite");
+	}
 }
 
 // Password reset
-const email = computed(() => me.value?.email ?? '')
-const { askPasswordReset, isLoading: resetIsLoading, status: resetStatus } = useAskPasswordReset(email)
+const email = computed(() => me.value?.email ?? "");
+const {
+	askPasswordReset,
+	isLoading: resetIsLoading,
+	status: resetStatus,
+} = useAskPasswordReset(email);
 
-async function requestPasswordReset() {
-  try {
-    await askPasswordReset()
-    $toast.success('Email de réinitialisation envoyé')
-  }
-  catch {
-    $toast.error('Échec de l\'envoi')
-  }
+async function _requestPasswordReset() {
+	try {
+		await askPasswordReset();
+		$toast.success("Email de réinitialisation envoyé");
+	} catch {
+		$toast.error("Échec de l'envoi");
+	}
 }
 </script>
 

@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { Send } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me',
-  appBack: true,
-  appTitle: 'Contact',
-})
+	layout: "me",
+	appBack: true,
+	appTitle: "Contact",
+});
 
-const nom = ref('')
-const email = ref('')
-const sujet = ref('')
-const message = ref('')
-const sent = ref(false)
+const nom = ref("");
+const email = ref("");
+const sujet = ref("");
+const message = ref("");
+const sent = ref(false);
 
-function submit() {
-  if (!nom.value || !email.value || !sujet.value || !message.value) return
-  if (!email.value.includes('@')) return
+function _submit() {
+	if (!nom.value || !email.value || !sujet.value || !message.value) return;
+	if (!email.value.includes("@")) return;
 
-  sent.value = true
-  nom.value = ''
-  email.value = ''
-  sujet.value = ''
-  message.value = ''
+	sent.value = true;
+	nom.value = "";
+	email.value = "";
+	sujet.value = "";
+	message.value = "";
 }
 </script>
 

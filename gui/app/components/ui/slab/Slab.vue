@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import { ChevronRight } from 'lucide-vue-next'
-import type { LucideIcon } from 'lucide-vue-next'
-import type { RouteLocationGeneric } from 'vue-router'
+import type { LucideIcon } from "lucide-vue-next";
+import type { RouteLocationGeneric } from "vue-router";
 
-const props = withDefaults(defineProps<{
-  target?: string | RouteLocationGeneric
-  icon?: LucideIcon
-  chevron?: boolean
-}>(), {
-  chevron: false,
-})
+const props = withDefaults(
+	defineProps<{
+		target?: string | RouteLocationGeneric;
+		icon?: LucideIcon;
+		chevron?: boolean;
+	}>(),
+	{
+		chevron: false,
+	},
+);
 
-const { target, icon, chevron } = toRefs(props)
+const { target, icon, chevron } = toRefs(props);
 
-const slots = useSlots()
-const NuxtLink = resolveComponent('NuxtLink')
+const _slots = useSlots();
+const _NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

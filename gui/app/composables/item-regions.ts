@@ -1,9 +1,9 @@
 export function useItemRegions<T extends { region_ids: number[] }>(
-  item: MaybeRefOrGetter<T>,
+	item: MaybeRefOrGetter<T>,
 ): {
-  regionIds: Ref<Set<number>>
+	regionIds: Ref<Set<number>>;
 } {
-  return {
-    regionIds: computed(() => new Set(toValue(item).region_ids)),
-  }
+	return {
+		regionIds: computed(() => new Set(toValue(item).region_ids)),
+	};
 }

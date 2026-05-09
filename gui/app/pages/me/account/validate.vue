@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { Check, OctagonAlert, AtSign } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me-account-validate',
-  appBack: false,
-})
+	layout: "me-account-validate",
+	appBack: false,
+});
 
 const {
-  mutateAsync: validateAccount,
-  status,
-  isLoading,
-} = useValidateAccountMutation()
+	mutateAsync: validateAccount,
+	status,
+	isLoading,
+} = useValidateAccountMutation();
 
-const route = useRoute()
+const route = useRoute();
 
-watch(status, state => state === 'success' && setTimeout(closeWindow, 2000))
+watch(status, (state) => state === "success" && setTimeout(closeWindow, 2000));
 
-async function validate() {
-  const code = Array.isArray(route.query.code) ? route.query.code[0] ?? '' : route.query.code ?? ''
+async function _validate() {
+	const code = Array.isArray(route.query.code)
+		? (route.query.code[0] ?? "")
+		: (route.query.code ?? "");
 
-  await validateAccount({ validation_code: code })
+	await validateAccount({ validation_code: code });
 }
 </script>
 

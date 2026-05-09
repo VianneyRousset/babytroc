@@ -1,23 +1,19 @@
 <script setup lang="ts">
 const props = defineProps<{
-  active?: string
-}>()
+	active?: string;
+}>();
 
-const { active } = toRefs(props)
+const { active } = toRefs(props);
 
-const { me } = useMe()
-const { chats, isLoading, loadMore, end } = useChats()
+const { me } = useMe();
+const { chats, isLoading, loadMore, end } = useChats();
 
-const scroller = useTemplateRef<HTMLElement>('scroller')
+const scroller = useTemplateRef<HTMLElement>("scroller");
 
-useInfiniteScroll(
-  scroller,
-  loadMore,
-  {
-    canLoadMore: () => !unref(end),
-    distance: 300,
-  },
-)
+useInfiniteScroll(scroller, loadMore, {
+	canLoadMore: () => !unref(end),
+	distance: 300,
+});
 </script>
 
 <template>

@@ -2,7 +2,7 @@
  * List of saved items.
  */
 export function useSavedItemsListQuery() {
-  return useApiPaginatedQuery('/v1/me/saved', {
-    key: ['me', 'item', 'items', 'saved'],
-  })
+	return useApiPaginatedQuery("/v1/me/saved", {
+		key: ["me", "item", "items", "saved"],
+	});
 }

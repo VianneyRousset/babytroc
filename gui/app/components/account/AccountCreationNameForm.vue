@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const name = defineModel<string>('name', { default: '' })
-const valid = defineModel<boolean>('valid')
-const emit = defineEmits(['next'])
+const _name = defineModel<string>("name", { default: "" });
+const valid = defineModel<boolean>("valid");
+const emit = defineEmits(["next"]);
 
-const next = () => unref(valid) && emit('next')
+const _next = () => unref(valid) && emit("next");
 </script>
 
 <template>

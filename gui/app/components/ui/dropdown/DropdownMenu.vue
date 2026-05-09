@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { Ellipsis } from 'lucide-vue-next'
+const open = defineModel<boolean>();
 
-const open = defineModel<boolean>()
-
-provide('dropdown-menu-open', open)
+provide("dropdown-menu-open", open);
 </script>
 
 <template>

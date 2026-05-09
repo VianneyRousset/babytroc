@@ -1,11 +1,11 @@
 <script setup lang="ts">
-const slots = useSlots()
+const _slots = useSlots();
 
 const props = defineProps<{
-  maxWidth?: number
-}>()
+	maxWidth?: number;
+}>();
 
-const { maxWidth } = toRefs(props)
+const { maxWidth } = toRefs(props);
 </script>
 
 <template>

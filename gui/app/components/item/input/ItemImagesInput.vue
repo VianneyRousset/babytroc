@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { OctagonAlert, Check } from 'lucide-vue-next'
+const props = withDefaults(
+	defineProps<{
+		msgPlacement?: MsgPlacement;
+		uploadStatus?: "idle" | "pending" | "success" | "error";
+	}>(),
+	{
+		uploadStatus: "idle",
+	},
+);
 
-const props = withDefaults(defineProps<{
-  msgPlacement?: MsgPlacement
-  uploadStatus?: 'idle' | 'pending' | 'success' | 'error'
-}>(), {
-  uploadStatus: 'idle',
-})
+const { msgPlacement } = toRefs(props);
 
-const { msgPlacement } = toRefs(props)
+const images = defineModel<Array<string>>("images", { default: [] });
+const valid = defineModel<boolean>("valid", { default: false });
+const touched = defineModel<boolean>("touched", { default: false });
 
-const images = defineModel<Array<string>>('images', { default: [] })
-const valid = defineModel<boolean>('valid', { default: false })
-const touched = defineModel<boolean>('touched', { default: false })
+const _emit = defineEmits(["edit"]);
 
-const emit = defineEmits(['edit'])
-
-const { status, error } = useItemImagesValidity(images, touched)
+const { status, error } = useItemImagesValidity(images, touched);
 
 const stop = watchEffect(() => {
-  valid.value = unref(status) === 'success'
-})
+	valid.value = unref(status) === "success";
+});
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

@@ -1,31 +1,35 @@
 <script setup lang="ts">
-import type { TextInputProps } from '../../ui/inputs/TextInput.vue'
+import type { TextInputProps } from "../../ui/inputs/TextInput.vue";
 
-const props = withDefaults(defineProps<{
-  msgPlacement?: MsgPlacement
-} & Omit<TextInputProps, 'modelValue' | 'status'>>(), {
-  type: 'text',
-  placeholder: 'Pseudonyme',
-})
+const props = withDefaults(
+	defineProps<
+		{
+			msgPlacement?: MsgPlacement;
+		} & Omit<TextInputProps, "modelValue" | "status">
+	>(),
+	{
+		type: "text",
+		placeholder: "Pseudonyme",
+	},
+);
 
-const { msgPlacement } = toRefs(props)
+const { msgPlacement } = toRefs(props);
 
-const name = defineModel<string>('name', { default: '' })
-const valid = defineModel<boolean>('valid')
-const emit = defineEmits(['next', 'blur'])
+const name = defineModel<string>("name", { default: "" });
+const valid = defineModel<boolean>("valid");
+const emit = defineEmits(["next", "blur"]);
 
-const { status, error, touched } = useAccountNameValidity(name)
+const { status, error, touched } = useAccountNameValidity(name);
 
 const stop = watchEffect(() => {
-  valid.value = unref(status) === 'success'
-})
+	valid.value = unref(status) === "success";
+});
 
-function next() {
-  if (unref(valid))
-    emit('next')
+function _next() {
+	if (unref(valid)) emit("next");
 }
 
-tryOnUnmounted(stop)
+tryOnUnmounted(stop);
 </script>
 
 <template>

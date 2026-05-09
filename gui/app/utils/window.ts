@@ -1,3 +1,3 @@
 export function closeWindow() {
-  return window.open('', '_self')?.close()
+	return window.open("", "_self")?.close();
 }

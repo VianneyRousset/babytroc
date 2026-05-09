@@ -1,23 +1,23 @@
 <script setup lang="ts" generic="T extends {id: number}">
 const props = defineProps<{
-  item: T
-}>()
+	item: T;
+}>();
 
-const { loggedIn, loginRoute } = useAuth()
+const { loggedIn, loginRoute } = useAuth();
 
-const { item } = toRefs(props)
-const itemId = computed(() => unref(item).id)
+const { item } = toRefs(props);
+const itemId = computed(() => unref(item).id);
 
-const availableForRequest = computed<boolean>(() => {
-  const _item = unref(item)
-  return _item.available && !_item.owned && !_item.active_loan_request
-})
+const _availableForRequest = computed<boolean>(() => {
+	const _item = unref(item);
+	return _item.available && !_item.owned && !_item.active_loan_request;
+});
 
-const { request, loading } = useItemLoanRequest({ itemId })
+const { request, loading } = useItemLoanRequest({ itemId });
 
-async function requestAndNavigateToChat() {
-  const { chatLocation } = await request()
-  return navigateTo(chatLocation)
+async function _requestAndNavigateToChat() {
+	const { chatLocation } = await request();
+	return navigateTo(chatLocation);
 }
 </script>
 

@@ -1,19 +1,24 @@
 <script setup lang="ts" generic="T extends {active_loan?: Loan | null}">
-import VSwitch from '@lmiller1990/v-switch'
-import { Box, MessageCircleQuestion, Import } from 'lucide-vue-next'
-
 const props = defineProps<{
-  item: T
-}>()
+	item: T;
+}>();
 
-const { item } = toRefs(props)
+const { item } = toRefs(props);
 
-const state = computed<'loaned' | 'owned' | 'borrowed' | 'requested' | undefined>(() => {
-  const _item = unref(item)
-  return _item.owned
-    ? (_item.active_loan ? 'loaned' : 'owned')
-    : (_item.active_loan ? 'borrowed' : (_item.active_loan_request ? 'requested' : undefined))
-})
+const _state = computed<
+	"loaned" | "owned" | "borrowed" | "requested" | undefined
+>(() => {
+	const _item = unref(item);
+	return _item.owned
+		? _item.active_loan
+			? "loaned"
+			: "owned"
+		: _item.active_loan
+			? "borrowed"
+			: _item.active_loan_request
+				? "requested"
+				: undefined;
+});
 </script>
 
 <template>

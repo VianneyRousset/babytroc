@@ -1,5 +1,21 @@
 {
 	"files": {
-		"ignore": [".nuxt/**", "app/components.d.ts"]
+		"includes": ["app/**", "!app/components.d.ts"],
+		"experimentalScannerIgnores": ["**/.nuxt", "**/.output", "**/.agents"]
+	},
+	"linter": {
+		"rules": {
+			"correctness": {
+				"noUnusedVariables": "warn",
+				"noVueDuplicateKeys": "off"
+			},
+			"complexity": {
+				"noBannedTypes": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noRedeclare": "off"
+			}
+		}
 	}
 }

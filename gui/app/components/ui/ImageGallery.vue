@@ -1,55 +1,56 @@
 <script setup lang="ts">
-import 'vue3-carousel/carousel.css'
-import { Image, Pencil } from 'lucide-vue-next'
-import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
-import type { ComponentProps } from 'vue-component-type-helpers'
+import "vue3-carousel/carousel.css";
+import type { ComponentProps } from "vue-component-type-helpers";
+import type { Carousel } from "vue3-carousel";
 
-type CarouselConfig = ComponentProps<typeof Carousel>
+type CarouselConfig = ComponentProps<typeof Carousel>;
 
-const emit = defineEmits(['edit'])
+const _emit = defineEmits(["edit"]);
 
-const props = withDefaults(defineProps<{
-  images: string[]
-  config?: CarouselConfig
-  editable?: boolean
-}>(), {
-  config: () => ({}),
-  editable: false,
-})
+const props = withDefaults(
+	defineProps<{
+		images: string[];
+		config?: CarouselConfig;
+		editable?: boolean;
+	}>(),
+	{
+		config: () => ({}),
+		editable: false,
+	},
+);
 
-const { images, config } = toRefs(props)
+const { images, config } = toRefs(props);
 
-const carousel = useTemplateRef<typeof Carousel>('carousel')
+const carousel = useTemplateRef<typeof Carousel>("carousel");
 
 function onKeyDown(event: KeyboardEvent) {
-  const element = event.target as HTMLElement
+	const element = event.target as HTMLElement;
 
-  if (element.tagName === 'INPUT')
-    return
+	if (element.tagName === "INPUT") return;
 
-  switch (event.key) {
-    case 'ArrowLeft':
-      unref(carousel)?.prev()
-      break
-    case 'ArrowRight':
-      unref(carousel)?.next()
-      break
-  }
+	switch (event.key) {
+		case "ArrowLeft":
+			unref(carousel)?.prev();
+			break;
+		case "ArrowRight":
+			unref(carousel)?.next();
+			break;
+	}
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyDown))
-onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
+onMounted(() => window.addEventListener("keydown", onKeyDown));
+onUnmounted(() => window.removeEventListener("keydown", onKeyDown));
 
-const empty = computed(() => unref(images).length === 0)
+const empty = computed(() => unref(images).length === 0);
 
-const carouselConfig = computed(() => ({
-  itemsToShow: 2.5,
-  wrapAround: !unref(empty),
-  enabled: !unref(empty),
+const _carouselConfig = computed(() => ({
+	itemsToShow: 2.5,
+	wrapAround: !unref(empty),
+	enabled: !unref(empty),
 
-  gap: 10,
-  ...unref(config),
-}))
+	gap: 10,
+	...unref(config),
+}));
 </script>
 
 <template>

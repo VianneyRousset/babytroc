@@ -1,33 +1,28 @@
-import type { ChatMessageType as ChatMessageTypeT } from '~/types/chat'
+import type { ChatMessageType as ChatMessageTypeT } from "~/types/chat";
 
 /**
  * Get the origin (me / interlocutor / system) of the chat mesage.
  **/
 export function getChatMessageOrigin<
-  MessageT extends {
-    message_type: ChatMessageTypeT
-    sender_id: number | null
-  },
-  UserT extends { id: number },
->(
-  message: MessageT,
-  me: UserT,
-): ChatMessageOrigin {
-  return (message.message_type === ChatMessageType.text
-    ? (message.sender_id === me.id ? 'me' : 'interlocutor')
-    : 'system'
-  )
+	MessageT extends {
+		message_type: ChatMessageTypeT;
+		sender_id: number | null;
+	},
+	UserT extends { id: number },
+>(message: MessageT, me: UserT): ChatMessageOrigin {
+	return message.message_type === ChatMessageType.text
+		? message.sender_id === me.id
+			? "me"
+			: "interlocutor"
+		: "system";
 }
 
 export function getChatMessageHot<
-  MessageT extends {
-    sender_id: number | null
-    seen: boolean
-  },
-  UserT extends { id: number },
->(
-  message: MessageT,
-  me: UserT,
-): boolean {
-  return message.sender_id !== me.id && !message.seen
+	MessageT extends {
+		sender_id: number | null;
+		seen: boolean;
+	},
+	UserT extends { id: number },
+>(message: MessageT, me: UserT): boolean {
+	return message.sender_id !== me.id && !message.seen;
 }

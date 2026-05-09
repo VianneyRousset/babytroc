@@ -1,31 +1,28 @@
 <script setup lang="ts">
-import { Check } from 'lucide-vue-next'
-import { Cropper, type Boundaries } from 'vue-advanced-cropper'
-import 'vue-advanced-cropper/dist/style.css'
+import type { Boundaries } from "vue-advanced-cropper";
+import "vue-advanced-cropper/dist/style.css";
 
-const img = defineModel<StudioImage>()
-const emit = defineEmits<(event: 'crop', crop: StudioImageCrop) => void>()
-const cropperElement = useTemplateRef('cropper')
+const img = defineModel<StudioImage>();
+const emit = defineEmits<(event: "crop", crop: StudioImageCrop) => void>();
+const cropperElement = useTemplateRef("cropper");
 
-function emitCrop() {
-  const _img = unref(img)
-  const _cropper = unref(cropperElement)
+function _emitCrop() {
+	const _img = unref(img);
+	const _cropper = unref(cropperElement);
 
-  if (_img == null)
-    throw new Error('img not defined')
+	if (_img == null) throw new Error("img not defined");
 
-  if (_cropper == null)
-    throw new Error('cropper not defined')
+	if (_cropper == null) throw new Error("cropper not defined");
 
-  const { visibleArea } = _cropper.getResult()
-  emit('crop', visibleArea)
+	const { visibleArea } = _cropper.getResult();
+	emit("crop", visibleArea);
 }
 
-function stencilSize({ boundaries }: { boundaries: Boundaries }) {
-  return {
-    width: boundaries.width,
-    height: boundaries.height,
-  }
+function _stencilSize({ boundaries }: { boundaries: Boundaries }) {
+	return {
+		width: boundaries.width,
+		height: boundaries.height,
+	};
 }
 </script>
 

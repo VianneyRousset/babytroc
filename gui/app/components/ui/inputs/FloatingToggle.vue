@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ToggleIconProps } from './ToggleIcon.vue'
+import type { ToggleIconProps } from "./ToggleIcon.vue";
 
-const model = defineModel<boolean>()
+const _model = defineModel<boolean>();
 
-const props = defineProps<ToggleIconProps>()
+const _props = defineProps<ToggleIconProps>();
 </script>
 
 <template>

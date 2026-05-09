@@ -1,14 +1,17 @@
 <script setup lang="ts" generic="T extends { image_names: Array<string> }">
-const props = withDefaults(defineProps<{
-  item: T
-  wide?: boolean
-}>(), {
-  wide: false,
-})
+const props = withDefaults(
+	defineProps<{
+		item: T;
+		wide?: boolean;
+	}>(),
+	{
+		wide: false,
+	},
+);
 
-const { item, wide } = toRefs(props)
+const { item, wide } = toRefs(props);
 
-const { imagesNames } = useItemImages(item)
+const { imagesNames } = useItemImages(item);
 </script>
 
 <template>

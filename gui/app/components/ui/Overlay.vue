@@ -1,15 +1,15 @@
 <script setup lang="ts">
-const model = defineModel<boolean>({ default: true })
+const model = defineModel<boolean>({ default: true });
 
 function onKeyDown(event: KeyboardEvent) {
-  if (event.key === 'Escape') {
-    model.value = false
-    event.preventDefault()
-  }
+	if (event.key === "Escape") {
+		model.value = false;
+		event.preventDefault();
+	}
 }
 
-onMounted(() => window.addEventListener('keydown', onKeyDown))
-onUnmounted(() => window.removeEventListener('keydown', onKeyDown))
+onMounted(() => window.addEventListener("keydown", onKeyDown));
+onUnmounted(() => window.removeEventListener("keydown", onKeyDown));
 </script>
 
 <template>

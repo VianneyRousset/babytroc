@@ -1,40 +1,38 @@
 <script setup lang="ts">
-import { Check, OctagonAlert, X } from 'lucide-vue-next'
-
 definePageMeta({
-  layout: 'me-account-pending-validation',
-  appBack: false,
-})
+	layout: "me-account-pending-validation",
+	appBack: false,
+});
 
 const {
-  mutateAsync: resendValidationEmail,
-  asyncStatus: resendValidationEmailAsyncStatus,
-} = useResendValidationEmailMutation()
+	mutateAsync: resendValidationEmail,
+	asyncStatus: resendValidationEmailAsyncStatus,
+} = useResendValidationEmailMutation();
 
-const error = ref<boolean>(false)
-const { loggedIn } = useAuth()
-const { $api } = useNuxtApp()
+const _error = ref<boolean>(false);
+const { loggedIn } = useAuth();
+const { $api } = useNuxtApp();
 
 watch(loggedIn, (state) => {
-  if (state !== true)
-    return
+	if (state !== true) return;
 
-  setTimeout(() => navigateTo('/me/account'), 1200)
-})
+	setTimeout(() => navigateTo("/me/account"), 1200);
+});
 
 // resend validation email if specified
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 if (route.query.sendEmail !== undefined) {
-  resendValidationEmail()
-  router.replace({ query: {} })
+	resendValidationEmail();
+	router.replace({ query: {} });
 }
 
-const queryCache = useQueryCache()
-useLiveMessage('updated_account_validation', () => {
-  $api('/v1/auth/refresh', { method: 'POST' })
-    .then(() => queryCache.invalidateQueries({ key: ['auth'] }))
-})
+const queryCache = useQueryCache();
+useLiveMessage("updated_account_validation", () => {
+	$api("/v1/auth/refresh", { method: "POST" }).then(() =>
+		queryCache.invalidateQueries({ key: ["auth"] }),
+	);
+});
 </script>
 
 <template>
