@@ -17,7 +17,7 @@ const { firstImageName } = useItemFirstImage(item)
 const backgroundImage = computed(() => {
   const backgrounds = []
 
-  backgrounds.push('linear-gradient(transparent 0 40%, #202020 100%)')
+  backgrounds.push('linear-gradient(transparent 0 40%, rgba(18, 28, 20, 0.85) 100%)')
   backgrounds.push(`url('${imagePath(unref(firstImageName), 512)}')`)
   backgrounds.push(`url('${imagePath(unref(firstImageName), 128)}')`)
 
@@ -97,7 +97,7 @@ a {
     padding: $space-3;
 
     svg {
-      filter: drop-shadow(0px 0px 3px rgba(0, 0, 0, 0.5));
+      filter: drop-shadow(0px 0px 3px rgba(18, 28, 20, 0.5));
     }
 
     .not-available {
@@ -112,7 +112,7 @@ a {
 
   .info {
     padding: $space-3 $space-4;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+    background: linear-gradient(transparent, rgba(18, 28, 20, 0.5));
 
     .age {
       color: $primary-300;

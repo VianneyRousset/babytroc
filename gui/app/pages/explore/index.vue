@@ -11,7 +11,7 @@
  *      └─► <input>
  **/
 
-import { Filter, LayoutGrid, Grid3x3, ArrowLeft, Repeat } from 'lucide-vue-next'
+import { Filter, LayoutGrid, Grid3x3, ArrowLeft, Repeat, X } from 'lucide-vue-next'
 import { AppPage } from '#components'
 import { isEqual, cloneDeep } from 'lodash'
 
@@ -31,7 +31,7 @@ const { queryParams } = useItemExploreQueryParams()
 watch(queryParams, newQueryParams => loadFiltersFromQueryParams(newQueryParams), { immediate: true })
 
 // query items
-const { items, error, isLoading, loadMore } = useItemExplore({ queryParams })
+const { items, error, isLoading, loadMore, end } = useItemExplore({ queryParams })
 
 // filters are applied by updating the route query params
 const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams())
@@ -59,6 +59,46 @@ watch(filtersDrawerOpen, (newState, oldState) => {
   if (!newState && oldState)
     applyFilters()
 })
+
+// active filter chips
+const { categories } = useCategoriesList()
+const { regions } = useRegionsList()
+
+type FilterChip = { label: string, remove: () => void }
+
+const activeFilterChips = computed<FilterChip[]>(() => {
+  const chips: FilterChip[] = []
+  const f = unref(filters)
+
+  if (!f.available && f.unavailable) {
+    chips.push({ label: 'Non-disponible', remove: () => { f.available = true; f.unavailable = false } })
+  } else if (f.available && f.unavailable) {
+    chips.push({ label: 'Tous', remove: () => { f.available = true; f.unavailable = false } })
+  }
+
+  for (const slug of f.categories) {
+    const cat = unref(categories)?.find(c => c.slug === slug)
+    if (cat) {
+      chips.push({ label: cat.name, remove: () => f.categories.delete(slug) })
+    }
+  }
+
+  if (f.targetedAge[0] !== 0 || f.targetedAge[1] !== null) {
+    const from = f.targetedAge[0]
+    const to = f.targetedAge[1]
+    const label = to == null ? `Dès ${from} mois` : `${from}–${to} mois`
+    chips.push({ label, remove: () => { f.targetedAge = [0, null] } })
+  }
+
+  for (const regionId of f.regions) {
+    const region = unref(regions)?.find(r => r.id === regionId)
+    if (region) {
+      chips.push({ label: region.name, remove: () => f.regions.delete(regionId) })
+    }
+  }
+
+  return chips
+})
 </script>
 
 <template>
@@ -82,8 +122,12 @@ watch(filtersDrawerOpen, (newState, oldState) => {
           v-model="filtersDrawerOpen"
           :active="!isFiltersDefault"
           :icon="Filter"
+          aria-label="Filtres"
         />
-        <FloatingToggle v-model="dense">
+        <FloatingToggle
+          v-model="dense"
+          :aria-label="dense ? 'Affichage normal' : 'Affichage compact'"
+        >
           <transition
             name="fade"
             mode="out-in"
@@ -110,7 +154,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
         position="right"
         :drawer="drawerMode"
       >
-        <Panel style="align-items: stretch;">
+        <Panel class="filters-panel">
           <ItemExploreFilters
             v-model="filters"
             :size="device.isMobile ? 'large' : 'normal'"
@@ -121,6 +165,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
           >
             <IconButton
               class="Toggle"
+              aria-label="Fermer les filtres"
               @click="() => { filtersDrawerOpen = false }"
             >
               <ArrowLeft
@@ -131,6 +176,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
             <h1>Filtres</h1>
             <IconButton
               :disabled="isFiltersDefault"
+              aria-label="Réinitialiser les filtres"
               @click="resetFilters"
             >
               <Repeat
@@ -146,6 +192,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
             <h1>Filtres</h1>
             <IconButton
               :disabled="isFiltersDefault"
+              aria-label="Réinitialiser les filtres"
               @click="resetFilters"
             >
               <Repeat
@@ -168,6 +215,7 @@ watch(filtersDrawerOpen, (newState, oldState) => {
             v-model="filtersDrawerOpen"
             :active="!isFiltersDefault"
             class="filter"
+            aria-label="Filtres"
           >
             <Filter
               :size="32"
@@ -186,6 +234,26 @@ watch(filtersDrawerOpen, (newState, oldState) => {
     <!-- Item cards -->
     <main>
       <Panel>
+        <!-- Active filter chips -->
+        <div
+          v-if="activeFilterChips.length > 0"
+          class="filter-chips"
+        >
+          <button
+            v-for="chip in activeFilterChips"
+            :key="chip.label"
+            class="chip"
+            @click="chip.remove(); applyFilters()"
+          >
+            {{ chip.label }}
+            <X
+              :size="14"
+              :stroke-width="2"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+
         <ItemCardsCollection
           :items="items"
           :dense="dense"
@@ -193,6 +261,14 @@ watch(filtersDrawerOpen, (newState, oldState) => {
           :error="error != null"
           :target="itemId => `/explore/item/${itemId}`"
         />
+
+        <!-- End of results -->
+        <div
+          v-if="end && items && items.length > 0 && !isLoading"
+          class="end-message"
+        >
+          Plus d'objets à afficher
+        </div>
       </Panel>
     </main>
   </AppPage>
@@ -221,5 +297,48 @@ watch(filtersDrawerOpen, (newState, oldState) => {
   position: absolute;
   right: $space-2;
   top: calc(var(--app-header-bar-height) + #{$space-2});
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  padding: 0 $space-2;
+
+  .chip {
+    @include reset-button;
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    padding: $space-1 $space-3;
+    background: $neutral-100;
+    color: $text-secondary;
+    border-radius: $radius-pill;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+
+    &:hover {
+      background: $neutral-200;
+      color: $text-primary;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-500;
+      outline-offset: 1px;
+    }
+  }
+}
+
+.filters-panel {
+  align-items: stretch;
+}
+
+.end-message {
+  text-align: center;
+  color: $text-tertiary;
+  font-size: 0.8125rem;
+  padding: $space-8 0;
 }
 </style>

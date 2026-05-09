@@ -58,7 +58,7 @@ const fontSize = computed(() => {
       Une erreur est survenue.
     </ListError>
     <ListEmpty v-else-if="!loading && items?.length === 0">
-      Aucun résultat
+      Aucun résultat. Essayez avec moins de filtres.
     </ListEmpty>
     <div class="cards">
       <ItemCard

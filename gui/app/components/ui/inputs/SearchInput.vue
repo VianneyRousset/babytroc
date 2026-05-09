@@ -26,11 +26,12 @@ function submit() {
       class="search-icon"
       :size="20"
       :stroke-width="1"
+      aria-hidden="true"
     />
     <input
       ref="input"
       v-model="model"
-      placeholder="Search"
+      placeholder="Rechercher"
       type="search"
       tabindex="1"
       autofocus
