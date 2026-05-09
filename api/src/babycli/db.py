@@ -1,4 +1,4 @@
-# babycli/db.py
+# src/babycli/db.py
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -86,7 +86,8 @@ def reset(
     if with_seed:
         import asyncio
 
-        from seed.__main__ import populate_all
+        from .seed import populate_all
+
         asyncio.run(populate_all())
         console_ok("Seed data populated")
 
@@ -94,12 +95,12 @@ def reset(
 @seed_app.command(name="all")
 async def seed_all(
     data_file: Annotated[
-        Path,
+        Path | None,
         Parameter(
             name="--data-file",
-            help="File containing regions and users data.",
+            help="Data file (default: bundled resource).",
         ),
-    ] = Path("seed/data/data.json"),
+    ] = None,
     items_count: Annotated[
         int,
         Parameter(
@@ -118,7 +119,10 @@ async def seed_all(
         bool,
         Parameter(
             name="--danger",
-            help="Confirm destructive operation (required with --force).",
+            help=(
+                "Confirm destructive operation"
+                " (required with --force)."
+            ),
         ),
     ] = False,
 ):
@@ -126,59 +130,65 @@ async def seed_all(
     if force:
         require_danger(danger_flag=danger)
 
-    from seed.__main__ import populate_all as _populate_all
-    await _populate_all(fp=data_file, items_count=items_count, force=force)
+    from .seed import populate_all as _populate_all
+
+    await _populate_all(
+        fp=data_file, items_count=items_count, force=force,
+    )
     console_ok("Seed complete")
 
 
 @seed_app.command(name="regions")
 async def seed_regions(
     data_file: Annotated[
-        Path,
+        Path | None,
         Parameter(name="--data-file", help="Data file."),
-    ] = Path("seed/data/data.json"),
+    ] = None,
     force: Annotated[
         bool,
         Parameter(name=["--force", "-f"], help="Force re-populate."),
     ] = False,
 ):
     """Seed regions."""
-    from seed.__main__ import populate_regions
-    await populate_regions(fp=data_file, force=force)
+    from .seed import populate_regions_cmd
+
+    await populate_regions_cmd(fp=data_file, force=force)
     console_ok("Regions seeded")
 
 
 @seed_app.command(name="categories")
 async def seed_categories(
     data_file: Annotated[
-        Path,
+        Path | None,
         Parameter(name="--data-file", help="Data file."),
-    ] = Path("seed/data/data.json"),
+    ] = None,
     force: Annotated[
         bool,
         Parameter(name=["--force", "-f"], help="Force re-populate."),
     ] = False,
 ):
     """Seed categories."""
-    from seed.__main__ import populate_categories
-    await populate_categories(fp=data_file, force=force)
+    from .seed import populate_categories_cmd
+
+    await populate_categories_cmd(fp=data_file, force=force)
     console_ok("Categories seeded")
 
 
 @seed_app.command(name="users")
 async def seed_users(
     data_file: Annotated[
-        Path,
+        Path | None,
         Parameter(name="--data-file", help="Data file."),
-    ] = Path("seed/data/data.json"),
+    ] = None,
     force: Annotated[
         bool,
         Parameter(name=["--force", "-f"], help="Force re-populate."),
     ] = False,
 ):
     """Seed users."""
-    from seed.__main__ import populate_users
-    await populate_users(fp=data_file, force=force)
+    from .seed import populate_users_cmd
+
+    await populate_users_cmd(fp=data_file, force=force)
     console_ok("Users seeded")
 
 
@@ -186,7 +196,9 @@ async def seed_users(
 async def seed_items(
     items_count: Annotated[
         int,
-        Parameter(name=["--items-count", "-n"], help="Number of items."),
+        Parameter(
+            name=["--items-count", "-n"], help="Number of items.",
+        ),
     ] = 20,
     force: Annotated[
         bool,
@@ -194,6 +206,7 @@ async def seed_items(
     ] = False,
 ):
     """Seed items."""
-    from seed.__main__ import populate_items
-    await populate_items(items_count=items_count, force=force)
+    from .seed import populate_items_cmd
+
+    await populate_items_cmd(items_count=items_count, force=force)
     console_ok("Items seeded")
