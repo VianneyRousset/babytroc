@@ -1,0 +1,111 @@
+{
+  "regions": [
+    {
+      "id": 1,
+      "name": "Centre"
+    },
+    {
+      "id": 2,
+      "name": "Maupas / Valency"
+    },
+    {
+      "id": 3,
+      "name": "S\u00e9beillon / Malley"
+    },
+    {
+      "id": 4,
+      "name": "Montoie / Bourdonnette"
+    },
+    {
+      "id": 5,
+      "name": "Montriond / Cour"
+    },
+    {
+      "id": 6,
+      "name": "Sous-Gare / Ouchy"
+    },
+    {
+      "id": 7,
+      "name": "Montchoisi"
+    },
+    {
+      "id": 8,
+      "name": "Florimont / Chissiez"
+    },
+    {
+      "id": 9,
+      "name": "Mousquines / Bellevue"
+    },
+    {
+      "id": 10,
+      "name": "Vallon / B\u00e9thusy"
+    },
+    {
+      "id": 11,
+      "name": "Chailly / Rov\u00e9r\u00e9az"
+    },
+    {
+      "id": 12,
+      "name": "Sallaz / Vennes / S\u00e9chaud"
+    },
+    {
+      "id": 13,
+      "name": "Sauvabelin"
+    },
+    {
+      "id": 14,
+      "name": "Borde / Bellevaux"
+    },
+    {
+      "id": 15,
+      "name": "Vinet / Pontaise"
+    },
+    {
+      "id": 16,
+      "name": "Bossons / Bl\u00e9cherette"
+    },
+    {
+      "id": 17,
+      "name": "Beaulieu / Grey / Boisy"
+    }
+  ],
+  "categories": [
+    {"slug": "clothing", "name": "Vêtements"},
+    {"slug": "clothing-bodysuits", "name": "Bodies", "parent_slug": "clothing"},
+    {"slug": "clothing-sleepwear", "name": "Pyjamas", "parent_slug": "clothing"},
+    {"slug": "clothing-outerwear", "name": "Manteaux", "parent_slug": "clothing"},
+    {"slug": "clothing-accessories", "name": "Accessoires", "parent_slug": "clothing"},
+    {"slug": "toys", "name": "Jouets"},
+    {"slug": "toys-bath", "name": "Jouets de bain", "parent_slug": "toys"},
+    {"slug": "toys-soft", "name": "Peluches", "parent_slug": "toys"},
+    {"slug": "toys-educational", "name": "Jouets éducatifs", "parent_slug": "toys"},
+    {"slug": "gear", "name": "Équipement"},
+    {"slug": "gear-strollers", "name": "Poussettes", "parent_slug": "gear"},
+    {"slug": "gear-car-seats", "name": "Sièges auto", "parent_slug": "gear"},
+    {"slug": "gear-carriers", "name": "Porte-bébés", "parent_slug": "gear"},
+    {"slug": "furniture", "name": "Mobilier"},
+    {"slug": "furniture-cribs", "name": "Lits", "parent_slug": "furniture"},
+    {"slug": "furniture-chairs", "name": "Chaises", "parent_slug": "furniture"},
+    {"slug": "furniture-changing", "name": "Tables à langer", "parent_slug": "furniture"},
+    {"slug": "feeding", "name": "Repas"},
+    {"slug": "feeding-bottles", "name": "Biberons", "parent_slug": "feeding"},
+    {"slug": "feeding-bibs", "name": "Bavoirs", "parent_slug": "feeding"},
+    {"slug": "feeding-highchairs", "name": "Chaises hautes", "parent_slug": "feeding"},
+    {"slug": "hygiene", "name": "Hygiène"},
+    {"slug": "hygiene-diapers", "name": "Couches", "parent_slug": "hygiene"},
+    {"slug": "hygiene-bath", "name": "Bain", "parent_slug": "hygiene"},
+    {"slug": "hygiene-care", "name": "Soins", "parent_slug": "hygiene"}
+  ],
+  "users": [
+    {
+      "email": "alice@babytroc.ch",
+      "name": "Alice Bouchard",
+      "password": "alicePassword1"
+    },
+    {
+      "email": "bob@babytroc.ch",
+      "name": "Bob Vans",
+      "password": "bobPassword1"
+    }
+  ]
+}
