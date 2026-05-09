@@ -66,7 +66,6 @@ export function useApiPaginatedQuery<
 		loadNextPage,
 		error,
 		isLoading,
-		...query
 	} = useInfiniteQuery<Array<TData>, Error, Cursor>({
 		...options,
 

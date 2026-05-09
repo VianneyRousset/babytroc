@@ -1,7 +1,6 @@
 {
 	"files": {
-		"includes": ["app/**", "!app/components.d.ts"],
-		"experimentalScannerIgnores": ["**/.nuxt", "**/.output", "**/.agents"]
+		"includes": ["app/**", "!app/components.d.ts", "!**/.nuxt"]
 	},
 	"linter": {
 		"rules": {
@@ -17,5 +16,22 @@
 				"noRedeclare": "off"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.vue"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedVariables": "off",
+						"noUnusedImports": "off"
+					},
+					"style": {
+						"useConst": "off",
+						"useImportType": "off"
+					}
+				}
+			}
+		}
+	]
 }
