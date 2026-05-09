@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from app.domains.user import services as user_services
 from app.domains.user.schemas.create import UserCreate
 from app.domains.user.schemas.private import UserPrivateRead
-from app.utils.hash import HashedStr
+from app.shared.hash import HashedStr
 
 
 class UserData(TypedDict):

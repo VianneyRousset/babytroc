@@ -4,7 +4,7 @@ from httpx import AsyncClient
 
 from app.domains.category.schemas.read import CategoryRead
 from app.domains.item.schemas.read import ItemRead
-from app.utils.pagination import iter_paginated_endpoint
+from app.shared.pagination_utils import iter_paginated_endpoint
 
 
 class TestCategoriesList:

@@ -11,7 +11,7 @@ from fastapi_mail import FastMail
 from pydantic import SecretStr
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.errors import ApiError
+from app.shared.errors import ApiError
 
 from .infrastructure.cache import init_cache_dependency
 from .infrastructure.cache_client import RedisCache

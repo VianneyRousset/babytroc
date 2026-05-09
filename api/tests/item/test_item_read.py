@@ -7,7 +7,7 @@ from unidecode import unidecode
 from app.domains.item.schemas.query import ItemQueryAvailability
 from app.domains.item.schemas.read import ItemRead
 from app.domains.user.schemas.private import UserPrivateRead
-from app.utils.pagination import iter_chunks, iter_paginated_endpoint
+from app.shared.pagination_utils import iter_chunks, iter_paginated_endpoint
 from tests.utils import azip
 
 

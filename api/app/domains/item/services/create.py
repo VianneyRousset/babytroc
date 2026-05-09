@@ -8,7 +8,7 @@ from sqlalchemy import ColumnClause, Integer, column, insert, select, values
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.star import stars_gain_when_adding_item
+from app.domains.user.star import stars_gain_when_adding_item
 from app.domains.item.models import Item
 from app.domains.item.models.category import ItemCategoryAssociation
 from app.domains.item.models.image import ItemImage, ItemImageAssociation
