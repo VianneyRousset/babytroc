@@ -50,15 +50,10 @@ async def database_sessionmaker(
     engine = create_async_engine(
         url=database, echo=False, poolclass=NullPool,
     )
-    yield async_sessionmaker(bind=engine)
+    maker = async_sessionmaker(bind=engine)
+    init_db_session_dependency(maker)
+    yield maker
     await engine.dispose()
-
-
-@pytest.fixture(autouse=True, scope="class")
-async def _swap_app_db(app: FastAPI, database_sessionmaker):
-    """Class-scoped DB swap for heavy tests."""
-    init_db_session_dependency(database_sessionmaker)
-    yield
 
 
 @pytest.fixture(autouse=True, scope="class")

@@ -48,7 +48,6 @@ async def _open_test_websocket(
 @pytest.fixture
 async def alice_websocket(
     app: FastAPI,
-    _swap_app_db,
     alice_user_data: UserData,
 ) -> AsyncGenerator[AsyncWebSocketSession]:
     """Websocket with Alice's credentials."""
@@ -60,7 +59,6 @@ async def alice_websocket(
 @pytest.fixture
 async def bob_websocket(
     app: FastAPI,
-    _swap_app_db,
     bob_user_data: UserData,
 ) -> AsyncGenerator[AsyncWebSocketSession]:
     """Websocket with Bob's credentials."""
@@ -72,7 +70,6 @@ async def bob_websocket(
 @pytest.fixture
 async def carol_websocket(
     app: FastAPI,
-    _swap_app_db,
     carol_user_data: UserData,
 ) -> AsyncGenerator[AsyncWebSocketSession]:
     """Websocket with Carol's credentials."""

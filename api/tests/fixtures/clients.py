@@ -13,7 +13,6 @@ from .users import UserData
 @pytest.fixture
 async def client(
     app: FastAPI,
-    _swap_app_db,
 ) -> AsyncGenerator[AsyncClient]:
     """HTTP client to the app."""
     c = create_client(app)
@@ -24,7 +23,6 @@ async def client(
 @pytest.fixture
 async def alice_client(
     app: FastAPI,
-    _swap_app_db,
     alice: UserPrivateRead,
     alice_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:
@@ -42,7 +40,6 @@ async def alice_client(
 @pytest.fixture
 async def bob_client(
     app: FastAPI,
-    _swap_app_db,
     bob: UserPrivateRead,
     bob_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:
@@ -60,7 +57,6 @@ async def bob_client(
 @pytest.fixture
 async def carol_client(
     app: FastAPI,
-    _swap_app_db,
     carol: UserPrivateRead,
     carol_user_data: UserData,
 ) -> AsyncGenerator[AsyncClient]:

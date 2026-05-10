@@ -260,15 +260,21 @@ async def database(
 async def database_sessionmaker(
     database: URL,
 ) -> AsyncGenerator[async_sessionmaker]:
+    from babytroc.infrastructure.database import init_db_session_dependency
+
     engine = create_async_engine(
         url=database,
         echo=False,
         poolclass=NullPool,
     )
 
-    yield async_sessionmaker(
-        bind=engine,
-    )
+    maker = async_sessionmaker(bind=engine)
+
+    # Immediately swap the app's session maker so all HTTP requests
+    # through the ASGI app use this test's database.
+    init_db_session_dependency(maker)
+
+    yield maker
 
     await engine.dispose()
 
@@ -297,6 +303,26 @@ async def create_database(
             )
             await conn.execute(stmt)
 
+    finally:
+        await engine.dispose()
+
+
+async def _set_datallowconn(url: URL, *, allow: bool) -> None:
+    """Set datallowconn on the database."""
+    database = url.database
+    admin_url = url._replace(database="postgres")
+    engine = create_async_engine(
+        admin_url, isolation_level="AUTOCOMMIT", poolclass=NullPool,
+    )
+    try:
+        async with engine.begin() as conn:
+            val = "true" if allow else "false"
+            await conn.execute(
+                text(
+                    f'ALTER DATABASE "{database}" '
+                    f"WITH ALLOW_CONNECTIONS = {val}"
+                ),
+            )
     finally:
         await engine.dispose()
 

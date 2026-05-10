@@ -13,7 +13,6 @@ from babytroc.infrastructure.config import (
     RedisConfig,
     S3Config,
 )
-from babytroc.infrastructure.database import init_db_session_dependency
 
 
 @pytest.fixture(scope="session")
@@ -51,12 +50,6 @@ async def app(
     app = create_app(app_config, pubsub_channel_prefix=prefix)
     async with LifespanManager(app):
         yield app
-
-
-@pytest.fixture(autouse=True)
-async def _swap_app_db(app: FastAPI, database_sessionmaker):
-    init_db_session_dependency(database_sessionmaker)
-    yield
 
 
 @pytest.fixture(autouse=True)
