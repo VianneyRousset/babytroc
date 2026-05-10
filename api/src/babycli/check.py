@@ -2,6 +2,7 @@
 import os
 import sys
 
+import httpx
 from cyclopts import App
 
 from ._utils import async_db_session, console_err, console_ok
@@ -75,6 +76,7 @@ def check_email_config() -> bool:
         "EMAIL_PASSWORD",
         "EMAIL_FROM_EMAIL",
         "EMAIL_FROM_NAME",
+        "CONTACT_EMAIL",
     ]
     missing = [k for k in required if k not in os.environ]
     if missing:
@@ -116,6 +118,20 @@ async def check_migrations() -> bool:
         return False
 
 
+async def check_cap() -> bool:
+    try:
+        from babytroc.infrastructure.config import CapConfig
+
+        config = CapConfig.from_env()
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            await client.get(f"{config.api_url}/", timeout=5.0)
+        console_ok(f"Cap — reachable ({config.api_url})")
+        return True
+    except Exception as e:
+        console_err(f"Cap — {e}")
+        return False
+
+
 @check_app.default
 async def check_all():
     """Run all health checks."""
@@ -125,6 +141,7 @@ async def check_all():
         await check_s3(),
         check_email_config(),
         await check_migrations(),
+        await check_cap(),
     ]
     if not all(results):
         sys.exit(1)
@@ -162,4 +179,11 @@ def check_email_cmd():
 async def check_migrations_cmd():
     """Check if database migrations are up to date."""
     if not await check_migrations():
+        sys.exit(1)
+
+
+@check_app.command(name="cap")
+async def check_cap_cmd():
+    """Check cap captcha server reachability."""
+    if not await check_cap():
         sys.exit(1)
