@@ -18,8 +18,6 @@ from babytroc.domains.chat.schemas.websocket import (
     WebSocketMessageNewChatMessage,
     WebSocketMessageUpdatedChatMessage,
 )
-from babytroc.domains.item.schemas.read import ItemRead
-from babytroc.domains.loan import services as loan_services
 from babytroc.domains.loan.schemas.read import LoanRequestRead
 from babytroc.domains.user.schemas.private import UserPrivateRead
 from tests.fixtures.websockets import WebSocketRecorder
@@ -191,29 +189,44 @@ async def alice_many_messages_to_bob(
         return messages + extra_messages
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_many_chats(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
     bob: UserPrivateRead,
-    many_items: list[ItemRead],
 ) -> list[ChatRead]:
-    """Many chats between Alice and Bob."""
+    """SELECT every Alice↔Bob chat from the cloned DB.
+
+    Backed by `tpl_alice_many_chats` (one chat per Alice/Bob item).
+    """
+    from sqlalchemy import or_, select
+
+    from babytroc.domains.chat.models import Chat
+    from babytroc.domains.item.models.item import Item
 
     async with database_sessionmaker.begin() as session:
-        loan_requests = [
-            await loan_services.create_loan_request(
-                db=session,
-                item_id=item.id,
-                borrower_id=alice.id if item.owner.id == bob.id else bob.id,
+        chat_ids = (
+            (
+                await session.execute(
+                    select(Chat.item_id, Chat.borrower_id)
+                    .join(Item, Item.id == Chat.item_id)
+                    .where(
+                        or_(
+                            (Item.owner_id == alice.id)
+                            & (Chat.borrower_id == bob.id),
+                            (Item.owner_id == bob.id)
+                            & (Chat.borrower_id == alice.id),
+                        ),
+                    )
+                    .order_by(Chat.item_id, Chat.borrower_id),
+                )
             )
-            for item in many_items
-            if item.owner.id in [alice.id, bob.id]
-        ]
-        return [
-            await chat_services.get_chat(
-                db=session,
-                chat_id=loan_request.chat_id,
-            )
-            for loan_request in loan_requests
-        ]
+            .all()
+        )
+        if not chat_ids:
+            return []
+        ids = {
+            ChatId.from_values(item_id=item_id, borrower_id=borrower_id)
+            for item_id, borrower_id in chat_ids
+        }
+        return await chat_services.get_many_chats(db=session, chat_ids=ids)

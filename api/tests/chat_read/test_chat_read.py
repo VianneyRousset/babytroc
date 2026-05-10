@@ -8,6 +8,7 @@ from babytroc.shared.pagination_utils import iter_chunks, iter_paginated_endpoin
 from tests.utils import azip
 
 
+@pytest.mark.db_template("alice_many_chats")
 class TestChatsRead:
     """Tests chats list read."""
 

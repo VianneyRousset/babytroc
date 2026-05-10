@@ -9,6 +9,7 @@ from tests.fixtures.database.seeds.category import (
     seed_alice_items_with_categories,
     seed_reference_categories,
 )
+from tests.fixtures.database.seeds.chat import seed_alice_many_chats
 from tests.fixtures.database.seeds.image import seed_baseline_images
 from tests.fixtures.database.seeds.item import (
     seed_alice_many_items,
@@ -84,6 +85,11 @@ TEMPLATES: dict[str, TemplateSpec] = {
         name="alice_many_loans",
         parent="alice_many_items",
         seeds=(seed_alice_many_loans,),
+    ),
+    "alice_many_chats": TemplateSpec(
+        name="alice_many_chats",
+        parent="many_items",
+        seeds=(seed_alice_many_chats,),
     ),
 }
 
