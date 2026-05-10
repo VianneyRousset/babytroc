@@ -55,7 +55,7 @@ seeding, or loan seeding.
 
 ## The template chain
 
-Built once per xdist worker, in topological order:
+Built once per xdist worker, in topological order (13 nodes):
 
 ```
 tpl_bare                              migrations only
@@ -72,8 +72,10 @@ tpl_bare                              migrations only
             │   └── tpl_alice_many_chats
             │                         + chats Alice↔Bob over many_items
             ├── tpl_alice_many_items  + 256 Alice-owned items
-            │   └── tpl_alice_many_loans
-            │                         + executed/ended/restarted loans
+            │   ├── tpl_alice_many_loans
+            │   │                     + executed/ended/restarted loans
+            │   └── tpl_alice_items_with_categories
+            │                         + 1-3 random categories per item
             ├── tpl_french_named_items
             │                         + ~53 French-named items
             └── tpl_many_users        + 256 random users
@@ -122,7 +124,8 @@ tests/fixtures/database/
 └── seeds/                      per-domain seed fns
     ├── __init__.py
     ├── region.py               seed_reference_regions
-    ├── category.py             seed_reference_categories
+    ├── category.py             seed_reference_categories,
+    │                           seed_alice_items_with_categories
     ├── user.py                 seed_baseline_users, seed_many_users
     ├── image.py                seed_baseline_images
     ├── item.py                 seed_baseline_items, seed_many_items,
@@ -230,8 +233,8 @@ async def many_items(database_sessionmaker) -> list[ItemRead]:
 ```
 
 Same call sites in tests; same return type. This applies to: `many_items`,
-`alice_many_items`, `many_users`, `some_items_with_french_names`,
-`many_loan_requests_for_alice_items`,
+`alice_many_items`, `alice_items_with_categories`, `many_users`,
+`some_items_with_french_names`, `many_loan_requests_for_alice_items`,
 `many_loan_requests_for_alice_special_item`, `alice_many_loans`,
 `alice_many_chats`. Existing fixtures `alice_new_item`,
 `alice_special_item`, `alice_items`, `bob_items`, `alice_items_image`,
@@ -267,10 +270,12 @@ Each step is a self-contained PR. Tests pass at every step.
 2. **`tpl_baseline_items`.** Move alice/bob baseline items, alice_new_item,
    alice_special_item into `seeds/item.py::seed_baseline_items`. Convert the
    item/image fixtures in `tests/fixtures/items.py` to SELECT fixtures.
-3. **`tpl_many_items` + `tpl_alice_many_items` + `tpl_french_named_items`.**
+3. **`tpl_many_items` + `tpl_alice_many_items` +
+   `tpl_alice_items_with_categories` + `tpl_french_named_items`.**
    Migrate `tests/item/` to markers, delete `tests/item/conftest.py`
    overrides. Convert `many_items`, `alice_many_items`,
-   `some_items_with_french_names` to SELECT fixtures.
+   `alice_items_with_categories`, `some_items_with_french_names` to SELECT
+   fixtures.
 4. **`tpl_many_loan_requests` + `tpl_alice_many_loans` +
    `tpl_alice_special_item_loan_requests` + `tpl_many_users`.** Migrate
    `tests/loan/`, delete `tests/loan/conftest.py` overrides. Convert loan +
@@ -297,7 +302,7 @@ and the three per-directory conftest overrides are gone.
 - **Test ordering inside a class.** Per-method clones make ordering
   irrelevant — the previous "first method seeds, rest read" ordering quirk
   goes away.
-- **Build cost at session start.** The chain builds 12 templates
+- **Build cost at session start.** The chain builds 13 templates
   sequentially per worker. The work is the same as today's class-scoped
   rebuilds, just front-loaded. Net wall-clock time should drop because each
   template is built once instead of once-per-class.
