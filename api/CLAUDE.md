@@ -73,7 +73,7 @@ Destructive commands (`user create/delete/disable/reset-password`, `db reset`, `
 
 ### Environment
 
-Required env vars (see `src/babytroc/infrastructure/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `S3_{ENDPOINT_URL,ACCESS_KEY,SECRET_KEY,BUCKET,PUBLIC_URL}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none). `mise.toml` loads `.env.yaml` automatically.
+Required env vars (see `src/babytroc/infrastructure/config.py`): `POSTGRES_{USER,PASSWORD,HOST,PORT,DATABASE}`, `EMAIL_{SERVER,PORT,USERNAME,PASSWORD,FROM_EMAIL,FROM_NAME}`, `S3_{ENDPOINT_URL,ACCESS_KEY,SECRET_KEY,BUCKET,PUBLIC_URL}`, `JWT_{ALGORITHM,SECRET_KEY,REFRESH_TOKEN_DURATION_DAYS,ACCESS_TOKEN_DURATION_MINUTES}`, `ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES`, `HOST_NAME`, `APP_NAME`, `CONTACT_EMAIL`, `CAP_{API_URL,SITE_KEY,SECRET_KEY}`. Optional: `DELAY` (artificial request delay middleware), `REDIS_{HOST,PORT,DB,PASSWORD}` (defaults: localhost, 6379, 0, none), `CONTACT_RATE_LIMIT_{ANON,AUTH}` (defaults 5, 10), `CONTACT_RATE_LIMIT_WINDOW_SECONDS` (default 3600). `mise.toml` loads `.env.yaml` automatically.
 
 ## Architecture
 
