@@ -71,3 +71,18 @@ class BadRequestError(ApiError):
             status_code=HTTPStatus.BAD_REQUEST,
             **kwargs,
         )
+
+
+class TooManyRequestsError(ApiError):
+    """Client exceeded a rate limit."""
+
+    def __init__(
+        self,
+        message: str,
+        **kwargs,
+    ):
+        super().__init__(
+            message=message,
+            status_code=HTTPStatus.TOO_MANY_REQUESTS,
+            **kwargs,
+        )
