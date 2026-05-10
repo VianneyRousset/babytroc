@@ -220,6 +220,59 @@ class AuthConfig(NamedTuple):
         )
 
 
+class ContactConfig(NamedTuple):
+    email: str
+    rate_limit_anon: int
+    rate_limit_auth: int
+    rate_limit_window: timedelta
+
+    @classmethod
+    def from_env(
+        cls,
+        email: str | None = None,
+        rate_limit_anon: int | None = None,
+        rate_limit_auth: int | None = None,
+        rate_limit_window: timedelta | None = None,
+    ) -> Self:
+        if email is None:
+            email = _env("CONTACT_EMAIL")
+        if rate_limit_anon is None:
+            rate_limit_anon = int(_env("CONTACT_RATE_LIMIT_ANON", default="5"))
+        if rate_limit_auth is None:
+            rate_limit_auth = int(_env("CONTACT_RATE_LIMIT_AUTH", default="10"))
+        if rate_limit_window is None:
+            rate_limit_window = timedelta(
+                seconds=int(_env("CONTACT_RATE_LIMIT_WINDOW_SECONDS", default="3600")),
+            )
+        return cls(
+            email=email,
+            rate_limit_anon=rate_limit_anon,
+            rate_limit_auth=rate_limit_auth,
+            rate_limit_window=rate_limit_window,
+        )
+
+
+class CapConfig(NamedTuple):
+    api_url: str
+    site_key: str
+    secret_key: str
+
+    @classmethod
+    def from_env(
+        cls,
+        api_url: str | None = None,
+        site_key: str | None = None,
+        secret_key: str | None = None,
+    ) -> Self:
+        if api_url is None:
+            api_url = _env("CAP_API_URL")
+        if site_key is None:
+            site_key = _env("CAP_SITE_KEY")
+        if secret_key is None:
+            secret_key = _env("CAP_SECRET_KEY")
+        return cls(api_url=api_url, site_key=site_key, secret_key=secret_key)
+
+
 class Config(NamedTuple):
     host_name: str
     app_name: str
@@ -231,6 +284,8 @@ class Config(NamedTuple):
     s3: S3Config
     redis: RedisConfig
     auth: AuthConfig
+    contact: ContactConfig
+    cap: CapConfig
 
     @classmethod
     def from_env(  # noqa: C901
@@ -246,6 +301,8 @@ class Config(NamedTuple):
         s3: S3Config | None = None,
         redis: RedisConfig | None = None,
         auth: AuthConfig | None = None,
+        contact: ContactConfig | None = None,
+        cap: CapConfig | None = None,
     ) -> Self:
         if host_name is None:
             host_name = _env("HOST_NAME")
@@ -277,6 +334,12 @@ class Config(NamedTuple):
         if auth is None:
             auth = AuthConfig.from_env()
 
+        if contact is None:
+            contact = ContactConfig.from_env()
+
+        if cap is None:
+            cap = CapConfig.from_env()
+
         return cls(
             host_name=host_name,
             app_name=app_name,
@@ -288,4 +351,6 @@ class Config(NamedTuple):
             s3=s3,
             redis=redis,
             auth=auth,
+            contact=contact,
+            cap=cap,
         )
