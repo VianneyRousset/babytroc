@@ -38,10 +38,10 @@ def stub_cap_verify(
 
     async def _fake(_config, _token):
         if cap_verify_raises:
-            import httpx
-
-            msg = "boom"
-            raise httpx.ConnectError(msg)
+            # `verify_cap_token` is fail-closed: it catches httpx errors
+            # internally and returns False. Simulate that contract here so
+            # the "cap unreachable" path resolves to a False return value.
+            return False
         return cap_verify_result
 
     monkeypatch.setattr(cap_module, "verify_cap_token", _fake)
