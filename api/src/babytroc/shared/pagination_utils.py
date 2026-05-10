@@ -8,6 +8,19 @@ from httpx import AsyncClient
 T = TypeVar("T")
 
 
+def _parse_query(query: str) -> dict[str, str | list[str]]:
+    """Like `dict(parse_qsl(...))` but groups repeated keys into a list.
+
+    Preserves multi-value query params (e.g. `?reg=1&reg=2`) when building
+    the next request's `params` dict; httpx will resend them as repeated
+    query parameters.
+    """
+    grouped: dict[str, list[str]] = {}
+    for key, value in parse_qsl(query):
+        grouped.setdefault(key, []).append(value)
+    return {k: v[0] if len(v) == 1 else v for k, v in grouped.items()}
+
+
 async def iter_paginated_endpoint(
     client: AsyncClient,
     url: str,
@@ -44,8 +57,8 @@ async def iter_paginated_endpoint(
         except KeyError:
             return
 
-        # parse next params
-        params = dict(parse_qsl(urlparse(next_url).query))
+        # parse next params (preserves repeated keys like ?reg=1&reg=2)
+        params = _parse_query(urlparse(next_url).query)
 
 
 class IterChunksStop:

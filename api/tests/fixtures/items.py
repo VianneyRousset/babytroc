@@ -9,11 +9,10 @@ from babytroc.domains.image.schemas.read import ItemImageRead
 from babytroc.domains.item import services as item_services
 from babytroc.domains.item.models.image import ItemImage
 from babytroc.domains.item.models.item import Item
-from babytroc.domains.item.schemas.create import ItemCreate
 from babytroc.domains.item.schemas.read import ItemRead
 from babytroc.domains.region.schemas.read import RegionRead
 from babytroc.domains.user.schemas.private import UserPrivateRead
-from tests.utils import random_sample, random_str, random_targeted_age_months
+from tests.utils import random_str
 
 
 class UserData(TypedDict):
@@ -271,38 +270,16 @@ async def alice_special_item(
     return rows[0]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def alice_many_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_items_image: ItemImageRead,
-    regions: list[RegionRead],
 ) -> list[ItemRead]:
-    """Many items owned by Alice."""
+    """SELECT every Alice-owned item from the cloned DB.
 
-    n = 256
-    random.seed(0x25D4)
-
-    async with database_sessionmaker.begin() as session:
-        items = await item_services.create_many_items(
-            db=session,
-            items=[
-                item_services.create.CreateItem(
-                    owner_id=alice.id,
-                    item_create=ItemCreate(
-                        name=random_str(8),
-                        description=random_str(50),
-                        targeted_age_months=random_targeted_age_months(),
-                        regions=set(random_sample([reg.id for reg in regions])),
-                        images=[alice_items_image.name],
-                        blocked=False,
-                    ),
-                )
-                for _ in range(n)
-            ],
-        )
-
-        return items
+    Backed by `tpl_alice_many_items` (256 + the baseline subset).
+    """
+    return await _select_items(database_sessionmaker, owner_id=alice.id)
 
 
 @pytest.fixture
@@ -327,58 +304,24 @@ async def items(
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_items(
     database_sessionmaker: async_sessionmaker,
-    alice: UserPrivateRead,
-    bob: UserPrivateRead,
-    alice_items_image: ItemImageRead,
-    bob_items_image: ItemImageRead,
-    regions: list[RegionRead],
 ) -> list[ItemRead]:
-    """Many items."""
+    """SELECT every item from the cloned DB.
 
-    n = 256
-    random.seed(0xBDF81829)
-
-    owner_ids, images = [
-        list(column)
-        for column in zip(
-            *random.choices(
-                [
-                    (alice.id, alice_items_image),
-                    (bob.id, bob_items_image),
-                ],
-                k=n,
-            ),
-            strict=True,
-        )
-    ]
-
+    Backed by `tpl_many_items` (~256 mixed Alice/Bob items + the 4 baseline
+    items inherited from `tpl_baseline_items`).
+    """
     async with database_sessionmaker.begin() as session:
-        items = await item_services.create_many_items(
-            db=session,
-            items=[
-                item_services.create.CreateItem(
-                    owner_id=owner_id,
-                    item_create=ItemCreate(
-                        name=random_str(8),
-                        description=random_str(50),
-                        targeted_age_months=random_targeted_age_months(),
-                        regions=set(random_sample([reg.id for reg in regions])),
-                        images=[image.name],
-                        blocked=random.choice([False] * 3 + [True]),
-                    ),
-                )
-                for owner_id, image in zip(
-                    owner_ids,
-                    images,
-                    strict=True,
-                )
-            ],
+        ids = (
+            (await session.execute(select(Item.id).order_by(Item.id)))
+            .scalars()
+            .all()
         )
-
-        return items
+        if not ids:
+            return []
+        return await item_services.get_many_items(db=session, item_ids=set(ids))
 
 
 @pytest.fixture(scope="session")
@@ -405,56 +348,24 @@ def some_item_french_names() -> list[str]:
     ]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def some_items_with_french_names(
     database_sessionmaker: async_sessionmaker,
-    alice: UserPrivateRead,
-    bob: UserPrivateRead,
-    alice_items_image: ItemImageRead,
-    bob_items_image: ItemImageRead,
-    regions: list[RegionRead],
     some_item_french_names: list[str],
 ) -> list[ItemRead]:
-    """Many items."""
-
-    random.seed(0x15976)
-
-    owner_ids, images = [
-        list(column)
-        for column in zip(
-            *random.choices(
-                [
-                    (alice.id, alice_items_image),
-                    (bob.id, bob_items_image),
-                ],
-                k=len(some_item_french_names),
-            ),
-            strict=True,
-        )
-    ]
-
+    """SELECT items whose name was seeded by `tpl_french_named_items`."""
     async with database_sessionmaker.begin() as session:
-        items = await item_services.create_many_items(
-            db=session,
-            items=[
-                item_services.create.CreateItem(
-                    owner_id=owner_id,
-                    item_create=ItemCreate(
-                        name=name,
-                        description=random_str(50),
-                        targeted_age_months=random_targeted_age_months(),
-                        regions=set(random_sample([reg.id for reg in regions])),
-                        images=[image.name],
-                        blocked=random.choice([False] * 3 + [True]),
-                    ),
+        ids = (
+            (
+                await session.execute(
+                    select(Item.id)
+                    .where(Item.name.in_(some_item_french_names))
+                    .order_by(Item.id),
                 )
-                for name, owner_id, image in zip(
-                    some_item_french_names,
-                    owner_ids,
-                    images,
-                    strict=True,
-                )
-            ],
+            )
+            .scalars()
+            .all()
         )
-
-        return items
+        if not ids:
+            return []
+        return await item_services.get_many_items(db=session, item_ids=set(ids))

@@ -4,6 +4,7 @@ from httpx import AsyncClient
 from babytroc.domains.item.schemas.read import ItemRead
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemLike:
     """Test item likes."""

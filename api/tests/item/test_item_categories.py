@@ -1,5 +1,6 @@
 from typing import Any
 
+import pytest
 from httpx import AsyncClient
 
 from babytroc.domains.category.schemas.read import CategoryRead
@@ -43,6 +44,7 @@ class TestCategoriesList:
         assert len(children) >= 1
 
 
+@pytest.mark.db_template("alice_items_with_categories")
 class TestItemCategoryFilter:
     """Test /api/v1/items?cat=... filtering."""
 

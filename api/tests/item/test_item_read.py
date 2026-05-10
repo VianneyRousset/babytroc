@@ -11,6 +11,7 @@ from babytroc.shared.pagination_utils import iter_chunks, iter_paginated_endpoin
 from tests.utils import azip
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemsRead:
     """Test items read with no filtering."""
@@ -47,6 +48,7 @@ class TestItemsRead:
             ]
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadUserItems:
     """Test reading list of items owned by a user / the await client."""
@@ -144,6 +146,7 @@ class TestItemsReadUserItems:
         assert item == expected_item
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadFilterTargetedAgeMonth:
     """Test item read with targeted_age_month filtering."""
@@ -221,6 +224,7 @@ class TestItemsReadFilterTargetedAgeMonth:
         return res
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadFilterAvailability:
     """Test item read with availability filtering."""
@@ -282,6 +286,7 @@ class TestItemsReadFilterAvailability:
         return not item.available
 
 
+@pytest.mark.db_template("many_items")
 @pytest.mark.usefixtures("many_items")
 class TestItemsReadFilterRegions:
     """Test item read with availability filtering."""
@@ -328,6 +333,7 @@ class TestItemsReadFilterRegions:
 
 
 # TODO include search words in the description of the item
+@pytest.mark.db_template("french_named_items")
 @pytest.mark.usefixtures("some_items_with_french_names")
 class TestItemsReadFilterWords:
     """Test item read with words filtering."""
