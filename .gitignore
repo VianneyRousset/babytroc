@@ -45,3 +45,6 @@ dist
 utils/.token
 
 .superpowers/
+
+# Git worktrees
+.worktrees/
