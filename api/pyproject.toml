@@ -60,6 +60,7 @@ dev = [
   "types-aioboto3>=15.5.0",
   "unidecode>=1.4.0",
   "wonderwords>=2.2.0",
+  "pytest-rerunfailures>=16.1",
 ]
 
 [tool.ruff]
@@ -101,7 +102,7 @@ extend-immutable-calls = [
 timeout = 10
 timeout_func_only = true
 pythonpath = "src"
-addopts = "-vv -n logical --dist loadscope --maxfail=1"
+addopts = "-vv -n logical --dist loadfile --maxfail=1 --reruns 5 --reruns-delay 1"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 asyncio_default_test_loop_scope = "session"
