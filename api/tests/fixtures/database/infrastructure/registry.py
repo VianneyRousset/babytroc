@@ -7,6 +7,7 @@ Append entries here as later phases add templates. The chain is built by
 from tests.fixtures.database.infrastructure.chain import TemplateSpec
 from tests.fixtures.database.seeds.category import seed_reference_categories
 from tests.fixtures.database.seeds.image import seed_baseline_images
+from tests.fixtures.database.seeds.item import seed_baseline_items
 from tests.fixtures.database.seeds.region import seed_reference_regions
 from tests.fixtures.database.seeds.user import seed_baseline_users
 
@@ -26,6 +27,11 @@ TEMPLATES: dict[str, TemplateSpec] = {
         parent="reference",
         seeds=(seed_baseline_users, seed_baseline_images),
     ),
+    "baseline_items": TemplateSpec(
+        name="baseline_items",
+        parent="baseline",
+        seeds=(seed_baseline_items,),
+    ),
 }
 
-DEFAULT_TEMPLATE = "baseline"
+DEFAULT_TEMPLATE = "baseline_items"

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from babytroc.domains.image.schemas.read import ItemImageRead
 from babytroc.domains.item import services as item_services
 from babytroc.domains.item.models.image import ItemImage
-from babytroc.domains.item.schemas.base import MonthRange
+from babytroc.domains.item.models.item import Item
 from babytroc.domains.item.schemas.create import ItemCreate
 from babytroc.domains.item.schemas.read import ItemRead
 from babytroc.domains.region.schemas.read import RegionRead
@@ -214,77 +214,61 @@ async def bob_items_image(
         return ItemImageRead.model_validate(row)
 
 
+async def _select_items(
+    database_sessionmaker: async_sessionmaker,
+    *,
+    owner_id: int,
+    name: str | None = None,
+) -> list[ItemRead]:
+    async with database_sessionmaker.begin() as session:
+        stmt = select(Item.id).where(Item.owner_id == owner_id)
+        if name is not None:
+            stmt = stmt.where(Item.name == name)
+        ids = (await session.execute(stmt)).scalars().all()
+        if not ids:
+            return []
+        return await item_services.get_many_items(db=session, item_ids=set(ids))
+
+
 @pytest.fixture
 async def alice_items(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_items_data: list[ItemData],
 ) -> list[ItemRead]:
-    """Ensures Alice's items exist."""
+    """SELECT every item Alice owns in the cloned DB.
 
-    async with database_sessionmaker.begin() as session:
-        return [
-            await item_services.create_item(
-                db=session,
-                owner_id=alice.id,
-                item_create=ItemCreate(
-                    name=item["name"],
-                    description=item["description"],
-                    images=item["images"],
-                    targeted_age_months=MonthRange(item["targeted_age_months"]),
-                    regions=set(item["regions"]),
-                ),
-            )
-            for item in alice_items_data
-        ]
+    Includes alice_new_item and alice_special_item — same behavior as if
+    those fixtures were also requested in the legacy build flow.
+    """
+    return await _select_items(database_sessionmaker, owner_id=alice.id)
 
 
 @pytest.fixture
 async def alice_new_item(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_new_item_data: ItemData,
 ) -> ItemRead:
-    """Alice's new item."""
-
-    async with database_sessionmaker.begin() as session:
-        return await item_services.create_item(
-            db=session,
-            owner_id=alice.id,
-            item_create=ItemCreate(
-                name=alice_new_item_data["name"],
-                description=alice_new_item_data["description"],
-                images=alice_new_item_data["images"],
-                targeted_age_months=MonthRange(
-                    alice_new_item_data["targeted_age_months"]
-                ),
-                regions=set(alice_new_item_data["regions"]),
-            ),
-        )
+    """SELECT Alice's new-item from the baseline_items template."""
+    rows = await _select_items(
+        database_sessionmaker,
+        owner_id=alice.id,
+        name="new-item",
+    )
+    return rows[0]
 
 
 @pytest.fixture
 async def alice_special_item(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
-    alice_special_item_data: ItemData,
 ) -> ItemRead:
-    """Alice's special item."""
-
-    async with database_sessionmaker.begin() as session:
-        return await item_services.create_item(
-            db=session,
-            owner_id=alice.id,
-            item_create=ItemCreate(
-                name=alice_special_item_data["name"],
-                description=alice_special_item_data["description"],
-                images=alice_special_item_data["images"],
-                targeted_age_months=MonthRange(
-                    alice_special_item_data["targeted_age_months"]
-                ),
-                regions=set(alice_special_item_data["regions"]),
-            ),
-        )
+    """SELECT Alice's special-item from the baseline_items template."""
+    rows = await _select_items(
+        database_sessionmaker,
+        owner_id=alice.id,
+        name="Special item",
+    )
+    return rows[0]
 
 
 @pytest.fixture(scope="class")
@@ -325,25 +309,9 @@ async def alice_many_items(
 async def bob_items(
     database_sessionmaker: async_sessionmaker,
     bob: UserPrivateRead,
-    bob_items_data: list[ItemData],
 ) -> list[ItemRead]:
-    """Ensures bob's items exist."""
-
-    async with database_sessionmaker.begin() as session:
-        return [
-            await item_services.create_item(
-                db=session,
-                owner_id=bob.id,
-                item_create=ItemCreate(
-                    name=item["name"],
-                    description=item["description"],
-                    images=item["images"],
-                    targeted_age_months=MonthRange(item["targeted_age_months"]),
-                    regions=set(item["regions"]),
-                ),
-            )
-            for item in bob_items_data
-        ]
+    """SELECT every item Bob owns in the cloned DB."""
+    return await _select_items(database_sessionmaker, owner_id=bob.id)
 
 
 @pytest.fixture

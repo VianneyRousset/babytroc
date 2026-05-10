@@ -13,6 +13,8 @@ from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
+from babytroc.infrastructure.cache import init_cache_dependency
+from babytroc.infrastructure.cache_client import NullCache
 from babytroc.infrastructure.config import Config, S3Config
 from babytroc.infrastructure.database import init_db_session_dependency
 from tests.fixtures.database.infrastructure.admin import (
@@ -25,7 +27,10 @@ from tests.fixtures.database.infrastructure.chain import (
     teardown_chain,
 )
 from tests.fixtures.database.infrastructure.marker import get_template_name
-from tests.fixtures.database.infrastructure.registry import TEMPLATES
+from tests.fixtures.database.infrastructure.registry import (
+    DEFAULT_TEMPLATE,
+    TEMPLATES,
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -63,6 +68,12 @@ async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
     base = _pg_base_url()
     ctx = SeedContext(config=_seed_config())
 
+    # Seed handlers (e.g. invalidate_cache_on_item_created) call
+    # `get_cache()` from event handlers. The app fixture would set this
+    # later, but the chain build runs before any test → init a NullCache so
+    # handlers don't crash.
+    init_cache_dependency(NullCache())
+
     urls = await build_chain(
         base_url=base,
         worker_id=worker_id,
@@ -77,12 +88,13 @@ async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
 
 @pytest.fixture(scope="session")
 async def primary_database(primary_databases: dict[str, URL]) -> URL:
-    """Compatibility shim — previous "primary_database" was the baseline.
+    """Compatibility shim — points at the current default template.
 
-    Keeps `tests/fixtures/app.py::app_config` working until that fixture is
-    updated separately. Returns the URL of `tpl_baseline`.
+    Keeps `tests/fixtures/app.py::app_config` and the per-dir class-scoped
+    `database` overrides in tests/{item,loan,chat_read}/conftest.py working
+    until those callers migrate to markers + the new `database` fixture.
     """
-    return primary_databases["baseline"]
+    return primary_databases[DEFAULT_TEMPLATE]
 
 
 @pytest.fixture
