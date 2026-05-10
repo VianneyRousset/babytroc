@@ -5,6 +5,26 @@ from typing import NamedTuple, Self
 import sqlalchemy
 
 
+def _env(key: str, *, default: str | None = None) -> str:
+    """Read env var. In test mode, prefer TEST_ prefixed version."""
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        test_val = os.environ.get(f"TEST_{key}")
+        if test_val is not None:
+            return test_val
+    if default is not None:
+        return os.environ.get(key, default)
+    return os.environ[key]
+
+
+def _env_optional(key: str) -> str | None:
+    """Read optional env var. In test mode, prefer TEST_ prefixed version."""
+    if "PYTEST_CURRENT_TEST" in os.environ:
+        test_val = os.environ.get(f"TEST_{key}")
+        if test_val is not None:
+            return test_val
+    return os.environ.get(key)
+
+
 class DatabaseConfig(NamedTuple):
     url: sqlalchemy.URL
 
@@ -14,11 +34,11 @@ class DatabaseConfig(NamedTuple):
         url: sqlalchemy.URL | None = None,
     ) -> Self:
         if url is None:
-            user = os.environ["POSTGRES_USER"]
-            password = os.environ["POSTGRES_PASSWORD"]
-            host = os.environ["POSTGRES_HOST"]
-            port = int(os.environ["POSTGRES_PORT"])
-            database = os.environ["POSTGRES_DATABASE"]
+            user = _env("POSTGRES_USER")
+            password = _env("POSTGRES_PASSWORD")
+            host = _env("POSTGRES_HOST")
+            port = int(_env("POSTGRES_PORT"))
+            database = _env("POSTGRES_DATABASE")
 
             url = sqlalchemy.URL.create(
                 "postgresql+asyncpg",
@@ -46,13 +66,13 @@ class RedisConfig(NamedTuple):
         password: str | None = None,
     ) -> Self:
         if host is None:
-            host = os.environ.get("REDIS_HOST", "localhost")
+            host = _env("REDIS_HOST", default="localhost")
         if port is None:
-            port = int(os.environ.get("REDIS_PORT", "6379"))
+            port = int(_env("REDIS_PORT", default="6379"))
         if db is None:
-            db = int(os.environ.get("REDIS_DB", "0"))
+            db = int(_env("REDIS_DB", default="0"))
         if password is None:
-            password = os.environ.get("REDIS_PASSWORD")
+            password = _env_optional("REDIS_PASSWORD")
 
         return cls(host=host, port=port, db=db, password=password)
 
@@ -93,17 +113,17 @@ class EmailConfig(NamedTuple):
         from_name: str | None = None,
     ) -> Self:
         if server is None:
-            server = os.environ["EMAIL_SERVER"]
+            server = _env("EMAIL_SERVER")
         if port is None:
-            port = int(os.environ["EMAIL_PORT"])
+            port = int(_env("EMAIL_PORT"))
         if username is None:
-            username = os.environ["EMAIL_USERNAME"]
+            username = _env("EMAIL_USERNAME")
         if password is None:
-            password = os.environ["EMAIL_PASSWORD"]
+            password = _env("EMAIL_PASSWORD")
         if from_email is None:
-            from_email = os.environ["EMAIL_FROM_EMAIL"]
+            from_email = _env("EMAIL_FROM_EMAIL")
         if from_name is None:
-            from_name = os.environ["EMAIL_FROM_NAME"]
+            from_name = _env("EMAIL_FROM_NAME")
 
         return cls(
             server=server,
@@ -132,15 +152,15 @@ class S3Config(NamedTuple):
         public_url: str | None = None,
     ) -> Self:
         if endpoint_url is None:
-            endpoint_url = os.environ["S3_ENDPOINT_URL"]
+            endpoint_url = _env("S3_ENDPOINT_URL")
         if access_key is None:
-            access_key = os.environ["S3_ACCESS_KEY"]
+            access_key = _env("S3_ACCESS_KEY")
         if secret_key is None:
-            secret_key = os.environ["S3_SECRET_KEY"]
+            secret_key = _env("S3_SECRET_KEY")
         if bucket is None:
-            bucket = os.environ["S3_BUCKET"]
+            bucket = _env("S3_BUCKET")
         if public_url is None:
-            public_url = os.environ["S3_PUBLIC_URL"]
+            public_url = _env("S3_PUBLIC_URL")
 
         return cls(
             endpoint_url=endpoint_url,
@@ -168,26 +188,28 @@ class AuthConfig(NamedTuple):
         account_password_reset_authorization_duration: timedelta | None = None,
     ) -> Self:
         if algorithm is None:
-            algorithm = os.environ["JWT_ALGORITHM"]
+            algorithm = _env("JWT_ALGORITHM")
 
         if secret_key is None:
-            secret_key = os.environ["JWT_SECRET_KEY"]
+            secret_key = _env("JWT_SECRET_KEY")
 
         if refresh_token_duration is None:
             refresh_token_duration = timedelta(
-                days=int(os.environ["JWT_REFRESH_TOKEN_DURATION_DAYS"])
+                days=int(_env("JWT_REFRESH_TOKEN_DURATION_DAYS")),
             )
 
         if access_token_duration is None:
             access_token_duration = timedelta(
-                minutes=int(os.environ["JWT_ACCESS_TOKEN_DURATION_MINUTES"])
+                minutes=int(_env("JWT_ACCESS_TOKEN_DURATION_MINUTES")),
             )
 
         if account_password_reset_authorization_duration is None:
             account_password_reset_authorization_duration = timedelta(
                 minutes=int(
-                    os.environ["ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES"]
-                )
+                    _env(
+                        "ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES",
+                    ),
+                ),
             )
         return cls(
             algorithm=algorithm,
@@ -226,16 +248,16 @@ class Config(NamedTuple):
         auth: AuthConfig | None = None,
     ) -> Self:
         if host_name is None:
-            host_name = os.environ["HOST_NAME"]
+            host_name = _env("HOST_NAME")
 
         if app_name is None:
-            app_name = os.environ["APP_NAME"]
+            app_name = _env("APP_NAME")
 
         if test is None:
             test = "PYTEST_CURRENT_TEST" in os.environ
 
         if delay is None:
-            delay = float(os.environ.get("DELAY", 0))
+            delay = float(_env("DELAY", default="0"))
 
         if database is None:
             database = DatabaseConfig.from_env()
