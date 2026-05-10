@@ -9,6 +9,7 @@ from babytroc.shared.pagination_utils import iter_chunks, iter_paginated_endpoin
 from tests.utils import azip
 
 
+@pytest.mark.db_template("alice_many_loans")
 class TestLoansRead:
     """Tests loans read."""
 
@@ -67,6 +68,7 @@ class TestLoansRead:
         return state == active
 
 
+@pytest.mark.db_template("alice_many_loans")
 class TestBorrowingsListRead:
     """Test borrowing list endpoint with active filter."""
 
@@ -124,6 +126,7 @@ class TestBorrowingsListRead:
         return state == active
 
 
+@pytest.mark.db_template("alice_many_loans")
 class TestBorrowingRead:
     """Test borrowing read endpoints."""
 

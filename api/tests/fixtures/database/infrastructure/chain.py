@@ -42,9 +42,16 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class SeedContext:
-    """Cross-cutting context every seed receives."""
+    """Cross-cutting context every seed receives.
+
+    `db_url` is the URL of the template under construction. Seeds that need
+    multiple transactions (e.g. to advance postgres `now()` between
+    `execute_many_loan_requests` and `end_many_loans`) can open extra
+    sessions against this URL via `session_against`.
+    """
 
     config: Config
+    db_url: URL
 
 
 type SeedFn = Callable[[AsyncSession, SeedContext], Awaitable[None]]
@@ -127,7 +134,8 @@ async def build_chain(
             await loop.run_in_executor(None, partial(_alembic_upgrade_head, url))
 
         if spec.seeds:
-            await run_against(url, _run_seeds(spec.seeds, ctx))
+            node_ctx = SeedContext(config=ctx.config, db_url=url)
+            await run_against(url, _run_seeds(spec.seeds, node_ctx))
 
         urls[name] = url
 

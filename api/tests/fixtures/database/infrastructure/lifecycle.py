@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import pytest
+from broadcaster import Broadcast
 from sqlalchemy import URL
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -17,6 +18,7 @@ from babytroc.infrastructure.cache import init_cache_dependency
 from babytroc.infrastructure.cache_client import NullCache
 from babytroc.infrastructure.config import Config, S3Config
 from babytroc.infrastructure.database import init_db_session_dependency
+from babytroc.infrastructure.pubsub import init_broadcast_dependency
 from tests.fixtures.database.infrastructure.admin import (
     create_database,
     drop_database,
@@ -66,13 +68,17 @@ def _seed_config() -> Config:
 async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
     """Build the full template chain once per xdist worker. Yields name → URL."""
     base = _pg_base_url()
-    ctx = SeedContext(config=_seed_config())
+    # db_url is overridden per-template inside build_chain; pass any URL
+    # here as a placeholder.
+    ctx = SeedContext(config=_seed_config(), db_url=base)
 
-    # Seed handlers (e.g. invalidate_cache_on_item_created) call
-    # `get_cache()` from event handlers. The app fixture would set this
-    # later, but the chain build runs before any test → init a NullCache so
-    # handlers don't crash.
+    # Seed handlers (e.g. invalidate_cache_on_item_created,
+    # loan_request_created) call get_cache() / get_broadcast() at chain
+    # build time, before the app fixture initializes the real ones. Init
+    # NullCache + an in-memory Broadcast so handlers don't crash; the
+    # actual broadcast/cache backends are swapped in by the app fixture.
     init_cache_dependency(NullCache())
+    init_broadcast_dependency(Broadcast("memory://"))
 
     urls = await build_chain(
         base_url=base,

@@ -1,14 +1,12 @@
-import random
-from string import ascii_letters
 from typing import TypedDict
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from babytroc.domains.user import services as user_services
-from babytroc.domains.user.schemas.create import UserCreate
+from babytroc.domains.user.models import User
 from babytroc.domains.user.schemas.private import UserPrivateRead
-from babytroc.shared.hash import HashedStr
 
 
 class UserData(TypedDict):
@@ -80,33 +78,18 @@ async def carol(
         return await user_services.get_user_by_email_private(session, "carol@babytroc.ch")
 
 
-def random_str(length: int) -> str:
-    return "".join(random.choices(ascii_letters, k=length))
-
-
-@pytest.fixture(scope="class")
+@pytest.fixture
 async def many_users(
     database_sessionmaker: async_sessionmaker,
 ) -> list[UserPrivateRead]:
-    """Many users."""
+    """SELECT every user from the cloned DB.
 
-    n = 256
-    random.seed(0x538D)
-
-    password_hash = HashedStr("xyzXYZ123")
-
-    user_creates = [
-        UserCreate(
-            name=random_str(8),
-            email=f"{random_str(8)}@{random_str(8)}.com",
-            password=password_hash,
-        )
-        for _ in range(n)
-    ]
-
+    Backed by `tpl_many_users` (~256 random + the 3 baseline users).
+    """
     async with database_sessionmaker.begin() as session:
-        return await user_services.create_many_users_without_validation(
-            session,
-            user_creates=user_creates,
-            validated=True,
+        rows = (
+            (await session.execute(select(User).order_by(User.id)))
+            .scalars()
+            .all()
         )
+        return [UserPrivateRead.model_validate(r) for r in rows]

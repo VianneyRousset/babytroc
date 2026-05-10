@@ -11,6 +11,7 @@ from babytroc.shared.pagination_utils import iter_chunks, iter_paginated_endpoin
 from tests.utils import azip
 
 
+@pytest.mark.db_template("many_loan_requests")
 @pytest.mark.usefixtures("many_loan_requests_for_alice_items")
 class TestLoanRequestRead:
     """Tests loan requests read."""
@@ -105,6 +106,7 @@ class TestLoanRequestRead:
                 loan_request.id for loan_request in expected_loan_requests
             ]
 
+    @pytest.mark.db_template("alice_special_item_loan_requests")
     @pytest.mark.parametrize("count", [None, 16, 7])
     @pytest.mark.parametrize("active", [None, True, False])
     async def test_item_loan_requests_read_pages(
