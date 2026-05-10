@@ -16,11 +16,23 @@ class _UnhandledEvent:
 
 
 @pytest.fixture(autouse=True)
-def _clear_handlers():
-    """Clear event handlers before and after each test."""
-    _handlers.clear()
-    yield
-    _handlers.clear()
+def _isolate_test_event_handlers():
+    """Save and restore the global handler registry around each test.
+
+    Tests in this file register handlers for `_TestEvent` / `_UnhandledEvent`.
+    `_handlers` is the application-wide registry populated at import time by
+    every `@on(...)` in `babytroc.domains.*.handlers`; clearing it leaks
+    across xdist worker boundaries (loadfile dist) and silently disables
+    handlers like `award_stars_on_item_created` for any test running on the
+    same worker afterwards.
+    """
+    snapshot = {k: list(v) for k, v in _handlers.items()}
+    try:
+        yield
+    finally:
+        _handlers.clear()
+        for k, v in snapshot.items():
+            _handlers[k] = v
 
 
 async def test_emit_calls_registered_handler():
