@@ -10,18 +10,6 @@ export const useResendValidationEmailMutation = defineMutation(() => {
 	});
 });
 
-export const useAskPasswordResetMutation = defineMutation(() => {
-	const { $api } = useNuxtApp();
-	return useMutation({
-		mutation: (context: { email: string }) => {
-			return $api("/v1/auth/reset-password", {
-				method: "POST",
-				body: context,
-			});
-		},
-	});
-});
-
 export const useValidateAccountMutation = defineMutation(() => {
 	const { $api } = useNuxtApp();
 	return useMutation({

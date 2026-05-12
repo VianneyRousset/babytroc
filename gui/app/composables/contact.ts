@@ -12,7 +12,6 @@ export function useSendContactMessage() {
 	// No retry: cap tokens are single-use — retrying with the same token returns 400.
 	const { mutateAsync: sendContactMessage, ...mutation } = useMutation({
 		mutation: (ctx: ContactSubmit) => {
-			// @ts-expect-error: /v1/utils/contact not yet in gui/openapi/api/openapi.json (regenerate to remove this line)
 			return $api("/v1/utils/contact", {
 				method: "POST",
 				body: {
