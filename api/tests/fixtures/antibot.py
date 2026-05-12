@@ -44,14 +44,6 @@ def stub_cap_verify(
 
     monkeypatch.setattr(cap_module, "verify_cap_token", _fake)
     monkeypatch.setattr(antibot_module, "verify_cap_token", _fake)
-    # The contact router (not yet refactored to use shared/antibot.py) binds
-    # verify_cap_token at import time; patch its bound reference too.
-    try:
-        from babytroc.routers.v1.utils import contact as contact_router_module
-
-        monkeypatch.setattr(contact_router_module, "verify_cap_token", _fake)
-    except ImportError:
-        pass
 
 
 @pytest.fixture
