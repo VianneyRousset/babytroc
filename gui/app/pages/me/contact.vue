@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { FetchError } from "ofetch";
 import { OctagonAlert, Send } from "lucide-vue-next";
+import type { FetchError } from "ofetch";
 
 definePageMeta({
 	layout: "me",
@@ -185,15 +185,7 @@ function resetForNewMessage() {
               >{{ message.length }} / 5000</small>
             </label>
 
-            <input
-              v-model="website"
-              type="text"
-              name="website"
-              tabindex="-1"
-              autocomplete="off"
-              aria-hidden="true"
-              class="honeypot"
-            >
+            <Honeypot v-model="website" />
 
             <CapWidget
               v-if="capConfigured"
@@ -300,14 +292,6 @@ main {
       color: $red-600;
       font-weight: 600;
     }
-  }
-
-  .honeypot {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
   }
 
   .success {
