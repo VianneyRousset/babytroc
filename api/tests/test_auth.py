@@ -344,7 +344,10 @@ class TestAuthPasswordReset:
 
         resp = await client.post(
             "/api/v1/auth/reset-password",
-            json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com", "cap_token": "valid"},
+            json={
+                "email": "ilxkndknnegikahj@artuxmjklwovtrrk.com",
+                "cap_token": "valid",
+            },
         )
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 

@@ -3,7 +3,12 @@ from unittest.mock import patch
 
 import pytest
 
-from babytroc.infrastructure.config import CapConfig, Config, ContactConfig, RateLimitConfig
+from babytroc.infrastructure.config import (
+    CapConfig,
+    Config,
+    ContactConfig,
+    RateLimitConfig,
+)
 
 
 class TestContactConfig:
@@ -82,7 +87,6 @@ class TestRateLimitConfig:
 class TestConfigRateLimits:
     def test_config_has_per_endpoint_rate_limits(self):
         # Drop all overrides so defaults flow through.
-        prefixes = ("SIGNUP", "PASSWORD_RESET", "ITEM_CREATE", "IMAGE_UPLOAD")
         env: dict = {}
         # Provide every required env var so Config.from_env can build.
         env.update({
