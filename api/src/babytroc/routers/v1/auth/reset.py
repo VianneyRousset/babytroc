@@ -6,7 +6,9 @@ from fastapi_mail import FastMail
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from babytroc.domains.auth import services as auth_services
-from babytroc.domains.auth.schemas.create import AuthAccountPasswordResetAuthorizationCreate
+from babytroc.domains.auth.schemas.create import (
+    AuthAccountPasswordResetAuthorizationCreate,
+)
 from babytroc.domains.auth.schemas.reset import (
     AuthAccountPasswordResetAuthorizationCreated,
     AuthAccountPasswordResetDone,

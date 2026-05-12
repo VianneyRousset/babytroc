@@ -120,15 +120,9 @@ class TestRateLimiter:
 
 class TestMakeRateLimitDep:
     def test_factory_returns_awaitable_dep(self):
-        from datetime import timedelta
         from inspect import iscoroutinefunction
 
-        from babytroc.infrastructure.config import RateLimitConfig
         from babytroc.shared.rate_limit import make_rate_limit_dep
-
-        rl_config = RateLimitConfig(
-            anon=2, auth=5, window=timedelta(seconds=60),
-        )
 
         dep = make_rate_limit_dep(
             key_prefix="signup",

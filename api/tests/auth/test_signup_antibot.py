@@ -73,9 +73,18 @@ async def test_rate_limit_anon_returns_429(
         key_prefix="signup-test",
         anon_limit=2, auth_limit=2, window_seconds=60,
     )
-    r1 = await client.post("/api/v1/auth/new", json=_payload(name="Person Alpha", email="a@a.com"))
-    r2 = await client.post("/api/v1/auth/new", json=_payload(name="Person Beta", email="b@b.com"))
+    r1 = await client.post(
+        "/api/v1/auth/new",
+        json=_payload(name="Person Alpha", email="a@a.com"),
+    )
+    r2 = await client.post(
+        "/api/v1/auth/new",
+        json=_payload(name="Person Beta", email="b@b.com"),
+    )
     assert r1.is_success, r1.text
     assert r2.is_success, r2.text
-    r3 = await client.post("/api/v1/auth/new", json=_payload(name="Person Gamma", email="c@c.com"))
+    r3 = await client.post(
+        "/api/v1/auth/new",
+        json=_payload(name="Person Gamma", email="c@c.com"),
+    )
     assert r3.status_code == 429
