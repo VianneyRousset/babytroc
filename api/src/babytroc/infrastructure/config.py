@@ -304,6 +304,10 @@ class Config(NamedTuple):
     auth: AuthConfig
     contact: ContactConfig
     cap: CapConfig
+    signup: RateLimitConfig
+    password_reset: RateLimitConfig
+    item_create: RateLimitConfig
+    image_upload: RateLimitConfig
 
     @classmethod
     def from_env(  # noqa: C901
@@ -322,6 +326,10 @@ class Config(NamedTuple):
         auth: AuthConfig | None = None,
         contact: ContactConfig | None = None,
         cap: CapConfig | None = None,
+        signup: RateLimitConfig | None = None,
+        password_reset: RateLimitConfig | None = None,
+        item_create: RateLimitConfig | None = None,
+        image_upload: RateLimitConfig | None = None,
     ) -> Self:
         if host_name is None:
             host_name = _env("HOST_NAME")
@@ -362,6 +370,27 @@ class Config(NamedTuple):
         if cap is None:
             cap = CapConfig.from_env()
 
+        if signup is None:
+            signup = RateLimitConfig.from_env(
+                env_prefix="SIGNUP",
+                default_anon=3, default_auth=3, default_window_seconds=3600,
+            )
+        if password_reset is None:
+            password_reset = RateLimitConfig.from_env(
+                env_prefix="PASSWORD_RESET",
+                default_anon=3, default_auth=3, default_window_seconds=3600,
+            )
+        if item_create is None:
+            item_create = RateLimitConfig.from_env(
+                env_prefix="ITEM_CREATE",
+                default_anon=30, default_auth=30, default_window_seconds=3600,
+            )
+        if image_upload is None:
+            image_upload = RateLimitConfig.from_env(
+                env_prefix="IMAGE_UPLOAD",
+                default_anon=60, default_auth=60, default_window_seconds=3600,
+            )
+
         return cls(
             host_name=host_name,
             app_name=app_name,
@@ -376,4 +405,8 @@ class Config(NamedTuple):
             auth=auth,
             contact=contact,
             cap=cap,
+            signup=signup,
+            password_reset=password_reset,
+            item_create=item_create,
+            image_upload=image_upload,
         )
