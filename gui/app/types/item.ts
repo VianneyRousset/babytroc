@@ -10,6 +10,7 @@ export type ItemQueryAvailabilityType = ItemQueryAvailability;
 export type Item = ApiResponse<"get_item_v1_items__item_id__get">;
 export type ItemPreview = ApiResponse<"list_items_v1_items_get">[number];
 export type ItemCreate = ApiRequestBody<"create_client_item_v1_me_items_post">;
+export type ItemFormData = Omit<ItemCreate, "cap_token" | "website">;
 export type ItemUpdate =
 	ApiRequestBody<"update_client_item_v1_me_items__item_id__post">;
 export type ItemQueryParams = ApiRequestQuery<"list_items_v1_items_get">;

@@ -1,13 +1,15 @@
 <script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'category_slugs' | 'blocked'>">
-const emit = defineEmits<(event: "submit", data: ItemCreate) => void>();
+const emit = defineEmits<(event: "submit", data: ItemFormData) => void>();
 
 const props = withDefaults(
 	defineProps<{
 		item?: ItemData;
 		isLoading?: boolean;
+		submitDisabled?: boolean;
 	}>(),
 	{
 		isLoading: false,
+		submitDisabled: false,
 	},
 );
 
@@ -79,16 +81,16 @@ const valid = computed(
 		unref(images).every((img: string | undefined) => img != null),
 );
 
-function _openStudioOverlay() {
+function openStudioOverlay() {
 	tmpStudioImages.value = unref(studioImages).map((img) => img.copy());
 	studioOverlay.value = true;
 }
 
-function _closeStudioOverlay() {
+function closeStudioOverlay() {
 	studioOverlay.value = false;
 }
 
-function _saveStudioImages() {
+function saveStudioImages() {
 	studioImages.value = unref(tmpStudioImages).map((img) => img.copy());
 }
 
@@ -99,7 +101,7 @@ function touchAll() {
 	imagesTouched.value = true;
 }
 
-function _onclick() {
+function onclick() {
 	touchAll();
 
 	if (unref(valid)) {
@@ -198,7 +200,7 @@ function _onclick() {
     <TextButton
       aspect="flat"
       color="primary"
-      :disabled="!valid"
+      :disabled="!valid || props.isLoading || props.submitDisabled"
       :loading="props.isLoading"
       @click="onclick"
     >
