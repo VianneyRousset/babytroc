@@ -1,25 +1,105 @@
 <script setup lang="ts">
+import type { FetchError } from "ofetch";
+import { OctagonAlert, Send } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "me",
 	appBack: true,
 	appTitle: "Contact",
 });
 
+const { $toast } = useNuxtApp();
+const { cap } = useRuntimeConfig().public;
+
+const { loggedIn } = useAuth();
+const { me } = useMe();
+
 const nom = ref("");
 const email = ref("");
 const sujet = ref("");
 const message = ref("");
-const sent = ref(false);
+const capToken = ref("");
+const website = ref(""); // honeypot
+const capResetSignal = ref(0);
+const dismissedSuccess = ref(false);
 
-function _submit() {
-	if (!nom.value || !email.value || !sujet.value || !message.value) return;
-	if (!email.value.includes("@")) return;
+const { sendContactMessage, isLoading, status, error } =
+	useSendContactMessage();
 
-	sent.value = true;
-	nom.value = "";
-	email.value = "";
-	sujet.value = "";
-	message.value = "";
+// Pre-fill from authenticated session once it resolves
+watch(
+	[loggedIn, me],
+	([loggedInValue, meValue]) => {
+		if (loggedInValue !== true || meValue == null) return;
+		if (unref(nom) === "") nom.value = meValue.name;
+		if (unref(email) === "") email.value = meValue.email;
+	},
+	{ immediate: true },
+);
+
+const capConfigured = computed<boolean>(
+	() => cap.apiUrl !== "" && cap.siteKey !== "",
+);
+
+const messageTooLong = computed<boolean>(() => unref(message).length > 5000);
+
+const emailValid = computed<boolean>(() =>
+	/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(unref(email)),
+);
+
+const valid = computed<boolean>(
+	() =>
+		unref(nom).trim() !== "" &&
+		unref(sujet).trim() !== "" &&
+		unref(message).trim() !== "" &&
+		unref(emailValid) &&
+		!unref(messageTooLong) &&
+		unref(capToken) !== "" &&
+		unref(website) === "" && // honeypot must remain empty
+		unref(capConfigured),
+);
+
+function mapErrorToToast(err: FetchError | null): void {
+	const code = err?.status;
+	if (code === 400) {
+		$toast.error("Captcha invalide, veuillez réessayer.");
+	} else if (code === 422) {
+		$toast.error("Champs invalides.");
+	} else if (code === 429) {
+		$toast.error("Trop d'envois. Réessayez dans quelques minutes.");
+	} else if (typeof code === "number" && code >= 500) {
+		$toast.error("Erreur serveur. Réessayez plus tard.");
+	} else {
+		$toast.error("Problème de connexion. Vérifiez votre réseau.");
+	}
+}
+
+async function submit() {
+	if (!unref(valid) || unref(isLoading)) return;
+
+	try {
+		await sendContactMessage({
+			name: unref(nom),
+			email: unref(email),
+			subject: unref(sujet),
+			message: unref(message),
+			capToken: unref(capToken),
+		});
+		// success — clear editable fields, reset widget (token consumed)
+		sujet.value = "";
+		message.value = "";
+		capToken.value = "";
+		capResetSignal.value += 1;
+		dismissedSuccess.value = false;
+	} catch {
+		mapErrorToToast(unref(error));
+		capToken.value = "";
+		capResetSignal.value += 1;
+	}
+}
+
+function resetForNewMessage() {
+	dismissedSuccess.value = true;
 }
 </script>
 
@@ -48,14 +128,14 @@ function _submit() {
           mode="out-in"
         >
           <div
-            v-if="sent"
+            v-if="status === 'success' && !dismissedSuccess"
             class="success"
           >
             <p>Merci&nbsp;! Votre message a bien été envoyé.</p>
             <TextButton
               aspect="outline"
               size="small"
-              @click="sent = false"
+              @click="resetForNewMessage"
             >
               Envoyer un autre message
             </TextButton>
@@ -70,6 +150,7 @@ function _submit() {
               <TextInput
                 v-model="nom"
                 placeholder="Votre nom"
+                :disabled="loggedIn === true || isLoading"
               />
             </label>
             <label>
@@ -78,6 +159,7 @@ function _submit() {
                 v-model="email"
                 type="email"
                 placeholder="Votre adresse email"
+                :disabled="loggedIn === true || isLoading"
               />
             </label>
             <label>
@@ -85,6 +167,7 @@ function _submit() {
               <TextInput
                 v-model="sujet"
                 placeholder="Sujet de votre message"
+                :disabled="isLoading"
               />
             </label>
             <label>
@@ -92,13 +175,47 @@ function _submit() {
               <LongTextInput
                 v-model="message"
                 placeholder="Votre message..."
+                :disabled="isLoading"
               />
+              <small
+                class="counter"
+                :class="{ over: messageTooLong }"
+              >{{ message.length }} / 5000</small>
             </label>
+
+            <input
+              v-model="website"
+              type="text"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+              class="honeypot"
+            >
+
+            <CapWidget
+              v-if="capConfigured"
+              :api-url="cap.apiUrl"
+              :site-key="cap.siteKey"
+              :reset-signal="capResetSignal"
+              :disabled="isLoading"
+              @solve="capToken = $event"
+              @expire="capToken = ''"
+            />
+            <PanelBanner
+              v-else
+              color="red"
+              :icon="OctagonAlert"
+            >
+              Captcha indisponible. Le formulaire est désactivé.
+            </PanelBanner>
+
             <TextButton
               aspect="flat"
               color="primary"
               :icon="Send"
-              :disabled="!nom || !email || !sujet || !message"
+              :disabled="!valid || isLoading"
+              :loading="isLoading"
               @click="submit"
             >
               Envoyer
@@ -170,6 +287,25 @@ main {
     font-size: 0.875rem;
     font-weight: 500;
     color: $text-secondary;
+  }
+
+  .counter {
+    font-size: 0.75rem;
+    color: $text-tertiary;
+    align-self: flex-end;
+
+    &.over {
+      color: $red-600;
+      font-weight: 600;
+    }
+  }
+
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
   }
 
   .success {
