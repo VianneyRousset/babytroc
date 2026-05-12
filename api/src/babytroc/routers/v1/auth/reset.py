@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
 
 from fastapi import BackgroundTasks, Depends, Request
@@ -14,8 +14,23 @@ from babytroc.domains.auth.schemas.reset import (
 from babytroc.domains.user.schemas.update import UserPasswordUpdate
 from babytroc.infrastructure.database import get_db_session
 from babytroc.infrastructure.email import get_email_client
+from babytroc.shared.antibot import AntiBotMixin, verify_antibot
+from babytroc.shared.rate_limit import make_rate_limit_dep
 
 from .router import router
+
+if TYPE_CHECKING:
+    from babytroc.infrastructure.config import Config
+
+
+class PasswordResetRequest(AntiBotMixin, AuthAccountPasswordResetAuthorizationCreate):
+    pass
+
+
+rate_limit_password_reset = make_rate_limit_dep(
+    key_prefix="password_reset",
+    extract_config=lambda c: c.password_reset,
+)
 
 
 @router.post("/reset-password")
@@ -24,17 +39,21 @@ async def create_account_password_reset_authorization(
     db: Annotated[AsyncSession, Depends(get_db_session)],
     email_client: Annotated[FastMail, Depends(get_email_client)],
     background_tasks: BackgroundTasks,
-    authorization_create: AuthAccountPasswordResetAuthorizationCreate,
+    reset_request: PasswordResetRequest,
+    _rate_limited: Annotated[None, Depends(rate_limit_password_reset)],
 ) -> AuthAccountPasswordResetAuthorizationCreated:
-    """Send a account password reset authorization by email."""
+    """Send an account password reset authorization by email."""
+
+    config: Config = request.app.state.config
+    await verify_antibot(reset_request, config.cap)
 
     await auth_services.create_account_password_reset_authrorization(
         db=db,
-        user_email=authorization_create.email,
+        user_email=reset_request.email,
         email_client=email_client,
         background_tasks=background_tasks,
-        host_name=request.app.state.config.host_name,
-        app_name=request.app.state.config.app_name,
+        host_name=config.host_name,
+        app_name=config.app_name,
     )
 
     return AuthAccountPasswordResetAuthorizationCreated()

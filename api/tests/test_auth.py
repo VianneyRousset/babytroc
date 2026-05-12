@@ -300,7 +300,7 @@ class TestAuthPasswordReset:
         # create account password reset authorization
         resp = await client.post(
             "/api/v1/auth/reset-password",
-            json={"email": alice_user_data["email"]},
+            json={"email": alice_user_data["email"], "cap_token": "valid"},
         )
         resp.raise_for_status()
 
@@ -344,7 +344,7 @@ class TestAuthPasswordReset:
 
         resp = await client.post(
             "/api/v1/auth/reset-password",
-            json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com"},
+            json={"email": "ilxkndknnegikahj@artuxmjklwovtrrk.com", "cap_token": "valid"},
         )
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
@@ -361,7 +361,7 @@ class TestAuthPasswordReset:
         # create account password reset authorization
         resp = await client.post(
             "/api/v1/auth/reset-password",
-            json={"email": bob_user_data["email"]},
+            json={"email": bob_user_data["email"], "cap_token": "valid"},
         )
         resp.raise_for_status()
 
