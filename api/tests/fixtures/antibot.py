@@ -93,5 +93,10 @@ async def _clear_rate_limit_state(app: FastAPI) -> AsyncGenerator[None]:
         app.dependency_overrides.pop(rate_limit_contact, None)
     except ImportError:
         pass
+    try:
+        from babytroc.routers.v1.auth.new import rate_limit_signup
+        app.dependency_overrides.pop(rate_limit_signup, None)
+    except ImportError:
+        pass
     for attr in [a for a in vars(app.state) if a.startswith("_rate_limiter_")]:
         delattr(app.state, attr)

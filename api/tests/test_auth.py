@@ -146,6 +146,7 @@ class TestAuthNewAccount:
                 "name": "newaccount",
                 "email": email,
                 "password": password,
+                "cap_token": "valid",
             },
         )
         resp.raise_for_status()
@@ -265,6 +266,7 @@ class TestAuthNewAccount:
                 "name": name,
                 "email": email,
                 "password": password,
+                "cap_token": "valid",
             },
         )
         assert not resp.is_success
