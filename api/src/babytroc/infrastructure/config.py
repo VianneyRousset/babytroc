@@ -220,6 +220,33 @@ class AuthConfig(NamedTuple):
         )
 
 
+class RateLimitConfig(NamedTuple):
+    anon: int
+    auth: int
+    window: timedelta
+
+    @classmethod
+    def from_env(
+        cls,
+        *,
+        env_prefix: str,
+        default_anon: int,
+        default_auth: int,
+        default_window_seconds: int,
+    ) -> Self:
+        anon = int(_env(f"{env_prefix}_RATE_LIMIT_ANON", default=str(default_anon)))
+        auth = int(_env(f"{env_prefix}_RATE_LIMIT_AUTH", default=str(default_auth)))
+        window = timedelta(
+            seconds=int(
+                _env(
+                    f"{env_prefix}_RATE_LIMIT_WINDOW_SECONDS",
+                    default=str(default_window_seconds),
+                ),
+            ),
+        )
+        return cls(anon=anon, auth=auth, window=window)
+
+
 class ContactConfig(NamedTuple):
     email: str
     rate_limit_anon: int
@@ -276,6 +303,7 @@ class CapConfig(NamedTuple):
 class Config(NamedTuple):
     host_name: str
     app_name: str
+    root_path: str
     test: bool
     delay: float
     database: DatabaseConfig
@@ -293,6 +321,7 @@ class Config(NamedTuple):
         *,
         host_name: str | None = None,
         app_name: str | None = None,
+        root_path: str | None = None,
         test: bool | None = None,
         delay: float | None = None,
         database: DatabaseConfig | None = None,
@@ -309,6 +338,9 @@ class Config(NamedTuple):
 
         if app_name is None:
             app_name = _env("APP_NAME")
+
+        if root_path is None:
+            root_path = _env("ROOT_PATH", default="")
 
         if test is None:
             test = "PYTEST_CURRENT_TEST" in os.environ
@@ -343,6 +375,7 @@ class Config(NamedTuple):
         return cls(
             host_name=host_name,
             app_name=app_name,
+            root_path=root_path,
             test=test,
             delay=delay,
             database=database,
