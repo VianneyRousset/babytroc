@@ -27,6 +27,7 @@ class ItemData(TypedDict):
     targeted_age_months: str
     regions: list[int]
     images: list[str]
+    cap_token: str
 
 
 @pytest.fixture
@@ -60,6 +61,7 @@ async def alice_new_item_data(
         "targeted_age_months": "7-",
         "regions": [regions[1].id],
         "images": [image.name for image in alice_new_item_images],
+        "cap_token": "valid",
     }
 
 
@@ -76,6 +78,7 @@ async def alice_special_item_data(
         "targeted_age_months": "2-5",
         "regions": [regions[0].id],
         "images": [image.name for image in alice_special_item_images],
+        "cap_token": "valid",
     }
 
 
