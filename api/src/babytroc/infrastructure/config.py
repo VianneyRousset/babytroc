@@ -249,34 +249,24 @@ class RateLimitConfig(NamedTuple):
 
 class ContactConfig(NamedTuple):
     email: str
-    rate_limit_anon: int
-    rate_limit_auth: int
-    rate_limit_window: timedelta
+    rate_limit: RateLimitConfig
 
     @classmethod
     def from_env(
         cls,
         email: str | None = None,
-        rate_limit_anon: int | None = None,
-        rate_limit_auth: int | None = None,
-        rate_limit_window: timedelta | None = None,
+        rate_limit: RateLimitConfig | None = None,
     ) -> Self:
         if email is None:
             email = _env("CONTACT_EMAIL")
-        if rate_limit_anon is None:
-            rate_limit_anon = int(_env("CONTACT_RATE_LIMIT_ANON", default="5"))
-        if rate_limit_auth is None:
-            rate_limit_auth = int(_env("CONTACT_RATE_LIMIT_AUTH", default="10"))
-        if rate_limit_window is None:
-            rate_limit_window = timedelta(
-                seconds=int(_env("CONTACT_RATE_LIMIT_WINDOW_SECONDS", default="3600")),
+        if rate_limit is None:
+            rate_limit = RateLimitConfig.from_env(
+                env_prefix="CONTACT",
+                default_anon=5,
+                default_auth=10,
+                default_window_seconds=3600,
             )
-        return cls(
-            email=email,
-            rate_limit_anon=rate_limit_anon,
-            rate_limit_auth=rate_limit_auth,
-            rate_limit_window=rate_limit_window,
-        )
+        return cls(email=email, rate_limit=rate_limit)
 
 
 class CapConfig(NamedTuple):

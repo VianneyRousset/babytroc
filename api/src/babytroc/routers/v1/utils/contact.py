@@ -50,9 +50,9 @@ async def rate_limit_contact(
         config: Config = request.app.state.config
         limiter = RateLimiter(
             key_prefix="contact",
-            anon_limit=config.contact.rate_limit_anon,
-            auth_limit=config.contact.rate_limit_auth,
-            window=config.contact.rate_limit_window,
+            anon_limit=config.contact.rate_limit.anon,
+            auth_limit=config.contact.rate_limit.auth,
+            window=config.contact.rate_limit.window,
         )
         request.app.state._contact_limiter = limiter
     await limiter(request=request, redis=redis, client_id=client_id)

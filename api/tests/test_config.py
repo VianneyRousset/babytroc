@@ -17,17 +17,17 @@ class TestContactConfig:
         with patch.dict("os.environ", env, clear=True):
             cfg = ContactConfig.from_env()
         assert cfg.email == "contact@babytroc.ch"
-        assert cfg.rate_limit_anon == 3
-        assert cfg.rate_limit_auth == 8
-        assert cfg.rate_limit_window == timedelta(seconds=600)
+        assert cfg.rate_limit.anon == 3
+        assert cfg.rate_limit.auth == 8
+        assert cfg.rate_limit.window == timedelta(seconds=600)
 
     def test_from_env_uses_defaults(self):
         env = {"CONTACT_EMAIL": "contact@babytroc.ch"}
         with patch.dict("os.environ", env, clear=True):
             cfg = ContactConfig.from_env()
-        assert cfg.rate_limit_anon == 5
-        assert cfg.rate_limit_auth == 10
-        assert cfg.rate_limit_window == timedelta(seconds=3600)
+        assert cfg.rate_limit.anon == 5
+        assert cfg.rate_limit.auth == 10
+        assert cfg.rate_limit.window == timedelta(seconds=3600)
 
     def test_from_env_requires_email(self):
         with patch.dict("os.environ", {}, clear=True), pytest.raises(KeyError):
