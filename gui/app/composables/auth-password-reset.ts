@@ -1,6 +1,9 @@
 import type { FetchError } from "ofetch";
 
-export function useAskPasswordReset(email: MaybeRefOrGetter<string>) {
+export function useAskPasswordReset(
+	email: MaybeRefOrGetter<string>,
+	capToken: MaybeRefOrGetter<string>,
+) {
 	const { $api } = useNuxtApp();
 	const { value: touched } = useThrottle(useTouched(email), 1000);
 
@@ -16,6 +19,8 @@ export function useAskPasswordReset(email: MaybeRefOrGetter<string>) {
 				method: "POST",
 				body: {
 					email: unref(cleanedEmail),
+					cap_token: toValue(capToken),
+					website: "",
 				},
 			});
 		},

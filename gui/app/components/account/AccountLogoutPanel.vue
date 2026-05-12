@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { LockKeyhole } from "lucide-vue-next";
+
 const { data: me } = useMeQuery();
 const { logout: _logout, isLoading } = useLogout();
 const { $toast } = useNuxtApp();
@@ -17,9 +19,9 @@ const {
 	askPasswordReset,
 	isLoading: resetIsLoading,
 	status: resetStatus,
-} = useAskPasswordReset(email);
+} = useAskPasswordReset(email, "");
 
-async function _requestPasswordReset() {
+async function requestPasswordReset() {
 	try {
 		await askPasswordReset();
 		$toast.success("Email de réinitialisation envoyé");

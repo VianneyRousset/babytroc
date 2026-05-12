@@ -1,7 +1,20 @@
 <script setup lang="ts">
+import { Check, KeyRound, OctagonAlert } from "lucide-vue-next";
+import type { FetchError } from "ofetch";
+
 const emit = defineEmits(["done"]);
 
+const { $toast } = useNuxtApp();
+const { cap } = useRuntimeConfig().public;
+
 const email = ref("");
+const capToken = ref("");
+const website = ref("");
+const capResetSignal = ref(0);
+
+const capConfigured = computed<boolean>(
+	() => cap.apiUrl !== "" && cap.siteKey !== "",
+);
 
 const {
 	askPasswordReset,
@@ -9,13 +22,42 @@ const {
 	status,
 	validationStatus,
 	validationError,
-} = useAskPasswordReset(email);
+} = useAskPasswordReset(email, capToken);
 
-async function _go() {
-	if (unref(validationStatus) !== "success") return;
+function mapErrorToToast(err: FetchError | null): void {
+	const code = err?.status;
+	if (code === 400) {
+		$toast.error("Captcha invalide, veuillez réessayer.");
+	} else if (code === 422) {
+		$toast.error("Champs invalides.");
+	} else if (code === 429) {
+		$toast.error("Trop d'envois. Réessayez dans quelques minutes.");
+	} else if (typeof code === "number" && code >= 500) {
+		$toast.error("Erreur serveur. Réessayez plus tard.");
+	} else {
+		$toast.error("Problème de connexion. Vérifiez votre réseau.");
+	}
+}
 
-	await askPasswordReset();
-	emit("done");
+const canSubmit = computed<boolean>(
+	() =>
+		unref(validationStatus) === "success" &&
+		unref(capToken) !== "" &&
+		unref(website) === "" &&
+		unref(capConfigured),
+);
+
+async function go() {
+	if (!unref(canSubmit)) return;
+
+	try {
+		await askPasswordReset();
+		emit("done");
+	} catch (err) {
+		mapErrorToToast(err as FetchError);
+		capToken.value = "";
+		capResetSignal.value += 1;
+	}
 }
 </script>
 
@@ -70,13 +112,33 @@ async function _go() {
         :disabled="isLoading || status === 'success'"
         @keyup.enter="go"
       />
-    </WithdropdownMessage>
+    </WithDropdownMessage>
+
+    <Honeypot v-model="website" />
+
+    <CapWidget
+      v-if="capConfigured"
+      :api-url="cap.apiUrl"
+      :site-key="cap.siteKey"
+      :reset-signal="capResetSignal"
+      :disabled="isLoading"
+      @solve="capToken = $event"
+      @expire="capToken = ''"
+    />
+    <PanelBanner
+      v-else
+      color="red"
+      :icon="OctagonAlert"
+    >
+      Captcha indisponible.
+    </PanelBanner>
+
     <TextButton
       aspect="flat"
       size="large"
       color="neutral"
       :loading="isLoading"
-      :disabled="validationStatus !== 'success' || status === 'success'"
+      :disabled="!canSubmit || isLoading || status === 'success'"
       @click="go"
     >
       Réinitialiser
