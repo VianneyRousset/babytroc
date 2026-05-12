@@ -116,3 +116,70 @@ class TestRateLimiter:
         await rl(request=_make_request("1.1.1.1"), redis=redis, client_id=7)
         keys = [c.args[0] for c in redis.incr.await_args_list]
         assert keys == ["ratelimit:contact:ip:1.1.1.1", "ratelimit:contact:user:7"]
+
+
+class TestMakeRateLimitDep:
+    def test_factory_returns_awaitable_dep(self):
+        from datetime import timedelta
+        from inspect import iscoroutinefunction
+
+        from babytroc.infrastructure.config import RateLimitConfig
+        from babytroc.shared.rate_limit import make_rate_limit_dep
+
+        rl_config = RateLimitConfig(
+            anon=2, auth=5, window=timedelta(seconds=60),
+        )
+
+        dep = make_rate_limit_dep(
+            key_prefix="signup",
+            extract_config=lambda c: c.signup,
+        )
+        assert iscoroutinefunction(dep)
+
+    async def test_factory_caches_limiter_on_app_state(self):
+        from datetime import timedelta
+        from unittest.mock import AsyncMock, MagicMock
+
+        from babytroc.infrastructure.config import RateLimitConfig
+        from babytroc.shared.rate_limit import make_rate_limit_dep
+
+        rl_config = RateLimitConfig(
+            anon=2, auth=5, window=timedelta(seconds=60),
+        )
+
+        # Use a real object for app state to allow getattr/setattr
+        class AppState:
+            pass
+
+        app_state = AppState()
+        app_state.config = MagicMock()
+        app_state.config.signup = rl_config
+
+        class App:
+            def __init__(self, state):
+                self.state = state
+
+        app = App(app_state)
+
+        scope = {
+            "type": "http", "method": "POST", "path": "/",
+            "headers": [], "client": ("1.2.3.4", 12345),
+            "app": app,
+        }
+        request = Request(scope=scope)
+        redis = AsyncMock()
+        redis.incr = AsyncMock(return_value=1)
+        redis.expire = AsyncMock()
+
+        dep = make_rate_limit_dep(
+            key_prefix="signup",
+            extract_config=lambda c: c.signup,
+        )
+        # First call creates and caches the limiter
+        await dep(request=request, redis=redis, client_id=None)
+        assert hasattr(app_state, "_rate_limiter_signup")
+
+        # Second call reuses the cached limiter (no exception)
+        await dep(request=request, redis=redis, client_id=None)
+        # Both calls should have incremented redis (2 total calls to incr)
+        assert redis.incr.await_count == 2
