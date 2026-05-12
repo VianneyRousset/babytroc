@@ -18,7 +18,7 @@
 
 | File | Action | Responsibility |
 | --- | --- | --- |
-| `gui/types/cap-widget.d.ts` | Create | Ambient declaration of the `cap-widget` custom element + `solve`/`expire` event payloads |
+| `gui/app/types/cap-widget.d.ts` | Create | Ambient declaration of the `cap-widget` custom element + `solve`/`expire` event payloads |
 | `gui/app/components/ui/CapWidget.vue` | Create | Vue wrapper — loads CDN script via `useHead`, exposes typed props/emits, supports reset via `resetSignal` |
 | `gui/app/composables/contact.ts` | Create | `useSendContactMessage()` wrapping `useMutation` against `POST /v1/utils/contact` |
 | `gui/nuxt.config.ts` | Modify | Add `runtimeConfig.public.cap = { apiUrl, siteKey }`; mark `cap-widget` as a custom element via `vue.compilerOptions.isCustomElement`; include the new type file via `typescript.tsConfig.include` (only if needed) |
@@ -50,12 +50,12 @@ If you skip this, leave the `@ts-expect-error` in place — Task 3 includes the 
 ## Task 1: Runtime config + cap-widget custom-element registration + ambient types
 
 **Files:**
-- Create: `gui/types/cap-widget.d.ts`
+- Create: `gui/app/types/cap-widget.d.ts`
 - Modify: `gui/nuxt.config.ts` — add `runtimeConfig.public.cap`, `vue.compilerOptions.isCustomElement`, `typescript.tsConfig.include` if needed
 
 - [ ] **Step 1.1: Create ambient declaration file for `cap-widget` element + events**
 
-Create `gui/types/cap-widget.d.ts`:
+Create `gui/app/types/cap-widget.d.ts`:
 
 ```ts
 export {};
@@ -144,7 +144,7 @@ Expected: no errors. (Repo uses npm (`package-lock.json`). For other package man
 - [ ] **Step 1.4: Commit**
 
 ```bash
-git add gui/types/cap-widget.d.ts gui/nuxt.config.ts
+git add gui/app/types/cap-widget.d.ts gui/nuxt.config.ts
 git commit -m "feat(gui): wire cap runtime config and cap-widget custom element"
 ```
 
@@ -710,9 +710,9 @@ Navigate to `http://localhost:3000/me/contact`.
 
 - [ ] **Step 5.3: Honeypot triggers rejection**
 
-1. While the form is open, use devtools to set the hidden `website` input's `.value` to `"http://spam.example"`.
-2. Solve cap, submit.
-3. Expect: toast "Captcha invalide, veuillez réessayer." (API returns 400 `INVALID_SUBMISSION` for both honeypot and bad cap — server message is intentionally shared).
+1. While the form is open, fill the hidden `website` input via the **Vue Devtools** ref editor (NOT by setting `.value` in regular devtools — Vue's `v-model` listens for `input` events; programmatic `.value` assignment without dispatching `new InputEvent('input', {bubbles: true})` does not update the Vue ref). Set `website` to `"http://spam.example"`.
+2. Observe: "Envoyer" button becomes disabled (`valid` is now false because `website !== ""`).
+3. The client-side guard prevents the request from being sent. Server-side honeypot is exercised indirectly via the composable's always-empty `website: ""` body field — bots that bypass the JS layer would hit the server check.
 
 - [ ] **Step 5.4: Cap config missing**
 

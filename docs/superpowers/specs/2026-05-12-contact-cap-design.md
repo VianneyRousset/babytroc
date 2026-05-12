@@ -130,7 +130,7 @@ Internals:
 - `const { me } = useMe()` — `Ref<UserPrivate | undefined>` exposing `name` and `email` (both required strings on `UserPrivateRead`).
 - Local refs (template-bound, kept in French to match existing page): `nom`, `email`, `sujet`, `message`, `capToken`, `website` (honeypot), `capResetSignal`, `dismissedSuccess`.
 - `watch(me, …)` once `loggedIn === true`: if `nom`/`email` are still empty, seed them from `me.value.name` / `me.value.email`. Re-evaluating when `me` first resolves handles the case where the page mounts before the `me` query settles.
-- When `loggedIn === true`, the name and email inputs render with `readonly` + an `is-locked` class. Internally the composable still POSTs whatever is in `nom`/`email` (the page values), so the backend receives the pre-filled values — `authenticated_user_id` is attached server-side from the cookie and is the trust anchor.
+- When `loggedIn === true`, the name and email inputs render with `readonly` (the TextInput component's built-in `:read-only` CSS rule provides the subtle background tint — no extra class is required). Internally the composable still POSTs whatever is in `nom`/`email` (the page values), so the backend receives the pre-filled values — `authenticated_user_id` is attached server-side from the cookie and is the trust anchor.
 - `valid`:
   - all of `nom`, `email`, `sujet`, `message` non-empty after trim
   - `email` matches `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`
@@ -145,7 +145,7 @@ Internals:
 **Template**
 
 - Same outer `AppPage` + intro/divider structure.
-- Inputs: when `loggedIn === true`, name & email have `readonly` + a `is-locked` class (subtle background tint). When `loggedIn === undefined` (pending) or `false`, both are normal editable inputs.
+- Inputs: when `loggedIn === true`, name & email have `readonly` (TextInput's built-in `:read-only` CSS rule provides the subtle background tint — no extra class needed). When `loggedIn === undefined` (pending) or `false`, both are normal editable inputs.
 - Hidden honeypot:
   ```html
   <input
