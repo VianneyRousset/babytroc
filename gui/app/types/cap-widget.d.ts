@@ -22,4 +22,8 @@ declare global {
 		solve: CapSolveEvent;
 		expire: CapExpireEvent;
 	}
+
+	interface HTMLElementTagNameMap {
+		"cap-widget": CapWidgetElement;
+	}
 }
