@@ -150,7 +150,8 @@ function resetForNewMessage() {
               <TextInput
                 v-model="nom"
                 placeholder="Votre nom"
-                :disabled="loggedIn === true || isLoading"
+                :readonly="loggedIn === true"
+                :disabled="isLoading"
               />
             </label>
             <label>
@@ -159,7 +160,8 @@ function resetForNewMessage() {
                 v-model="email"
                 type="email"
                 placeholder="Votre adresse email"
-                :disabled="loggedIn === true || isLoading"
+                :readonly="loggedIn === true"
+                :disabled="isLoading"
               />
             </label>
             <label>

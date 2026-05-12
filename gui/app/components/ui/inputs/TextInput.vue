@@ -8,14 +8,16 @@ export type TextInputProps = {
 	tabindex?: number;
 	status?: "idle" | "pending" | "success" | "error";
 	disabled?: boolean;
+	readonly?: boolean;
 };
 
-const _model = defineModel<string>();
-const _emit = defineEmits(["blur"]);
+const model = defineModel<string>();
+const emit = defineEmits(["blur"]);
 
 const props = withDefaults(defineProps<TextInputProps>(), {
 	status: "idle",
 	disabled: false,
+	readonly: false,
 });
 
 const inputElement = useTemplateRef<HTMLElement>("input");
@@ -50,6 +52,7 @@ const _type = computed(() => {
       :placeholder="props.placeholder"
       :type="type"
       :disabled="props.disabled"
+      :readonly="props.readonly"
       :tabindex="props.tabindex"
       :autofocus="props.autofocus"
       :class="[status]"
@@ -128,6 +131,12 @@ const _type = computed(() => {
     &:disabled {
       background: $bg-page;
       color: $text-tertiary;
+    }
+
+    &:read-only {
+      background: $bg-page;
+      color: $text-secondary;
+      cursor: default;
     }
 
     &.error {
