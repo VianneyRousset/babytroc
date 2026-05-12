@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 
 from babytroc.domains.user.schemas.private import UserPrivateRead
+from babytroc.routers.v1.utils.contact import rate_limit_contact
 
 VALID_PAYLOAD = {
     "name": "Alice",
@@ -98,7 +99,11 @@ async def test_cap_unreachable_returns_400_invalid_submission(
 async def test_anon_rate_limit_triggers_429(
     client: AsyncClient, tight_rate_limit_factory
 ):
-    tight_rate_limit_factory(anon_limit=2, auth_limit=10, window_seconds=60)
+    tight_rate_limit_factory(
+        dep=rate_limit_contact,
+        key_prefix="contact-test",
+        anon_limit=2, auth_limit=10, window_seconds=60,
+    )
     r1 = await client.post("/api/v1/utils/contact", json=_payload())
     r2 = await client.post("/api/v1/utils/contact", json=_payload())
     r3 = await client.post("/api/v1/utils/contact", json=_payload())
@@ -111,7 +116,11 @@ async def test_anon_rate_limit_triggers_429(
 async def test_auth_rate_limit_triggers_429(
     alice_client: AsyncClient, tight_rate_limit_factory
 ):
-    tight_rate_limit_factory(anon_limit=10, auth_limit=2, window_seconds=60)
+    tight_rate_limit_factory(
+        dep=rate_limit_contact,
+        key_prefix="contact-test",
+        anon_limit=10, auth_limit=2, window_seconds=60,
+    )
     r1 = await alice_client.post("/api/v1/utils/contact", json=_payload())
     r2 = await alice_client.post("/api/v1/utils/contact", json=_payload())
     r3 = await alice_client.post("/api/v1/utils/contact", json=_payload())
@@ -125,7 +134,11 @@ async def test_anon_and_auth_quotas_are_isolated(
     alice_client: AsyncClient,
     tight_rate_limit_factory,
 ):
-    tight_rate_limit_factory(anon_limit=2, auth_limit=2, window_seconds=60)
+    tight_rate_limit_factory(
+        dep=rate_limit_contact,
+        key_prefix="contact-test",
+        anon_limit=2, auth_limit=2, window_seconds=60,
+    )
     # Use up alice's quota
     r1 = await alice_client.post("/api/v1/utils/contact", json=_payload())
     r2 = await alice_client.post("/api/v1/utils/contact", json=_payload())

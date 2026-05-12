@@ -39,5 +39,5 @@ pytest_plugins = [
     "tests.fixtures.chat",
     "tests.fixtures.categories",
     "tests.fixtures.s3",
-    "tests.fixtures.contact",
+    "tests.fixtures.antibot",
 ]
