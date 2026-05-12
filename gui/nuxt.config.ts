@@ -1,5 +1,48 @@
+import * as LucideIcons from "lucide-vue-next";
 import RadixVueResolver from "radix-vue/resolver";
 import Components from "unplugin-vue-components/vite";
+
+const lucideIconNames = new Set(Object.keys(LucideIcons));
+
+function LucideIconsResolver() {
+	return {
+		type: "component" as const,
+		resolve: (name: string) => {
+			if (lucideIconNames.has(name)) {
+				return { name, from: "lucide-vue-next" };
+			}
+		},
+	};
+}
+
+const vue3CarouselComponents = new Set([
+	"Carousel",
+	"Slide",
+	"Navigation",
+	"Pagination",
+]);
+
+function Vue3CarouselResolver() {
+	return {
+		type: "component" as const,
+		resolve: (name: string) => {
+			if (vue3CarouselComponents.has(name)) {
+				return { name, from: "vue3-carousel" };
+			}
+		},
+	};
+}
+
+function VSwitchResolver() {
+	return {
+		type: "component" as const,
+		resolve: (name: string) => {
+			if (name === "VSwitch") {
+				return { as: "VSwitch", from: "@lmiller1990/v-switch" };
+			}
+		},
+	};
+}
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -75,6 +118,10 @@ export default defineNuxtConfig({
 					baseURL: "/api",
 				},
 			},
+			cap: {
+				apiUrl: "",
+				siteKey: "",
+			},
 		},
 	},
 
@@ -112,9 +159,20 @@ export default defineNuxtConfig({
 		plugins: [
 			Components({
 				dts: true,
-				resolvers: [RadixVueResolver()],
+				resolvers: [
+					RadixVueResolver(),
+					Vue3CarouselResolver(),
+					VSwitchResolver(),
+					LucideIconsResolver(),
+				],
 			}),
 		],
+	},
+
+	vue: {
+		compilerOptions: {
+			isCustomElement: (tag) => tag === "cap-widget",
+		},
 	},
 
 	// use typescript type checking
