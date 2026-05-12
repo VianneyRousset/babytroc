@@ -54,7 +54,7 @@ git diff --stat gui/openapi/api/openapi.json
 Expected: shows the file as modified (it was regenerated during brainstorming). If it's NOT modified, regenerate now:
 
 ```bash
-curl -s http://localhost/api/openapi.json -o gui/openapi/api/openapi.json
+curl -s http://localhost/api/openapi.json | python3 -m json.tool > gui/openapi/api/openapi.json
 ```
 
 - [ ] **Step 1.2: Regenerate Nuxt types from the new schema**
