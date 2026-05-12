@@ -134,12 +134,12 @@ Then, at the same top level as `vite:` / `typescript:` (NOT nested inside `vite`
 - [ ] **Step 1.3: Run typecheck to confirm the config + ambient types load**
 
 ```bash
-cd gui && pnpm install --frozen-lockfile  # only if you haven't installed yet
-cd gui && pnpm exec nuxi prepare
-cd gui && pnpm exec nuxi typecheck
+cd gui && npm ci  # only if you haven't installed yet
+cd gui && npx nuxi prepare
+cd gui && npx nuxi typecheck
 ```
 
-Expected: no errors. (If `pnpm` is not the package manager in this repo, use `npm` or `yarn` — check `gui/package.json` `packageManager` or the existence of `pnpm-lock.yaml` / `package-lock.json` / `yarn.lock`.)
+Expected: no errors. (Repo uses npm (`package-lock.json`). For other package managers, swap commands accordingly.)
 
 - [ ] **Step 1.4: Commit**
 
@@ -246,7 +246,7 @@ watch(resetSignal, () => {
 - [ ] **Step 2.2: Typecheck**
 
 ```bash
-cd gui && pnpm exec nuxi typecheck
+cd gui && npx nuxi typecheck
 ```
 
 Expected: no errors. If TS complains about `cap-widget` in the template, re-verify Step 1.2 — `vue.compilerOptions.isCustomElement` must be set.
@@ -307,7 +307,7 @@ export function useSendContactMessage() {
 - [ ] **Step 3.2: Typecheck**
 
 ```bash
-cd gui && pnpm exec nuxi typecheck
+cd gui && npx nuxi typecheck
 ```
 
 Expected: no errors. The `@ts-expect-error` directive itself becomes an error if the underlying call type-checks fine — in that case (i.e., schema was regenerated), remove the directive.
@@ -660,7 +660,7 @@ main {
 - [ ] **Step 4.2: Typecheck**
 
 ```bash
-cd gui && pnpm exec nuxi typecheck
+cd gui && npx nuxi typecheck
 ```
 
 Expected: no errors. If `PanelBanner` isn't auto-imported, check `gui/app/components/ui/panel/PanelBanner.vue` exists (it does in the current tree).
@@ -687,7 +687,7 @@ cd api && uv run uvicorn babytroc.app:create_app --factory --port 8000
 # 2. In another shell, start the GUI dev server with the public cap config exposed.
 cd gui && NUXT_PUBLIC_CAP_API_URL=https://cap.example.com \
         NUXT_PUBLIC_CAP_SITE_KEY=<your-site-key> \
-        pnpm dev
+        npm run dev
 ```
 
 Navigate to `http://localhost:3000/me/contact`.
@@ -716,7 +716,7 @@ Navigate to `http://localhost:3000/me/contact`.
 
 - [ ] **Step 5.4: Cap config missing**
 
-1. Restart `pnpm dev` without `NUXT_PUBLIC_CAP_API_URL` / `NUXT_PUBLIC_CAP_SITE_KEY`.
+1. Restart `npm run dev` without `NUXT_PUBLIC_CAP_API_URL` / `NUXT_PUBLIC_CAP_SITE_KEY`.
 2. Open `/me/contact`.
 3. Expect: red "Captcha indisponible" banner instead of the widget; "Envoyer" button disabled regardless of field contents.
 
@@ -739,7 +739,7 @@ Navigate to `http://localhost:3000/me/contact`.
 - [ ] **Step 5.8: Typecheck final**
 
 ```bash
-cd gui && pnpm exec nuxi typecheck
+cd gui && npx nuxi typecheck
 ```
 
 Expected: clean.
