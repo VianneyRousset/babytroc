@@ -1,16 +1,44 @@
 <script setup lang="ts">
+import { OctagonAlert } from "lucide-vue-next";
+
 const props = defineProps<{
 	loading?: boolean;
 	disabled?: boolean;
+	apiUrl: string;
+	siteKey: string;
 }>();
 
-const { loading, disabled } = toRefs(props);
+const { loading, disabled, apiUrl, siteKey } = toRefs(props);
 
 const password = defineModel<string>("password", { default: "" });
 const valid = defineModel<boolean>("valid");
+const capToken = defineModel<string>("capToken", { default: "" });
+const website = defineModel<string>("website", { default: "" });
+
 const emit = defineEmits(["next"]);
 
-const _next = () => unref(valid) && emit("next");
+const capConfigured = computed<boolean>(
+	() => unref(apiUrl) !== "" && unref(siteKey) !== "",
+);
+
+const canSubmit = computed<boolean>(
+	() =>
+		unref(valid) === true &&
+		unref(capToken) !== "" &&
+		unref(website) === "" &&
+		unref(capConfigured),
+);
+
+const resetSignal = ref(0);
+
+function bumpResetSignal() {
+	resetSignal.value += 1;
+	capToken.value = "";
+}
+
+defineExpose({ bumpResetSignal });
+
+const next = () => unref(canSubmit) && emit("next");
 </script>
 
 <template>
@@ -22,14 +50,34 @@ const _next = () => unref(valid) && emit("next");
       :tabindex="0"
       :disabled="loading || disabled"
       autofocus
-      @next="() => emit('next')"
+      @next="next"
     />
+
+    <Honeypot v-model="website" />
+
+    <CapWidget
+      v-if="capConfigured"
+      :api-url="apiUrl"
+      :site-key="siteKey"
+      :reset-signal="resetSignal"
+      :disabled="loading"
+      @solve="capToken = $event"
+      @expire="capToken = ''"
+    />
+    <PanelBanner
+      v-else
+      color="red"
+      :icon="OctagonAlert"
+    >
+      Captcha indisponible.
+    </PanelBanner>
+
     <TextButton
       aspect="flat"
       size="large"
       color="primary"
       :loading="loading"
-      :disabled="!valid || loading || disabled"
+      :disabled="!canSubmit || loading || disabled"
       @click="next"
     >
       Créer un compte
