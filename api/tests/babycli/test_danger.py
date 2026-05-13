@@ -1,13 +1,11 @@
 import json
-from pathlib import Path
 from unittest.mock import patch
 
 from babycli.danger import (
     DANGER_FILE_NAME,
-    is_danger_mode,
-    _read_danger_file,
-    _write_danger_file,
     _clear_danger_file,
+    _write_danger_file,
+    is_danger_mode,
 )
 
 

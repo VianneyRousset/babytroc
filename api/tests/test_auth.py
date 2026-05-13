@@ -12,7 +12,9 @@ from babytroc.domains.auth.schemas.availability import AuthAccountAvailability
 from babytroc.domains.auth.services.refresh_token import (
     list_account_password_reset_authorizations,
 )
-from babytroc.domains.chat.schemas.websocket import WebsocketMessageUpdatedAccountValidation
+from babytroc.domains.chat.schemas.websocket import (
+    WebsocketMessageUpdatedAccountValidation,
+)
 from babytroc.domains.user.services import get_user_validation_code_by_email
 from tests.fixtures.clients import create_client
 from tests.fixtures.websockets import WebSocketRecorder

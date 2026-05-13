@@ -55,7 +55,10 @@ async def alice(
     """Fetches the pre-seeded Alice user."""
 
     async with database_sessionmaker.begin() as session:
-        return await user_services.get_user_by_email_private(session, "alice@babytroc.ch")
+        return await user_services.get_user_by_email_private(
+            session,
+            "alice@babytroc.ch",
+        )
 
 
 @pytest.fixture
@@ -65,7 +68,10 @@ async def bob(
     """Fetches the pre-seeded Bob user."""
 
     async with database_sessionmaker.begin() as session:
-        return await user_services.get_user_by_email_private(session, "bob@babytroc.ch")
+        return await user_services.get_user_by_email_private(
+            session,
+            "bob@babytroc.ch",
+        )
 
 
 @pytest.fixture
@@ -75,7 +81,10 @@ async def carol(
     """Fetches the pre-seeded Carol user."""
 
     async with database_sessionmaker.begin() as session:
-        return await user_services.get_user_by_email_private(session, "carol@babytroc.ch")
+        return await user_services.get_user_by_email_private(
+            session,
+            "carol@babytroc.ch",
+        )
 
 
 @pytest.fixture
@@ -87,9 +96,5 @@ async def many_users(
     Backed by `tpl_many_users` (~256 random + the 3 baseline users).
     """
     async with database_sessionmaker.begin() as session:
-        rows = (
-            (await session.execute(select(User).order_by(User.id)))
-            .scalars()
-            .all()
-        )
+        rows = (await session.execute(select(User).order_by(User.id))).scalars().all()
         return [UserPrivateRead.model_validate(r) for r in rows]

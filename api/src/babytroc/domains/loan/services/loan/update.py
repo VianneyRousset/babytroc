@@ -4,7 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from babytroc.domains.loan.errors import LoanAlreadyInactiveError
 from babytroc.domains.loan.events import LoanEnded
 from babytroc.domains.loan.models import Loan
-from babytroc.domains.loan.schemas.query import LoanReadQueryFilter, LoanUpdateQueryFilter
+from babytroc.domains.loan.schemas.query import (
+    LoanReadQueryFilter,
+    LoanUpdateQueryFilter,
+)
 from babytroc.domains.loan.schemas.read import LoanRead
 from babytroc.infrastructure.events import emit
 

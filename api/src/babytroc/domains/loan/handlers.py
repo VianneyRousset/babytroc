@@ -11,8 +11,8 @@ from babytroc.infrastructure.events import on
 
 @on(LoanRequestCreated, critical=False)
 async def invalidate_cache_on_request_created(db, event: LoanRequestCreated):
-    from babytroc.infrastructure.cache import get_cache
     from babytroc.domains.loan.services.cache import invalidate_loan_request_created
+    from babytroc.infrastructure.cache import get_cache
 
     await invalidate_loan_request_created(
         get_cache(),
@@ -24,8 +24,10 @@ async def invalidate_cache_on_request_created(db, event: LoanRequestCreated):
 
 @on(LoanRequestAccepted, critical=False)
 async def invalidate_cache_on_request_accepted(db, event: LoanRequestAccepted):
+    from babytroc.domains.loan.services.cache import (
+        invalidate_loan_request_state_changed,
+    )
     from babytroc.infrastructure.cache import get_cache
-    from babytroc.domains.loan.services.cache import invalidate_loan_request_state_changed
 
     await invalidate_loan_request_state_changed(
         get_cache(),
@@ -37,8 +39,10 @@ async def invalidate_cache_on_request_accepted(db, event: LoanRequestAccepted):
 
 @on(LoanRequestRejected, critical=False)
 async def invalidate_cache_on_request_rejected(db, event: LoanRequestRejected):
+    from babytroc.domains.loan.services.cache import (
+        invalidate_loan_request_state_changed,
+    )
     from babytroc.infrastructure.cache import get_cache
-    from babytroc.domains.loan.services.cache import invalidate_loan_request_state_changed
 
     await invalidate_loan_request_state_changed(
         get_cache(),
@@ -50,8 +54,10 @@ async def invalidate_cache_on_request_rejected(db, event: LoanRequestRejected):
 
 @on(LoanRequestCancelled, critical=False)
 async def invalidate_cache_on_request_cancelled(db, event: LoanRequestCancelled):
+    from babytroc.domains.loan.services.cache import (
+        invalidate_loan_request_state_changed,
+    )
     from babytroc.infrastructure.cache import get_cache
-    from babytroc.domains.loan.services.cache import invalidate_loan_request_state_changed
 
     await invalidate_loan_request_state_changed(
         get_cache(),
@@ -63,8 +69,8 @@ async def invalidate_cache_on_request_cancelled(db, event: LoanRequestCancelled)
 
 @on(LoanStarted, critical=False)
 async def invalidate_cache_on_loan_started(db, event: LoanStarted):
-    from babytroc.infrastructure.cache import get_cache
     from babytroc.domains.loan.services.cache import invalidate_loan_started
+    from babytroc.infrastructure.cache import get_cache
 
     await invalidate_loan_started(
         get_cache(),
@@ -76,8 +82,8 @@ async def invalidate_cache_on_loan_started(db, event: LoanStarted):
 
 @on(LoanEnded, critical=False)
 async def invalidate_cache_on_loan_ended(db, event: LoanEnded):
-    from babytroc.infrastructure.cache import get_cache
     from babytroc.domains.loan.services.cache import invalidate_loan_ended
+    from babytroc.infrastructure.cache import get_cache
 
     await invalidate_loan_ended(
         get_cache(),

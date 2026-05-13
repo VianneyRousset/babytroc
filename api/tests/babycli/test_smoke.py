@@ -20,7 +20,11 @@ SUBCOMMANDS = [
 
 @pytest.mark.parametrize("cmd", SUBCOMMANDS, ids=[" ".join(c[3:]) for c in SUBCOMMANDS])
 def test_help_exits_zero(cmd):
-    result = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=10, check=False
+    result = subprocess.run(  # noqa: S603
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=10,
+        check=False,
     )
     assert result.returncode == 0, f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"

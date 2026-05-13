@@ -168,9 +168,14 @@ async def alice_items_image(
     """Reads Alice's first pre-seeded item image from DB."""
 
     async with database_sessionmaker.begin() as session:
-        row = (await session.execute(
-            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).limit(1)
-        )).scalar_one()
+        row = (
+            await session.execute(
+                select(ItemImage)
+                .where(ItemImage.owner_id == alice.id)
+                .order_by(ItemImage.name)
+                .limit(1)
+            )
+        ).scalar_one()
         return ItemImageRead.model_validate(row)
 
 
@@ -179,12 +184,22 @@ async def alice_new_item_images(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
 ) -> list[ItemImageRead]:
-    """Reads Alice's 2nd–4th pre-seeded item images from DB."""
+    """Reads Alice's 2nd-4th pre-seeded item images from DB."""
 
     async with database_sessionmaker.begin() as session:
-        rows = (await session.execute(
-            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).offset(1).limit(3)
-        )).scalars().all()
+        rows = (
+            (
+                await session.execute(
+                    select(ItemImage)
+                    .where(ItemImage.owner_id == alice.id)
+                    .order_by(ItemImage.name)
+                    .offset(1)
+                    .limit(3)
+                )
+            )
+            .scalars()
+            .all()
+        )
         return [ItemImageRead.model_validate(row) for row in rows]
 
 
@@ -193,12 +208,22 @@ async def alice_special_item_images(
     database_sessionmaker: async_sessionmaker,
     alice: UserPrivateRead,
 ) -> list[ItemImageRead]:
-    """Reads Alice's 5th–6th pre-seeded item images from DB."""
+    """Reads Alice's 5th-6th pre-seeded item images from DB."""
 
     async with database_sessionmaker.begin() as session:
-        rows = (await session.execute(
-            select(ItemImage).where(ItemImage.owner_id == alice.id).order_by(ItemImage.name).offset(4).limit(2)
-        )).scalars().all()
+        rows = (
+            (
+                await session.execute(
+                    select(ItemImage)
+                    .where(ItemImage.owner_id == alice.id)
+                    .order_by(ItemImage.name)
+                    .offset(4)
+                    .limit(2)
+                )
+            )
+            .scalars()
+            .all()
+        )
         return [ItemImageRead.model_validate(row) for row in rows]
 
 
@@ -210,9 +235,14 @@ async def bob_items_image(
     """Reads Bob's first pre-seeded item image from DB."""
 
     async with database_sessionmaker.begin() as session:
-        row = (await session.execute(
-            select(ItemImage).where(ItemImage.owner_id == bob.id).order_by(ItemImage.name).limit(1)
-        )).scalar_one()
+        row = (
+            await session.execute(
+                select(ItemImage)
+                .where(ItemImage.owner_id == bob.id)
+                .order_by(ItemImage.name)
+                .limit(1)
+            )
+        ).scalar_one()
         return ItemImageRead.model_validate(row)
 
 
@@ -317,11 +347,7 @@ async def many_items(
     items inherited from `tpl_baseline_items`).
     """
     async with database_sessionmaker.begin() as session:
-        ids = (
-            (await session.execute(select(Item.id).order_by(Item.id)))
-            .scalars()
-            .all()
-        )
+        ids = (await session.execute(select(Item.id).order_by(Item.id))).scalars().all()
         if not ids:
             return []
         return await item_services.get_many_items(db=session, item_ids=set(ids))

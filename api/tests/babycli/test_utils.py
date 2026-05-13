@@ -1,4 +1,4 @@
-from babycli._utils import console_ok, console_err, console_warn, redact_secrets
+from babycli._utils import console_err, console_ok, console_warn, redact_secrets
 
 
 def test_console_ok(capsys):

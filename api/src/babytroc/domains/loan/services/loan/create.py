@@ -7,7 +7,9 @@ from babytroc.domains.loan.models import Loan, LoanRequest
 from babytroc.domains.loan.schemas.query import LoanRequestUpdateQueryFilter
 from babytroc.domains.loan.schemas.read import LoanRead
 from babytroc.domains.loan.services.loan.read import get_many_loans
-from babytroc.domains.loan.services.request.update import update_many_loan_requests_state
+from babytroc.domains.loan.services.request.update import (
+    update_many_loan_requests_state,
+)
 from babytroc.infrastructure.events import emit
 
 

@@ -7,8 +7,6 @@ from babycli.check import (
     check_cap,
     check_email_config,
     check_postgres,
-    check_redis,
-    check_s3,
 )
 
 # Capture the real AsyncClient before any test monkeypatches httpx.AsyncClient,
@@ -23,7 +21,9 @@ def _client_with(transport: httpx.MockTransport) -> httpx.AsyncClient:
 
 async def test_check_postgres_success():
     mock_conn = AsyncMock()
-    mock_conn.execute = AsyncMock(return_value=MagicMock(scalar=MagicMock(return_value="PostgreSQL 16.1")))
+    mock_conn.execute = AsyncMock(
+        return_value=MagicMock(scalar=MagicMock(return_value="PostgreSQL 16.1"))
+    )
 
     mock_session = AsyncMock()
     mock_session.__aenter__ = AsyncMock(return_value=mock_conn)

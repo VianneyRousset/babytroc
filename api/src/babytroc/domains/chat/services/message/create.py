@@ -160,7 +160,10 @@ async def send_many_chat_messages(
     # 4. The loan does not exist
     except IntegrityError as error:
         from babytroc.domains.chat.services import get_many_chats
-        from babytroc.domains.loan.services import get_many_loan_requests, get_many_loans
+        from babytroc.domains.loan.services import (
+            get_many_loan_requests,
+            get_many_loans,
+        )
         from babytroc.domains.user.services import get_many_users
 
         # raise ChatNotFoundError if not all chats exist (1.)

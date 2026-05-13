@@ -373,22 +373,30 @@ class Config(NamedTuple):
         if signup is None:
             signup = RateLimitConfig.from_env(
                 env_prefix="SIGNUP",
-                default_anon=3, default_auth=3, default_window_seconds=3600,
+                default_anon=3,
+                default_auth=3,
+                default_window_seconds=3600,
             )
         if password_reset is None:
             password_reset = RateLimitConfig.from_env(
                 env_prefix="PASSWORD_RESET",
-                default_anon=3, default_auth=3, default_window_seconds=3600,
+                default_anon=3,
+                default_auth=3,
+                default_window_seconds=3600,
             )
         if item_create is None:
             item_create = RateLimitConfig.from_env(
                 env_prefix="ITEM_CREATE",
-                default_anon=30, default_auth=30, default_window_seconds=3600,
+                default_anon=30,
+                default_auth=30,
+                default_window_seconds=3600,
             )
         if image_upload is None:
             image_upload = RateLimitConfig.from_env(
                 env_prefix="IMAGE_UPLOAD",
-                default_anon=60, default_auth=60, default_window_seconds=3600,
+                default_anon=60,
+                default_auth=60,
+                default_window_seconds=3600,
             )
 
         return cls(

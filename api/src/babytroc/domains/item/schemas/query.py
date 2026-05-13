@@ -5,7 +5,12 @@ from sqlalchemy.dialects.postgresql import INT4RANGE
 
 from babytroc.domains.category.models import Category
 from babytroc.domains.item.enums import ItemQueryAvailability
-from babytroc.domains.item.models import Item, ItemCategoryAssociation, ItemLike, ItemSave
+from babytroc.domains.item.models import (
+    Item,
+    ItemCategoryAssociation,
+    ItemLike,
+    ItemSave,
+)
 from babytroc.domains.loan.models import Loan
 from babytroc.domains.region.models import Region
 from babytroc.shared.pagination import QueryPageCursor

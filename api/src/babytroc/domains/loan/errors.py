@@ -3,7 +3,12 @@ from typing import Any
 
 from babytroc.domains.loan.enums import LoanRequestState
 from babytroc.domains.loan.schemas.base import ItemBorrowerId
-from babytroc.shared.errors import ApiError, BadRequestError, ConflictError, NotFoundError
+from babytroc.shared.errors import (
+    ApiError,
+    BadRequestError,
+    ConflictError,
+    NotFoundError,
+)
 
 
 class LoanError(ApiError):

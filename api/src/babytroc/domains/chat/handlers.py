@@ -133,7 +133,9 @@ async def send_loan_ended_message(db, event: LoanEnded):
 
 @on(AccountValidated)
 async def send_account_validated_notification(db, event: AccountValidated):
-    from babytroc.domains.chat.schemas.pubsub import PubsubMessageUpdatedAccountValidation
+    from babytroc.domains.chat.schemas.pubsub import (
+        PubsubMessageUpdatedAccountValidation,
+    )
     from babytroc.infrastructure.pubsub import get_broadcast, notify_user_after_commit
 
     notify_user_after_commit(
