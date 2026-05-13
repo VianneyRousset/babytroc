@@ -1,9 +1,13 @@
 # babycli/check.py
 import os
 import sys
+from typing import TYPE_CHECKING, cast
 
 import httpx
 from cyclopts import App
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
 
 from ._utils import async_db_session, console_err, console_ok
 
@@ -34,7 +38,7 @@ async def check_redis() -> bool:
 
         config = RedisConfig.from_env()
         client = create_redis_client(config)
-        pong = await client.ping()
+        pong = await cast("Awaitable[bool]", client.ping())
         await client.aclose()
         if pong:
             console_ok(f"Redis — pong ({config.host}:{config.port})")

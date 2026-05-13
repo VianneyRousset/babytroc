@@ -66,7 +66,7 @@ async def seed_alice_items_with_categories(
         .all()
     )
 
-    associations = []
+    associations: list[dict[str, object]] = []
     for item_id in item_ids:
         chosen = random.sample(
             child_categories,

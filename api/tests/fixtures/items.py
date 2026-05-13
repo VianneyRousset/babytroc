@@ -44,6 +44,7 @@ async def alice_items_data(
             "targeted_age_months": "4-10",
             "regions": [regions[0].id],
             "images": [alice_items_image.name],
+            "cap_token": "valid",
         },
     ]
 
@@ -96,6 +97,7 @@ async def bob_items_data(
             "targeted_age_months": "16-",
             "regions": [regions[0].id, regions[1].id],
             "images": [bob_items_image.name],
+            "cap_token": "valid",
         },
     ]
 
