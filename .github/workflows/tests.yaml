@@ -15,13 +15,16 @@ env:
 jobs:
   api-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     services:
+      # postgres — tests create per-test databases via CREATE DATABASE ... TEMPLATE,
+      # so the user must be a superuser (POSTGRES_USER is by default).
       postgres:
         image: postgres:18
         env:
           POSTGRES_USER: babytroc
           POSTGRES_PASSWORD: xxx
+          POSTGRES_DB: babytroc
         ports:
           - 5432:5432
         options: >-
@@ -29,6 +32,8 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
+      # redis — used for pubsub (broadcaster), cache, and rate limiting.
       redis:
         image: redis:latest
         ports:
@@ -38,47 +43,62 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-      prometheus:
-        image: prom/prometheus:latest
-        ports:
-          - 9090:9090
-      imgpush:
-        image: hauxir/imgpush
-        env:
-          MAX_UPLOADS_PER_MINUTE: 100
-          MAX_UPLOADS_PER_HOUR: 1000
-          MAX_UPLOADS_PER_DAY: 10000
-        ports:
-          - 5000:5000
+
+      # NOTE: S3 (seaweedfs/minio) and CAP captcha are intentionally not run as
+      # services here. Both are mocked at the test-fixture level:
+      #   - tests/fixtures/s3.py mocks babytroc.infrastructure.storage.upload_image_variants
+      #   - tests/fixtures/antibot.py monkeypatches verify_cap_token (autouse)
+      # Email is never sent because Config.test is auto-set when PYTEST_CURRENT_TEST is
+      # in env. We only need stub values for the corresponding env vars so Config.from_env
+      # doesn't raise KeyError at app startup.
+
     steps:
       - uses: actions/checkout@v6
       - uses: jdx/mise-action@v4
       - run: mise run test
         working-directory: ./api
         env:
-          HOST_NAME: test
-          APP_NAME: test
+          HOST_NAME: babytroc.ch
+          APP_NAME: Babytroc
+
+          # postgres
           POSTGRES_USER: babytroc
           POSTGRES_PASSWORD: xxx
           POSTGRES_HOST: localhost
           POSTGRES_PORT: "5432"
           POSTGRES_DATABASE: babytroc
+
+          # redis
           REDIS_HOST: localhost
           REDIS_PORT: "6379"
-          PROMETHEUS_URL: "http://localhost:9090"
-          JWT_ALGORITHM: "HS256"
-          JWT_SECRET_KEY: "1234"
+          REDIS_DB: "0"
+
+          # jwt
+          JWT_ALGORITHM: HS256
+          JWT_SECRET_KEY: ci-jwt-secret-not-for-production
           JWT_REFRESH_TOKEN_DURATION_DAYS: "7"
           JWT_ACCESS_TOKEN_DURATION_MINUTES: "15"
           ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES: "20"
-          EMAIL_SERVER: "fake.server.test"
+
+          # email (never actually used — Config.test suppresses sending)
+          EMAIL_SERVER: fake.server.test
           EMAIL_PORT: "465"
-          EMAIL_USERNAME: "test"
-          EMAIL_PASSWORD: "test"
-          EMAIL_FROM_EMAIL: "pqhyhijbblvtncgj@cbnfukghppneopdz.com"
-          EMAIL_FROM_NAME: "test"
-          S3_ENDPOINT_URL: "http://localhost:9000"
-          S3_ACCESS_KEY: "test"
-          S3_SECRET_KEY: "test"
-          S3_BUCKET: "test"
-          S3_PUBLIC_URL: "http://localhost:9000/test"
+          EMAIL_USERNAME: test
+          EMAIL_PASSWORD: test
+          EMAIL_FROM_EMAIL: test@test.test
+          EMAIL_FROM_NAME: test
+
+          # s3 (mocked at fixture level)
+          S3_ENDPOINT_URL: http://localhost:9000
+          S3_ACCESS_KEY: test
+          S3_SECRET_KEY: test
+          S3_BUCKET: babytroc-test
+          S3_PUBLIC_URL: http://localhost:9000/babytroc-test
+
+          # contact
+          CONTACT_EMAIL: contact@babytroc.ch
+
+          # cap captcha (mocked at fixture level)
+          CAP_API_URL: http://localhost:3482
+          CAP_SITE_KEY: ci-cap-site-key
+          CAP_SECRET_KEY: ci-cap-secret-key
