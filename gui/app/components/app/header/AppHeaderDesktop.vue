@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const slots = useSlots();
-const hasButtons = computed(() => !!slots['buttons-left'] || !!slots['buttons-right'])  
+const hasButtons = computed(
+	() => !!slots["buttons-left"] || !!slots["buttons-right"],
+);
 </script>
 
 <template>
