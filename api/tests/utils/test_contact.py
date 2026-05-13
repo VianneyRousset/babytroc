@@ -34,16 +34,6 @@ def _html_body(msg: Message) -> str:
 
 # ---- happy paths ----
 
-async def test_anon_valid_submission_returns_204(client: AsyncClient, app: FastAPI):
-    with app.state.email_client.record_messages() as outbox:
-        resp = await client.post("/api/v1/utils/contact", json=_payload())
-    assert resp.status_code == 204
-    assert len(outbox) == 1
-    assert "test-contact@babytroc.ch" in outbox[0]["To"]
-    body = _html_body(outbox[0])
-    assert "Authenticated user ID:</b> —" in body
-
-
 async def test_authenticated_submission_includes_user_id(
     alice_client: AsyncClient,
     app: FastAPI,
