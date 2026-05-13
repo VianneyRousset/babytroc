@@ -20,6 +20,8 @@ export function useAskPasswordReset(
 				body: {
 					email: unref(cleanedEmail),
 					cap_token: toValue(capToken),
+					// honeypot — always empty here; callers gate submission on
+					// website === "" client-side, server check is secondary layer
 					website: "",
 				},
 			});
