@@ -95,7 +95,7 @@ const NuxtLink = resolveComponent("NuxtLink");
   user-select: none;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   border-radius: $radius-pill;
 
   padding: 0 $space-6;

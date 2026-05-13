@@ -1,11 +1,15 @@
 <script setup lang="ts">
 const slots = useSlots();
+const hasButtons = computed(() => !!slots['buttons-left'] || !!slots['buttons-right'])  
 </script>
 
 <template>
-  <header class="AppHeaderDesktop">
+  <header
+  class="AppHeaderDesktop"
+  :class="{grid: hasButtons}"
+  >
     <div
-      v-if="slots['buttons-left']"
+      v-if="hasButtons"
       class="buttons left"
     >
       <slot name="buttons-left" />
@@ -16,7 +20,7 @@ const slots = useSlots();
       <slot />
     </div>
     <div
-      v-if="slots['buttons-right']"
+      v-if="hasButtons"
       class="buttons right"
     >
       <slot name="buttons-right" />
@@ -26,9 +30,12 @@ const slots = useSlots();
 
 <style scoped lang="scss">
 .AppHeaderDesktop {
-  @include flex-row;
-  gap: 1em;
-  padding: 0 1em;
+  padding: 1em;
+
+  &.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 
   div {
     gap: 1em;
@@ -46,14 +53,14 @@ const slots = useSlots();
 
     &.buttons {
       @include flex-row;
-      padding: 2em;
+      padding: 0;
 
       &.left {
-        padding-left: 0;
+        justify-content: flex-start;
       }
 
       &.right {
-        padding-right: 0;
+        justify-content: flex-end;
       }
     }
   }
