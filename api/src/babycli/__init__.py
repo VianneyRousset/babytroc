@@ -1,5 +1,6 @@
 from cyclopts import App
 
+from .cache import cache_app
 from .check import check_app
 from .config import config_app
 from .danger import danger_mode_app
@@ -16,6 +17,7 @@ app = App(
     help="Babytroc API operations CLI.",
 )
 
+app.command(cache_app)
 app.command(check_app)
 app.command(config_app)
 app.command(danger_mode_app)
