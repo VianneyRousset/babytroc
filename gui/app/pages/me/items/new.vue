@@ -7,6 +7,8 @@ definePageMeta({
 	appBack: true,
 });
 
+useAuth({ fallbackRoute: "/" });
+
 const { $toast } = useNuxtApp();
 const { mutateAsync: create, isLoading } = useCreateItemMutation();
 

@@ -36,6 +36,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => [
       :logged-in="loggedIn === true"
       role="button"
       tabindex="100"
+      @click="section === 'newitem' && loggedIn !== true && $event.preventDefault()"
     >
       <div class="icon">
         <transition
