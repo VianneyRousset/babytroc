@@ -49,6 +49,7 @@ async def check_redis() -> bool:
 async def check_s3() -> bool:
     try:
         import aioboto3
+        import botocore
 
         from babytroc.infrastructure.config import S3Config
 
@@ -60,7 +61,15 @@ async def check_s3() -> bool:
             aws_access_key_id=config.access_key,
             aws_secret_access_key=config.secret_key,
         ) as client:
-            await client.head_bucket(Bucket=config.bucket)
+            try:
+                await client.head_bucket(Bucket=config.bucket)
+
+            except botocore.exceptions.ClientError as e:
+                if e.response.get("Error", {}).get("Code") != "404":
+                    raise e
+                console_err(f"S3 — Missing bucket {config.bucket!r}")
+                return False
+
             console_ok(f"S3 — bucket '{config.bucket}' exists ({config.endpoint_url})")
             return True
     except Exception as e:
@@ -91,17 +100,21 @@ async def check_migrations() -> bool:
         from alembic.config import Config as AlembicConfig
         from alembic.runtime.migration import MigrationContext
         from alembic.script import ScriptDirectory
-        from sqlalchemy import create_engine
+        from sqlalchemy.engine import Connection
+        from sqlalchemy.ext.asyncio import create_async_engine
 
         from babytroc.infrastructure.config import Config
 
+        def _get_current_rev(conn: Connection) -> str | None:
+            return MigrationContext.configure(conn).get_current_revision()
+
         config = Config.from_env()
-        sync_url = config.database.url.set(drivername="postgresql")
-        engine = create_engine(sync_url)
-        with engine.connect() as conn:
-            context = MigrationContext.configure(conn)
-            current_rev = context.get_current_revision()
-        engine.dispose()
+        engine = create_async_engine(config.database.url)
+        try:
+            async with engine.connect() as conn:
+                current_rev = await conn.run_sync(_get_current_rev)
+        finally:
+            await engine.dispose()
 
         alembic_cfg = AlembicConfig("alembic.ini")
         script = ScriptDirectory.from_config(alembic_cfg)
@@ -110,9 +123,10 @@ async def check_migrations() -> bool:
         if current_rev == head_rev:
             console_ok(f"Migrations — up to date ({current_rev})")
             return True
-        else:
-            console_err(f"Migrations — current: {current_rev}, head: {head_rev}")
-            return False
+        console_err(
+            f"Migrations — out of date - current: {current_rev}, head: {head_rev}"
+        )
+        return False
     except Exception as e:
         console_err(f"Migrations — {e}")
         return False
