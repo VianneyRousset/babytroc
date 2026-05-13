@@ -10,10 +10,10 @@ from fastapi_mail import FastMail
 from pydantic import SecretStr
 from starlette.middleware.base import BaseHTTPMiddleware
 
-import babytroc.domains  # noqa: F401 — registers all domain models with SQLAlchemy metadata
-import babytroc.domains.chat.handlers  # noqa: F401
-import babytroc.domains.item.handlers  # noqa: F401
-import babytroc.domains.loan.handlers  # noqa: F401
+import babytroc.domains
+import babytroc.domains.chat.handlers
+import babytroc.domains.item.handlers
+import babytroc.domains.loan.handlers
 import babytroc.domains.user.handlers  # noqa: F401
 from babytroc.shared.errors import ApiError
 
@@ -66,6 +66,7 @@ def create_app(
 
     app = FastAPI(
         lifespan=lifespan,
+        root_path=config.root_path,
     )
 
     app.state.config = config
