@@ -85,8 +85,8 @@ jobs:
           EMAIL_PORT: "465"
           EMAIL_USERNAME: test
           EMAIL_PASSWORD: test
-          EMAIL_FROM_EMAIL: test@test.test
-          EMAIL_FROM_NAME: test
+          EMAIL_FROM_EMAIL: noreply@example.com
+          EMAIL_FROM_NAME: Babytroc CI
 
           # s3 (mocked at fixture level)
           S3_ENDPOINT_URL: http://localhost:9000
