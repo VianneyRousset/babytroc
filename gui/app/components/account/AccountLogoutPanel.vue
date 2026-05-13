@@ -29,6 +29,7 @@ const {
 	askPasswordReset,
 	isLoading: resetIsLoading,
 	status: resetStatus,
+	validationStatus,
 } = useAskPasswordReset(email, capToken);
 
 function mapErrorToToast(err: FetchError | null): void {
@@ -48,6 +49,7 @@ function mapErrorToToast(err: FetchError | null): void {
 
 const canSubmit = computed<boolean>(
 	() =>
+		validationStatus.value === "success" &&
 		capToken.value !== "" &&
 		website.value === "" &&
 		capConfigured.value &&
