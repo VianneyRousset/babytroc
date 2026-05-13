@@ -48,6 +48,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.14",
 		"@types/luxon": "^3.7.1",
+		"@vue/language-server": "^3.2.8",
+		"@vue/typescript-plugin": "^3.2.8",
 		"nuxt-open-fetch": "^0.13.9",
 		"sass": "^1.99.0",
 		"typescript": "^6.0.3",
