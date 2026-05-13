@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import os
 import warnings
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import pytest
 from broadcaster import Broadcast
-from sqlalchemy import URL
 from sqlalchemy.exc import SAWarning
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
@@ -37,18 +35,9 @@ from tests.fixtures.database.infrastructure.registry import (
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
+    from sqlalchemy import URL
+
 warnings.simplefilter("error", SAWarning)
-
-
-def _pg_base_url() -> URL:
-    return URL.create(
-        drivername="postgresql+asyncpg",
-        username=os.environ["POSTGRES_USER"],
-        password=os.environ["POSTGRES_PASSWORD"],
-        host=os.environ["POSTGRES_HOST"],
-        port=int(os.environ["POSTGRES_PORT"]),
-        database="postgres",
-    )
 
 
 def _seed_config() -> Config:
@@ -67,10 +56,13 @@ def _seed_config() -> Config:
 @pytest.fixture(scope="session")
 async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
     """Build the full template chain once per xdist worker. Yields name → URL."""
-    base = _pg_base_url()
+    config = _seed_config()
+    # Go through the app config so TEST_POSTGRES_* overrides are honored;
+    # swap to the admin DB since CREATE DATABASE can't run inside the target.
+    base = config.database.url._replace(database="postgres")
     # db_url is overridden per-template inside build_chain; pass any URL
     # here as a placeholder.
-    ctx = SeedContext(config=_seed_config(), db_url=base)
+    ctx = SeedContext(config=config, db_url=base)
 
     # Seed handlers (e.g. invalidate_cache_on_item_created,
     # loan_request_created) call get_cache() / get_broadcast() at chain
