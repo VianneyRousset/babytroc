@@ -15,7 +15,7 @@ const props = withDefaults(
 
 const { loanRequest } = toRefs(props);
 
-const _stateLabel = computed(() => {
+const stateLabel = computed(() => {
 	switch (unref(loanRequest).state) {
 		case 1:
 			return "En attente";
@@ -26,7 +26,7 @@ const _stateLabel = computed(() => {
 	}
 });
 
-const _stateIcon = computed(() => {
+const stateIcon = computed(() => {
 	switch (unref(loanRequest).state) {
 		case 1:
 			return Clock;

@@ -16,7 +16,7 @@ type ClassSpecifications = {
 	iconSize?: number;
 };
 
-const _tabs = computed<Array<ClassSpecifications>>(() => [
+const tabs = computed<Array<ClassSpecifications>>(() => [
 	{ section: "explore", name: "Explorer", icon: Search },
 	{ section: "saved", name: "Favorits", icon: Heart },
 	{ section: "newitem", target: "/me/items/new", icon: Plus, iconSize: 53 },

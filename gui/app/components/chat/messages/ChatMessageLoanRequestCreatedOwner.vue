@@ -29,7 +29,7 @@ const {
 const showAcceptPopup = ref(false);
 const showRejectPopup = ref(false);
 
-async function _reject() {
+async function reject() {
 	await rejectLoanRequest({
 		itemId: unref(chat).item.id,
 		loanRequestId: unref(loanRequestId),
@@ -37,7 +37,7 @@ async function _reject() {
 	showRejectPopup.value = false;
 }
 
-async function _accept() {
+async function accept() {
 	await acceptLoanRequest({
 		itemId: unref(chat).item.id,
 		loanRequestId: unref(loanRequestId),

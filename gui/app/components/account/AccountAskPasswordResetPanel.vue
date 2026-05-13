@@ -97,6 +97,17 @@ async function go() {
     <!-- Form -->
     <h2>Vous avez oublié votre mot de passe?</h2>
     <p>Pas de soucis, on ne vous en veut pas. Entrez ici votre adresse email et nous vous enverrons un courriel pour le réinitialiser.</p>
+
+    <CapWidget
+      v-if="capConfigured"
+      :api-url="cap.apiUrl"
+      :site-key="cap.siteKey"
+      :reset-signal="capResetSignal"
+      :disabled="isLoading"
+      @solve="capToken = $event"
+      @expire="capToken = ''"
+    />
+		
     <WithDropdownMessage
       :status="validationStatus"
       :msg-error="validationError"
@@ -116,17 +127,8 @@ async function go() {
 
     <Honeypot v-model="website" />
 
-    <CapWidget
-      v-if="capConfigured"
-      :api-url="cap.apiUrl"
-      :site-key="cap.siteKey"
-      :reset-signal="capResetSignal"
-      :disabled="isLoading"
-      @solve="capToken = $event"
-      @expire="capToken = ''"
-    />
     <PanelBanner
-      v-else
+      v-if="!capConfigured"
       color="red"
       :icon="OctagonAlert"
     >

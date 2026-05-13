@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _device = useDevice();
+const device = useDevice();
 
 // get footer bar height and provide it to children elements
 // if no bar is present (e.g. in desktop mode), the height is 0

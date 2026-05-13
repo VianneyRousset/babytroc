@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Package, ShieldAlert } from "lucide-vue-next";
+
 const props = defineProps<{
 	chatId: string;
 }>();
@@ -8,7 +10,7 @@ const { chatId } = toRefs(props);
 const { chat, isLoading: chatIsLoading, addMessage } = useChat(chatId);
 
 // report
-const _reportDialogOpen = ref(false);
+const reportDialogOpen = ref(false);
 const { mutateAsync: reportChat } = useReportChatMutation(chatId);
 
 // TODO add meIsLoading
@@ -47,7 +49,7 @@ watch(height, (newH, oldH) => {
 
 const { $toast } = useNuxtApp();
 
-async function _sendMessage() {
+async function sendMessage() {
 	let msg: ChatMessage | undefined;
 
 	try {

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { HeartCrack } from "lucide-vue-next";
+
 /**
  *
  *
@@ -57,21 +59,21 @@ const {
 
 const device = useDevice();
 
-const _slots = useSlots();
+const slots = useSlots();
 const route = useRoute();
 
 // Auto-render AppBack from page meta
 const appBack = computed(() => route.meta.appBack);
-const _showAutoBack = computed(
+const showAutoBack = computed(
 	() => appBack.value != null && appBack.value !== false,
 );
-const _appTitle = computed(
+const appTitle = computed(
 	() => (route.meta.appTitle as string | undefined) ?? "",
 );
 
 // whether to show loggin screen or not
 const { loggedIn, loginRoute } = useAuth();
-const _loginScreen = computed(
+const loginScreen = computed(
 	() => unref(loggedInOnly) && unref(loggedIn) !== true,
 );
 

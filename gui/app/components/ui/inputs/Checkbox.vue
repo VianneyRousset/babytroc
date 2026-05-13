@@ -14,7 +14,7 @@ const props = withDefaults(
 
 const { size, indeterminate } = toRefs(props);
 
-const _radixChecked = computed<boolean | "indeterminate">({
+const radixChecked = computed<boolean | "indeterminate">({
 	get: () =>
 		unref(indeterminate) ? "indeterminate" : (checked.value ?? false),
 	set: (v) => {

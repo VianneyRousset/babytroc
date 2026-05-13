@@ -12,7 +12,7 @@ const props = withDefaults(
 
 const { editable } = toRefs(props);
 
-function _toggle(regionId: number) {
+function toggle(regionId: number) {
 	// prevent modification if not editable
 	if (!unref(editable) || !model.value) return;
 

@@ -22,7 +22,7 @@ const {
 } = useRejectLoanRequestMutation();
 
 // popup
-const _showPopup = ref(false);
+const showPopup = ref(false);
 </script>
 
 <template>

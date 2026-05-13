@@ -16,7 +16,7 @@ const { hideOnScroll, scrollOffset } = toRefs(props);
 
 // true if scrolling down
 const scrollingDown = ref(false);
-const _scrolled = computed(() => unref(y) > 0);
+const scrolled = computed(() => unref(y) > 0);
 
 // scroll y position
 const { y } = useScroll(hideOnScroll);

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Check, OctagonAlert, X } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "me-account-pending-validation",
 	appBack: false,
@@ -9,7 +11,7 @@ const {
 	asyncStatus: resendValidationEmailAsyncStatus,
 } = useResendValidationEmailMutation();
 
-const _error = ref<boolean>(false);
+const error = ref<boolean>(false);
 const { loggedIn } = useAuth();
 const { $api } = useNuxtApp();
 

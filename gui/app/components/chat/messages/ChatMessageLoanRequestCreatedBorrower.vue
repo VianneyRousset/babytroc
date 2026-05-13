@@ -16,7 +16,7 @@ const { unrequest, loading } = useItemLoanRequest({
 });
 
 // popup
-const _showPopup = ref(false);
+const showPopup = ref(false);
 </script>
 
 <template>

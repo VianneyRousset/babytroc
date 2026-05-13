@@ -6,7 +6,7 @@ const props = defineProps<{
 
 const { imageName, avatar } = toRefs(props);
 
-const _image = computed(() => {
+const image = computed(() => {
 	const name = unref(imageName);
 	return name ? imagePath(name, 256) : null;
 });

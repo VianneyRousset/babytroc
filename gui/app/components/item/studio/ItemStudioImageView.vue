@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const _img = defineModel<StudioImage>();
-const _emit = defineEmits(["delete", "crop"]);
+const img = defineModel<StudioImage>();
+const emit = defineEmits(["delete", "crop"]);
 </script>
 
 <template>

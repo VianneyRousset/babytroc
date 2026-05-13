@@ -10,7 +10,7 @@ const props = defineProps<{
 }>();
 const { user, target } = toRefs(props);
 
-const _targetLocation = computed<string | RouteLocationGeneric | undefined>(
+const targetLocation = computed<string | RouteLocationGeneric | undefined>(
 	() => {
 		const _target = unref(target);
 

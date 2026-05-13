@@ -6,7 +6,7 @@ const img = defineModel<StudioImage>();
 const emit = defineEmits<(event: "crop", crop: StudioImageCrop) => void>();
 const cropperElement = useTemplateRef("cropper");
 
-function _emitCrop() {
+function emitCrop() {
 	const _img = unref(img);
 	const _cropper = unref(cropperElement);
 
@@ -18,7 +18,7 @@ function _emitCrop() {
 	emit("crop", visibleArea);
 }
 
-function _stencilSize({ boundaries }: { boundaries: Boundaries }) {
+function stencilSize({ boundaries }: { boundaries: Boundaries }) {
 	return {
 		width: boundaries.width,
 		height: boundaries.height,

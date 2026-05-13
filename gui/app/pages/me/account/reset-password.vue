@@ -18,7 +18,7 @@ const route = useRoute();
 const password = ref("");
 const passwordStatus = ref<AsyncStatus>("idle");
 
-async function _reset() {
+async function reset() {
 	if (unref(passwordStatus) !== "success") return;
 
 	const code = Array.isArray(route.query.code)

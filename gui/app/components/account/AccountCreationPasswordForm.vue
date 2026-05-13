@@ -43,15 +43,6 @@ const next = () => unref(canSubmit) && emit("next");
 
 <template>
   <section class="AccountCreationPasswordForm">
-    <AccountPasswordInput
-      v-model:password="password"
-      v-model:valid="valid"
-      msg-placement="top"
-      :tabindex="0"
-      :disabled="loading || disabled"
-      autofocus
-      @next="next"
-    />
 
     <Honeypot v-model="website" />
 
@@ -72,6 +63,16 @@ const next = () => unref(canSubmit) && emit("next");
       Captcha indisponible.
     </PanelBanner>
 
+    <AccountPasswordInput
+      v-model:password="password"
+      v-model:valid="valid"
+      msg-placement="top"
+      :tabindex="0"
+      :disabled="loading || disabled"
+      autofocus
+      @next="next"
+    />
+
     <TextButton
       aspect="flat"
       size="large"
@@ -90,5 +91,9 @@ const next = () => unref(canSubmit) && emit("next");
   @include flex-column;
   align-items: stretch;
   gap: 1em;
+}
+
+.CapWidget {
+  margin-bottom: 2em;
 }
 </style>

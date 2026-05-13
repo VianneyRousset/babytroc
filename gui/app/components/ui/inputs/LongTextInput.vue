@@ -34,14 +34,14 @@ useTextareaAutosize({
 
 watch(textarea, (_el) => (_el && props.autofocus ? _el.focus() : undefined));
 
-const _blur = () => unref(textarea)?.blur();
+const blur = () => unref(textarea)?.blur();
 
-function _enterDown(event: KeyboardEvent) {
+function enterDown(event: KeyboardEvent) {
 	// ignore keydown enter if shift is not rpressed
 	if (!event.shiftKey) event.preventDefault();
 }
 
-function _enterUp(event: KeyboardEvent) {
+function enterUp(event: KeyboardEvent) {
 	// if shift key is pressed, handle it as a normal line return
 	if (event.shiftKey) return;
 

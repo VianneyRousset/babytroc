@@ -27,13 +27,13 @@ const { aspect, size, color, loading, timeout, disabled, icon, target } =
 
 const { value: longLoading } = useThrottle(loading, timeout);
 
-const _slots = useSlots();
+const slots = useSlots();
 
-const _iconSize = computed(
+const iconSize = computed(
 	() => ({ small: 16, normal: 24, large: 32 })[unref(size)],
 );
 
-const _classes = computed(() => ({
+const classes = computed(() => ({
 	large: unref(size) === "large",
 	small: unref(size) === "small",
 
@@ -48,7 +48,7 @@ const _classes = computed(() => ({
 	loading: unref(loading),
 }));
 
-const _NuxtLink = resolveComponent("NuxtLink");
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

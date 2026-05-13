@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _model = defineModel<boolean>();
+const model = defineModel<boolean>();
 
 const props = withDefaults(
 	defineProps<{
@@ -11,7 +11,7 @@ const props = withDefaults(
 );
 
 const { page } = toRefs(props);
-const _slots = useSlots();
+const slots = useSlots();
 </script>
 
 <template>

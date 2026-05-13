@@ -25,7 +25,7 @@ const stop = watchEffect(() => {
 	valid.value = unref(status) === "success";
 });
 
-function _next() {
+function next() {
 	if (unref(valid)) emit("next");
 }
 

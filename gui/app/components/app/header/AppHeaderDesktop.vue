@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _slots = useSlots();
+const slots = useSlots();
 </script>
 
 <template>

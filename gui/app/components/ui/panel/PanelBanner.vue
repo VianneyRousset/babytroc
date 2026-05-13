@@ -12,7 +12,7 @@ const props = withDefaults(
 );
 
 const { icon } = toRefs(props);
-const _slots = useSlots();
+const slots = useSlots();
 </script>
 
 <template>

@@ -14,7 +14,7 @@ const props = withDefaults(
 
 const { editable, columns } = toRefs(props);
 
-function _toggle(regionId: number) {
+function toggle(regionId: number) {
 	const _model = unref(model);
 
 	if (_model == null) return;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _images = defineModel<Array<StudioImage>>();
+const images = defineModel<Array<StudioImage>>();
 
 const props = defineProps<{
 	selected?: number;
@@ -9,7 +9,7 @@ const { selected } = toRefs(props);
 
 const emit = defineEmits<(e: "select", id: number | undefined) => void>();
 
-function _select(event: { item: HTMLElement }) {
+function select(event: { item: HTMLElement }) {
 	const id = Number.parseInt(event.item.getAttribute("element-id") ?? "", 10);
 	emit("select", Number.isNaN(id) ? undefined : id);
 }

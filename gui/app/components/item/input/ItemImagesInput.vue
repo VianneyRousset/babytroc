@@ -15,7 +15,7 @@ const images = defineModel<Array<string>>("images", { default: [] });
 const valid = defineModel<boolean>("valid", { default: false });
 const touched = defineModel<boolean>("touched", { default: false });
 
-const _emit = defineEmits(["edit"]);
+const emit = defineEmits(["edit"]);
 
 const { status, error } = useItemImagesValidity(images, touched);
 

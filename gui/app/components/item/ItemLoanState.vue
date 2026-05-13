@@ -7,7 +7,7 @@ const router = useRouter();
 
 const { item } = toRefs(props);
 
-const _state = computed<
+const state = computed<
 	"none" | "activeBorrowingRequest" | "activeBorrowing" | "activeLoan"
 >(() => {
 	const _item = unref(item);
@@ -25,7 +25,7 @@ const _state = computed<
 	return "none";
 });
 
-function _navigateToChat() {
+function navigateToChat() {
 	const _item = unref(item);
 
 	if (_item == null) throw new Error("Cannot navigate to chat if item is null");

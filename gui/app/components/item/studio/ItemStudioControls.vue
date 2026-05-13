@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowRight, Camera, Images } from "lucide-vue-next";
+
 const props = withDefaults(
 	defineProps<{
 		disableShoot?: boolean;

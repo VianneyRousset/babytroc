@@ -5,7 +5,7 @@ const props = defineProps<{
 
 const { categories } = useCategoriesList();
 
-const _resolved = computed(() => {
+const resolved = computed(() => {
 	const all = unref(categories) ?? [];
 	return props.slugs
 		.map((slug) => all.find((c) => c.slug === slug))

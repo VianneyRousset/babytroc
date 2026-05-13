@@ -13,7 +13,7 @@ const { item } = toRefs(props);
 const { formatedTargetedAgeMonths } = useItemTargetedAgeMonths(item);
 const { firstImageName } = useItemFirstImage(item);
 
-const _backgroundImage = computed(() => {
+const backgroundImage = computed(() => {
 	const backgrounds = [];
 
 	backgrounds.push(
@@ -25,7 +25,7 @@ const _backgroundImage = computed(() => {
 	return backgrounds.join(", ");
 });
 
-const _NuxtLink = resolveComponent("NuxtLink");
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

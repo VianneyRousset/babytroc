@@ -1,11 +1,11 @@
 <script setup lang="ts">
-const _model = defineModel<number>();
+const model = defineModel<number>();
 
 const props = defineProps<{
 	size?: "normal" | "small" | "tiny";
 }>();
 
-const _symbolSize = computed(() => {
+const symbolSize = computed(() => {
 	switch (props.size ?? "normal") {
 		case "normal":
 			return 32;
@@ -18,7 +18,7 @@ const _symbolSize = computed(() => {
 	}
 });
 
-const _symbolStrokeWidth = computed(() => {
+const symbolStrokeWidth = computed(() => {
 	switch (props.size ?? "normal") {
 		case "normal":
 			return 2;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _open = defineModel<boolean>();
+const open = defineModel<boolean>();
 </script>
 
 <template>

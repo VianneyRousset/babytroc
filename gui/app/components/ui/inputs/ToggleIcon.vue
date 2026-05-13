@@ -2,7 +2,7 @@
 import type { LucideIcon } from "lucide-vue-next";
 import type { RouteLocationGeneric } from "vue-router";
 
-const _model = defineModel<boolean>();
+const model = defineModel<boolean>();
 
 export type ToggleIconProps = {
 	active?: boolean;
@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<ToggleIconProps>(), {
 
 const { disabled, active, icon, target } = toRefs(props);
 
-const _NuxtLink = resolveComponent("NuxtLink");
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

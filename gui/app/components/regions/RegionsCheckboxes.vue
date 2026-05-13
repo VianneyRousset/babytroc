@@ -12,7 +12,7 @@ const props = withDefaults(
 
 const { size } = toRefs(props);
 
-function _onChange(regionId: number, state: boolean) {
+function onChange(regionId: number, state: boolean) {
 	if (!model.value) return;
 	const next = new Set(model.value);
 	if (state) {

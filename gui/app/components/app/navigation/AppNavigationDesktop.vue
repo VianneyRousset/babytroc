@@ -12,7 +12,7 @@ type ClassSpecifications = {
 	class?: Record<string, boolean>;
 };
 
-const _tabs = computed<Array<ClassSpecifications>>(() => [
+const tabs = computed<Array<ClassSpecifications>>(() => [
 	{ section: "explore", name: "Explorer" },
 	{ section: "saved", name: "Favorits" },
 	{ section: "chats", name: "Chats", badge: unref(hot) },

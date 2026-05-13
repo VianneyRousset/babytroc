@@ -6,7 +6,7 @@ const props = defineProps<{
 
 const { me, message } = toRefs(props);
 
-const _slots = useSlots();
+const slots = useSlots();
 
 const { origin } = useChatMessageOrigin(message, me);
 

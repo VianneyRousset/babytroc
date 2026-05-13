@@ -21,7 +21,7 @@ const {
 // popup
 const showPopup = ref(false);
 
-async function _execute() {
+async function execute() {
 	await executeLoanRequest({ loanRequestId: unref(loanRequestId) });
 	showPopup.value = false;
 }

@@ -5,15 +5,15 @@ const emit = defineEmits<(e: "submit", value: string) => void>();
 
 const input = ref<HTMLElement | null>(null);
 
-function _blur() {
+function blur() {
 	if (input.value) input.value.blur();
 }
 
-function _clear() {
+function clear() {
 	model.value = "";
 }
 
-function _submit() {
+function submit() {
 	emit("submit", model.value ?? "");
 }
 </script>

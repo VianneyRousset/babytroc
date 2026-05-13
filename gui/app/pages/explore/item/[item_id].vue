@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { HeartMinus, HeartPlus } from "lucide-vue-next";
+import {
+	HeartMinus,
+	HeartPlus,
+	Pencil,
+	ShieldAlert,
+	Trash,
+	X,
+} from "lucide-vue-next";
 
 definePageMeta({
 	layout: "explore",
@@ -21,11 +28,11 @@ const { loggedIn } = useAuth();
 
 const editMode = ref(false);
 
-const _device = useDevice();
+const device = useDevice();
 
 const { goBack } = useNavigation();
-const _deleteItemPopup = ref(false);
-const _reportDialogOpen = ref(false);
+const deleteItemPopup = ref(false);
+const reportDialogOpen = ref(false);
 
 // report
 const { mutateAsync: reportItem } = useReportItemMutation(itemId);
@@ -39,7 +46,7 @@ const { mutateAsync: deleteItem, isLoading: deleteItemIsLoading } =
 // save
 const { save, unsave } = useItemSave({ itemId });
 
-async function _submitUpdateItem(data: ItemUpdate) {
+async function submitUpdateItem(data: ItemUpdate) {
 	await updateItem(data).catch((err) => {
 		$toast.error("Échec de la modification de l'objet");
 		throw err;
@@ -47,7 +54,7 @@ async function _submitUpdateItem(data: ItemUpdate) {
 	editMode.value = false;
 }
 
-async function _submitDeleteItem() {
+async function submitDeleteItem() {
 	await deleteItem().catch((err) => {
 		$toast.error("Échec de la suppression de l'objet");
 		throw err;
@@ -55,7 +62,7 @@ async function _submitDeleteItem() {
 	return goBack();
 }
 
-async function _submitSave() {
+async function submitSave() {
 	await save().catch((err) => {
 		$toast.error("Échec de l'enregistrement de l'objet");
 		throw err;
@@ -65,7 +72,7 @@ async function _submitSave() {
 	});
 }
 
-async function _submitUnsave() {
+async function submitUnsave() {
 	await unsave().catch((err) => {
 		$toast.error("Échec de l'oubli de l'objet");
 		throw err;

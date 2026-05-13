@@ -14,7 +14,7 @@ const props = withDefaults(
 
 const { seed, size } = toRefs(props);
 
-const _avatar = computed(() =>
+const avatar = computed(() =>
 	createAvatar(thumbs, {
 		seed: unref(seed) ?? "",
 		size: unref(size),

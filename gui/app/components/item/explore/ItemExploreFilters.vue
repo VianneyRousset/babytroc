@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _filters = defineModel<ItemFilters>({ required: true });
+const filters = defineModel<ItemFilters>({ required: true });
 
 const props = withDefaults(
 	defineProps<{

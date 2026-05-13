@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Archive, MessageCircleQuestion } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "me",
 	appBack: true,

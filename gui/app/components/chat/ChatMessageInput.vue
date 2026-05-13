@@ -28,16 +28,16 @@ const stop = watch(input, (v) => {
 	input.value = v?.substring(0, 1000);
 });
 
-function _blur() {
+function blur() {
 	if (textarea.value) textarea.value.blur();
 }
 
-function _enterDown(event: KeyboardEvent) {
+function enterDown(event: KeyboardEvent) {
 	// ignore keydown enter if shift is not rpressed
 	if (!event.shiftKey) event.preventDefault();
 }
 
-function _enterUp(event: KeyboardEvent) {
+function enterUp(event: KeyboardEvent) {
 	// if shift key is pressed, handle it as a normal line return
 	if (event.shiftKey) return;
 
@@ -49,7 +49,7 @@ function submit() {
 	emit("submit", model.value ?? "");
 }
 
-const _disabled = computed(
+const disabled = computed(
 	() => model.value?.trim().length === 0 || loading.value,
 );
 

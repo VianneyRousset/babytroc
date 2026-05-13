@@ -18,7 +18,7 @@ watch(
 	},
 );
 
-function _onChange(value: number[] | undefined) {
+function onChange(value: number[] | undefined) {
 	if (value === undefined) return;
 
 	const lower = value[0];
@@ -35,8 +35,8 @@ function formatMonth(month: number): string {
 	return `${month} mois`;
 }
 
-const _displayedMin = computed(() => formatMonth(range.value[0]));
-const _displayedMax = computed(() => formatMonth(range.value[1]));
+const displayedMin = computed(() => formatMonth(range.value[0]));
+const displayedMax = computed(() => formatMonth(range.value[1]));
 </script>
 
 <template>

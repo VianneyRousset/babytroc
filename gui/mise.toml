@@ -1,6 +1,5 @@
 [env]
-HOST = "0"
-PORT = 3000
+_.file = ".env.yaml"
 _.path = ['{{config_root}}/node_modules/.bin']
 
 [tools]

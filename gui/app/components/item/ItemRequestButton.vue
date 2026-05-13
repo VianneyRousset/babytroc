@@ -8,14 +8,14 @@ const { loggedIn, loginRoute } = useAuth();
 const { item } = toRefs(props);
 const itemId = computed(() => unref(item).id);
 
-const _availableForRequest = computed<boolean>(() => {
+const availableForRequest = computed<boolean>(() => {
 	const _item = unref(item);
 	return _item.available && !_item.owned && !_item.active_loan_request;
 });
 
 const { request, loading } = useItemLoanRequest({ itemId });
 
-async function _requestAndNavigateToChat() {
+async function requestAndNavigateToChat() {
 	const { chatLocation } = await request();
 	return navigateTo(chatLocation);
 }

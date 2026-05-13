@@ -10,13 +10,13 @@ const props = withDefaults(
 
 const { position } = toRefs(props);
 
-const _model = defineModel<boolean>({ default: false });
+const model = defineModel<boolean>({ default: false });
 
-const _slots = useSlots();
+const slots = useSlots();
 const device = useDevice();
 
 // On mobile, force bottom position for bottom-sheet behavior
-const _effectivePosition = computed(() =>
+const effectivePosition = computed(() =>
 	device.isMobile ? "bottom" : unref(position),
 );
 </script>

@@ -5,7 +5,7 @@ definePageMeta({
 	appTitle: "FAQ",
 });
 
-const _faq = [
+const faq = [
 	{
 		q: "Qu'est-ce que Babytroc\u00a0?",
 		a: "Babytroc est une plateforme lausannoise qui permet aux parents de pr\u00eater et d'emprunter des articles pour enfants entre particuliers. L'objectif est de r\u00e9duire le gaspillage et de rendre la parentalit\u00e9 plus accessible.",

@@ -6,7 +6,7 @@ const { item } = toRefs(props);
 const { regionIds } = useItemRegions(item);
 const { regions: allRegions } = useRegionsList();
 
-const _regions = computed(() =>
+const regions = computed(() =>
 	(unref(allRegions) ?? []).filter((r) => unref(regionIds).has(r.id)),
 );
 </script>

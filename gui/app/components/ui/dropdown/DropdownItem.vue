@@ -15,8 +15,8 @@ const props = withDefaults(
 
 const { target, icon, red } = toRefs(props);
 
-const _menuOpen = inject("dropdown-menu-open");
-const _NuxtLink = resolveComponent("NuxtLink");
+const menuOpen = inject("dropdown-menu-open");
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

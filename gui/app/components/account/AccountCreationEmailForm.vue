@@ -3,7 +3,7 @@ const email = defineModel<string>("email", { default: "" });
 const valid = defineModel<boolean>("valid");
 const emit = defineEmits(["next"]);
 
-const _next = () => unref(valid) && emit("next");
+const next = () => unref(valid) && emit("next");
 </script>
 
 <template>

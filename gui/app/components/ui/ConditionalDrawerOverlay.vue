@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _drawerOpen = defineModel<boolean>({ default: false });
+const drawerOpen = defineModel<boolean>({ default: false });
 
 const props = withDefaults(
 	defineProps<{

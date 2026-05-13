@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Box, LogIn, LogOut, Settings } from "lucide-vue-next";
+
 const props = withDefaults(
 	defineProps<{
 		compact?: boolean;
@@ -14,7 +16,7 @@ const { loggedIn } = useAuth();
 
 const { me } = useMe();
 const { logout } = useLogout();
-const _open = ref(false);
+const open = ref(false);
 </script>
 
 <template>

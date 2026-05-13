@@ -10,7 +10,7 @@ const floating = useTemplateRef<HTMLElement>("floating");
 const { bottom: containerBottom } = useElementBounding(container);
 const { y: floatingTop } = useElementBounding(floating);
 
-const _footprintBottom = computed(
+const footprintBottom = computed(
 	() => unref(containerBottom) - unref(floatingTop),
 );
 </script>

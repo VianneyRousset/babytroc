@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ShieldAlert } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "explore",
 });

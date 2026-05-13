@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { RefreshCw } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "me",
 	appBack: true,
@@ -18,7 +20,7 @@ function randomSeed() {
 	).join("");
 }
 
-async function _regenerateAvatar() {
+async function regenerateAvatar() {
 	await updateProfile({ avatar_seed: randomSeed() }).catch(() => {
 		$toast.error("Échec de la mise à jour");
 	});

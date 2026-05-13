@@ -19,7 +19,7 @@ const { mutateAsync: endLoan, asyncStatus: endLoanAsyncStatus } =
 // popup
 const showPopup = ref(false);
 
-async function _end() {
+async function end() {
 	await endLoan({ loanId: unref(loanId) });
 	showPopup.value = false;
 }

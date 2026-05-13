@@ -29,7 +29,7 @@ const {
 	absoluteStrokeWidth,
 } = toRefs(props);
 
-const _NuxtLink = resolveComponent("NuxtLink");
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

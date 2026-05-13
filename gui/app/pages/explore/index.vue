@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import {
+	ArrowLeft,
+	Filter,
+	Grid3x3,
+	LayoutGrid,
+	Repeat,
+	X,
+} from "lucide-vue-next";
+
 /**
  * Explore items page.
  *
@@ -47,7 +56,7 @@ const { items, error, isLoading, loadMore, end } = useItemExplore({
 const applyFilters = () => (queryParams.value = dumpFiltersAsQueryParams());
 
 // dense layout
-const _dense = ref(false);
+const dense = ref(false);
 
 const { narrowWindow } = useNarrowWindow();
 const drawerMode = computed<boolean>(
@@ -80,7 +89,7 @@ const { regions } = useRegionsList();
 
 type FilterChip = { label: string; remove: () => void };
 
-const _activeFilterChips = computed<FilterChip[]>(() => {
+const activeFilterChips = computed<FilterChip[]>(() => {
 	const chips: FilterChip[] = [];
 	const f = unref(filters);
 

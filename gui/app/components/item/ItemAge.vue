@@ -15,7 +15,7 @@ const { item, lowercase, prefix } = toRefs(props);
 
 const { formatedTargetedAgeMonths: age } = useItemTargetedAgeMonths(item);
 
-const _text = computed(() =>
+const text = computed(() =>
 	unref(lowercase) ? unref(age).toLowerCase() : unref(age),
 );
 </script>

@@ -11,7 +11,7 @@ const status = ref<"idle" | "loading" | "success" | "error">("idle");
 
 const { $toast } = useNuxtApp();
 
-async function _send() {
+async function send() {
 	if (unref(message).trim().length === 0) return;
 
 	status.value = "loading";
@@ -31,7 +31,7 @@ async function _send() {
 	}
 }
 
-function _onClose() {
+function onClose() {
 	model.value = false;
 	message.value = "";
 	status.value = "idle";

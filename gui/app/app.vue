@@ -23,10 +23,10 @@ useLiveMessage(
 // deduce transition to use base on platform and navigation direction
 const device = useDevice();
 const { direction } = useNavigation();
-const _transitionName = computed(() =>
+const transitionName = computed(() =>
 	device.isMobile ? `page-slide-${unref(direction)}` : "fade",
 );
-const _transitionMode = computed(() => (device.isMobile ? "in-out" : "out-in"));
+const transitionMode = computed(() => (device.isMobile ? "in-out" : "out-in"));
 
 const pageActiveTransition = ref<boolean>(false);
 provide<Ref<boolean>>("page-active-transition", pageActiveTransition);

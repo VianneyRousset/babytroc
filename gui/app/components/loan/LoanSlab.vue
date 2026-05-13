@@ -20,7 +20,7 @@ const { firstImageName: itemImageName } = useItemFirstImage(
 	() => unref(loan).item,
 );
 
-const _formatedDuring = computed(() =>
+const formatedDuring = computed(() =>
 	formatRelativeDateRange(loan.value.during),
 );
 
@@ -28,7 +28,7 @@ const otherUser = computed(() =>
 	props.perspective === "borrower" ? unref(loan).owner : unref(loan).borrower,
 );
 
-const _subLabel = computed(() =>
+const subLabel = computed(() =>
 	props.perspective === "borrower"
 		? `Emprunté à ${otherUser.value.name}`
 		: `Prêté à ${otherUser.value.name}`,

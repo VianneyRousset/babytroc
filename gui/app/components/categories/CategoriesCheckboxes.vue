@@ -18,7 +18,7 @@ const { roots, childrenOf } = useCategoryTree(categories);
 // Only one category can be expanded at a time
 const expandedSlug = ref<string | null>(null);
 
-function _toggleExpand(slug: string) {
+function toggleExpand(slug: string) {
 	expandedSlug.value = unref(expandedSlug) === slug ? null : slug;
 }
 
@@ -33,7 +33,7 @@ function parentState(parentSlug: string): "all" | "some" | "none" {
 	return "some";
 }
 
-function _toggleParent(parentSlug: string) {
+function toggleParent(parentSlug: string) {
 	const children = childrenOf(parentSlug);
 	const next = new Set(model.value);
 	const state = parentState(parentSlug);
@@ -50,7 +50,7 @@ function _toggleParent(parentSlug: string) {
 	model.value = next;
 }
 
-function _toggleChild(parentSlug: string, childSlug: string) {
+function toggleChild(parentSlug: string, childSlug: string) {
 	const children = childrenOf(parentSlug);
 	const next = new Set(model.value);
 

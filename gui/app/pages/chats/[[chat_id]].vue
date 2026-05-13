@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Menu, MessageSquare, Package, ShieldAlert } from "lucide-vue-next";
+
 definePageMeta({
 	layout: "chats",
 });
@@ -17,13 +19,13 @@ const { me } = useMe();
 const { chat } = useChat(computed(() => unref(chatId) ?? ""));
 
 const { narrowWindow } = useNarrowWindow();
-const _drawerMode = computed<boolean>(() => unref(narrowWindow));
+const drawerMode = computed<boolean>(() => unref(narrowWindow));
 
 // chats drawer open state
-const _chatsDrawerOpen = ref(false);
+const chatsDrawerOpen = ref(false);
 
 // report
-const _reportDialogOpen = ref(false);
+const reportDialogOpen = ref(false);
 const { mutateAsync: reportChat } = useReportChatMutation(
 	computed(() => unref(chatId) ?? ""),
 );

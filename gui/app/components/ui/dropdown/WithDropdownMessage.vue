@@ -16,7 +16,7 @@ const props = withDefaults(
 	},
 );
 
-const _message = computed<string | undefined>(() => {
+const message = computed<string | undefined>(() => {
 	switch (props.status) {
 		case "idle":
 		case "pending":

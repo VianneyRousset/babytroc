@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _model = defineModel<number>();
+const model = defineModel<number>();
 
 const props = withDefaults(
 	defineProps<{

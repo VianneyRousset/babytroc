@@ -23,7 +23,7 @@ const props = withDefaults(
 const { items, error, loading, dense, target } = toRefs(props);
 
 // emit a 'select' event with the item id when a card is select
-const _emit = defineEmits<(e: "select", itemId: number) => void>();
+const emit = defineEmits<(e: "select", itemId: number) => void>();
 
 // adjust the number of columns and the font-size with the width of the component
 const { width: collectionElementWidth } = useElementSize(
@@ -44,7 +44,7 @@ const columnsCount = computed(() => {
 	return (i < 0 ? _steps.length : i) + 1;
 });
 
-const _fontSize = computed(() => {
+const fontSize = computed(() => {
 	const _w = unref(collectionElementWidth);
 	return _w / unref(columnsCount) / 26;
 });

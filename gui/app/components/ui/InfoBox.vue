@@ -15,8 +15,8 @@ const props = withDefaults(
 
 const { icon, chevronRight, target } = toRefs(props);
 
-const _slots = useSlots();
-const _NuxtLink = resolveComponent("NuxtLink");
+const slots = useSlots();
+const NuxtLink = resolveComponent("NuxtLink");
 </script>
 
 <template>

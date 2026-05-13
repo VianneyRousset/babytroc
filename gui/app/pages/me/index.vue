@@ -32,7 +32,7 @@ type SectionData = {
 	slabs: Array<SlabData>;
 };
 
-const _sections = computed<Array<SectionData>>(() =>
+const sections = computed<Array<SectionData>>(() =>
 	[
 		{
 			title: "Mes activités",

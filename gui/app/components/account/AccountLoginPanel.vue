@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Check, LockKeyholeOpen, OctagonAlert } from "lucide-vue-next";
+
 const { login: _login, isLoading, status } = useLogin();
 
 const username = ref("");
@@ -35,7 +37,7 @@ async function login() {
 
 // input elements
 const _usernameInput = useTemplateRef<HTMLInputElement>("usernameInput");
-const _passwordInput = useTemplateRef<HTMLInputElement>("passwordInput");
+const passwordInput = useTemplateRef<HTMLInputElement>("passwordInput");
 
 // empty form inputs if status transitions to error
 const stop = watch(status, (newStatus, oldStatus) => {

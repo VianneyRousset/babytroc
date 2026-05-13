@@ -2,10 +2,12 @@
 import "vue3-carousel/carousel.css";
 import type { ComponentProps } from "vue-component-type-helpers";
 import type { Carousel } from "vue3-carousel";
+import "vue3-carousel/carousel.css";
+import { Image, Pencil } from "lucide-vue-next";
 
 type CarouselConfig = ComponentProps<typeof Carousel>;
 
-const _emit = defineEmits(["edit"]);
+const emit = defineEmits(["edit"]);
 
 const props = withDefaults(
 	defineProps<{
@@ -43,7 +45,7 @@ onUnmounted(() => window.removeEventListener("keydown", onKeyDown));
 
 const empty = computed(() => unref(images).length === 0);
 
-const _carouselConfig = computed(() => ({
+const carouselConfig = computed(() => ({
 	itemsToShow: 2.5,
 	wrapAround: !unref(empty),
 	enabled: !unref(empty),

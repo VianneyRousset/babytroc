@@ -7,7 +7,7 @@ definePageMeta({
 	appTitle: "Mot de passe oublié",
 });
 
-function _done() {
+function done() {
 	setTimeout(() => goBack(), 10000);
 }
 </script>

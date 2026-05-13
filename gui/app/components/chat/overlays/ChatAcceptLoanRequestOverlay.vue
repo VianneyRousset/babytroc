@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const _model = defineModel<boolean>();
+const model = defineModel<boolean>();
 
 const props = defineProps<{
 	item: Item | ItemPreview;

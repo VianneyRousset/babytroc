@@ -3,7 +3,7 @@ const name = defineModel<string>("name", { default: "" });
 const valid = defineModel<boolean>("valid");
 const emit = defineEmits(["next"]);
 
-const _next = () => unref(valid) && emit("next");
+const next = () => unref(valid) && emit("next");
 </script>
 
 <template>

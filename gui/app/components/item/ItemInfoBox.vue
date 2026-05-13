@@ -1,11 +1,13 @@
 <script setup lang="ts" generic="T extends {active_loan?: Loan | null}">
+import { Box, Import, MessageCircleQuestion } from "lucide-vue-next";
+
 const props = defineProps<{
 	item: T;
 }>();
 
 const { item } = toRefs(props);
 
-const _state = computed<
+const state = computed<
 	"loaned" | "owned" | "borrowed" | "requested" | undefined
 >(() => {
 	const _item = unref(item);
