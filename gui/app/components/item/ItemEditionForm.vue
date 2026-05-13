@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="ItemData extends Pick<Item, 'name' | 'description' | 'targeted_age_months' | 'image_names' | 'region_ids' | 'category_slugs' | 'blocked'>">
+import { OctagonAlert } from "lucide-vue-next";
+
 const emit = defineEmits<(event: "submit", data: ItemFormData) => void>();
 
 const props = withDefaults(
@@ -49,6 +51,17 @@ const imagesValid = ref(false);
 const studioOverlay = ref(false);
 const tmpStudioImages = ref<Array<StudioImage>>([]);
 
+// cap
+const { cap } = useRuntimeConfig().public;
+const capToken = ref("");
+const capResetSignal = ref(0);
+const capConfigured = computed<boolean>(
+	() => cap.apiUrl !== "" && cap.siteKey !== "",
+);
+
+// honeypot
+const website = ref("");
+
 // load data on props.data change
 const stop = watch(
 	() => props.item,
@@ -74,11 +87,16 @@ tryOnUnmounted(stop);
 // all field validation must pass and upload succeeded
 const valid = computed(
 	() =>
-		[nameValid, descriptionValid, regionsValid, imagesValid].every(
-			(v) => unref(v) === true,
-		) &&
+		[
+			nameValid,
+			descriptionValid,
+			regionsValid,
+			imagesValid,
+			capConfigured,
+		].every((v) => unref(v) === true) &&
 		unref(imagesStatus) === "success" &&
-		unref(images).every((img: string | undefined) => img != null),
+		unref(images).every((img: string | undefined) => img != null) &&
+		unref(capToken) !== "",
 );
 
 function openStudioOverlay() {
@@ -104,22 +122,27 @@ function touchAll() {
 function onclick() {
 	touchAll();
 
-	if (unref(valid)) {
-		const _images = unref(images);
+	if (!unref(valid)) return;
 
-		if (!_images.every((img) => img != null))
-			throw new Error("Cannot create object with null image");
+	const _images = unref(images);
 
-		emit("submit", {
-			name: unref(name),
-			description: unref(description),
-			images: _images,
-			targeted_age_months: range2string(unref(targetedAgeMonths)),
-			regions: [...unref(regions)],
-			categories: [...unref(categories)],
-			blocked: false,
-		});
-	}
+	if (!_images.every((img) => img != null))
+		throw new Error("Cannot create object with null image");
+
+	emit("submit", {
+		name: unref(name),
+		description: unref(description),
+		images: _images,
+		targeted_age_months: range2string(unref(targetedAgeMonths)),
+		regions: [...unref(regions)],
+		categories: [...unref(categories)],
+		blocked: false,
+		cap_token: unref(capToken),
+		website: unref(website),
+	});
+
+	capToken.value = "";
+	capResetSignal.value += 1;
 }
 </script>
 
@@ -197,6 +220,26 @@ function onclick() {
     v-if="!studioOverlay"
     class="v"
   >
+
+    <Honeypot v-model="website" />
+
+    <CapWidget
+      v-if="capConfigured"
+      :api-url="cap.apiUrl"
+      :site-key="cap.siteKey"
+      :reset-signal="capResetSignal"
+      :disabled="isLoading"
+      @solve="capToken = $event"
+      @expire="capToken = ''"
+    />
+    <PanelBanner
+      v-else
+      color="red"
+      :icon="OctagonAlert"
+    >
+      Captcha indisponible. Création désactivée.
+    </PanelBanner>
+  
     <TextButton
       aspect="flat"
       color="primary"

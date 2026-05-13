@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { OctagonAlert, X } from "lucide-vue-next";
+import { X } from "lucide-vue-next";
 import type { FetchError } from "ofetch";
 
 definePageMeta({
@@ -8,17 +8,7 @@ definePageMeta({
 });
 
 const { $toast } = useNuxtApp();
-const { cap } = useRuntimeConfig().public;
-
-const capToken = ref("");
-const website = ref("");
-const capResetSignal = ref(0);
-
 const { mutateAsync: create, isLoading } = useCreateItemMutation();
-
-const capConfigured = computed<boolean>(
-	() => cap.apiUrl !== "" && cap.siteKey !== "",
-);
 
 function mapErrorToToast(err: FetchError | null): void {
 	const code = err?.status;
@@ -36,24 +26,11 @@ function mapErrorToToast(err: FetchError | null): void {
 }
 
 async function submit(data: ItemFormData) {
-	if (
-		unref(capToken) === "" ||
-		unref(website) !== "" ||
-		!unref(capConfigured)
-	) {
-		return;
-	}
 	try {
-		await create({
-			...data,
-			cap_token: unref(capToken),
-			website: "",
-		});
+		await create(data);
 		await navigateTo("/me/items");
 	} catch (err) {
 		mapErrorToToast(err as FetchError);
-		capToken.value = "";
-		capResetSignal.value += 1;
 	}
 }
 </script>
@@ -84,28 +61,8 @@ async function submit(data: ItemFormData) {
       <Panel :max-width="600">
         <ItemEditionForm
           :is-loading="isLoading"
-          :submit-disabled="capToken === '' || !capConfigured"
           @submit="submit"
         />
-
-        <Honeypot v-model="website" />
-
-        <CapWidget
-          v-if="capConfigured"
-          :api-url="cap.apiUrl"
-          :site-key="cap.siteKey"
-          :reset-signal="capResetSignal"
-          :disabled="isLoading"
-          @solve="capToken = $event"
-          @expire="capToken = ''"
-        />
-        <PanelBanner
-          v-else
-          color="red"
-          :icon="OctagonAlert"
-        >
-          Captcha indisponible. Création désactivée.
-        </PanelBanner>
       </Panel>
     </main>
   </AppPage>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import draggable from "vuedraggable";
+
 const images = defineModel<Array<StudioImage>>();
 
 const props = defineProps<{
