@@ -54,6 +54,7 @@ async function submit(data: ItemFormData) {
         <template #buttons-left>
           <AppBack />
         </template>
+        <h1>Nouvel objet</h1>
       </AppHeaderDesktop>
     </template>
 
