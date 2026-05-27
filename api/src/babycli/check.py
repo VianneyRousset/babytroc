@@ -87,7 +87,7 @@ def check_email_config(test: bool | None = None) -> bool:
         config = EmailConfig.from_env(test=test)
 
     except Exception as e:
-        console_err(f"S3 — {e}")
+        console_err(f"Email config — {e}")
         return False
     console_ok("Email config — all vars present")
     return True
