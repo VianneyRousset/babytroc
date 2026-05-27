@@ -12,10 +12,6 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 
 
-def _admin_url(url: URL) -> URL:
-    return url._replace(database="postgres")
-
-
 async def create_database(
     url: URL,
     *,
@@ -29,7 +25,7 @@ async def create_database(
         raise ValueError(msg)
 
     engine = create_async_engine(
-        _admin_url(url),
+        url,
         isolation_level="AUTOCOMMIT",
         poolclass=NullPool,
     )
@@ -54,7 +50,7 @@ async def drop_database(url: URL) -> None:
         raise ValueError(msg)
 
     engine = create_async_engine(
-        _admin_url(url),
+        url,
         isolation_level="AUTOCOMMIT",
         poolclass=NullPool,
     )
@@ -73,7 +69,7 @@ async def set_datallowconn(url: URL, *, allow: bool) -> None:
         raise ValueError(msg)
 
     engine = create_async_engine(
-        _admin_url(url),
+        url,
         isolation_level="AUTOCOMMIT",
         poolclass=NullPool,
     )

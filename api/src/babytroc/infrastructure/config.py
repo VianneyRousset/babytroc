@@ -28,7 +28,7 @@ class EnvironmentVariablesReader(Mapping):
 
     def get(self, key: str, default=None):
         """Read optional env var. In test mode, prefer TEST_ prefixed version."""
-        if self.test:
+        if self.test and f"TEST_{key}" in os.environ:
             key = f"TEST_{key}"
         return os.environ.get(key, default)
 
@@ -91,12 +91,10 @@ class DatabaseConfig(NamedTuple):
 
     @property
     def url(self) -> sqlalchemy.URL:
-        password: str = self.password.get_secret_value()
-
         return sqlalchemy.URL.create(
             drivername="postgresql+asyncpg",
             username=self.user,
-            password=password,
+            password=self.password.get_secret_value(),
             host=self.host,
             port=self.port,
             database=self.database,

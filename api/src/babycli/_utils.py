@@ -38,12 +38,13 @@ def confirm_prompt(msg: str) -> bool:
 
 
 @asynccontextmanager
-async def async_db_session() -> AsyncGenerator[AsyncSession]:
-    from babytroc.infrastructure.config import Config
+async def async_db_session(test: bool | None = None) -> AsyncGenerator[AsyncSession]:
+    from babytroc.infrastructure.config import DatabaseConfig
     from babytroc.infrastructure.database import create_session_maker
 
-    config = Config.from_env()
-    session_maker = create_session_maker(config.database.url)
+    config = DatabaseConfig.from_env(test=test)
+    print(">>", config.url, flush=True)
+    session_maker = create_session_maker(config.url)
     async with session_maker.begin() as session:
         yield session
 

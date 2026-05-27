@@ -1,5 +1,4 @@
 # babycli/check.py
-import os
 import sys
 from typing import TYPE_CHECKING, cast
 
@@ -17,11 +16,11 @@ check_app = App(
 )
 
 
-async def check_postgres() -> bool:
+async def check_postgres(test: bool | None = None) -> bool:
     try:
         from sqlalchemy import text as sa_text
 
-        async with async_db_session() as session:
+        async with async_db_session(test=test) as session:
             result = await session.execute(sa_text("SELECT version()"))
             version = result.scalar()
             console_ok(f"PostgreSQL — {version}")
@@ -31,12 +30,12 @@ async def check_postgres() -> bool:
         return False
 
 
-async def check_redis() -> bool:
+async def check_redis(test: bool | None = None) -> bool:
     try:
         from babytroc.infrastructure.config import RedisConfig
         from babytroc.infrastructure.redis import create_redis_client
 
-        config = RedisConfig.from_env()
+        config = RedisConfig.from_env(test=test)
         client = create_redis_client(config)
         pong = await cast("Awaitable[bool]", client.ping())
         await client.aclose()
@@ -50,14 +49,14 @@ async def check_redis() -> bool:
         return False
 
 
-async def check_s3() -> bool:
+async def check_s3(test: bool | None = None) -> bool:
     try:
         import aioboto3
         import botocore
 
         from babytroc.infrastructure.config import S3Config
 
-        config = S3Config.from_env()
+        config = S3Config.from_env(test=test)
         s3_session = aioboto3.Session()
         async with s3_session.client(
             "s3",
@@ -81,25 +80,20 @@ async def check_s3() -> bool:
         return False
 
 
-def check_email_config() -> bool:
-    required = [
-        "EMAIL_SERVER",
-        "EMAIL_PORT",
-        "EMAIL_USERNAME",
-        "EMAIL_PASSWORD",
-        "EMAIL_FROM_EMAIL",
-        "EMAIL_FROM_NAME",
-        "CONTACT_EMAIL",
-    ]
-    missing = [k for k in required if k not in os.environ]
-    if missing:
-        console_err(f"Email config — missing: {', '.join(missing)}")
+def check_email_config(test: bool | None = None) -> bool:
+    try:
+        from babytroc.infrastructure.config import EmailConfig
+
+        config = EmailConfig.from_env(test=test)
+
+    except Exception as e:
+        console_err(f"S3 — {e}")
         return False
     console_ok("Email config — all vars present")
     return True
 
 
-async def check_migrations() -> bool:
+async def check_migrations(test: bool | None = None) -> bool:
     try:
         from alembic.config import Config as AlembicConfig
         from alembic.runtime.migration import MigrationContext
@@ -107,13 +101,13 @@ async def check_migrations() -> bool:
         from sqlalchemy.engine import Connection
         from sqlalchemy.ext.asyncio import create_async_engine
 
-        from babytroc.infrastructure.config import Config
+        from babytroc.infrastructure.config import DatabaseConfig
 
         def _get_current_rev(conn: Connection) -> str | None:
             return MigrationContext.configure(conn).get_current_revision()
 
-        config = Config.from_env()
-        engine = create_async_engine(config.database.url)
+        config = DatabaseConfig.from_env(test=test)
+        engine = create_async_engine(config.url)
         try:
             async with engine.connect() as conn:
                 current_rev = await conn.run_sync(_get_current_rev)
@@ -136,11 +130,11 @@ async def check_migrations() -> bool:
         return False
 
 
-async def check_cap() -> bool:
+async def check_cap(test: bool | None = None) -> bool:
     try:
         from babytroc.infrastructure.config import CapConfig
 
-        config = CapConfig.from_env()
+        config = CapConfig.from_env(test=test)
         async with httpx.AsyncClient(timeout=5.0) as client:
             await client.get(f"{config.api_url}/", timeout=5.0)
         console_ok(f"Cap — reachable ({config.api_url})")
@@ -151,57 +145,57 @@ async def check_cap() -> bool:
 
 
 @check_app.default
-async def check_all():
+async def check_all(test: bool | None = None):
     """Run all health checks."""
     results = [
-        await check_postgres(),
-        await check_redis(),
-        await check_s3(),
-        check_email_config(),
-        await check_migrations(),
-        await check_cap(),
+        await check_postgres(test=test),
+        await check_redis(test=test),
+        await check_s3(test=test),
+        check_email_config(test=test),
+        await check_migrations(test=test),
+        await check_cap(test=test),
     ]
     if not all(results):
         sys.exit(1)
 
 
 @check_app.command(name="postgres")
-async def check_postgres_cmd():
+async def check_postgres_cmd(test: bool | None = None):
     """Check PostgreSQL connection."""
-    if not await check_postgres():
+    if not await check_postgres(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="redis")
-async def check_redis_cmd():
+async def check_redis_cmd(test: bool | None = None):
     """Check Redis connection."""
-    if not await check_redis():
+    if not await check_redis(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="s3")
-async def check_s3_cmd():
+async def check_s3_cmd(test: bool | None = None):
     """Check S3/MinIO bucket."""
-    if not await check_s3():
+    if not await check_s3(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="email")
-def check_email_cmd():
+def check_email_cmd(test: bool | None = None):
     """Check email configuration."""
-    if not check_email_config():
+    if not check_email_config(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="migrations")
-async def check_migrations_cmd():
+async def check_migrations_cmd(test: bool | None = None):
     """Check if database migrations are up to date."""
-    if not await check_migrations():
+    if not await check_migrations(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="cap")
-async def check_cap_cmd():
+async def check_cap_cmd(test: bool | None = None):
     """Check cap captcha server reachability."""
-    if not await check_cap():
+    if not await check_cap(test=test):
         sys.exit(1)
