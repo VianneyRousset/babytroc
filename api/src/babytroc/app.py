@@ -46,7 +46,7 @@ class RootPathMiddleware:
             root_path = scope.get("root_path", "")
             path = scope.get("path", "")
             if root_path and path.startswith(root_path):
-                scope = dict(scope, path=path[len(root_path):] or "/")
+                scope = dict(scope, path=path[len(root_path) :] or "/")
         await self.app(scope, receive, send)
 
 
@@ -102,7 +102,7 @@ def create_app(
     email_client = FastMail(
         EmailConnectionConfig(
             MAIL_USERNAME=config.email.username,
-            MAIL_PASSWORD=SecretStr(config.email.password),
+            MAIL_PASSWORD=config.email.password,
             MAIL_PORT=config.email.port,
             MAIL_SERVER=config.email.server,
             MAIL_FROM=config.email.from_email,

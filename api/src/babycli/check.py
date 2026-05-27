@@ -16,7 +16,7 @@ check_app = App(
 )
 
 
-async def check_postgres(test: bool | None = None) -> bool:
+async def check_postgres(*, test: bool | None = None) -> bool:
     try:
         from sqlalchemy import text as sa_text
 
@@ -30,7 +30,7 @@ async def check_postgres(test: bool | None = None) -> bool:
         return False
 
 
-async def check_redis(test: bool | None = None) -> bool:
+async def check_redis(*, test: bool | None = None) -> bool:
     try:
         from babytroc.infrastructure.config import RedisConfig
         from babytroc.infrastructure.redis import create_redis_client
@@ -49,7 +49,7 @@ async def check_redis(test: bool | None = None) -> bool:
         return False
 
 
-async def check_s3(test: bool | None = None) -> bool:
+async def check_s3(*, test: bool | None = None) -> bool:
     try:
         import aioboto3
         import botocore
@@ -80,20 +80,40 @@ async def check_s3(test: bool | None = None) -> bool:
         return False
 
 
-def check_email_config(test: bool | None = None) -> bool:
+async def check_email_config(*, test: bool | None = None) -> bool:
     try:
+        from fastapi_mail import ConnectionConfig as EmailConnectionConfig
+        from fastapi_mail.connection import Connection
+
         from babytroc.infrastructure.config import EmailConfig
 
         config = EmailConfig.from_env(test=test)
+        connection = Connection(
+            EmailConnectionConfig(
+                MAIL_USERNAME=config.username,
+                MAIL_PASSWORD=config.password,
+                MAIL_PORT=config.port,
+                MAIL_SERVER=config.server,
+                MAIL_FROM=config.from_email,
+                MAIL_FROM_NAME=config.from_name,
+                MAIL_STARTTLS=False,
+                MAIL_SSL_TLS=True,
+                USE_CREDENTIALS=True,
+                VALIDATE_CERTS=True,
+            )
+        )
+
+        async with connection:
+            pass
 
     except Exception as e:
         console_err(f"Email config — {e}")
         return False
-    console_ok("Email config — all vars present")
+    console_ok("Email config — successful connection")
     return True
 
 
-async def check_migrations(test: bool | None = None) -> bool:
+async def check_migrations(*, test: bool | None = None) -> bool:
     try:
         from alembic.config import Config as AlembicConfig
         from alembic.runtime.migration import MigrationContext
@@ -134,7 +154,7 @@ async def check_migrations(test: bool | None = None) -> bool:
         return False
 
 
-async def check_cap(test: bool | None = None) -> bool:
+async def check_cap(*, test: bool | None = None) -> bool:
     try:
         from babytroc.infrastructure.config import CapConfig
 
@@ -149,13 +169,13 @@ async def check_cap(test: bool | None = None) -> bool:
 
 
 @check_app.default
-async def check_all(test: bool | None = None):
+async def check_all(*, test: bool | None = None):
     """Run all health checks."""
     results = [
         await check_postgres(test=test),
         await check_redis(test=test),
         await check_s3(test=test),
-        check_email_config(test=test),
+        await check_email_config(test=test),
         await check_migrations(test=test),
         await check_cap(test=test),
     ]
@@ -164,42 +184,42 @@ async def check_all(test: bool | None = None):
 
 
 @check_app.command(name="postgres")
-async def check_postgres_cmd(test: bool | None = None):
+async def check_postgres_cmd(*, test: bool | None = None):
     """Check PostgreSQL connection."""
     if not await check_postgres(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="redis")
-async def check_redis_cmd(test: bool | None = None):
+async def check_redis_cmd(*, test: bool | None = None):
     """Check Redis connection."""
     if not await check_redis(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="s3")
-async def check_s3_cmd(test: bool | None = None):
+async def check_s3_cmd(*, test: bool | None = None):
     """Check S3/MinIO bucket."""
     if not await check_s3(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="email")
-def check_email_cmd(test: bool | None = None):
+def check_email_cmd(*, test: bool | None = None):
     """Check email configuration."""
     if not check_email_config(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="migrations")
-async def check_migrations_cmd(test: bool | None = None):
+async def check_migrations_cmd(*, test: bool | None = None):
     """Check if database migrations are up to date."""
     if not await check_migrations(test=test):
         sys.exit(1)
 
 
 @check_app.command(name="cap")
-async def check_cap_cmd(test: bool | None = None):
+async def check_cap_cmd(*, test: bool | None = None):
     """Check cap captcha server reachability."""
     if not await check_cap(test=test):
         sys.exit(1)

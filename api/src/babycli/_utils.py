@@ -43,7 +43,6 @@ async def async_db_session(test: bool | None = None) -> AsyncGenerator[AsyncSess
     from babytroc.infrastructure.database import create_session_maker
 
     config = DatabaseConfig.from_env(test=test)
-    print(">>", config.url, flush=True)
     session_maker = create_session_maker(config.url)
     async with session_maker.begin() as session:
         yield session
