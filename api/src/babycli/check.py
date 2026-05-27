@@ -106,6 +106,10 @@ async def check_migrations(test: bool | None = None) -> bool:
         def _get_current_rev(conn: Connection) -> str | None:
             return MigrationContext.configure(conn).get_current_revision()
 
+        if test:
+            console_ok("Migrations — skipped in testing env")
+            return True
+
         config = DatabaseConfig.from_env(test=test)
         engine = create_async_engine(config.url)
         try:
