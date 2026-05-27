@@ -1,80 +1,141 @@
 import os
+from collections.abc import Mapping
 from datetime import timedelta
 from typing import NamedTuple, Self
 
 import sqlalchemy
+from pydantic import SecretStr
 
 
-def _env(key: str, *, default: str | None = None) -> str:
-    """Read env var. In test mode, prefer TEST_ prefixed version."""
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        test_val = os.environ.get(f"TEST_{key}")
-        if test_val is not None:
-            return test_val
-    if default is not None:
+class MissingEnvironmentVariableError(Exception):
+    def __init__(self, key: str):
+        super().__init__(f"Missing environment variable: {key}")
+
+
+class EnvironmentVariablesReader(Mapping):
+    def __init__(self, *, test: bool | None = None):
+        self.test = "PYTEST_CURRENT_TEST" in os.environ if test is None else test
+
+    def __getitem__(self, key: str) -> str:
+        """Read env var. In test mode, prefer TEST_ prefixed version."""
+        if self.test and f"TEST_{key}" in os.environ:
+            key = f"TEST_{key}"
+
+        try:
+            return os.environ[key]
+        except KeyError as error:
+            raise MissingEnvironmentVariableError(key) from error
+
+    def get(self, key: str, default=None):
+        """Read optional env var. In test mode, prefer TEST_ prefixed version."""
+        if self.test:
+            key = f"TEST_{key}"
         return os.environ.get(key, default)
-    return os.environ[key]
 
+    def __iter__(self):
+        return iter(os.environ)
 
-def _env_optional(key: str) -> str | None:
-    """Read optional env var. In test mode, prefer TEST_ prefixed version."""
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        test_val = os.environ.get(f"TEST_{key}")
-        if test_val is not None:
-            return test_val
-    return os.environ.get(key)
+    def __len__(self):
+        return len(os.environ)
 
 
 class DatabaseConfig(NamedTuple):
-    url: sqlalchemy.URL
+    user: str
+    password: SecretStr
+    host: str
+    port: int
+    database: str
 
     @classmethod
     def from_env(
         cls,
+        *,
+        user: str | None = None,
+        password: SecretStr | str | None = None,
+        host: str | None = None,
+        port: int | None = None,
+        database: str | None = None,
         url: sqlalchemy.URL | None = None,
+        test: bool | None = None,
     ) -> Self:
-        if url is None:
-            user = _env("POSTGRES_USER")
-            password = _env("POSTGRES_PASSWORD")
-            host = _env("POSTGRES_HOST")
-            port = int(_env("POSTGRES_PORT"))
-            database = _env("POSTGRES_DATABASE")
+        env = EnvironmentVariablesReader(test=test)
 
-            url = sqlalchemy.URL.create(
-                "postgresql+asyncpg",
-                username=user,
-                password=password,
-                host=host,
-                port=port,
-                database=database,
-            )
-        return cls(url=url)
+        if url is not None:
+            user = url.username
+            password = url.password
+            host = url.host
+            port = url.port
+            database = url.database
+
+        if user is None:
+            user = env["POSTGRES_USER"]
+        if password is None:
+            password = env.get("POSTGRES_PASSWORD", "")
+        if host is None:
+            host = env.get("POSTGRES_HOST", "localhost")
+        if port is None:
+            port = int(env.get("POSTGRES_PORT", 5432))
+        if database is None:
+            database = env.get("POSTGRES_DATABASE", "babytroc")
+
+        if isinstance(password, str):
+            password = SecretStr(password)
+
+        return cls(
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+            database=database,
+        )
+
+    @property
+    def url(self) -> sqlalchemy.URL:
+        password: str = self.password.get_secret_value()
+
+        return sqlalchemy.URL.create(
+            drivername="postgresql+asyncpg",
+            username=self.user,
+            password=password,
+            host=self.host,
+            port=self.port,
+            database=self.database,
+        )
 
 
 class RedisConfig(NamedTuple):
     host: str
     port: int
     db: int
-    password: str | None
+    password: str
 
     @classmethod
     def from_env(
         cls,
+        *,
         host: str | None = None,
         port: int | None = None,
         db: int | None = None,
         password: str | None = None,
+        test: bool | None = None,
     ) -> Self:
-        if host is None:
-            host = _env("REDIS_HOST", default="localhost")
-        if port is None:
-            port = int(_env("REDIS_PORT", default="6379"))
-        if db is None:
-            db = int(_env("REDIS_DB", default="0"))
-        if password is None:
-            password = _env_optional("REDIS_PASSWORD")
+        env = EnvironmentVariablesReader(test=test)
 
-        return cls(host=host, port=port, db=db, password=password)
+        if host is None:
+            host = env.get("REDIS_HOST", default="localhost")
+        if port is None:
+            port = int(env.get("REDIS_PORT", default="6379"))
+        if db is None:
+            db = int(env.get("REDIS_DB", default="0"))
+        if password is None:
+            password = env.get("REDIS_PASSWORD", "")
+
+        return cls(
+            host=host,
+            port=port,
+            db=db,
+            password=password,
+        )
 
     @property
     def url(self) -> str:
@@ -86,9 +147,13 @@ class PubsubConfig(NamedTuple):
     url: str
 
     @classmethod
-    def from_env(cls, url: str | None = None) -> Self:
+    def from_env(
+        cls,
+        url: str | None = None,
+        test: bool | None = None,
+    ) -> Self:
         if url is None:
-            redis_config = RedisConfig.from_env()
+            redis_config = RedisConfig.from_env(test=test)
             url = redis_config.url
 
         return cls(url=url)
@@ -111,19 +176,22 @@ class EmailConfig(NamedTuple):
         password: str | None = None,
         from_email: str | None = None,
         from_name: str | None = None,
+        test: bool | None = None,
     ) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+
         if server is None:
-            server = _env("EMAIL_SERVER")
+            server = env["EMAIL_SERVER"]
         if port is None:
-            port = int(_env("EMAIL_PORT"))
+            port = int(env["EMAIL_PORT"])
         if username is None:
-            username = _env("EMAIL_USERNAME")
+            username = env["EMAIL_USERNAME"]
         if password is None:
-            password = _env("EMAIL_PASSWORD")
+            password = env["EMAIL_PASSWORD"]
         if from_email is None:
-            from_email = _env("EMAIL_FROM_EMAIL")
+            from_email = env["EMAIL_FROM_EMAIL"]
         if from_name is None:
-            from_name = _env("EMAIL_FROM_NAME")
+            from_name = env["EMAIL_FROM_NAME"]
 
         return cls(
             server=server,
@@ -150,17 +218,20 @@ class S3Config(NamedTuple):
         secret_key: str | None = None,
         bucket: str | None = None,
         public_url: str | None = None,
+        test: bool | None = None,
     ) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+
         if endpoint_url is None:
-            endpoint_url = _env("S3_ENDPOINT_URL")
+            endpoint_url = env["S3_ENDPOINT_URL"]
         if access_key is None:
-            access_key = _env("S3_ACCESS_KEY")
+            access_key = env["S3_ACCESS_KEY"]
         if secret_key is None:
-            secret_key = _env("S3_SECRET_KEY")
+            secret_key = env["S3_SECRET_KEY"]
         if bucket is None:
-            bucket = _env("S3_BUCKET")
+            bucket = env["S3_BUCKET"]
         if public_url is None:
-            public_url = _env("S3_PUBLIC_URL")
+            public_url = env["S3_PUBLIC_URL"]
 
         return cls(
             endpoint_url=endpoint_url,
@@ -186,28 +257,45 @@ class AuthConfig(NamedTuple):
         refresh_token_duration: timedelta | None = None,
         access_token_duration: timedelta | None = None,
         account_password_reset_authorization_duration: timedelta | None = None,
+        test: bool | None = None,
     ) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+
         if algorithm is None:
-            algorithm = _env("JWT_ALGORITHM")
+            algorithm = env.get(
+                "JWT_ALGORITHM",
+                default="HS256",
+            )
 
         if secret_key is None:
-            secret_key = _env("JWT_SECRET_KEY")
+            secret_key = env["JWT_SECRET_KEY"]
 
         if refresh_token_duration is None:
             refresh_token_duration = timedelta(
-                days=int(_env("JWT_REFRESH_TOKEN_DURATION_DAYS")),
+                days=int(
+                    env.get(
+                        "JWT_REFRESH_TOKEN_DURATION_DAYS",
+                        default=7,
+                    )
+                ),
             )
 
         if access_token_duration is None:
             access_token_duration = timedelta(
-                minutes=int(_env("JWT_ACCESS_TOKEN_DURATION_MINUTES")),
+                minutes=int(
+                    env.get(
+                        "JWT_ACCESS_TOKEN_DURATION_MINUTES",
+                        default=15,
+                    )
+                ),
             )
 
         if account_password_reset_authorization_duration is None:
             account_password_reset_authorization_duration = timedelta(
                 minutes=int(
-                    _env(
+                    env.get(
                         "ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES",
+                        default=20,
                     ),
                 ),
             )
@@ -230,21 +318,41 @@ class RateLimitConfig(NamedTuple):
         cls,
         *,
         env_prefix: str,
+        anon: int | None = None,
         default_anon: int,
+        auth: int | None = None,
         default_auth: int,
+        window_seconds: int | None = None,
         default_window_seconds: int,
+        test: bool | None = None,
     ) -> Self:
-        anon = int(_env(f"{env_prefix}_RATE_LIMIT_ANON", default=str(default_anon)))
-        auth = int(_env(f"{env_prefix}_RATE_LIMIT_AUTH", default=str(default_auth)))
+        env = EnvironmentVariablesReader(test=test)
+
+        anon = int(
+            env.get(
+                f"{env_prefix}_RATE_LIMIT_ANON",
+                default=str(default_anon),
+            )
+        )
+        auth = int(
+            env.get(
+                f"{env_prefix}_RATE_LIMIT_AUTH",
+                default=str(default_auth),
+            )
+        )
         window = timedelta(
             seconds=int(
-                _env(
+                env.get(
                     f"{env_prefix}_RATE_LIMIT_WINDOW_SECONDS",
                     default=str(default_window_seconds),
                 ),
             ),
         )
-        return cls(anon=anon, auth=auth, window=window)
+        return cls(
+            anon=anon,
+            auth=auth,
+            window=window,
+        )
 
 
 class ContactConfig(NamedTuple):
@@ -256,9 +364,12 @@ class ContactConfig(NamedTuple):
         cls,
         email: str | None = None,
         rate_limit: RateLimitConfig | None = None,
+        test: bool | None = None,
     ) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+
         if email is None:
-            email = _env("CONTACT_EMAIL")
+            email = env["CONTACT_EMAIL"]
         if rate_limit is None:
             rate_limit = RateLimitConfig.from_env(
                 env_prefix="CONTACT",
@@ -266,7 +377,10 @@ class ContactConfig(NamedTuple):
                 default_auth=10,
                 default_window_seconds=3600,
             )
-        return cls(email=email, rate_limit=rate_limit)
+        return cls(
+            email=email,
+            rate_limit=rate_limit,
+        )
 
 
 class CapConfig(NamedTuple):
@@ -280,14 +394,21 @@ class CapConfig(NamedTuple):
         api_url: str | None = None,
         site_key: str | None = None,
         secret_key: str | None = None,
+        test: bool | None = None,
     ) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+
         if api_url is None:
-            api_url = _env("CAP_API_URL")
+            api_url = env["CAP_API_URL"]
         if site_key is None:
-            site_key = _env("CAP_SITE_KEY")
+            site_key = env["CAP_SITE_KEY"]
         if secret_key is None:
-            secret_key = _env("CAP_SECRET_KEY")
-        return cls(api_url=api_url, site_key=site_key, secret_key=secret_key)
+            secret_key = env["CAP_SECRET_KEY"]
+        return cls(
+            api_url=api_url,
+            site_key=site_key,
+            secret_key=secret_key,
+        )
 
 
 class Config(NamedTuple):
@@ -316,7 +437,6 @@ class Config(NamedTuple):
         host_name: str | None = None,
         app_name: str | None = None,
         root_path: str | None = None,
-        test: bool | None = None,
         delay: float | None = None,
         database: DatabaseConfig | None = None,
         pubsub: PubsubConfig | None = None,
@@ -330,45 +450,48 @@ class Config(NamedTuple):
         password_reset: RateLimitConfig | None = None,
         item_create: RateLimitConfig | None = None,
         image_upload: RateLimitConfig | None = None,
+        test: bool | None = None,
     ) -> Self:
-        if host_name is None:
-            host_name = _env("HOST_NAME")
-
-        if app_name is None:
-            app_name = _env("APP_NAME")
-
-        if root_path is None:
-            root_path = _env("ROOT_PATH", default="")
-
         if test is None:
             test = "PYTEST_CURRENT_TEST" in os.environ
 
+        env = EnvironmentVariablesReader(test=test)
+
+        if host_name is None:
+            host_name = env["HOST_NAME"]
+
+        if app_name is None:
+            app_name = env["APP_NAME"]
+
+        if root_path is None:
+            root_path = env.get("ROOT_PATH", default="")
+
         if delay is None:
-            delay = float(_env("DELAY", default="0"))
+            delay = float(env.get("DELAY", default="0"))
 
         if database is None:
-            database = DatabaseConfig.from_env()
+            database = DatabaseConfig.from_env(test=test)
 
         if redis is None:
-            redis = RedisConfig.from_env()
+            redis = RedisConfig.from_env(test=test)
 
         if pubsub is None:
-            pubsub = PubsubConfig.from_env(url=redis.url)
+            pubsub = PubsubConfig.from_env(url=redis.url, test=test)
 
         if email is None:
-            email = EmailConfig.from_env()
+            email = EmailConfig.from_env(test=test)
 
         if s3 is None:
-            s3 = S3Config.from_env()
+            s3 = S3Config.from_env(test=test)
 
         if auth is None:
-            auth = AuthConfig.from_env()
+            auth = AuthConfig.from_env(test=test)
 
         if contact is None:
-            contact = ContactConfig.from_env()
+            contact = ContactConfig.from_env(test=test)
 
         if cap is None:
-            cap = CapConfig.from_env()
+            cap = CapConfig.from_env(test=test)
 
         if signup is None:
             signup = RateLimitConfig.from_env(
@@ -376,6 +499,7 @@ class Config(NamedTuple):
                 default_anon=3,
                 default_auth=3,
                 default_window_seconds=3600,
+                test=test,
             )
         if password_reset is None:
             password_reset = RateLimitConfig.from_env(
@@ -383,6 +507,7 @@ class Config(NamedTuple):
                 default_anon=3,
                 default_auth=3,
                 default_window_seconds=3600,
+                test=test,
             )
         if item_create is None:
             item_create = RateLimitConfig.from_env(
@@ -390,6 +515,7 @@ class Config(NamedTuple):
                 default_anon=30,
                 default_auth=30,
                 default_window_seconds=3600,
+                test=test,
             )
         if image_upload is None:
             image_upload = RateLimitConfig.from_env(
@@ -397,6 +523,7 @@ class Config(NamedTuple):
                 default_anon=60,
                 default_auth=60,
                 default_window_seconds=3600,
+                test=test,
             )
 
         return cls(
