@@ -80,7 +80,7 @@ async def check_s3(*, test: bool | None = None) -> bool:
         return False
 
 
-async def check_email_config(*, test: bool | None = None) -> bool:
+async def check_email_connection(*, test: bool | None = None) -> bool:
     try:
         from fastapi_mail import ConnectionConfig as EmailConnectionConfig
         from fastapi_mail.connection import Connection
@@ -107,9 +107,9 @@ async def check_email_config(*, test: bool | None = None) -> bool:
             pass
 
     except Exception as e:
-        console_err(f"Email config — {e}")
+        console_err(f"Email connection — {e}")
         return False
-    console_ok("Email config — successful connection")
+    console_ok("Email connection — established")
     return True
 
 
@@ -175,7 +175,7 @@ async def check_all(*, test: bool | None = None):
         await check_postgres(test=test),
         await check_redis(test=test),
         await check_s3(test=test),
-        await check_email_config(test=test),
+        await check_email_connection(test=test),
         await check_migrations(test=test),
         await check_cap(test=test),
     ]
@@ -207,7 +207,7 @@ async def check_s3_cmd(*, test: bool | None = None):
 @check_app.command(name="email")
 def check_email_cmd(*, test: bool | None = None):
     """Check email configuration."""
-    if not check_email_config(test=test):
+    if not check_email_connection(test=test):
         sys.exit(1)
 
 

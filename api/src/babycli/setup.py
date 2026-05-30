@@ -6,7 +6,7 @@ from cyclopts import App, Parameter
 
 from ._utils import console_err, console_ok, console_warn
 from .check import (
-    check_email_config,
+    check_email_connection,
     check_migrations,
     check_postgres,
     check_redis,
@@ -114,7 +114,7 @@ async def setup(
 
     # Email is sync
     print("  Step 5: Email")
-    email_ok = await check_email_config()
+    email_ok = await check_email_connection()
     if not email_ok and not check_only:
         print(_EMAIL_HINTS)
     results.append(email_ok)

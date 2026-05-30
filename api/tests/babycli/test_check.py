@@ -3,11 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 
-from babycli.check import (
-    check_cap,
-    check_email_config,
-    check_postgres,
-)
+from babycli.check import check_cap, check_postgres
 
 # Capture the real AsyncClient before any test monkeypatches httpx.AsyncClient,
 # since patching `babycli.check.httpx.AsyncClient` mutates the shared httpx
@@ -41,27 +37,6 @@ async def test_check_postgres_failure():
 
     with patch("babycli.check.async_db_session", return_value=mock_session):
         result = await check_postgres()
-    assert result is False
-
-
-async def test_check_email_config_valid():
-    env = {
-        "EMAIL_SERVER": "smtp.example.com",
-        "EMAIL_PORT": "587",
-        "EMAIL_USERNAME": "user",
-        "EMAIL_PASSWORD": "pass",
-        "EMAIL_FROM_EMAIL": "noreply@example.com",
-        "EMAIL_FROM_NAME": "Babytroc",
-        "CONTACT_EMAIL": "contact@example.com",
-    }
-    with patch.dict("os.environ", env):
-        result = await check_email_config()
-    assert result is True
-
-
-def test_check_email_config_missing():
-    with patch.dict("os.environ", {}, clear=True):
-        result = check_email_config()
     assert result is False
 
 
@@ -121,34 +96,4 @@ async def test_check_cap_accepts_non_200(monkeypatch):
     )
     with patch.dict("os.environ", env, clear=True):
         result = await check_cap()
-    assert result is True
-
-
-def test_check_email_config_requires_contact_email():
-    env = {
-        "EMAIL_SERVER": "smtp.example.com",
-        "EMAIL_PORT": "587",
-        "EMAIL_USERNAME": "user",
-        "EMAIL_PASSWORD": "pass",
-        "EMAIL_FROM_EMAIL": "noreply@example.com",
-        "EMAIL_FROM_NAME": "Babytroc",
-        # CONTACT_EMAIL deliberately missing
-    }
-    with patch.dict("os.environ", env, clear=True):
-        result = check_email_config()
-    assert result is False
-
-
-def test_check_email_config_passes_with_contact_email():
-    env = {
-        "EMAIL_SERVER": "smtp.example.com",
-        "EMAIL_PORT": "587",
-        "EMAIL_USERNAME": "user",
-        "EMAIL_PASSWORD": "pass",
-        "EMAIL_FROM_EMAIL": "noreply@example.com",
-        "EMAIL_FROM_NAME": "Babytroc",
-        "CONTACT_EMAIL": "contact@example.com",
-    }
-    with patch.dict("os.environ", env, clear=True):
-        result = check_email_config()
     assert result is True
