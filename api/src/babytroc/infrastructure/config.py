@@ -412,6 +412,36 @@ class CapConfig(NamedTuple):
         )
 
 
+class ImageConfig(NamedTuple):
+    max_upload_bytes: int
+    max_pixels: int
+    max_concurrent_processing_per_worker: int
+
+    @classmethod
+    def from_env(cls, *, test: bool | None = None) -> Self:
+        env = EnvironmentVariablesReader(test=test)
+        return cls(
+            max_upload_bytes=int(
+                env.get(
+                    "IMAGE_MAX_UPLOAD_BYTES",
+                    default=str(5 * 1024 * 1024),
+                ),
+            ),
+            max_pixels=int(
+                env.get(
+                    "IMAGE_MAX_PIXELS",
+                    default="16000000",
+                ),
+            ),
+            max_concurrent_processing_per_worker=int(
+                env.get(
+                    "IMAGE_MAX_CONCURRENT_PROCESSING_PER_WORKER",
+                    default="4",
+                ),
+            ),
+        )
+
+
 class Config(NamedTuple):
     host_name: str
     app_name: str
@@ -422,6 +452,7 @@ class Config(NamedTuple):
     pubsub: PubsubConfig
     email: EmailConfig
     s3: S3Config
+    image: ImageConfig
     redis: RedisConfig
     auth: AuthConfig
     contact: ContactConfig
@@ -443,6 +474,7 @@ class Config(NamedTuple):
         pubsub: PubsubConfig | None = None,
         email: EmailConfig | None = None,
         s3: S3Config | None = None,
+        image: ImageConfig | None = None,
         redis: RedisConfig | None = None,
         auth: AuthConfig | None = None,
         contact: ContactConfig | None = None,
@@ -484,6 +516,9 @@ class Config(NamedTuple):
 
         if s3 is None:
             s3 = S3Config.from_env(test=test)
+
+        if image is None:
+            image = ImageConfig.from_env(test=test)
 
         if auth is None:
             auth = AuthConfig.from_env(test=test)
@@ -537,6 +572,7 @@ class Config(NamedTuple):
             pubsub=pubsub,
             email=email,
             s3=s3,
+            image=image,
             redis=redis,
             auth=auth,
             contact=contact,
