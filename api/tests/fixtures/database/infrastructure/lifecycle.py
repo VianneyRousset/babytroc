@@ -54,15 +54,26 @@ def _seed_config() -> Config:
 
 
 @pytest.fixture(scope="session")
-async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
+def admin_database_url() -> URL:
+    """Admin DB URL for CREATE/DROP DATABASE statements.
+
+    The configured `POSTGRES_DATABASE` for the test env must point to an
+    existing admin database — CREATE DATABASE cannot be issued from a
+    connection to a database that does not yet exist.
+    """
+    return _seed_config().database.url
+
+
+@pytest.fixture(scope="session")
+async def primary_databases(
+    worker_id: str,
+    admin_database_url: URL,
+) -> AsyncGenerator[dict[str, URL]]:
     """Build the full template chain once per xdist worker. Yields name → URL."""
     config = _seed_config()
-    # Go through the app config so TEST_POSTGRES_* overrides are honored;
-    # swap to the admin DB since CREATE DATABASE can't run inside the target.
-    base = config.database.url._replace(database="postgres")
     # db_url is overridden per-template inside build_chain; pass any URL
     # here as a placeholder.
-    ctx = SeedContext(config=config, db_url=base)
+    ctx = SeedContext(config=config, db_url=admin_database_url)
 
     # Seed handlers (e.g. invalidate_cache_on_item_created,
     # loan_request_created) call get_cache() / get_broadcast() at chain
@@ -73,7 +84,7 @@ async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
     init_broadcast_dependency(Broadcast("memory://"))
 
     urls = await build_chain(
-        base_url=base,
+        base_url=admin_database_url,
         worker_id=worker_id,
         specs=TEMPLATES,
         ctx=ctx,
@@ -81,7 +92,7 @@ async def primary_databases(worker_id: str) -> AsyncGenerator[dict[str, URL]]:
     try:
         yield urls
     finally:
-        await teardown_chain(urls)
+        await teardown_chain(urls, admin_url=admin_database_url)
 
 
 @pytest.fixture(scope="session")
@@ -98,6 +109,7 @@ async def primary_database(primary_databases: dict[str, URL]) -> URL:
 @pytest.fixture
 async def database(
     primary_databases: dict[str, URL],
+    admin_database_url: URL,
     request: pytest.FixtureRequest,
     testrun_uid: str,
 ) -> AsyncGenerator[URL]:
@@ -107,11 +119,15 @@ async def database(
 
     name = f"test-{uuid4()}-{testrun_uid}"
     url = template_url._replace(database=name)
-    await create_database(url, template=template_url.database)
+    await create_database(
+        url,
+        admin_url=admin_database_url,
+        template=template_url.database,
+    )
     try:
         yield url
     finally:
-        await drop_database(url)
+        await drop_database(url, admin_url=admin_database_url)
 
 
 @pytest.fixture

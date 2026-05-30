@@ -350,6 +350,7 @@ dependencies = [
     { name = "redis", extra = ["hiredis"] },
     { name = "requests" },
     { name = "sqlalchemy" },
+    { name = "trio" },
     { name = "uvicorn" },
     { name = "websocket" },
 ]
@@ -400,6 +401,7 @@ requires-dist = [
     { name = "redis", extras = ["hiredis"], specifier = ">=5.0.0" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "sqlalchemy", specifier = ">=2.0.38" },
+    { name = "trio", specifier = ">=0.33.0" },
     { name = "uvicorn", specifier = ">=0.34.2" },
     { name = "websocket", specifier = ">=0.2.1" },
 ]
@@ -1728,6 +1730,18 @@ wheels = [
 ]
 
 [[package]]
+name = "outcome"
+version = "1.3.0.post0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/98/df/77698abfac98571e65ffeb0c1fba8ffd692ab8458d617a0eed7d9a8d38f2/outcome-1.3.0.post0.tar.gz", hash = "sha256:9dcf02e65f2971b80047b377468e72a268e15c0af3cf1238e6ff14f7f91143b8", size = 21060, upload-time = "2023-10-26T04:26:04.361Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/8b/5ab7257531a5d830fc8000c476e63c935488d74609b50f9384a643ec0a62/outcome-1.3.0.post0-py2.py3-none-any.whl", hash = "sha256:e771c5ce06d1415e356078d3bdd68523f284b4ce5419828922b6871e65eda82b", size = 10692, upload-time = "2023-10-26T04:26:02.532Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "26.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2672,6 +2686,15 @@ wheels = [
 ]
 
 [[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594, upload-time = "2021-05-16T22:03:42.897Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575, upload-time = "2021-05-16T22:03:41.177Z" },
+]
+
+[[package]]
 name = "sqlalchemy"
 version = "2.0.50"
 source = { registry = "https://pypi.org/simple" }
@@ -3144,6 +3167,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/e9/ff3c11097e37d4d899155c8fbdf7531063b6d15ee252b2e01ce0063f0218/tree_sitter_zig-1.1.2-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:d8f463c370cdd71025b8d40f90e21e8fc25c7394eb64ebd53b1e566d712a3a68", size = 81383, upload-time = "2024-12-22T01:27:34.532Z" },
     { url = "https://files.pythonhosted.org/packages/ab/5c/f5fb2ce355bbd381e647b04e8b2078a4043e663b6df6145d87550d3c3fe5/tree_sitter_zig-1.1.2-cp39-abi3-win_amd64.whl", hash = "sha256:7b94f00a0e69231ac4ebf0aa763734b9b5637e0ff13634ebfe6d13fadece71e9", size = 65105, upload-time = "2024-12-22T01:27:37.21Z" },
     { url = "https://files.pythonhosted.org/packages/34/8d/c0a481cc7bba9d39c533dd3098463854b5d3c4e6134496d9d83cd1331e51/tree_sitter_zig-1.1.2-cp39-abi3-win_arm64.whl", hash = "sha256:88152ebeaeca1431a6fc943a8b391fee6f6a8058f17435015135157735061ddf", size = 63219, upload-time = "2024-12-22T01:27:38.348Z" },
+]
+
+[[package]]
+name = "trio"
+version = "0.33.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "cffi", marker = "implementation_name != 'pypy' and os_name == 'nt'" },
+    { name = "idna" },
+    { name = "outcome" },
+    { name = "sniffio" },
+    { name = "sortedcontainers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/b6/c744031c6f89b18b3f5f4f7338603ab381d740a7f45938c4607b2302481f/trio-0.33.0.tar.gz", hash = "sha256:a29b92b73f09d4b48ed249acd91073281a7f1063f09caba5dc70465b5c7aa970", size = 605109, upload-time = "2026-02-14T18:40:55.386Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1c/93/dab25dc87ac48da0fe0f6419e07d0bfd98799bed4e05e7b9e0f85a1a4b4b/trio-0.33.0-py3-none-any.whl", hash = "sha256:3bd5d87f781d9b0192d592aef28691f8951d6c2e41b7e1da4c25cde6c180ae9b", size = 510294, upload-time = "2026-02-14T18:40:53.313Z" },
 ]
 
 [[package]]

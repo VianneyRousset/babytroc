@@ -6,7 +6,7 @@ from redis.asyncio import Redis
 class Cache:
     """Base cache interface."""
 
-    async def get(self, key: str) -> bytes | None:
+    async def get(self, key: str) -> str | None:
         raise NotImplementedError
 
     async def set(self, key: str, value: str, ttl: int) -> None:
@@ -30,7 +30,7 @@ class Cache:
 class NullCache(Cache):
     """No-op cache for contexts that don't need caching (e.g. seed scripts)."""
 
-    async def get(self, key: str) -> bytes | None:
+    async def get(self, key: str) -> str | None:
         return None
 
     async def set(self, key: str, value: str, ttl: int) -> None:
@@ -55,8 +55,11 @@ class RedisCache(Cache):
     def __init__(self, redis: Redis) -> None:
         self._redis = redis
 
-    async def get(self, key: str) -> bytes | None:
-        return await self._redis.get(key)
+    async def get(self, key: str) -> str | None:
+        value = await self._redis.get(key)
+        if value is None:
+            return None
+        return value.decode() if isinstance(value, bytes) else value
 
     async def set(self, key: str, value: str, ttl: int) -> None:
         await self._redis.set(key, value, ex=ttl)
@@ -84,7 +87,7 @@ class RedisCache(Cache):
     ) -> str:
         cached = await self.get(key)
         if cached is not None:
-            return cached.decode()
+            return cached
         value = await factory()
         await self.set(key, value, ttl)
         return value

@@ -1,10 +1,10 @@
 import logging
 from collections.abc import Sequence
-from pathlib import Path
 from random import choice, randint, sample
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from tqdm import tqdm
+from trio import Path
 from wonderwords import RandomSentence, RandomWord
 
 from babytroc.domains.category.services import list_categories
@@ -54,7 +54,7 @@ async def upload_image(
 ) -> str:
     """Upload image."""
 
-    with fp.open(mode="rb") as f:
+    async with await fp.open(mode="rb") as f:
         image = await _upload_image(
             config=config,
             db=db,
@@ -133,7 +133,7 @@ async def populate_items(
         cat.slug for cat in categories if cat.parent_slug is not None
     ]
 
-    images_fp = list(images_dir.iterdir())
+    images_fp = list(await images_dir.iterdir())
 
     images = {}
 

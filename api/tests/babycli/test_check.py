@@ -44,7 +44,7 @@ async def test_check_postgres_failure():
     assert result is False
 
 
-def test_check_email_config_valid():
+async def test_check_email_config_valid():
     env = {
         "EMAIL_SERVER": "smtp.example.com",
         "EMAIL_PORT": "587",
@@ -55,7 +55,7 @@ def test_check_email_config_valid():
         "CONTACT_EMAIL": "contact@example.com",
     }
     with patch.dict("os.environ", env):
-        result = check_email_config()
+        result = await check_email_config()
     assert result is True
 
 

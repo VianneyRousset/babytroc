@@ -8,6 +8,7 @@ from tests.fixtures.database.infrastructure.admin import (
     drop_database,
 )
 from tests.fixtures.database.infrastructure.lifecycle import (
+    admin_database_url,
     database,
     database_sessionmaker,
     primary_database,
@@ -15,6 +16,7 @@ from tests.fixtures.database.infrastructure.lifecycle import (
 )
 
 __all__ = [
+    "admin_database_url",
     "create_database",
     "database",
     "database_sessionmaker",

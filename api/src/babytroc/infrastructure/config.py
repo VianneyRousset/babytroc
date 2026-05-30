@@ -161,7 +161,7 @@ class EmailConfig(NamedTuple):
     server: str
     port: int
     username: str
-    password: str
+    password: SecretStr
     from_email: str
     from_name: str
 
@@ -171,7 +171,7 @@ class EmailConfig(NamedTuple):
         server: str | None = None,
         port: int | None = None,
         username: str | None = None,
-        password: str | None = None,
+        password: SecretStr | str | None = None,
         from_email: str | None = None,
         from_name: str | None = None,
         test: bool | None = None,
@@ -190,6 +190,9 @@ class EmailConfig(NamedTuple):
             from_email = env["EMAIL_FROM_EMAIL"]
         if from_name is None:
             from_name = env["EMAIL_FROM_NAME"]
+
+        if isinstance(password, str):
+            password = SecretStr(password)
 
         return cls(
             server=server,

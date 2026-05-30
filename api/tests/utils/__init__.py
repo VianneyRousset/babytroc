@@ -162,7 +162,7 @@ class AsyncZip[*TP](
 
 
 @overload
-def azip(
+def azip[T0](
     it0: Iterable[T0] | AsyncIterable[T0],
     /,
     *,
@@ -171,7 +171,7 @@ def azip(
 
 
 @overload
-def azip(
+def azip[T0, T1](
     it0: Iterable[T0] | AsyncIterable[T0],
     it1: Iterable[T1] | AsyncIterable[T1],
     /,
@@ -181,7 +181,7 @@ def azip(
 
 
 @overload
-def azip(
+def azip[T0, T1, T2](
     it0: Iterable[T0] | AsyncIterable[T0],
     it1: Iterable[T1] | AsyncIterable[T1],
     it2: Iterable[T2] | AsyncIterable[T2],
@@ -192,7 +192,7 @@ def azip(
 
 
 @overload
-def azip(
+def azip[T0, T1, T2, T3](
     it0: Iterable[T0] | AsyncIterable[T0],
     it1: Iterable[T1] | AsyncIterable[T1],
     it2: Iterable[T2] | AsyncIterable[T2],
@@ -204,7 +204,7 @@ def azip(
 
 
 @overload
-def azip(
+def azip[T0, T1, T2, T3, T4](
     it0: Iterable[T0] | AsyncIterable[T0],
     it1: Iterable[T1] | AsyncIterable[T1],
     it2: Iterable[T2] | AsyncIterable[T2],

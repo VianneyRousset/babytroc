@@ -157,7 +157,7 @@ async def list_items(  # noqa: C901
 
     cached = await cache.get(cache_key) if use_cache else None  # type: ignore[union-attr]
     if cached is not None:
-        return _deserialize_list_result(cached.decode(), words=words)
+        return _deserialize_list_result(cached, words=words)
 
     # default empty query page options
     if page_options is None:

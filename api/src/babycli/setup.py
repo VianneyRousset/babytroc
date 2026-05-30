@@ -114,14 +114,18 @@ async def setup(
 
     # Email is sync
     print("  Step 5: Email")
-    email_ok = check_email_config()
+    email_ok = await check_email_config()
     if not email_ok and not check_only:
         print(_EMAIL_HINTS)
     results.append(email_ok)
 
     results.append(
         await _run_service_check(
-            "6", "Alembic Migrations", check_migrations, "", check_only,
+            "6",
+            "Alembic Migrations",
+            check_migrations,
+            "",
+            check_only,
         ),
     )
     if not results[-1] and not check_only:

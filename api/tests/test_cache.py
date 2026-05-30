@@ -27,7 +27,7 @@ class TestCache:
     async def test_set_and_get(self, cache):
         await cache.set("babytroc:test:key", '{"a": 1}', ttl=60)
         result = await cache.get("babytroc:test:key")
-        assert result == b'{"a": 1}'
+        assert result == '{"a": 1}'
 
     async def test_delete(self, cache):
         await cache.set("babytroc:test:del", "value", ttl=60)
@@ -49,7 +49,7 @@ class TestCache:
         await cache.delete_pattern("babytroc:test:pattern:*")
         assert await cache.get("babytroc:test:pattern:1") is None
         assert await cache.get("babytroc:test:pattern:2") is None
-        assert await cache.get("babytroc:test:other") == b"c"
+        assert await cache.get("babytroc:test:other") == "c"
 
     async def test_get_or_set_miss(self, cache):
         async def factory():
@@ -59,7 +59,7 @@ class TestCache:
             "babytroc:test:factory", ttl=60, factory=factory
         )
         assert result == '{"computed": true}'
-        assert await cache.get("babytroc:test:factory") == b'{"computed": true}'
+        assert await cache.get("babytroc:test:factory") == '{"computed": true}'
 
     async def test_get_or_set_hit(self, cache):
         await cache.set("babytroc:test:cached", '{"cached": true}', ttl=60)

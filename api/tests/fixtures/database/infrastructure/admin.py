@@ -15,17 +15,23 @@ from sqlalchemy.pool import NullPool
 async def create_database(
     url: URL,
     *,
+    admin_url: URL,
     encoding: str = "utf8",
     template: str | None = None,
 ) -> None:
-    """`CREATE DATABASE url.database TEMPLATE template`. Defaults to template1."""
+    """`CREATE DATABASE url.database TEMPLATE template`. Defaults to template1.
+
+    `admin_url` must point to an existing database (typically the cluster's
+    `postgres` admin db) — CREATE DATABASE cannot be issued from a connection
+    to a database that does not yet exist.
+    """
     database = url.database
     if database is None:
         msg = "url.database must be set"
         raise ValueError(msg)
 
     engine = create_async_engine(
-        url,
+        admin_url,
         isolation_level="AUTOCOMMIT",
         poolclass=NullPool,
     )
@@ -42,15 +48,15 @@ async def create_database(
         await engine.dispose()
 
 
-async def drop_database(url: URL) -> None:
-    """`DROP DATABASE url.database`."""
+async def drop_database(url: URL, *, admin_url: URL) -> None:
+    """`DROP DATABASE url.database` issued from `admin_url`."""
     database = url.database
     if database is None:
         msg = "url.database must be set"
         raise ValueError(msg)
 
     engine = create_async_engine(
-        url,
+        admin_url,
         isolation_level="AUTOCOMMIT",
         poolclass=NullPool,
     )

@@ -127,7 +127,7 @@ async def build_chain(
         spec = specs[name]
         url = _make_url(base_url, name=name, worker_id=worker_id)
         parent_db = urls[spec.parent].database if spec.parent else None
-        await create_database(url, template=parent_db)
+        await create_database(url, admin_url=base_url, template=parent_db)
 
         if spec.apply_alembic:
             loop = asyncio.get_running_loop()
@@ -142,8 +142,8 @@ async def build_chain(
     return urls
 
 
-async def teardown_chain(urls: dict[str, URL]) -> None:
+async def teardown_chain(urls: dict[str, URL], *, admin_url: URL) -> None:
     """Drop all chain DBs in reverse order. Errors on individual drops are swallowed."""
     for url in reversed(list(urls.values())):
         with contextlib.suppress(Exception):
-            await drop_database(url)
+            await drop_database(url, admin_url=admin_url)

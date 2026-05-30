@@ -7,7 +7,6 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig as EmailConnectionConfig
 from fastapi_mail import FastMail
-from pydantic import SecretStr
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import babytroc.domains
