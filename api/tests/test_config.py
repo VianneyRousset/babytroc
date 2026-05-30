@@ -7,6 +7,7 @@ from babytroc.infrastructure.config import (
     CapConfig,
     Config,
     ContactConfig,
+    MissingEnvironmentVariableError,
     RateLimitConfig,
 )
 
@@ -35,7 +36,10 @@ class TestContactConfig:
         assert cfg.rate_limit.window == timedelta(seconds=3600)
 
     def test_from_env_requires_email(self):
-        with patch.dict("os.environ", {}, clear=True), pytest.raises(KeyError):
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            pytest.raises(MissingEnvironmentVariableError),
+        ):
             ContactConfig.from_env()
 
 
@@ -53,7 +57,10 @@ class TestCapConfig:
         assert cfg.secret_key == "secret-xyz"
 
     def test_from_env_requires_all_vars(self):
-        with patch.dict("os.environ", {}, clear=True), pytest.raises(KeyError):
+        with (
+            patch.dict("os.environ", {}, clear=True),
+            pytest.raises(MissingEnvironmentVariableError),
+        ):
             CapConfig.from_env()
 
 
