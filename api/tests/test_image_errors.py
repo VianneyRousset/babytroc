@@ -23,4 +23,4 @@ def test_image_pixel_limit_error_uses_400():
 def test_invalid_image_error_uses_400():
     error = InvalidImageError()
     assert error.status_code == HTTPStatus.BAD_REQUEST
-    assert error.message
+    assert "invalid" in error.message.lower()
