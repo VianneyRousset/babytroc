@@ -43,14 +43,20 @@ run = "mypy stubs src tests"
 description = "Lint the code"
 depends = ["lint:*"]
 
-[tasks.ipython]
-description = "Run ipython"
-run = "ipython"
-
 [tasks.test]
 description = "Test the code"
-depends = ["deps", "deps-dev"]
-run = "pytest -n logical --dist loadscope --maxfail=1"
+depends = ["deps", "deps-dev", "check-test"]
+run = "pytest"
+
+[tasks.check]
+description = "Run health checks on external services"
+depends = ["deps"]
+run = "babycli check"
+
+[tasks.check-test]
+description = "Run health checks on external services for testing"
+depends = ["deps"]
+run = "babycli check --test"
 
 [tasks.build]
 description = "Build docker image"
