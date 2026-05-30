@@ -60,3 +60,14 @@ def test_generate_webp_variants_rejects_non_image():
 
     with pytest.raises(PIL.Image.UnidentifiedImageError):
         generate_webp_variants(fp)
+
+
+def test_configure_pillow_pixel_limit_sets_pil_global():
+    from babytroc.shared.image import configure_pillow_pixel_limit
+
+    original = PIL.Image.MAX_IMAGE_PIXELS
+    try:
+        configure_pillow_pixel_limit(12_345)
+        assert PIL.Image.MAX_IMAGE_PIXELS == 12_345
+    finally:
+        PIL.Image.MAX_IMAGE_PIXELS = original

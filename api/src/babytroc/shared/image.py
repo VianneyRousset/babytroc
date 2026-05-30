@@ -5,6 +5,11 @@ from typing import IO
 import PIL.Image
 
 
+def configure_pillow_pixel_limit(max_pixels: int) -> None:
+    """Set PIL's decompression-bomb cap (module-global PIL state)."""
+    PIL.Image.MAX_IMAGE_PIXELS = max_pixels
+
+
 def load_image(fp: IO[bytes]) -> PIL.Image.Image:
     return PIL.Image.open(fp)
 
