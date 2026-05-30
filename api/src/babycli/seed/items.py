@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections.abc import Sequence
 from random import choice, randint, sample
@@ -20,6 +21,7 @@ from babytroc.domains.region.services import list_regions
 from babytroc.domains.user.services import list_users
 from babytroc.infrastructure.cache_client import NullCache
 from babytroc.infrastructure.config import Config
+from babytroc.shared.image import configure_pillow_pixel_limit
 
 from .config import get_config
 
@@ -49,20 +51,21 @@ async def check_items(
 async def upload_image(
     db: AsyncSession,
     config: Config,
+    semaphore: asyncio.Semaphore,
     fp: Path,
     owner_id: int,
 ) -> str:
     """Upload image."""
 
-    async with await fp.open(mode="rb") as f:
-        image = await _upload_image(
-            config=config,
-            db=db,
-            owner_id=owner_id,
-            fp=f,
-        )
-
-        return image.name
+    data = await fp.read_bytes()
+    image = await _upload_image(
+        config=config,
+        db=db,
+        semaphore=semaphore,
+        owner_id=owner_id,
+        data=data,
+    )
+    return image.name
 
 
 def random_item_name() -> str:
@@ -126,6 +129,10 @@ async def populate_items(
     logger.debug("Populating items: started")
 
     config = get_config()
+    configure_pillow_pixel_limit(config.image.max_pixels)
+    semaphore = asyncio.Semaphore(
+        config.image.max_concurrent_processing_per_worker,
+    )
     users = await list_users(db)
     regions = await list_regions(db, _cache)
     categories = await list_categories(db, _cache)
@@ -146,6 +153,7 @@ async def populate_items(
             await upload_image(
                 db=db,
                 config=config,
+                semaphore=semaphore,
                 fp=fp,
                 owner_id=user.id,
             )
