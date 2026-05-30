@@ -31,11 +31,13 @@ _ws_transport.ASGIWebSocketAsyncNetworkStream.__aenter__ = _patched_aenter  # ty
 
 # Workaround for upstream httpx-ws bug: AsyncWebSocketSession._background_receive
 # in httpx_ws/_api.py catches the LOCAL httpx_ws.EndOfStream but not
-# anyio.EndOfStream. When the ASGI server-side queue closes during teardown,
-# anyio raises EndOfStream from the memory stream, which escapes the receive
-# loop and surfaces as an unhandled ExceptionGroup on aconnect_ws exit.
-# We wrap the bound method so that the additional exception class is treated
-# the same as the local one — no other semantics change.
+# anyio.EndOfStream. When the user calls websocket.close() it triggers
+# stream.aclose() → both queues close → background_receive's pending read
+# raises anyio.EndOfStream → escapes as ExceptionGroup on aconnect_ws exit
+# (e.g. in tests/test_auth.py::test_create_account).
+# We swallow the anyio.EndOfStream silently — the user has already initiated
+# close, so they don't need a WebSocketNetworkError event (that would race
+# with in-flight messages on _send_event and disrupt other concurrent reads).
 _original_background_receive = _ws_api.AsyncWebSocketSession._background_receive
 
 
@@ -43,14 +45,7 @@ async def _background_receive_catching_anyio_eos(self, max_bytes):
     try:
         await _original_background_receive(self, max_bytes)
     except anyio.EndOfStream:
-        # Same shape of cleanup as the original except clause for the local
-        # EndOfStream: signal the user-side that the stream is done.
-        # The _send_event may already be closed at this point — that's fine,
-        # the user-side has already moved on.
-        try:
-            await self._send_event.send(_ws_api.WebSocketNetworkError())
-        except anyio.ClosedResourceError:
-            pass
+        pass
 
 
 _ws_api.AsyncWebSocketSession._background_receive = (  # type: ignore[method-assign]
