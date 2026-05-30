@@ -13,7 +13,6 @@ from babytroc.infrastructure.image_processing import (
     init_image_processing_dependency,
 )
 
-
 SEMAPHORE_LIMIT = 2
 
 
