@@ -1,6 +1,6 @@
 """Baseline image seed — Alice and Bob's PBM item images."""
 
-from io import BytesIO
+import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,35 +24,40 @@ async def seed_baseline_images(db: AsyncSession, ctx: SeedContext) -> None:
     `ItemImage.name` ordering.
     """
     config = ctx.config
+    semaphore = asyncio.Semaphore(config.image.max_concurrent_processing_per_worker)
     alice = await get_user_by_email_private(db=db, email="alice@babytroc.ch")
     bob = await get_user_by_email_private(db=db, email="bob@babytroc.ch")
 
     await upload_image(
         config=config,
         db=db,
+        semaphore=semaphore,
         owner_id=alice.id,
-        fp=BytesIO(_ALICE_ITEMS_IMG),
+        data=_ALICE_ITEMS_IMG,
     )
 
     for _ in range(3):
         await upload_image(
             config=config,
             db=db,
+            semaphore=semaphore,
             owner_id=alice.id,
-            fp=BytesIO(_ALICE_NEW_ITEM_IMG),
+            data=_ALICE_NEW_ITEM_IMG,
         )
 
     for _ in range(2):
         await upload_image(
             config=config,
             db=db,
+            semaphore=semaphore,
             owner_id=alice.id,
-            fp=BytesIO(_ALICE_SPECIAL_ITEM_IMG),
+            data=_ALICE_SPECIAL_ITEM_IMG,
         )
 
     await upload_image(
         config=config,
         db=db,
+        semaphore=semaphore,
         owner_id=bob.id,
-        fp=BytesIO(_BOB_ITEMS_IMG),
+        data=_BOB_ITEMS_IMG,
     )

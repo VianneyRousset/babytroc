@@ -1,10 +1,17 @@
+import asyncio
 import uuid
-from typing import IO
+from io import BytesIO
 
+import PIL.Image
 from sqlalchemy import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from babytroc.domains.image.errors import (
+    ImagePixelLimitError,
+    ImageTooLargeError,
+    InvalidImageError,
+)
 from babytroc.domains.image.schemas.read import ItemImageRead
 from babytroc.domains.item.models.image import ItemImage
 from babytroc.domains.user.services.read import get_user
@@ -16,33 +23,45 @@ from babytroc.shared import image as image_utils
 async def upload_image(
     config: Config,
     db: AsyncSession,
+    semaphore: asyncio.Semaphore,
     *,
     owner_id: int,
-    fp: IO[bytes],
+    data: bytes,
 ) -> ItemImageRead:
-    """Upload a new item image. Generates 3 webp variants and stores in S3."""
+    """Upload a new item image. Generates webp variants and stores in S3."""
 
-    # Process image and generate webp variants
-    variants = image_utils.generate_webp_variants(fp)
+    if len(data) > config.image.max_upload_bytes:
+        raise ImageTooLargeError(
+            actual=len(data),
+            limit=config.image.max_upload_bytes,
+        )
 
-    # Generate a unique name
+    async with semaphore:
+        try:
+            variants = await asyncio.to_thread(
+                image_utils.generate_webp_variants,
+                BytesIO(data),
+            )
+        except PIL.Image.DecompressionBombError as error:
+            raise ImagePixelLimitError(config.image.max_pixels) from error
+        except (PIL.UnidentifiedImageError, OSError, SyntaxError) as error:
+            raise InvalidImageError() from error
+
     name = uuid.uuid4().hex
 
-    # Upload all variants to S3
     await storage.upload_image_variants(
         config=config.s3,
         name=name,
         variants=variants,
     )
 
-    # Create item image record in database
     stmt = (
         insert(ItemImage)
         .values(
             {
                 "name": name,
                 "owner_id": owner_id,
-            }
+            },
         )
         .returning(ItemImage)
     )
