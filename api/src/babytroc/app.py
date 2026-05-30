@@ -15,12 +15,14 @@ import babytroc.domains.item.handlers
 import babytroc.domains.loan.handlers
 import babytroc.domains.user.handlers  # noqa: F401
 from babytroc.shared.errors import ApiError
+from babytroc.shared.image import configure_pillow_pixel_limit
 
 from .infrastructure.cache import init_cache_dependency
 from .infrastructure.cache_client import RedisCache
 from .infrastructure.config import Config
 from .infrastructure.database import create_session_maker, init_db_session_dependency
 from .infrastructure.email import init_email_dependency
+from .infrastructure.image_processing import init_image_processing_dependency
 from .infrastructure.pubsub import init_broadcast_dependency
 from .infrastructure.redis import create_redis_client
 from .routers.v1 import router
@@ -69,6 +71,12 @@ def create_app(
     )
 
     app.state.config = config
+
+    # Image processing setup
+    configure_pillow_pixel_limit(config.image.max_pixels)
+    init_image_processing_dependency(
+        asyncio.Semaphore(config.image.max_concurrent_processing_per_worker),
+    )
 
     # database session maker
     pool_kwargs: dict = {}
