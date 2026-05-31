@@ -2,6 +2,7 @@
 !**/.gitkeep
 
 **/graphify
+**/.claude
 
 # Python
 **/__pycache__/
