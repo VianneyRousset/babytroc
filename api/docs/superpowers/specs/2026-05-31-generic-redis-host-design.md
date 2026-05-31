@@ -35,12 +35,12 @@ class RedisConfig(NamedTuple):
     password: SecretStr      # default SecretStr("")
 ```
 
-**Invariant** — enforced by a `_validate()` helper called from `from_env` and from any other constructor path:
+**Invariant** — enforced inside `from_env` (matching every other config class in this module; the raw `NamedTuple` constructor stays unvalidated to keep the codebase pattern uniform):
 
-- `scheme == "unix"` ⇒ `socket_path` is a non-empty string, `host` and `port` are `None`.
-- `scheme in {"redis", "rediss"}` ⇒ `host` is a non-empty string and `port` is a positive int, `socket_path` is `None`.
+- `scheme == "unix"` ⇒ `socket_path` is a non-empty string; `host` and `port` are forced to `None`.
+- `scheme in {"redis", "rediss"}` ⇒ `host` is a non-empty string and `port` is a positive int; `socket_path` is forced to `None`.
 
-Violation raises a `ValueError` (or a config-specific subclass) at startup, not on first connect.
+Violation raises a `ValueError` at startup, not on first connect.
 
 `password` is wrapped in `SecretStr` (matching `DatabaseConfig`) so it stays out of logs/reprs. `username` is a plain `str` defaulting to `""`; both empty values are treated as "no auth component."
 
@@ -153,8 +153,8 @@ All errors surface during `Config.from_env`, before the app starts serving reque
 - `REDIS_URL=redis://user:p%40ss@host:6379/0` populates `username="user"`, `password=SecretStr("p@ss")` (URL-decoded); `url` re-encodes correctly.
 - `from_env(db=7)` override produces the right URL for each of the three schemes (path vs. query).
 - Invalid scheme (`http://...`) raises a clear config error at `from_env` time.
-- Constructing `RedisConfig(scheme="unix", host="x", ...)` raises (invariant).
-- Constructing `RedisConfig(scheme="redis", host=None, ...)` raises (invariant).
+- `from_env` with `REDIS_URL=unix://` (no socket path) raises.
+- `from_env` with `REDIS_URL=redis:///0` (no host) raises.
 - `password` survives round-trip without leaking in `repr(config)` (sanity check on `SecretStr`).
 
 ## Migration / Rollout
