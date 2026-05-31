@@ -1,6 +1,7 @@
 import subprocess
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse, urlunparse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,7 +30,21 @@ def redact_secrets(key: str, value: str) -> str:
     upper = key.upper()
     if any(p in upper for p in _SECRET_PATTERNS):
         return "***"
-    return value
+    return _mask_url_userinfo(value)
+
+
+def _mask_url_userinfo(value: str) -> str:
+    if "://" not in value:
+        return value
+    try:
+        parsed = urlparse(value)
+    except ValueError:
+        return value
+    if not (parsed.username or parsed.password):
+        return value
+    host = parsed.hostname or ""
+    netloc = f"***@{host}:{parsed.port}" if parsed.port else f"***@{host}"
+    return urlunparse(parsed._replace(netloc=netloc))
 
 
 def confirm_prompt(msg: str) -> bool:
