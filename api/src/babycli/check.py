@@ -169,15 +169,21 @@ async def check_cap(*, test: bool | None = None) -> bool:
 async def check_all(*, test: bool | None = None):
     """Run all health checks."""
 
-    # skip email connection and migration is test env
-    results = [
-        await check_postgres(test=test),
-        await check_redis(test=test),
-        await check_s3(test=test),
-        (await check_email_connection(test=test)) if not test else True,
-        (await check_migrations(test=test)) if not test else True,
-        await check_cap(test=test),
-    ]
+    if test:
+        results = [
+            await check_postgres(test=test),
+            await check_redis(test=test),
+        ]
+    else:
+        results = [
+            await check_postgres(test=test),
+            await check_redis(test=test),
+            await check_s3(test=test),
+            await check_email_connection(test=test),
+            await check_migrations(test=test),
+            await check_cap(test=test),
+        ]
+
     if not all(results):
         sys.exit(1)
 
