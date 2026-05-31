@@ -433,7 +433,7 @@ class TestAuthTokenEdgeCases:
                 "sub": "1",
                 "validated": True,
             },
-            key="wrong-secret-key",
+            key="wrong-3dd39d6c716dcad69b64e1c9bac8a49d6756831b5db2c190",
             algorithm=app_config.auth.algorithm,
         )
         resp = await client.get(

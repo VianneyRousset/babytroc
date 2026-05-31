@@ -69,7 +69,9 @@ class TestRateLimitConfig:
         with patch.dict("os.environ", {}, clear=True):
             cfg = RateLimitConfig.from_env(
                 env_prefix="SIGNUP",
-                default_anon=3, default_auth=3, default_window_seconds=3600,
+                default_anon=3,
+                default_auth=3,
+                default_window_seconds=3600,
             )
         assert cfg.anon == 3
         assert cfg.auth == 3
@@ -84,7 +86,9 @@ class TestRateLimitConfig:
         with patch.dict("os.environ", env, clear=True):
             cfg = RateLimitConfig.from_env(
                 env_prefix="SIGNUP",
-                default_anon=3, default_auth=3, default_window_seconds=3600,
+                default_anon=3,
+                default_auth=3,
+                default_window_seconds=3600,
             )
         assert cfg.anon == 7
         assert cfg.auth == 11
@@ -96,35 +100,37 @@ class TestConfigRateLimits:
         # Drop all overrides so defaults flow through.
         env: dict = {}
         # Provide every required env var so Config.from_env can build.
-        env.update({
-            "POSTGRES_USER": "u",
-            "POSTGRES_PASSWORD": "p",
-            "POSTGRES_HOST": "h",
-            "POSTGRES_PORT": "5432",
-            "POSTGRES_DATABASE": "d",
-            "EMAIL_SERVER": "s",
-            "EMAIL_PORT": "25",
-            "EMAIL_USERNAME": "u",
-            "EMAIL_PASSWORD": "p",
-            "EMAIL_FROM_EMAIL": "a@b.c",
-            "EMAIL_FROM_NAME": "X",
-            "S3_ENDPOINT_URL": "http://s",
-            "S3_ACCESS_KEY": "a",
-            "S3_SECRET_KEY": "s",
-            "S3_BUCKET": "b",
-            "S3_PUBLIC_URL": "http://p",
-            "JWT_ALGORITHM": "HS256",
-            "JWT_SECRET_KEY": "k",
-            "JWT_REFRESH_TOKEN_DURATION_DAYS": "7",
-            "JWT_ACCESS_TOKEN_DURATION_MINUTES": "15",
-            "ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES": "15",
-            "HOST_NAME": "example.com",
-            "APP_NAME": "BabyTroc",
-            "CONTACT_EMAIL": "x@y.z",
-            "CAP_API_URL": "http://cap",
-            "CAP_SITE_KEY": "k",
-            "CAP_SECRET_KEY": "s",
-        })
+        env.update(
+            {
+                "POSTGRES_USER": "u",
+                "POSTGRES_PASSWORD": "p",
+                "POSTGRES_HOST": "h",
+                "POSTGRES_PORT": "5432",
+                "POSTGRES_DATABASE": "d",
+                "EMAIL_SERVER": "s",
+                "EMAIL_PORT": "25",
+                "EMAIL_USERNAME": "u",
+                "EMAIL_PASSWORD": "p",
+                "EMAIL_FROM_EMAIL": "a@b.c",
+                "EMAIL_FROM_NAME": "X",
+                "S3_ENDPOINT_URL": "http://s",
+                "S3_ACCESS_KEY": "a",
+                "S3_SECRET_KEY": "s",
+                "S3_BUCKET": "b",
+                "S3_PUBLIC_URL": "http://p",
+                "JWT_ALGORITHM": "HS256",
+                "JWT_SECRET_KEY": "1eb359a02dac0fbc41d227372ef2b2b49585ecc617d012d4",
+                "JWT_REFRESH_TOKEN_DURATION_DAYS": "7",
+                "JWT_ACCESS_TOKEN_DURATION_MINUTES": "15",
+                "ACCOUNT_PASSWORD_RESET_AUTHORIZATION_DURATION_MINUTES": "15",
+                "HOST_NAME": "example.com",
+                "APP_NAME": "BabyTroc",
+                "CONTACT_EMAIL": "x@y.z",
+                "CAP_API_URL": "http://cap",
+                "CAP_SITE_KEY": "k",
+                "CAP_SECRET_KEY": "s",
+            }
+        )
         with patch.dict("os.environ", env, clear=True):
             cfg = Config.from_env()
         assert cfg.signup.anon == 3
