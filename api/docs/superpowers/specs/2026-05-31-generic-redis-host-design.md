@@ -171,5 +171,8 @@ All errors surface during `Config.from_env`, before the app starts serving reque
 - `src/babytroc/infrastructure/redis.py` — `create_redis_client` simplification.
 - `src/babycli/config.py` — known-keys list.
 - `src/babycli/setup.py` — `_REDIS_HINTS` copy.
+- `src/babycli/_utils.py` — `redact_secrets` extended to mask userinfo in URL-shaped env values, since surfacing `REDIS_URL` in `babycli config show` would otherwise leak embedded passwords.
 - `tests/test_redis_config.py` — new test file.
+- `tests/test_create_redis_client.py` — new test file for the `create_redis_client` URL handoff.
+- `tests/babycli/test_redact_secrets.py` — new test file for the userinfo-masking behavior.
 - `CLAUDE.md` — env-var documentation.

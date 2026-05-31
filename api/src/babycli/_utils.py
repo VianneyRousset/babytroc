@@ -43,6 +43,8 @@ def _mask_url_userinfo(value: str) -> str:
     if not (parsed.username or parsed.password):
         return value
     host = parsed.hostname or ""
+    if host and ":" in host:
+        host = f"[{host}]"
     netloc = f"***@{host}:{parsed.port}" if parsed.port else f"***@{host}"
     return urlunparse(parsed._replace(netloc=netloc))
 

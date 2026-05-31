@@ -40,3 +40,9 @@ class TestRedactSecrets:
 
     def test_non_url_value_unchanged(self):
         assert redact_secrets("DELAY", "0.5") == "0.5"
+
+    def test_ipv6_host_keeps_brackets(self):
+        assert (
+            redact_secrets("REDIS_URL", "redis://:pw@[::1]:6379/0")
+            == "redis://***@[::1]:6379/0"
+        )
