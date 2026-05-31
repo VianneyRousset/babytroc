@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from collections.abc import Sequence
+from pathlib import Path as SyncPath
 from random import choice, randint, sample
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -121,10 +122,12 @@ def random_item_categories(categories: Sequence[str]) -> list[str]:
 
 async def populate_items(
     db: AsyncSession,
-    images_dir: Path,
+    images_dir: Path | SyncPath | str,
     count: int,
 ) -> None:
     """Populate items."""
+
+    images_dir = Path(images_dir)
 
     logger.debug("Populating items: started")
 

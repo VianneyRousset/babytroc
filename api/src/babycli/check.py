@@ -81,6 +81,7 @@ async def check_s3(*, test: bool | None = None) -> bool:
 
 
 async def check_email_connection(*, test: bool | None = None) -> bool:
+
     try:
         from fastapi_mail import ConnectionConfig as EmailConnectionConfig
         from fastapi_mail.connection import Connection
@@ -126,10 +127,6 @@ async def check_migrations(*, test: bool | None = None) -> bool:
         def _get_current_rev(conn: Connection) -> str | None:
             return MigrationContext.configure(conn).get_current_revision()
 
-        if test:
-            console_ok("Migrations — skipped in testing env")
-            return True
-
         config = DatabaseConfig.from_env(test=test)
         engine = create_async_engine(config.url)
         try:
@@ -171,12 +168,14 @@ async def check_cap(*, test: bool | None = None) -> bool:
 @check_app.default
 async def check_all(*, test: bool | None = None):
     """Run all health checks."""
+
+    # skip email connection and migration is test env
     results = [
         await check_postgres(test=test),
         await check_redis(test=test),
         await check_s3(test=test),
-        await check_email_connection(test=test),
-        await check_migrations(test=test),
+        (await check_email_connection(test=test)) if not test else True,
+        (await check_migrations(test=test)) if not test else True,
         await check_cap(test=test),
     ]
     if not all(results):
