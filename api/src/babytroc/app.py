@@ -1,7 +1,9 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+import redis.asyncio as redis_async
 from broadcaster import Broadcast
+from broadcaster.backends.redis import RedisBackend
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -93,8 +95,17 @@ def create_app(
     app.state.db_session_maker = db_session_maker
     init_db_session_dependency(db_session_maker)
 
-    # broadcaster
-    broadcast = Broadcast(config.pubsub.url)
+    # broadcaster — provide a custom redis connection with socket_timeout=None
+    # so the pubsub listener's blocking read() doesn't time out and crash the
+    # listener task during quiet periods. redis-py defaults socket_timeout to
+    # 5s; broadcaster's `Broadcast(url)` constructor uses that default via
+    # `redis.Redis.from_url(url)`. Once the listener crashes silently, all
+    # subsequent broadcasts on this worker are lost.
+    pubsub_redis = redis_async.Redis.from_url(
+        config.pubsub.url,
+        socket_timeout=None,
+    )
+    broadcast = Broadcast(backend=RedisBackend(conn=pubsub_redis))
     app.state.broadcast = broadcast
     init_broadcast_dependency(broadcast, channel_prefix=pubsub_channel_prefix)
 
