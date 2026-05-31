@@ -216,3 +216,31 @@ class TestRedisConfigValidation:
         with patch.dict("os.environ", env, clear=True):
             cfg = RedisConfig.from_env()
         assert "supersecret" not in repr(cfg)
+
+    def test_unix_url_with_relative_path_raises(self):
+        env = {"REDIS_URL": "unix://relative/path"}
+        with patch.dict("os.environ", env, clear=True), pytest.raises(
+            ValueError, match="absolute socket path"
+        ):
+            RedisConfig.from_env()
+
+    def test_unix_url_with_netloc_raises(self):
+        env = {"REDIS_URL": "unix://host:6379/var/run/redis.sock"}
+        with patch.dict("os.environ", env, clear=True), pytest.raises(
+            ValueError, match="absolute socket path"
+        ):
+            RedisConfig.from_env()
+
+    def test_redis_url_with_non_numeric_db_raises(self):
+        env = {"REDIS_URL": "redis://h:6379/abc"}
+        with patch.dict("os.environ", env, clear=True), pytest.raises(
+            ValueError, match="invalid db value"
+        ):
+            RedisConfig.from_env()
+
+    def test_unix_url_with_non_numeric_db_raises(self):
+        env = {"REDIS_URL": "unix:///tmp/r.sock?db=abc"}
+        with patch.dict("os.environ", env, clear=True), pytest.raises(
+            ValueError, match="invalid db value"
+        ):
+            RedisConfig.from_env()

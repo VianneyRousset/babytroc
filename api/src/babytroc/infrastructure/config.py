@@ -225,12 +225,15 @@ class RedisConfig(NamedTuple):
         password = unquote(parsed.password) if parsed.password else ""
 
         if scheme == "unix":
-            socket_path = parsed.path or ""
-            if not socket_path:
-                msg = "Redis unix URL requires a socket path"
+            if parsed.netloc != "" or not parsed.path.startswith("/"):
+                msg = (
+                    "Redis unix URL must have an absolute socket path "
+                    f"and no netloc, got {url_str!r}"
+                )
                 raise ValueError(msg)
+            socket_path = parsed.path
             db_values = parse_qs(parsed.query).get("db", ["0"])
-            db = int(db_values[0])
+            db = RedisConfig._parse_db(db_values[0])
             return scheme, None, None, socket_path, db, username, password
 
         host = parsed.hostname
@@ -239,8 +242,16 @@ class RedisConfig(NamedTuple):
             raise ValueError(msg)
         port = parsed.port if parsed.port is not None else 6379
         db_path = parsed.path.lstrip("/") if parsed.path else ""
-        db = int(db_path) if db_path else 0
+        db = RedisConfig._parse_db(db_path) if db_path else 0
         return scheme, host, port, None, db, username, password
+
+    @staticmethod
+    def _parse_db(db_str: str) -> int:
+        try:
+            return int(db_str)
+        except ValueError as e:
+            msg = f"Redis URL has invalid db value {db_str!r}"
+            raise ValueError(msg) from e
 
     @property
     def url(self) -> str:
