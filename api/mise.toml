@@ -46,7 +46,7 @@ depends = ["lint:*"]
 [tasks.test]
 description = "Test the code"
 depends = ["deps", "deps-dev", "check-test"]
-run = "pytest -n 1"
+run = "pytest"
 
 [tasks.check]
 description = "Run health checks on external services"

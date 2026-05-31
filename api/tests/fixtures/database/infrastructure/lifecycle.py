@@ -15,7 +15,10 @@ from sqlalchemy.pool import NullPool
 from babytroc.infrastructure.cache import init_cache_dependency
 from babytroc.infrastructure.cache_client import NullCache
 from babytroc.infrastructure.config import Config, S3Config
-from babytroc.infrastructure.database import init_db_session_dependency
+from babytroc.infrastructure.database import (
+    get_session_maker,
+    init_db_session_dependency,
+)
 from babytroc.infrastructure.pubsub import init_broadcast_dependency
 from tests.fixtures.database.infrastructure.admin import (
     create_database,
@@ -135,10 +138,15 @@ async def database_sessionmaker(
     database: URL,
 ) -> AsyncGenerator[async_sessionmaker]:
     """Sessionmaker against the per-test DB; swaps it into the FastAPI app."""
+    # Save the current global session maker so tests that don't depend on
+    # `database_sessionmaker` (i.e. use only `client`) don't end up reusing
+    # a dropped per-test DB once this fixture tears down.
+    previous = get_session_maker()
     engine = create_async_engine(url=database, echo=False, poolclass=NullPool)
     maker = async_sessionmaker(bind=engine)
     init_db_session_dependency(maker)
     try:
         yield maker
     finally:
+        init_db_session_dependency(previous)
         await engine.dispose()
