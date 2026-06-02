@@ -36,8 +36,14 @@ _REDIS_HINTS = """\
     brew:   brew install redis
     docker: docker run -d --name redis -p 6379:6379 redis:7
 
-  Optional env vars (defaults: localhost:6379/0):
-    REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD"""
+  Optional env vars:
+    REDIS_URL (preferred):
+      redis://[user:pass@]host:port/db
+      rediss://[user:pass@]host:port/db   (TLS)
+      unix://[user:pass@]/path/to/sock?db=N
+
+    Or the TCP convenience fallback (defaults: localhost:6379/0):
+      REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_PASSWORD"""
 
 _S3_HINTS = """\
   Install MinIO (S3-compatible):

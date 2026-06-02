@@ -210,9 +210,9 @@ async def check_s3_cmd(*, test: bool | None = None):
 
 
 @check_app.command(name="email")
-def check_email_cmd(*, test: bool | None = None):
+async def check_email_cmd(*, test: bool | None = None):
     """Check email configuration."""
-    if not check_email_connection(test=test):
+    if not await check_email_connection(test=test):
         sys.exit(1)
 
 

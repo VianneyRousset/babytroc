@@ -39,6 +39,7 @@ REQUIRED_ENV_VARS = [
 
 OPTIONAL_ENV_VARS = [
     "DELAY",
+    "REDIS_URL",
     "REDIS_HOST",
     "REDIS_PORT",
     "REDIS_DB",

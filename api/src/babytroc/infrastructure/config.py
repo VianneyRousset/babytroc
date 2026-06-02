@@ -1,7 +1,8 @@
 import os
 from collections.abc import Mapping
 from datetime import timedelta
-from typing import NamedTuple, Self
+from typing import Literal, NamedTuple, Self
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import sqlalchemy
 from pydantic import SecretStr
@@ -102,43 +103,172 @@ class DatabaseConfig(NamedTuple):
 
 
 class RedisConfig(NamedTuple):
-    host: str
-    port: int
+    scheme: Literal["redis", "rediss", "unix"]
+    host: str | None
+    port: int | None
+    socket_path: str | None
     db: int
-    password: str
+    username: str
+    password: SecretStr
 
     @classmethod
     def from_env(
         cls,
         *,
+        url: str | None = None,
+        scheme: Literal["redis", "rediss", "unix"] | None = None,
         host: str | None = None,
         port: int | None = None,
+        socket_path: str | None = None,
         db: int | None = None,
-        password: str | None = None,
+        username: str | None = None,
+        password: SecretStr | str | None = None,
         test: bool | None = None,
     ) -> Self:
         env = EnvironmentVariablesReader(test=test)
 
-        if host is None:
-            host = env.get("REDIS_HOST", default="localhost")
-        if port is None:
-            port = int(env.get("REDIS_PORT", default="6379"))
-        if db is None:
-            db = int(env.get("REDIS_DB", default="0"))
+        # 1. Source fields from explicit url arg, REDIS_URL, or discrete vars.
+        if url is None:
+            url = env.get("REDIS_URL")
+
+        parsed_scheme: Literal["redis", "rediss", "unix"]
+        parsed_host: str | None
+        parsed_port: int | None
+        parsed_socket_path: str | None
+        parsed_db: int
+        parsed_username: str
+        parsed_password: str
+
+        if url:
+            (
+                parsed_scheme,
+                parsed_host,
+                parsed_port,
+                parsed_socket_path,
+                parsed_db,
+                parsed_username,
+                parsed_password,
+            ) = cls._parse_url(url)
+        else:
+            parsed_scheme = "redis"
+            parsed_host = env.get("REDIS_HOST", default="localhost")
+            parsed_port = int(env.get("REDIS_PORT", default="6379"))
+            parsed_socket_path = None
+            parsed_db = int(env.get("REDIS_DB", default="0"))
+            parsed_username = ""
+            parsed_password = env.get("REDIS_PASSWORD", default="")
+
+        # 2. Per-field kwarg overrides win over both URL and discrete vars.
+        final_scheme = scheme if scheme is not None else parsed_scheme
+        final_host = host if host is not None else parsed_host
+        final_port = port if port is not None else parsed_port
+        final_socket_path = (
+            socket_path if socket_path is not None else parsed_socket_path
+        )
+        final_db = db if db is not None else parsed_db
+        final_username = username if username is not None else parsed_username
         if password is None:
-            password = env.get("REDIS_PASSWORD", "")
+            final_password = SecretStr(parsed_password)
+        elif isinstance(password, str):
+            final_password = SecretStr(password)
+        else:
+            final_password = password
+
+        # 3. Validate scheme-specific invariants.
+        if final_scheme == "unix":
+            if not final_socket_path:
+                msg = "Redis unix scheme requires a socket path"
+                raise ValueError(msg)
+            final_host = None
+            final_port = None
+        else:
+            if not final_host:
+                msg = f"Redis {final_scheme} scheme requires a host"
+                raise ValueError(msg)
+            if final_port is None or final_port <= 0:
+                msg = f"Redis {final_scheme} scheme requires a positive port"
+                raise ValueError(msg)
+            final_socket_path = None
 
         return cls(
-            host=host,
-            port=port,
-            db=db,
-            password=password,
+            scheme=final_scheme,
+            host=final_host,
+            port=final_port,
+            socket_path=final_socket_path,
+            db=final_db,
+            username=final_username,
+            password=final_password,
         )
+
+    @staticmethod
+    def _parse_url(
+        url_str: str,
+    ) -> tuple[
+        Literal["redis", "rediss", "unix"],
+        str | None,
+        int | None,
+        str | None,
+        int,
+        str,
+        str,
+    ]:
+        parsed = urlparse(url_str)
+        if parsed.scheme not in ("redis", "rediss", "unix"):
+            msg = (
+                f"Unsupported Redis URL scheme {parsed.scheme!r}; "
+                "expected one of: redis, rediss, unix"
+            )
+            raise ValueError(msg)
+        scheme: Literal["redis", "rediss", "unix"] = parsed.scheme  # type: ignore[assignment]
+
+        username = unquote(parsed.username) if parsed.username else ""
+        password = unquote(parsed.password) if parsed.password else ""
+
+        if scheme == "unix":
+            if parsed.netloc != "" or not parsed.path.startswith("/"):
+                msg = (
+                    "Redis unix URL must have an absolute socket path "
+                    f"and no netloc, got {url_str!r}"
+                )
+                raise ValueError(msg)
+            socket_path = parsed.path
+            db_values = parse_qs(parsed.query).get("db", ["0"])
+            db = RedisConfig._parse_db(db_values[0])
+            return scheme, None, None, socket_path, db, username, password
+
+        host = parsed.hostname
+        if not host:
+            msg = f"Redis {scheme} URL requires a host"
+            raise ValueError(msg)
+        port = parsed.port if parsed.port is not None else 6379
+        db_path = parsed.path.lstrip("/") if parsed.path else ""
+        db = RedisConfig._parse_db(db_path) if db_path else 0
+        return scheme, host, port, None, db, username, password
+
+    @staticmethod
+    def _parse_db(db_str: str) -> int:
+        try:
+            return int(db_str)
+        except ValueError as e:
+            msg = f"Redis URL has invalid db value {db_str!r}"
+            raise ValueError(msg) from e
 
     @property
     def url(self) -> str:
-        auth = f":{self.password}@" if self.password else ""
-        return f"redis://{auth}{self.host}:{self.port}/{self.db}"
+        user = self.username
+        pwd = self.password.get_secret_value()
+        if user and pwd:
+            auth = f"{quote(user, safe='')}:{quote(pwd, safe='')}@"
+        elif pwd:
+            auth = f":{quote(pwd, safe='')}@"
+        elif user:
+            auth = f"{quote(user, safe='')}@"
+        else:
+            auth = ""
+
+        if self.scheme == "unix":
+            return f"unix://{auth}{self.socket_path}?db={self.db}"
+        return f"{self.scheme}://{auth}{self.host}:{self.port}/{self.db}"
 
 
 class PubsubConfig(NamedTuple):
