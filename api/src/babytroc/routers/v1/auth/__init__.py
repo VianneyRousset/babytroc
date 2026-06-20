@@ -10,6 +10,7 @@ from .reset import (
     create_account_password_reset_authorization,
 )
 from .router import router
+from .session import get_auth_session
 from .validation import validate_user_account
 from .verification import (
     oauth2_scheme,
@@ -26,6 +27,7 @@ __all__ = [
     "create_account_password_reset_authorization",
     "create_user",
     "get_account_availability",
+    "get_auth_session",
     "login",
     "logout",
     "maybe_client_id_annotation",
