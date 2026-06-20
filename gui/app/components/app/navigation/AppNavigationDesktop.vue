@@ -2,6 +2,7 @@
 const { appSectionUrls, activeAppSection } = useNavigation();
 
 const { hot } = useChats();
+const { loggedIn } = useAuth();
 
 const { narrowWindow } = useNarrowWindow();
 
@@ -12,11 +13,20 @@ type ClassSpecifications = {
 	class?: Record<string, boolean>;
 };
 
-const tabs = computed<Array<ClassSpecifications>>(() => [
-	{ section: "explore", name: "Explorer" },
-	{ section: "saved", name: "Favorits" },
-	{ section: "chats", name: "Chats", badge: unref(hot) },
-]);
+const tabs = computed<Array<ClassSpecifications>>(() => {
+
+  if (unref(loggedIn) === true)
+    return [
+      { section: "explore", name: "Explorer" },
+      { section: "saved", name: "Favorits" },
+      { section: "chats", name: "Chats", badge: unref(hot) },
+      { section: "newitem", name: "Partager un objet", target: "/me/items/new", class: {"highlight": true} },
+    ]
+
+  return [
+    { section: "explore", name: "Explorer" },
+  ]
+});
 </script>
 
 <template>
@@ -114,6 +124,11 @@ nav {
 
       &[active="true"] {
         background: $bg-page;
+      }
+
+      &.highlight {
+        color: $primary-500;
+        font-weight: 700;
       }
 
       .badge {
