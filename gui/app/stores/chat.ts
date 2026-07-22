@@ -72,7 +72,10 @@ export const useLiveChatStore = defineStore("live-chat", () => {
 		);
 	}
 
-	prefetchMessages();
+	const { loggedIn } = useAuth();
+	watch(loggedIn, (_loggedIn) => {
+		if (_loggedIn === true) prefetchMessages();
+	});
 
 	function reset() {
 		unref(messages).clear();

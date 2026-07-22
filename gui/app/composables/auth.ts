@@ -1,6 +1,5 @@
 import type { DataState, UseQueryOptions, UseQueryReturn } from "@pinia/colada";
 import { useQuery } from "@pinia/colada";
-import { StatusCodes } from "http-status-codes";
 import type { RouteLocationGeneric } from "vue-router";
 
 type UseAuthOptions = {
@@ -17,17 +16,9 @@ export function useAuth(options?: UseAuthOptions) {
 		fallbackRoute: undefined,
 	};
 
-	const { data: me, status: meStatus } = useQuery({
-		key: () => ["auth"],
-		query: () =>
-			$api("/v1/me", {
-				onResponse: async (ctx) => {
-					if (ctx.response.status === StatusCodes.UNAUTHORIZED) {
-						ctx.error = undefined;
-						ctx.response = new Response("null");
-					}
-				},
-			}),
+	const { data: session, status: sessionStatus } = useQuery({
+		key: () => ["auth", "session"],
+		query: () => $api("/v1/auth/session"),
 		refetchOnMount: false,
 	});
 
@@ -42,7 +33,9 @@ export function useAuth(options?: UseAuthOptions) {
 	);
 
 	const loggedIn = computed(() =>
-		unref(meStatus) === "pending" ? undefined : unref(me) != null,
+		unref(sessionStatus) === "pending"
+			? undefined
+			: unref(session)?.logged_in === true,
 	);
 
 	// if fallbackRoute is given, navigate to it when logged out

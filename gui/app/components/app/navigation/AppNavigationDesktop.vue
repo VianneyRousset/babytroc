@@ -14,18 +14,20 @@ type ClassSpecifications = {
 };
 
 const tabs = computed<Array<ClassSpecifications>>(() => {
+	if (unref(loggedIn) === true)
+		return [
+			{ section: "explore", name: "Explorer" },
+			{ section: "saved", name: "Favorits" },
+			{ section: "chats", name: "Chats", badge: unref(hot) },
+			{
+				section: "newitem",
+				name: "Partager un objet",
+				target: "/me/items/new",
+				class: { highlight: true },
+			},
+		];
 
-  if (unref(loggedIn) === true)
-    return [
-      { section: "explore", name: "Explorer" },
-      { section: "saved", name: "Favorits" },
-      { section: "chats", name: "Chats", badge: unref(hot) },
-      { section: "newitem", name: "Partager un objet", target: "/me/items/new", class: {"highlight": true} },
-    ]
-
-  return [
-    { section: "explore", name: "Explorer" },
-  ]
+	return [{ section: "explore", name: "Explorer" }];
 });
 </script>
 

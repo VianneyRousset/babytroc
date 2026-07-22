@@ -91,6 +91,11 @@ export default defineNuxtConfig({
 			htmlAttrs: {
 				lang: "fr",
 			},
+      link: [
+				{ rel: 'icon', type: 'image/png', sizes: '48x48', href: '/favicon-48x48.png' },
+				{ rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192x192.png' },
+				{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
 			meta: [
 				// set mobile status bar color
 				{ name: "theme-color", content: "#ffffff" },
