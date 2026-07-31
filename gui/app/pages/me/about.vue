@@ -13,9 +13,9 @@ definePageMeta({
   >
     <main>
       <PanelBanner>
-        <h1 class="logo">
-          Babytroc
-        </h1>
+        <template #icon>
+          <img src="/babytroc-logo-name.svg" />
+        </template>
         <p class="tagline">
           La plateforme lausannoise de prêt d'articles pour enfants entre particuliers.
         </p>
@@ -75,14 +75,6 @@ main {
   padding: $space-4;
 }
 
-.logo {
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 200;
-  font-size: 3rem;
-  margin: 0;
-  text-align: center;
-}
-
 .tagline {
   text-align: center;
   color: $text-secondary;
@@ -128,33 +120,17 @@ main {
   li {
     color: $text-secondary;
     line-height: 1.6;
+    &::marker {
+      font-weight: bold;
+    }
   }
 
   ol, ul {
     margin: 0;
-    padding-left: 0;
-    list-style: none;
-    @include flex-column;
+    padding-left: 2em;
+    display: table;
+
     gap: $space-2;
-  }
-
-  ol {
-    counter-reset: steps;
-
-    li {
-      counter-increment: steps;
-
-      &::before {
-        content: counter(steps) ". ";
-        font-weight: 600;
-        color: $text-tertiary;
-      }
-    }
-  }
-
-  ul li::before {
-    content: "\2022\00a0";
-    color: $text-tertiary;
   }
 }
 </style>

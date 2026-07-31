@@ -179,7 +179,7 @@ function toggle(regionId: number) {
       }
 
       &.active {
-        fill: $primary-400;
+        fill: $primary-500;
       }
     }
 

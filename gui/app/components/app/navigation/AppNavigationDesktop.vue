@@ -38,7 +38,7 @@ const tabs = computed<Array<ClassSpecifications>>(() => {
         class="logo"
         to="/"
       >
-        Babytroc
+        <img src="/babytroc-logo-small-name.svg" />
       </NuxtLink>
       <ul>
         <li
@@ -82,6 +82,11 @@ nav {
   background: $bg-surface;
   border-bottom: 1px solid $divider;
   padding: 0 $space-6;
+
+  img {
+    display: block;
+    height: 36px;
+  }
 
   *[active="true"] {
     font-weight: 600;

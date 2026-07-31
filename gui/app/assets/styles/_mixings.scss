@@ -65,7 +65,7 @@
 }
 
 @mixin touch-feedback {
-  &:active {
+  &:active:not(.disabled) {
     opacity: 0.7;
     transition: opacity 60ms ease;
   }

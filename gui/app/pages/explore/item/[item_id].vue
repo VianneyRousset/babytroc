@@ -146,6 +146,7 @@ async function submitUnsave() {
             </div>
             <ItemInfoBox :item="item" />
             <ItemOwner
+              v-if="!item.owned"
               :item="item"
               :target="userId => `/explore/user/${userId}`"
             />
@@ -155,7 +156,10 @@ async function submitUnsave() {
               :item="item"
             />
             <ItemRegionsMap :item="item" />
-            <ItemRequestButton :item="item" />
+            <ItemRequestButton
+              v-if="!item.owned"
+              :item="item"
+            />
           </Panel>
 
           <!-- Edit -->
@@ -254,11 +258,15 @@ async function submitUnsave() {
               <div class="v">
                 <ItemInfoBox :item="item" />
                 <ItemOwner
+                  v-if="!item.owned"
                   :item="item"
                   :chevron="true"
                   :target="userId => `/explore/user/${userId}`"
                 />
-                <ItemRequestButton :item="item" />
+                <ItemRequestButton
+                  v-if="!item.owned"
+                  :item="item"
+                />
               </div>
             </section>
             <section>
@@ -328,7 +336,8 @@ async function submitUnsave() {
 
   .name-description {
     h1 {
-      margin: 0;
+      color: $primary-700;
+      margin-bottom: 0.3em;
       font-size: 1.75rem;
       letter-spacing: -0.02em;
     }

@@ -77,7 +77,7 @@ const radixChecked = computed<boolean | "indeterminate">({
     .CheckboxIndicator {
       @include flex-row-center;
       border-radius: 0.2em;
-      background: $primary-400;
+      background: $primary-600;
       width: 100%;
       height: 100%;
       color: white;

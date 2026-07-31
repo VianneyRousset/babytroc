@@ -201,9 +201,7 @@ input {
 .SliderTrack {
   position: relative;
   flex-grow: 1;
-  background-color: grey;
-
-  background-color: $neutral-100;
+  background-color: $neutral-200;
   height: 0.2em;
   border-radius: 0.02em;
 }
@@ -211,7 +209,7 @@ input {
 .SliderRange {
   position: absolute;
   height: 100%;
-  background-color: $primary-400;
+  background-color: $primary-500;
 }
 
 .SliderThumb {

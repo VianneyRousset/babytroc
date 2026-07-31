@@ -94,7 +94,7 @@ const displayedMax = computed(() => formatMonth(range.value[1]));
     white-space: nowrap;
     color: white;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-    background: $primary-text-safe;
+    background: $primary-500;
     border-radius: $radius-sm;
     padding: 0.3em 0.6em;
     }

@@ -53,7 +53,7 @@ svg {
   }
 
   .region.active {
-    fill: $primary-400;
+    fill: $primary-600;
   }
 
   .wireframe {

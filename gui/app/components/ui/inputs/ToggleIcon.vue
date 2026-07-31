@@ -58,7 +58,7 @@ const NuxtLink = resolveComponent("NuxtLink");
 
   &[active=true] {
     :deep(svg) {
-      stroke: $primary-400;
+      stroke: $primary-500;
     }
   }
 

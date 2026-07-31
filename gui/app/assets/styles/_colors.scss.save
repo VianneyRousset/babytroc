@@ -1,0 +1,73 @@
+$primary-50: #f4f7fb;
+$primary-100: #e8eef6;
+$primary-200: #cbdaec;
+$primary-300: #9ebbdb;
+$primary-400: #6998c7;
+$primary-500: #467bb1;
+$primary-600: #356194;
+$primary-700: #2c4e78;
+$primary-800: #294669;
+$primary-900: #253a55;
+$primary-950: #192538;
+
+$neutral-50: #f6f7f6;
+$neutral-100: #eef0ee;
+$neutral-200: #daddda;
+$neutral-300: #bac0b9;
+$neutral-400: #939e92;
+$neutral-500: #768275;
+$neutral-600: #5f6a5f;
+$neutral-700: #4d574d;
+$neutral-800: #424a42;
+$neutral-900: #3a403a;
+$neutral-950: #272a27;
+
+$red-50: #fff1f1;
+$red-100: #ffdfdf;
+$red-200: #ffc5c5;
+$red-300: #ff9c9c;
+$red-400: #ff6363;
+$red-500: #ff3333;
+$red-600: #ef1313;
+$red-700: #c90c0c;
+$red-800: #a40e0e;
+$red-900: #891313;
+$red-950: #4b0404;
+
+$blue-50: #f2f8fd;
+$blue-100: #e4effa;
+$blue-200: #c3e0f4;
+$blue-300: #8ec6eb;
+$blue-400: #52a9de;
+$blue-500: #3396d3;
+$blue-600: #1d71ac;
+$blue-700: #195b8b;
+$blue-800: #184d74;
+$blue-900: #194161;
+$blue-950: #112a40;
+
+// Semantic colors for Airbnb-style redesign
+$text-primary: #1a1a1a;
+$text-secondary: #6a6a6a;
+$text-tertiary: #767676;
+
+$bg-page: #f7f7f7;
+$bg-surface: #fff;
+$bg-tag: $neutral-200;
+$bg-tag-active: #1a1a1a;
+
+$text-tag: #444;
+$text-tag-active: #fff;
+
+$divider: #ebebeb;
+
+$primary-text-safe: $primary-700;
+
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+$bg-bubble-me: $primary-text-safe;
+$bg-bubble-theirs: #f0f0f0;
+
+$border-default: #ddd;

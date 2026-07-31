@@ -59,7 +59,7 @@ const { regions } = useRegionsList();
   }
 
   li[active="true"] {
-    color: $primary-900;
+    color: $primary-700;
   }
 
   &.editable {

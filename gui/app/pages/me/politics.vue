@@ -138,24 +138,17 @@ main {
   li {
     color: $text-secondary;
     line-height: 1.6;
+    &::marker {
+      font-weight: bold;
+    }
   }
 
-  ul {
+  ol, ul {
     margin: 0;
-    padding-left: 0;
-    list-style: none;
-    @include flex-column;
+    padding-left: 2em;
+    display: table;
+
     gap: $space-2;
-  }
-
-  ul li::before {
-    content: "\2022\00a0";
-    color: $text-tertiary;
-  }
-
-  li > ul {
-    margin-top: $space-2;
-    padding-left: $space-4;
   }
 }
 </style>
