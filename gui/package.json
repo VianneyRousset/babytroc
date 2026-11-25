@@ -61,7 +61,7 @@
 	},
 	"allowScripts": {
 		"vue-demi@0.14.10": true,
-		"@parcel/watcher@2.5.6": true,
-		"esbuild@0.28.2": true
+		"esbuild@0.28.2": true,
+		"@parcel/watcher@2.6.0": true
 	}
 }
