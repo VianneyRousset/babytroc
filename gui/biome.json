@@ -1,6 +1,11 @@
 {
 	"files": {
-		"includes": ["app/**", "!app/components.d.ts", "!**/.nuxt"]
+		"includes": [
+			"app/**",
+			"!app/components.d.ts",
+			"!**/.nuxt",
+			"nuxt.config.ts"
+		]
 	},
 	"linter": {
 		"rules": {

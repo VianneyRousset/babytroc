@@ -11,14 +11,8 @@ export function useLogout() {
 		},
 
 		onSettled: () => {
-			queryCache.invalidateQueries({ key: ["auth"], exact: true });
-
-			queryCache
-				.getEntries({
-					predicate: (entry) => entry.key.includes("me"),
-				})
-				.map(queryCache.remove);
-
+			queryCache.invalidateQueries({ key: ["auth"] });
+			queryCache.invalidateQueries({ key: ["me"] });
 			liveChatStore.reset();
 		},
 

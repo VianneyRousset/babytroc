@@ -55,6 +55,8 @@ export default defineNuxtConfig({
 		"@pinia/colada-nuxt",
 		"floating-vue/nuxt",
 		"@nuxtjs/device",
+		"@nuxtjs/tailwindcss",
+		"shadcn-nuxt",
 	],
 
 	// disable server-side rendering
@@ -90,14 +92,28 @@ export default defineNuxtConfig({
 			title: "Babytroc", // default fallback title
 			htmlAttrs: {
 				lang: "fr",
-			},	
-      link: [
-      	{ rel: 'manifest', href: "/manifest.json" },
-      	{ rel: 'apple-touch-icon', sizes: '128x128', href: '/favicon-128x128.png' },
-				{ rel: 'icon', type: 'image/png', sizes: '48x48', href: '/favicon-48x48.png' },
-				{ rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192x192.png' },
-				{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      ],
+			},
+			link: [
+				{ rel: "manifest", href: "/manifest.json" },
+				{
+					rel: "apple-touch-icon",
+					sizes: "128x128",
+					href: "/favicon-128x128.png",
+				},
+				{
+					rel: "icon",
+					type: "image/png",
+					sizes: "48x48",
+					href: "/favicon-48x48.png",
+				},
+				{
+					rel: "icon",
+					type: "image/png",
+					sizes: "192x192",
+					href: "/favicon-192x192.png",
+				},
+				{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+			],
 			meta: [
 				// set mobile status bar color
 				{ name: "theme-color", content: "#ffffff" },
@@ -205,5 +221,13 @@ export default defineNuxtConfig({
 	pinia: {
 		// accept nested store directories
 		storesDirs: ["app/stores/**"],
+	},
+
+	shadcn: {
+		// prefix for all the imported component
+		prefix: "Shadcn",
+
+		//Directory that the component lives in.
+		componentDir: "./components/shadcn",
 	},
 });

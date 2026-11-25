@@ -3,7 +3,7 @@ _.file = ".env.yaml"
 _.python.venv = { path = ".venv", create = true }
 
 [tools]
-python = { version = "3.13", virtualenv = ".venv" }
+python = { version = "3.13" }
 ruff = "latest"
 uv = "latest"
 
