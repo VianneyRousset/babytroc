@@ -26,7 +26,7 @@ const open = ref(false);
     <template #trigger>
       <div
         v-if="loggedIn === true && me"
-        class="AccountMenuTrigger"
+        class="AccountMenuTrigger user"
         :open="open"
       >
         <UserAvatar
@@ -83,10 +83,13 @@ const open = ref(false);
   font-size: 0.9rem;
   font-weight: 500;
   color: $text-secondary;
-  padding: $space-1 $space-3;
 
   cursor: pointer;
   transition: background 150ms ease-out;
+
+  &.user {
+    padding: $space-1 $space-3;
+  }
 
   @include hover-only {
     background: $bg-page;
