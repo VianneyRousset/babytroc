@@ -7,7 +7,7 @@ const props = defineProps<{
 const { msgPlacement, columns } = toRefs(props);
 
 const regions = defineModel<Set<number>>("regions", {
-	default: new Set<number>(),
+	default: () => new Set<number>(),
 });
 const valid = defineModel<boolean>("valid", { default: false });
 const touched = defineModel<boolean>("touched", { default: false });

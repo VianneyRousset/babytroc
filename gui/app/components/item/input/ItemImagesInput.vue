@@ -11,7 +11,7 @@ const props = withDefaults(
 
 const { msgPlacement } = toRefs(props);
 
-const images = defineModel<Array<string>>("images", { default: [] });
+const images = defineModel<Array<string>>("images", { default: () => [] });
 const valid = defineModel<boolean>("valid", { default: false });
 const touched = defineModel<boolean>("touched", { default: false });
 

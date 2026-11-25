@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { X } from "lucide-vue-next";
 
-const images = defineModel<Array<StudioImage>>({ default: [] });
+const images = defineModel<Array<StudioImage>>({ default: () => [] });
 
 const emit = defineEmits(["exit", "done"]);
 const {
