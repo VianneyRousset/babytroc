@@ -22,7 +22,6 @@ dependencies = [
   "asyncpg-listen>=0.0.9",
   "asgi-lifespan==2.*",
   "aiohttp-asgi-connector>=1.1.0",
-  "graphifyy>=0.4.1",
   "aioboto3>=13.0.0",
   "botocore>=1.40.61",
   "trio>=0.33.0",
