@@ -7,7 +7,6 @@ from babytroc.shared.errors import ApiError, NotFoundError
 class ChatError(ApiError):
     """Exception related to a chat."""
 
-    pass
 
 
 class ChatNotFoundError(ChatError, NotFoundError):
@@ -23,7 +22,6 @@ class ChatNotFoundError(ChatError, NotFoundError):
 class ChatMessageError(ApiError):
     """Exception related to a chat message."""
 
-    pass
 
 
 class ChatMessageNotFoundError(ChatMessageError, NotFoundError):

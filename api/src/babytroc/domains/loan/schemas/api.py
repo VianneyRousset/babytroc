@@ -52,7 +52,7 @@ class LoanRequestApiQuery(ApiQueryBase, LoanRequestQueryPageCursor):
         )
 
     @property
-    def loan_request_query_filter_states(self) -> None | set[LoanRequestState]:
+    def loan_request_query_filter_states(self) -> set[LoanRequestState] | None:
         if self.active is None:
             return None
 

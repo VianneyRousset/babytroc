@@ -205,7 +205,7 @@ async def _insert_items(
     # If an IntegrityError is raised, it means either:
     # 1. The owner does not exist
     # 2. Unexpected error
-    except IntegrityError as error:
+    except IntegrityError:
         # raises UserNotFoundError if any owner does not exist (1.)
         await get_many_users(
             db=db,
@@ -213,7 +213,7 @@ async def _insert_items(
         )
 
         # unexpected error (2.)
-        raise error
+        raise
 
     # Check the number of inserted items matches the number of item creates
     if len(item_ids) != len(items):
@@ -256,7 +256,7 @@ async def _insert_item_region_associations(
     # 1. Some regions do not exist
     # 2. Some items do not exist
     # 3. Unexpected error
-    except IntegrityError as error:
+    except IntegrityError:
         # raise RegionNotFoundError if a region does not exist (1.)
         await get_many_regions(
             db=db,
@@ -270,7 +270,7 @@ async def _insert_item_region_associations(
         )
 
         # unexpected error (3.)
-        raise error
+        raise
 
     # Check the number of inserted associations matches the total number of
     # (item_id, region_id) tuples
@@ -331,7 +331,7 @@ async def _insert_item_image_associations(
     # 1. Some images do not exist
     # 2. Some items do not exist
     # 3. Unexpected error
-    except IntegrityError as error:
+    except IntegrityError:
         # raises ItemImageNotFound if an image does not exist (1.)
         await get_many_images(
             db=db, image_names={association.image_name for association in associations}
@@ -343,7 +343,7 @@ async def _insert_item_image_associations(
         )
 
         # unexpected error (3.)
-        raise error
+        raise
 
     # If the number of inserted associations does not match the number of given
     # associations, it means either:

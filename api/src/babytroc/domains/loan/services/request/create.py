@@ -125,7 +125,7 @@ async def create_many_loan_requests(
                 }
             ) from error
 
-        raise error
+        raise
 
     inserted_loan_requests = res.unique().scalars().all()
 

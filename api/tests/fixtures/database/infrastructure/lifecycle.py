@@ -14,7 +14,7 @@ from sqlalchemy.pool import NullPool
 
 from babytroc.infrastructure.cache import init_cache_dependency
 from babytroc.infrastructure.cache_client import NullCache
-from babytroc.infrastructure.config import Config, S3Config
+from babytroc.infrastructure.config import Config
 from babytroc.infrastructure.database import (
     get_session_maker,
     init_db_session_dependency,

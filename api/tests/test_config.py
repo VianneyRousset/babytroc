@@ -98,7 +98,7 @@ class TestRateLimitConfig:
 class TestConfigRateLimits:
     def test_config_has_per_endpoint_rate_limits(self):
         # Drop all overrides so defaults flow through.
-        env: dict = {}
+        env = {}
         # Provide every required env var so Config.from_env can build.
         env.update(
             {

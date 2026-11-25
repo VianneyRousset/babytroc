@@ -41,9 +41,8 @@ class UserPasswordUpdate(UserBase, UpdateBase):
     ) -> str:
         """Check containing lower and upper case characters."""
 
-        if isinstance(v, str):
-            if v.lower() == v or v.upper() == v:
-                msg = "The password must contain lowercase and uppercase letters."
-                raise ValueError(msg)
+        if isinstance(v, str) and (v.lower() == v or v.upper() == v):
+            msg = "The password must contain lowercase and uppercase letters."
+            raise ValueError(msg)
 
         return v

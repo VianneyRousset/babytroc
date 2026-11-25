@@ -14,3 +14,5 @@ class UserPrivateRead(UserBase, ReadBase):
     items_count: int
     stars_count: int
     likes_count: int
+    admin: bool
+    moderator: bool

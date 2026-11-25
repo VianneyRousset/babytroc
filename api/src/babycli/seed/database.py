@@ -19,7 +19,7 @@ class SharedSession(AbstractAsyncContextManager):
             bind=engine,
         )
         self.active_session = None
-        self.active_context: AsyncSession | None = None
+        self.active_context = None
         self.clients = 0
 
     async def __aenter__(self) -> AsyncSession:

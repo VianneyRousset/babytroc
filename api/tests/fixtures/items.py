@@ -106,60 +106,28 @@ async def bob_items_data(
 def alice_items_image_data() -> bytes:
     """Basic PBM image."""
 
-    return "\n".join(
-        [
-            "P1",
-            "3 3",
-            "101",
-            "101",
-            "010",
-        ]
-    ).encode()
+    return b"P1\n3 3\n101\n101\n010"
 
 
 @pytest.fixture(scope="session")
 def alice_new_item_image_data() -> bytes:
     """Basic PBM image."""
 
-    return "\n".join(
-        [
-            "P1",
-            "3 3",
-            "000",
-            "111",
-            "000",
-        ]
-    ).encode()
+    return b"P1\n3 3\n000\n111\n000"
 
 
 @pytest.fixture(scope="session")
 def alice_special_item_image_data() -> bytes:
     """Basic PBM image."""
 
-    return "\n".join(
-        [
-            "P1",
-            "3 3",
-            "101",
-            "111",
-            "010",
-        ]
-    ).encode()
+    return b"P1\n3 3\n101\n111\n010"
 
 
 @pytest.fixture(scope="session")
 def bob_items_image_data() -> bytes:
     """Basic PBM image."""
 
-    return "\n".join(
-        [
-            "P1",
-            "3 3",
-            "101",
-            "101",
-            "010",
-        ]
-    ).encode()
+    return b"P1\n3 3\n101\n101\n010"
 
 
 @pytest.fixture

@@ -7,7 +7,6 @@ from babytroc.shared.errors import ApiError, ConflictError, NotFoundError
 class ItemError(ApiError):
     """Exception related to an item."""
 
-    pass
 
 
 class ItemNotFoundError(ItemError, NotFoundError):
@@ -24,7 +23,6 @@ class ItemNotFoundError(ItemError, NotFoundError):
 class ItemLikeError(ApiError):
     """Exception related to a item like."""
 
-    pass
 
 
 class ItemLikeAlreadyExistsError(ItemLikeError, ConflictError):
@@ -49,7 +47,6 @@ class ItemLikeNotFoundError(ItemLikeError, NotFoundError):
 class ItemSaveError(ApiError):
     """Exception related to a item save."""
 
-    pass
 
 
 class ItemSaveAlreadyExistsError(ItemSaveError, ConflictError):

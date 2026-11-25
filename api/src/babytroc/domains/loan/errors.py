@@ -14,7 +14,6 @@ from babytroc.shared.errors import (
 class LoanError(ApiError):
     """Exception related to a loan."""
 
-    pass
 
 
 class LoanNotFoundError(LoanError, NotFoundError):
@@ -37,7 +36,6 @@ class LoanAlreadyInactiveError(LoanError, ConflictError):
 class LoanRequestError(ApiError):
     """Exception related to a loan request."""
 
-    pass
 
 
 class LoanRequestNotFoundError(LoanRequestError, NotFoundError):

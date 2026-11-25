@@ -84,6 +84,18 @@ class User(IntegerIdentifier, CreationDate, Base):
         server_default="false",
     )
 
+    admin: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+    )
+
+    moderator: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default="false",
+    )
+
     _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
     __table_args__ = (

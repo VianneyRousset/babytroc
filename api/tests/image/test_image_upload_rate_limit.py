@@ -14,11 +14,13 @@ async def test_rate_limit_returns_429_after_limit(
     tight_rate_limit_factory(
         dep=rate_limit_image_upload,
         key_prefix="image-upload-test",
-        anon_limit=2, auth_limit=2, window_seconds=60,
+        anon_limit=2,
+        auth_limit=2,
+        window_seconds=60,
     )
 
     # Minimal 1x1 PBM image (same format as alice_items_image_data fixture)
-    pbm = "\n".join(["P1", "3 3", "101", "101", "010"]).encode()
+    pbm = b"P1\n3 3\n101\n101\n010"
 
     for _ in range(2):
         r = await alice_client.post(

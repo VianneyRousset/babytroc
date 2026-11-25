@@ -112,6 +112,8 @@ async def get_many_users_private(
             items_count=items_count,
             stars_count=user.stars_count,
             likes_count=likes_count,
+            admin=user.admin,
+            moderator=user.moderator,
         )
         for user, items_count, likes_count in rows
     ]

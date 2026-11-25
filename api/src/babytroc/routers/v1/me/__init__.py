@@ -9,7 +9,6 @@ __all__ = [
     "loans",
     "me",
     "router",
-    "router",
     "saved",
     "websocket",
 ]

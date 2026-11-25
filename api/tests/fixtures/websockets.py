@@ -15,6 +15,8 @@ from babytroc.domains.chat.schemas.websocket import (
 from .clients import create_client, login_as_user
 from .users import UserData
 
+logger = logging.getLogger("websocket")
+
 
 @asynccontextmanager
 async def _open_test_websocket(
@@ -35,10 +37,11 @@ async def _open_test_websocket(
     )
 
     try:
+        websocket: AsyncWebSocketSession
         async with aconnect_ws(
             "/api/v1/me/websocket",
             client,
-        ) as websocket:  # type: AsyncWebSocketSession
+        ) as websocket:
             yield websocket
     except RuntimeError as exc:
         if "cancel scope" not in str(exc):
@@ -125,7 +128,7 @@ class WebSocketRecorder(AbstractAsyncContextManager):
         try:
             await self.websocket.close()
         except Exception:
-            logging.debug(
+            logger.debug(
                 "Failed to close websocket during recorder teardown",
                 exc_info=True,
             )

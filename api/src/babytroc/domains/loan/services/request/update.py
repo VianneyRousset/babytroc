@@ -77,16 +77,17 @@ async def update_many_loan_requests_state(
         )
 
         # raise LoanRequestStateError if loan request state is wrong (2.)
-        if query_filter.states is not None:
-            if wrong_states := {
+        if query_filter.states is not None and (
+            wrong_states := {
                 req.state
                 for req in loan_requests
                 if req.state not in query_filter.states
-            }:
-                raise LoanRequestStateError(
-                    expected_state=query_filter.states,
-                    actual_state=wrong_states,
-                )
+            }
+        ):
+            raise LoanRequestStateError(
+                expected_state=query_filter.states,
+                actual_state=wrong_states,
+            )
 
         msg = (
             "The number of updated loan requests does not match the number of given "

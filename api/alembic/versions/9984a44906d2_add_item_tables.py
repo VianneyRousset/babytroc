@@ -62,6 +62,7 @@ def create_item_table():
             sa.String(),
             sa.Computed(
                 "normalize_text(name || ' ' || description)",
+                persisted=True,
             ),
             nullable=False,
         ),

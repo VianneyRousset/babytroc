@@ -7,7 +7,6 @@ from babytroc.shared.errors import ApiError, NotFoundError
 class UserError(ApiError):
     """Exception related to a user."""
 
-    pass
 
 
 class UserNotFoundError(UserError, NotFoundError):

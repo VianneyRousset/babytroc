@@ -33,7 +33,7 @@ def test_generate_webp_variants_small_image_not_upscaled():
 
     variants = generate_webp_variants(fp)
 
-    for _size, data in variants.items():
+    for data in variants.values():
         result = PIL.Image.open(data)
         # Should not be upscaled — stays at 100x50
         assert result.size == (100, 50)
@@ -49,7 +49,7 @@ def test_generate_webp_variants_strips_exif():
 
     variants = generate_webp_variants(fp)
 
-    for _size, data in variants.items():
+    for data in variants.values():
         result = PIL.Image.open(data)
         result_exif = result.getexif()
         assert 0x0110 not in result_exif

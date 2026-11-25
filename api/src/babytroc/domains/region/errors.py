@@ -7,7 +7,6 @@ from babytroc.shared.errors import ApiError, NotFoundError
 class RegionError(ApiError):
     """Exception related to a region."""
 
-    pass
 
 
 class RegionNotFoundError(RegionError, NotFoundError):

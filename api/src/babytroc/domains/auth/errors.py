@@ -8,7 +8,6 @@ from babytroc.shared.errors import ApiError, NotFoundError
 class AuthError(ApiError):
     """Exception related to a authentification."""
 
-    pass
 
 
 class IncorrectUsernameOrPasswordError(AuthError):

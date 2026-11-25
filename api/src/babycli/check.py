@@ -25,7 +25,7 @@ async def check_postgres(*, test: bool | None = None) -> bool:
             version = result.scalar()
             console_ok(f"PostgreSQL — {version}")
             return True
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"PostgreSQL — {e}")
         return False
 
@@ -44,7 +44,7 @@ async def check_redis(*, test: bool | None = None) -> bool:
             return True
         console_err("Redis — no pong")
         return False
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"Redis — {e}")
         return False
 
@@ -69,13 +69,13 @@ async def check_s3(*, test: bool | None = None) -> bool:
 
             except botocore.exceptions.ClientError as e:
                 if e.response.get("Error", {}).get("Code") != "404":
-                    raise e
+                    raise
                 console_err(f"S3 — Missing bucket {config.bucket!r}")
                 return False
 
             console_ok(f"S3 — bucket '{config.bucket}' exists ({config.endpoint_url})")
             return True
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"S3 — {e}")
         return False
 
@@ -107,7 +107,7 @@ async def check_email_connection(*, test: bool | None = None) -> bool:
         async with connection:
             pass
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"Email connection — {e}")
         return False
     console_ok("Email connection — established")
@@ -146,7 +146,7 @@ async def check_migrations(*, test: bool | None = None) -> bool:
             f"Migrations — out of date - current: {current_rev}, head: {head_rev}"
         )
         return False
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"Migrations — {e}")
         return False
 
@@ -160,7 +160,7 @@ async def check_cap(*, test: bool | None = None) -> bool:
             await client.get(f"{config.api_url}/", timeout=5.0)
         console_ok(f"Cap — reachable ({config.api_url})")
         return True
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         console_err(f"Cap — {e}")
         return False
 

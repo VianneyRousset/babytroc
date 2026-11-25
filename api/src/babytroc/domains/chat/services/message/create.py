@@ -158,7 +158,7 @@ async def send_many_chat_messages(
     # 2. The sender user does not exist
     # 3. The loan request does not exist
     # 4. The loan does not exist
-    except IntegrityError as error:
+    except IntegrityError:
         from babytroc.domains.chat.services import get_many_chats
         from babytroc.domains.loan.services import (
             get_many_loan_requests,
@@ -214,7 +214,7 @@ async def send_many_chat_messages(
             },
         )
 
-        raise error
+        raise
 
     sent = [ChatMessageRead.model_validate(msg) for msg in sent_messages]
 
@@ -225,9 +225,7 @@ async def send_many_chat_messages(
     for chat_msg in sent:
         pubsub_msg = PubsubMessageNewChatMessage(chat_message_id=chat_msg.id)
         owner_id = (
-            await db.execute(
-                select(Item.owner_id).where(Item.id == chat_msg.item_id)
-            )
+            await db.execute(select(Item.owner_id).where(Item.id == chat_msg.item_id))
         ).scalar_one()
         owner_ids_by_item[chat_msg.item_id] = owner_id
         for user_id in {chat_msg.borrower_id, owner_id}:

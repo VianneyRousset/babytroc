@@ -87,9 +87,7 @@ def _should_cache(
     """Return True if the request is cacheable (anonymous, first page)."""
     if cache is None or client_id is not None:
         return False
-    if page_options is not None and page_options.cursor.item_id is not None:
-        return False
-    return True
+    return not (page_options is not None and page_options.cursor.item_id is not None)
 
 
 def _serialize_list_result(

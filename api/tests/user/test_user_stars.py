@@ -21,7 +21,7 @@ class TestStarsDomain:
         assert stars_gain_when_adding_item(0) == 0
 
     def test_stars_gain_invalid_input(self):
-        with pytest.raises(ValueError, match="must be an integer"):
+        with pytest.raises(TypeError, match="must be an integer"):
             stars_gain_when_adding_item("not_an_int")  # type: ignore[arg-type]
 
 

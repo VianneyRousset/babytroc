@@ -41,6 +41,8 @@ def create_user_table():
         sa.Column("validated", sa.Boolean(), nullable=False),
         sa.Column("validation_code", sa.UUID(), nullable=False),
         sa.Column("password_hash", sa.String(), nullable=False),
+        sa.Column("admin", sa.Boolean(), server_default="false", nullable=False),
+        sa.Column("moderator", sa.Boolean(), server_default="false", nullable=False),
         sa.Column(
             "avatar_seed",
             sa.String(),

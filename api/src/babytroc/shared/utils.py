@@ -11,8 +11,7 @@ def integer_range_to_inclusive(ran: Range) -> Range:
     if upper is not None and not ran.upper_inc:
         upper = upper - 1
 
-    if lower is not None and upper is not None:
-        if lower > upper:
-            return Range(lower, upper, bounds="[]", empty=True)
+    if lower is not None and upper is not None and lower > upper:
+        return Range(lower, upper, bounds="[]", empty=True)
 
     return Range(lower, upper, bounds="[]")

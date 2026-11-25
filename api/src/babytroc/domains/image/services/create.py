@@ -70,11 +70,11 @@ async def upload_image(
         res = await db.execute(stmt)
         item_image = res.unique().scalars().one()
 
-    except IntegrityError as error:
+    except IntegrityError:
         await get_user(
             db=db,
             user_id=owner_id,
         )
-        raise error
+        raise
 
     return ItemImageRead.model_validate(item_image)
