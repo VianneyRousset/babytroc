@@ -43,17 +43,9 @@ if TYPE_CHECKING:
 warnings.simplefilter("error", SAWarning)
 
 
-def _seed_config() -> Config:
+def get_config() -> Config:
     """Config used during chain seed (notably for image upload to mocked S3)."""
-    return Config.from_env(
-        s3=S3Config(
-            endpoint_url="http://localhost:9000",
-            access_key="minioadmin",
-            secret_key="minioadmin",
-            bucket="test-bucket",
-            public_url="http://localhost:9000/test-bucket",
-        ),
-    )
+    return Config.from_env()
 
 
 @pytest.fixture(scope="session")
@@ -64,7 +56,7 @@ def admin_database_url() -> URL:
     existing admin database — CREATE DATABASE cannot be issued from a
     connection to a database that does not yet exist.
     """
-    return _seed_config().database.url
+    return get_config().database.url
 
 
 @pytest.fixture(scope="session")
@@ -73,7 +65,7 @@ async def primary_databases(
     admin_database_url: URL,
 ) -> AsyncGenerator[dict[str, URL]]:
     """Build the full template chain once per xdist worker. Yields name → URL."""
-    config = _seed_config()
+    config = get_config()
     # db_url is overridden per-template inside build_chain; pass any URL
     # here as a placeholder.
     ctx = SeedContext(config=config, db_url=admin_database_url)
