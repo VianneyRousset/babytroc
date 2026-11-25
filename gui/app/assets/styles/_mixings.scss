@@ -1,76 +1,76 @@
 @mixin reset-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+	margin: 0;
+	padding: 0;
+	list-style: none;
 }
 
 @mixin reset-link {
-  color: inherit;
-  /* blue colors for links too */
-  text-decoration: inherit;
-  /* no underline */
+	color: inherit;
+	/* blue colors for links too */
+	text-decoration: inherit;
+	/* no underline */
 }
 
 @mixin reset-button {
-  background: none;
-  border: none;
+	background: none;
+	border: none;
 }
 
 @mixin flex-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 }
 
 @mixin flex-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 @mixin flex-row-center {
-  @include flex-row;
-  justify-content: center;
+	@include flex-row;
+	justify-content: center;
 }
 
 @mixin flex-column-center {
-  @include flex-column;
-  justify-content: center;
+	@include flex-column;
+	justify-content: center;
 }
 
 @mixin bar-shadow {
-  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.3);
+	box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.3);
 }
 
 @mixin ellipsis-overflow {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 @mixin font-inter {
-  font-family: 'Inter', sans-serif;
+	font-family: "Inter", sans-serif;
 }
 
 @mixin font-jakarta {
-  font-family: "Plus Jakarta Sans", sans-serif;
+	font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 @mixin hover-only {
-  @media (hover: hover) {
-    &:hover {
-      @content;
-    }
-  }
+	@media (hover: hover) {
+		&:hover {
+			@content;
+		}
+	}
 }
 
 @mixin touch-feedback {
-  &:active:not(.disabled) {
-    opacity: 0.7;
-    transition: opacity 60ms ease;
-  }
+	&:active:not(.disabled) {
+		opacity: 0.7;
+		transition: opacity 60ms ease;
+	}
 }
 
 @mixin safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
+	padding-bottom: env(safe-area-inset-bottom);
 }

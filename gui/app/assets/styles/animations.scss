@@ -1,25 +1,27 @@
 /* pop */
 .pop-enter-active,
 .pop-leave-active {
-  transition: all 0.2s cubic-bezier(0.65, 0.54, 0.6, 1.5);
+	transition: all 0.2s cubic-bezier(0.65, 0.54, 0.6, 1.5);
 }
 
 .pop-enter-from,
 .pop-leave-to {
-  transform: scale(0.5);
-  opacity: 0;
+	transform: scale(0.5);
+	opacity: 0;
 }
 
 /* slide-up (bottom sheet) */
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 300ms $ease-spring, opacity 300ms ease-out;
+	transition:
+		transform 300ms $ease-spring,
+		opacity 300ms ease-out;
 }
 
 .slide-up-enter-from,
 .slide-up-leave-to {
-  transform: translate(0, 100%);
-  opacity: 0;
+	transform: translate(0, 100%);
+	opacity: 0;
 }
 
 /* page-slide-forward and page-slide-backward */
@@ -27,43 +29,46 @@
 .page-slide-forward-leave-active,
 .page-slide-backward-enter-active,
 .page-slide-backward-leave-active {
-  transition: transform 200ms $ease-spring, filter 200ms ease-out;
+	transition:
+		transform 200ms $ease-spring,
+		filter 200ms ease-out;
 }
 
 .page-slide-forward-enter-from,
 .page-slide-backward-leave-to {
-  transform: translateX(100%);
-  z-index: 1;
+	transform: translateX(100%);
+	z-index: 1;
 }
 
 .page-slide-forward-leave-to,
 .page-slide-backward-enter-from {
-  filter: brightness(0.9);
+	filter: brightness(0.9);
 }
 
 /* fade */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 150ms ease-in-out;
+	transition: opacity 150ms ease-in-out;
 }
 
 .fade-enter-from,
 .fade-leave-to {
-  opacity: 0;
+	opacity: 0;
 }
 
 /* pulse (for skeleton loaders) */
 @keyframes pulse {
-  0%, 100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
+	0%,
+	100% {
+		opacity: 0.4;
+	}
+	50% {
+		opacity: 1;
+	}
 }
 
 .skeleton-pulse {
-  animation: pulse 1.5s ease-in-out infinite;
-  background: $divider;
-  border-radius: $radius-sm;
+	animation: pulse 1.5s ease-in-out infinite;
+	background: $divider;
+	border-radius: $radius-sm;
 }

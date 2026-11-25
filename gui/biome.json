@@ -4,7 +4,8 @@
 			"app/**",
 			"!app/components.d.ts",
 			"!**/.nuxt",
-			"nuxt.config.ts"
+			"nuxt.config.ts",
+			"!app/assets/styles/tailwind.css"
 		]
 	},
 	"linter": {
@@ -38,5 +39,13 @@
 				}
 			}
 		}
-	]
+	],
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"tailwind": {
+		"stylesheet": "app/assets/styles/tailwind.css"
+	}
 }
