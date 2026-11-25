@@ -4,7 +4,7 @@ RUN apk update
 RUN apk add uv git bash
 
 # to build in uv sync
-RUN apk add gcc python3-dev musl-dev linux-headers
+RUN apk add gcc python3-dev musl-dev linux-headers libffi-dev
 
 # set the working directory
 WORKDIR /usr/src/api
