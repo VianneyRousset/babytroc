@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from babytroc.domains.chat import services as chat_services
 from babytroc.domains.chat.schemas.base import ChatId
 from babytroc.domains.chat.schemas.query import ChatReadQueryFilter
-from babytroc.domains.report.schemas.create import ReportCreate
+from babytroc.domains.moderation.schemas.create import ModerationReportCreate
 from babytroc.infrastructure.database import get_db_session
 from babytroc.routers.v1.auth import client_id_annotation
 
@@ -22,7 +22,7 @@ async def report_client_chat(
     client_id: client_id_annotation,
     chat_id: chat_id_annotation,
     report_create: Annotated[
-        ReportCreate,
+        ModerationReportCreate,
         Body(title="Report fields."),
     ],
     db: Annotated[AsyncSession, Depends(get_db_session)],

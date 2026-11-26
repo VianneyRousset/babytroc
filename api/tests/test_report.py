@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from babytroc.domains.item.schemas.read import ItemRead
 from babytroc.domains.loan.schemas.read import LoanRequestRead
-from babytroc.domains.report.enums import ReportType
-from babytroc.domains.report.models import Report
+from babytroc.domains.moderation.enums import ModerationReportType
+from babytroc.domains.moderation.models import ModerationReport
 from babytroc.domains.user.schemas.private import UserPrivateRead
 
 
@@ -25,20 +25,26 @@ class TestReportUser:
         """Report a user, verify DB row and snapshot content."""
         resp = await alice_client.post(
             f"/api/v1/users/{bob.id}/report",
-            json={"message": "Inappropriate behavior", "context": "In chat"},
+            json={"message": "Inappropriate behavior", "context": {"chat_id": "42-77"}},
         )
         assert resp.status_code == status.HTTP_201_CREATED
 
         async with database_sessionmaker.begin() as session:
             reports = (
-                await session.execute(
-                    select(Report).where(Report.report_type == ReportType.user)
+                (
+                    await session.execute(
+                        select(ModerationReport).where(
+                            ModerationReport.report_type == ModerationReportType.user
+                        )
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             assert len(reports) >= 1
             report = reports[-1]
             assert report.description == "Inappropriate behavior"
-            assert report.context == "In chat"
+            assert report.context == {"chat_id": "42-77"}
             info = json.loads(report.saved_info)
             assert info["name"] == bob.name
             assert info["email"] == bob.email
@@ -69,10 +75,16 @@ class TestReportUser:
         # verify snapshot still has original name
         async with database_sessionmaker.begin() as session:
             reports = (
-                await session.execute(
-                    select(Report).where(Report.report_type == ReportType.user)
+                (
+                    await session.execute(
+                        select(ModerationReport).where(
+                            ModerationReport.report_type == ModerationReportType.user
+                        )
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             report = reports[-1]
             info = json.loads(report.saved_info)
             assert info["name"] == original_name
@@ -83,7 +95,7 @@ class TestReportUser:
     ):
         resp = await alice_client.post(
             "/api/v1/users/999999/report",
-            json={"message": "test", "context": "test"},
+            json={"message": "test", "context": {}},
         )
         assert resp.status_code == status.HTTP_404_NOT_FOUND
 
@@ -94,7 +106,7 @@ class TestReportUser:
     ):
         resp = await client.post(
             f"/api/v1/users/{bob.id}/report",
-            json={"message": "test", "context": "test"},
+            json={"message": "test", "context": {}},
         )
         assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -114,16 +126,22 @@ class TestReportItem:
 
         resp = await alice_client.post(
             f"/api/v1/items/{item.id}/report",
-            json={"message": "Policy violation", "context": "Item listing"},
+            json={"message": "Policy violation", "context": {"item_id": item.id}},
         )
         assert resp.status_code == status.HTTP_201_CREATED
 
         async with database_sessionmaker.begin() as session:
             reports = (
-                await session.execute(
-                    select(Report).where(Report.report_type == ReportType.item)
+                (
+                    await session.execute(
+                        select(ModerationReport).where(
+                            ModerationReport.report_type == ModerationReportType.item
+                        )
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             assert len(reports) >= 1
             report = reports[-1]
             info = json.loads(report.saved_info)
@@ -169,16 +187,22 @@ class TestReportChat:
 
         resp = await alice_client.post(
             f"/api/v1/me/chats/{chat_id}/report",
-            json={"message": "Harassment", "context": "Chat conversation"},
+            json={"message": "Harassment", "context": {"chat_id": chat_id}},
         )
         assert resp.status_code == status.HTTP_201_CREATED
 
         async with database_sessionmaker.begin() as session:
             reports = (
-                await session.execute(
-                    select(Report).where(Report.report_type == ReportType.chat)
+                (
+                    await session.execute(
+                        select(ModerationReport).where(
+                            ModerationReport.report_type == ModerationReportType.chat
+                        )
+                    )
                 )
-            ).scalars().all()
+                .scalars()
+                .all()
+            )
             assert len(reports) >= 1
             report = reports[-1]
             info = json.loads(report.saved_info)
@@ -197,7 +221,7 @@ class TestReportChat:
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
         resp = await carol_client.post(
             f"/api/v1/me/chats/{chat_id}/report",
-            json={"message": "test", "context": "test"},
+            json={"message": "test", "context": {}},
         )
         assert resp.is_error
 
@@ -207,7 +231,7 @@ class TestReportChat:
     ):
         resp = await alice_client.post(
             "/api/v1/me/chats/999999-999999/report",
-            json={"message": "test", "context": "test"},
+            json={"message": "test", "context": {}},
         )
         assert resp.is_error
 
@@ -219,6 +243,6 @@ class TestReportChat:
         chat_id = bob_new_loan_request_for_alice_new_item.chat_id
         resp = await client.post(
             f"/api/v1/me/chats/{chat_id}/report",
-            json={"message": "test", "context": "test"},
+            json={"message": "test", "context": {}},
         )
         assert resp.status_code == status.HTTP_401_UNAUTHORIZED

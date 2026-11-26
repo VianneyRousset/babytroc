@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Body, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from babytroc.domains.report.schemas.create import ReportCreate
+from babytroc.domains.moderation.schemas.create import ModerationReportCreate
 from babytroc.domains.user import services as user_services
 from babytroc.domains.user.schemas.read import UserRead
 from babytroc.infrastructure.cache import get_cache
@@ -36,7 +36,7 @@ async def report_user(
     client_id: client_id_annotation,
     user_id: user_id_annotation,
     report_create: Annotated[
-        ReportCreate,
+        ModerationReportCreate,
         Body(title="Report fields."),
     ],
     db: Annotated[AsyncSession, Depends(get_db_session)],

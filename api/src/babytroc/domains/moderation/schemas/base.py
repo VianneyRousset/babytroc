@@ -1,5 +1,5 @@
 from babytroc.shared.schemas import Base
 
 
-class ReportBase(Base):
+class ModerationReportBase(Base):
     pass

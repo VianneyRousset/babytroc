@@ -1,7 +1,7 @@
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from pydantic import NameEmail
 
-from babytroc.domains.report.enums import ReportType
+from babytroc.domains.moderation.enums import ModerationReportType
 
 
 async def send_report_email(
@@ -9,7 +9,7 @@ async def send_report_email(
     *,
     app_name: str,
     moderator_email: str,
-    report_type: ReportType,
+    report_type: ModerationReportType,
     reporter_name: str,
     description: str,
     context: str,

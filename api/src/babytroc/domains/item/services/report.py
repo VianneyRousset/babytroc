@@ -3,18 +3,18 @@ import json
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from babytroc.domains.item.services.read import get_item
-from babytroc.domains.report.enums import ReportType
-from babytroc.domains.report.models import Report
-from babytroc.domains.report.schemas.create import ReportCreate
-from babytroc.domains.user.services.read import get_user_private
-from babytroc.infrastructure.email_report import send_report_email
+from babytroc.domains.moderation.enums import ModerationReportType
+from babytroc.domains.moderation.events import ModerationReportCreated
+from babytroc.domains.moderation.models import ModerationReport
+from babytroc.domains.moderation.schemas.create import ModerationReportCreate
+from babytroc.infrastructure.events import emit
 
 
 async def report_item(
     db: AsyncSession,
     item_id: int,
     reported_by_user_id: int,
-    report_create: ReportCreate,
+    report_create: ModerationReportCreate,
     *,
     email_client=None,
     app_name: str = "",
@@ -28,9 +28,6 @@ async def report_item(
 
     # fetch item (raises ItemNotFoundError if missing)
     item = await get_item(db=db, item_id=item_id)
-
-    # fetch reporter name
-    reporter = await get_user_private(db=db, user_id=reported_by_user_id)
 
     # snapshot item state
     saved_info = json.dumps(
@@ -52,24 +49,15 @@ async def report_item(
     )
 
     # create report
-    report = Report(
+    report = ModerationReport(
         description=report_create.message,
-        report_type=ReportType.item,
+        report_type=ModerationReportType.item,
         created_by=reported_by_user_id,
         saved_info=saved_info,
         context=report_create.context,
     )
     db.add(report)
+    await db.flush()
+    await db.refresh(report)
 
-    # send email
-    if email_client and moderator_email:
-        await send_report_email(
-            email_client,
-            app_name=app_name,
-            moderator_email=moderator_email,
-            report_type=ReportType.item,
-            reporter_name=reporter.name,
-            description=report_create.message,
-            context=report_create.context,
-            saved_info=saved_info,
-        )
+    await emit(db, ModerationReportCreated.from_report(report))
