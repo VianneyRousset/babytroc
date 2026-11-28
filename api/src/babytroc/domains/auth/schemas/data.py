@@ -8,3 +8,5 @@ class TokenData(AuthBase):
 class UserAccessTokenData(TokenData):
     sub: int
     validated: bool
+    admin: bool
+    moderator: bool

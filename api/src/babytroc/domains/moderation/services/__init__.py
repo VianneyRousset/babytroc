@@ -10,7 +10,12 @@ from .privilege.delete import (
     delete_many_moderators,
     delete_moderator,
 )
-from .privilege.read import get_all_admins, get_all_moderators
+from .privilege.read import (
+    get_admin,
+    get_all_admins,
+    get_all_moderators,
+    get_moderator,
+)
 
 __all__ = [
     "create_admin",
@@ -21,6 +26,8 @@ __all__ = [
     "delete_many_admins",
     "delete_many_moderators",
     "delete_moderator",
+    "get_admin",
     "get_all_admins",
     "get_all_moderators",
+    "get_moderator",
 ]

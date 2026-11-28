@@ -18,6 +18,9 @@ oauth2_scheme = OAuth2PasswordBearer(
 def verify_request_credentials(
     request: Request,
     token: Annotated[str | None, Depends(oauth2_scheme)],
+    *,
+    require_admin: bool = False,
+    require_moderator: bool = False,
 ) -> int:
     """Verify access token and return client user id."""
 
@@ -30,7 +33,39 @@ def verify_request_credentials(
     if not token_data.validated:
         raise InvalidCredentialError()
 
+    if require_admin and not token_data.admin:
+        raise InvalidCredentialError()
+
+    if require_moderator and not token_data.moderator:
+        raise InvalidCredentialError()
+
     return token_data.sub
+
+
+def verify_request_credentials_admin(
+    request: Request,
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> int:
+    """Verify access token, admin role and return client user id."""
+
+    return verify_request_credentials(
+        request,
+        token,
+        require_admin=True,
+    )
+
+
+def verify_request_credentials_moderator(
+    request: Request,
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> int:
+    """Verify access token, moderator role and return client user id."""
+
+    return verify_request_credentials(
+        request,
+        token,
+        require_moderator=True,
+    )
 
 
 def maybe_verify_request_credentials(
