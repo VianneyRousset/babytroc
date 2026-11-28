@@ -14,7 +14,7 @@ TTL_USER_CHATS = 120  # 2min
 TTL_CHAT_MESSAGES = 120  # 2min
 TTL_USER_LOANS = 300  # 5min
 TTL_USER_BORROWINGS = 300  # 5min
-TTL_MODERATION_MODERATORS = 86400  # 24h
+TTL_MODERATION_PRIVILEGE = 86400  # 24h
 
 
 def cache_key_hash(**params: object) -> str:
@@ -58,8 +58,12 @@ def key_user_chats(user_id: int) -> str:
     return f"babytroc:user:{user_id}:chats"
 
 
-def key_moderation_all_moderators() -> str:
-    return "babytroc:moderation:all_moderators"
+def key_moderation_privilege_moderators() -> str:
+    return "babytroc:moderation:privilege:moderators"
+
+
+def key_moderation_privilege_admins() -> str:
+    return "babytroc:moderation:privilege:admins"
 
 
 # --- Pattern builders (for invalidation) ---

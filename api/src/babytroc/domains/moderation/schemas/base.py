@@ -5,7 +5,7 @@ class ModerationBase(Base):
     pass
 
 
-class ModeratorBase(ModerationBase):
+class ModerationPrivilege(Base):
     pass
 
 
