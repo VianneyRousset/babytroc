@@ -8,7 +8,6 @@ class UserError(ApiError):
     """Exception related to a user."""
 
 
-
 class UserNotFoundError(UserError, NotFoundError):
     """Exception raised when a user is not found."""
 
@@ -16,4 +15,5 @@ class UserNotFoundError(UserError, NotFoundError):
         super().__init__(
             datatype="user",
             key=key,
+            **kwargs,
         )
