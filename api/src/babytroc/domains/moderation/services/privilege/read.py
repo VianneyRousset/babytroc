@@ -16,6 +16,24 @@ if TYPE_CHECKING:
     from babytroc.infrastructure.cache_client import Cache
 
 
+async def get_moderator(
+    db: AsyncSession,
+    user_id: int,
+) -> ModerationPrivilegeRead:
+    """Get moderator by id."""
+
+    stmt = select(User).where(User.moderator & User.id == user_id)
+    user = (await db.execute(stmt)).unique().scalars().one()
+
+    return ModerationPrivilegeRead(
+        user_id=user.id,
+        name=user.name,
+        email=user.email,
+        admin=user.admin,
+        moderator=user.moderator,
+    )
+
+
 async def get_all_moderators(
     db: AsyncSession,
     *,
@@ -58,6 +76,24 @@ async def get_all_moderators(
     return moderators
 
 
+async def get_admin(
+    db: AsyncSession,
+    user_id: int,
+) -> ModerationPrivilegeRead:
+    """Get admin by id."""
+
+    stmt = select(User).where(User.admin & User.id == user_id)
+    user = (await db.execute(stmt)).unique().scalars().one()
+
+    return ModerationPrivilegeRead(
+        user_id=user.id,
+        name=user.name,
+        email=user.email,
+        admin=user.admin,
+        moderator=user.moderator,
+    )
+
+
 async def get_all_admins(
     db: AsyncSession,
     *,
@@ -74,7 +110,7 @@ async def get_all_admins(
                 for admin in json.loads(cached)
             ]
 
-    stmt = select(User).where(User.admin.is_(True)).order_by(User.id)
+    stmt = select(User).where(User.admin).order_by(User.id)
 
     # execute
     res = await db.execute(stmt)
@@ -86,7 +122,7 @@ async def get_all_admins(
             admin=user.admin,
             moderator=user.moderator,
         )
-        for user in res.unique().all()
+        for user in res.unique().scalars().all()
     ]
 
     # update cache
