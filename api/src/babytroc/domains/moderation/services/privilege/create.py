@@ -115,11 +115,16 @@ async def create_many_admins(
     cache: "Cache | None" = None,
 ) -> list[ModerationPrivilegeRead]:
 
-    stmt = update(User).where(User.id.in_(user_ids)).values(admin=False).returning(User)
+    stmt = (
+        update(User)
+        .where(User.id.in_(user_ids) & ~User.admin)
+        .values(admin=True)
+        .returning(User)
+    )
 
     async with db.begin_nested() as nested_session:
         res = await db.execute(stmt)
-        users = res.unique().all()
+        users = res.unique().scalars().all()
 
         # if the number of updated users does not match the query, it means either:
         # 1. some of the users do not exist
